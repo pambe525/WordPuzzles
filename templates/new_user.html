@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="card bg-dark text-white p-4">
+        <h5>New User Registration</h5>
+        <hr style="background-color:white"/>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div>
+                <div class="row m-0">
+                    <span class="col-2"><label>Username: </label></span>
+                    <span class="col-*"><input type="text" name="username" required></span>
+                    <span class="col helptext">* {{ form.username.help_text }}</span>
+                </div>
+                <div class="row m-0">
+                    <span class="col-2"><label>Password: </label></span>
+                    <span class="col-*">
+                        <input type="password" name="password1" autocomplete="new-password" required>
+                    </span>
+                    <span class="col helptext">* {{ form.password1.help_text }}</span>
+                </div>
+                <div class="row m-0">
+                    <span class="col-2"><label>Confirm: </label></span>
+                    <span class="col-*">
+                        <input type="password" name="password2" autocomplete="new-password" required>
+                    </span>
+                    <span class="col helptext">* {{ form.password2.help_text }}</span>
+                </div>
+                <div class="row m-0">
+                    <span class="col-2"><label>Email: </label></span>
+                    <span class="col-*"><input type="email" name="email" required></span>
+                    <span class="col helptext">* {{ form.email.help_text }}</span>
+                </div>
+                <div class="row m-0">
+                    <span class="col-2"><label>ScreenName: </label></span>
+                    <span class="col-*"><input type="text" name="first_name" required></span>
+                    <span class="col helptext">* {{ form.first_name.help_text }}</span>
+                </div>
+            </div>
+            <hr style="background-color:white"/>
+            <button type="button" class="mt-2 btn btn-light">Register</button>
+        </form>
+    </div>
+{% endblock %}

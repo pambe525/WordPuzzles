@@ -1,0 +1,13 @@
+.helptext {
+    font-size: 14px;
+    color: grey;
+}
+label {
+    font-size: 14px;
+}
+input {
+    width: 200px;
+    font-size: 12px;
+    padding-left: 3px;
+    padding-bottom: 3px;
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Word Puzzles</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
+
+    <!-- BOOTSTRAP CSS & JS -->
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container-fluid p-0">
+
+        <!-- TOP BANNER -->
+        <div class="bg-dark text-white h4 p-2 mb-0 mr-0 row">
+            <!-- LOGO & TITLE -->
+            <div class="col">
+                <img src="{% static '/images/word-puzzles-icon.png' %}" height="30">
+                Word Puzzles
+            </div>
+            <!-- NAVBAR -->
+            {% if user %}
+                <div class="h6 col-* pr-2 pt-2">
+                    Hello {{ user.first_name }} | Logout
+                </div>
+            {% endif %}
+        </div>
+        <hr style="margin:0; padding:0; border-top:4px solid darkorange">
+
+        <!-- FLASH MESSAGES -->
+        {%  block messages %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <div class="alert alert-{{ msg.level_tag }}" role="alert">
+                    {{ msg.message }}
+                    </div>
+                {% endfor %}
+            {%  endif %}
+        {% endblock %}
+
+        <!-- MAIN CONTENT -->
+        <div class="m-4">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>
