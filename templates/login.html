@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="card bg-dark text-white p-3" style="width:350px">
-        <h5>New User Registration</h5>
+        <h5>Sign In</h5>
         <hr style="background-color:white"/>
         <form action="" method="post">
             {% csrf_token %}
@@ -10,9 +10,10 @@
              </table>
             <hr style="background-color:white"/>
             <div class="m-2">
-                <button type="button" class="btn-sm btn-primary float-left">Register</button>
-                <a role="button" href="{% url 'login' %}" class="btn-sm btn-secondary float-right">Already Registered</a>
+                <button type="button" class="btn-sm btn-primary float-left">Login</button>
+                <a role="button" href="{% url 'new_user' %}" class="btn-sm btn-secondary float-right">New User</a>
             </div>
         </form>
     </div>
+
 {% endblock %}

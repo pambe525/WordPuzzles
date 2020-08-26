@@ -1,5 +1,5 @@
 .helptext {
-    font-size: 14px;
+    font-size: 11px;
     color: grey;
 }
 label {
@@ -7,7 +7,13 @@ label {
 }
 input {
     width: 200px;
-    font-size: 12px;
     padding-left: 3px;
-    padding-bottom: 3px;
+}
+#new-user-form th {
+    vertical-align: text-top;
+    line-height: 1;
+}
+#new-user-form td {
+    line-height: 1;
+    padding: 0 0 12px 5px;
 }

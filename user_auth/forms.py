@@ -9,13 +9,14 @@ class NewUserForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super(NewUserForm, self).__init__(*args, **kwargs)
-        self.fields['username'].help_text = "Required. Letters, digits eg. johnsmith2"
+        self.fields['username'].help_text = "Required. Letters and/or digits eg. jsmith2"
         self.fields['password1'].help_text = "Must contain at least 8 characters"
+        self.fields['password2'].label = "Confirm"
         self.fields['password2'].help_text = "Confirm Password"
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'password1', 'password2']
+        fields = ['username', 'password1', 'password2', 'email', 'first_name']
 
     def save(self, commit=True):
         user = super(NewUserForm, self).save(commit=False)

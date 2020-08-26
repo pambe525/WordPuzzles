@@ -8,3 +8,7 @@ class NewUserView(View):
         form = NewUserForm()
         context = {'form': form}
         return render(request, "new_user.html", context)
+
+class LoginView(View):
+    def get(self, request):
+        return render(request, "login.html", {})
