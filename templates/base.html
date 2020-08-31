@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Word Puzzles</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
 
     <!-- BOOTSTRAP CSS & JS -->
     <link rel="stylesheet"
@@ -14,6 +12,9 @@
             crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
             crossorigin="anonymous"></script>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
 </head>
 <body>
     <div class="container-fluid p-0">
@@ -21,29 +22,31 @@
         <!-- TOP BANNER -->
         <div class="bg-dark text-white h4 p-2 mb-0 mr-0 row">
             <!-- LOGO & TITLE -->
-            <div class="col">
-                <img src="{% static '/images/word-puzzles-icon.png' %}" height="30">
+            <div class="col mt-2">
+                <img src="{% static '/images/word-puzzles-icon.png' %}" height="25">
                 Word Puzzles
             </div>
             <!-- NAVBAR -->
-            {% if user %}
+            {% if user.is_authenticated %}
                 <div class="h6 col-* pr-2 pt-2">
-                    Hello {{ user.first_name }} | Logout
+                    <span class="badge pl-2 pr-2 border border-light">
+                        <img src="{% static '/images/user-icon.png' %}" height="20">
+                        {{ user.username }}
+                    </span>
+                    <a href="{% url 'logout' %}" class="btn-sm btn-light pt-0">Logout</a>
                 </div>
             {% endif %}
         </div>
         <hr style="margin:0; padding:0; border-top:4px solid darkorange">
 
         <!-- FLASH MESSAGES -->
-        {%  block messages %}
-            {% if messages %}
-                {% for msg in messages %}
-                    <div class="alert alert-{{ msg.level_tag }}" role="alert">
-                    {{ msg.message }}
-                    </div>
-                {% endfor %}
-            {%  endif %}
-        {% endblock %}
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="alert alert-{{ msg.level_tag }}" role="alert">
+                {{ msg.message }}
+                </div>
+            {% endfor %}
+        {%  endif %}
 
         <!-- MAIN CONTENT -->
         <div class="m-4">
