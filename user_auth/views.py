@@ -9,8 +9,7 @@ class NewUserView(View):
     def get(self, request):
         if not request.user.is_authenticated:
             form = NewUserForm()
-            context = {'form': form}
-            return render(request, "new_user.html", context)
+            return render(request, "new_user.html", {'form': form})
         else:
             return redirect("home")
 

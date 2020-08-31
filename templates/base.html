@@ -14,7 +14,7 @@
             crossorigin="anonymous"></script>
 
     {% load static %}
-    <link rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
+    <link type="text/css" rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
 </head>
 <body>
     <div class="container-fluid p-0">
@@ -23,17 +23,14 @@
         <div class="bg-dark text-white h4 p-2 mb-0 mr-0 row">
             <!-- LOGO & TITLE -->
             <div class="col mt-2">
-                <img src="{% static '/images/word-puzzles-icon.png' %}" height="25">
+                <img src="{% static '/images/word-puzzles-icon.png' %}" height="40">
                 Word Puzzles
             </div>
             <!-- NAVBAR -->
             {% if user.is_authenticated %}
-                <div class="h6 col-* pr-2 pt-2">
-                    <span class="badge pl-2 pr-2 border border-light">
-                        <img src="{% static '/images/user-icon.png' %}" height="20">
-                        {{ user.username }}
-                    </span>
-                    <a href="{% url 'logout' %}" class="btn-sm btn-light pt-0">Logout</a>
+                <div class="col-* p-2">
+                    <span class="h6 text-light">Welcome {{ user.username }} </span>
+                    <a href="{% url 'logout' %}" class="btn-sm text-warning"> [ Logout ]</a>
                 </div>
             {% endif %}
         </div>

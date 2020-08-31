@@ -4,5 +4,6 @@
 # Datasource local storage ignored files
 /../../../../../../../:\Users\Prashant\Documents\PyCharmProjects\WordPuzzles\.idea/dataSources/
 /dataSources.local.xml
+./db.sqlite3
 # Editor-based HTTP Client requests
 /httpRequests/
