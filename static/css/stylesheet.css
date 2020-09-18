@@ -1,19 +1,26 @@
+.h6 {
+    font-size: 14px;
+    font-weight: bold;
+}
+html {
+    font-size: 14px;
+}
 .form-box {
     margin: 10px;
-    border: 1px solid lightgray;
+    border: 1px solid darkgrey;
     border-radius: 6px;
-    background-color: white; /* #343a40; */
+    background-color: lightyellow; /* #343a40; */
     color: #343a40;
-    /* box-shadow: 2px 2px 4px #888; */
+    box-shadow: 2px 2px 4px #888;
     padding: 15px;
     font-size: 12px;
 }
 .form-box hr {
-    background-color: white;
+    border-color: darkgrey;
 }
-.form-table .helptext {
+.form-table, .helptext {
     font-size: 11px;
-    color: silver;
+    color: darkgrey;
 }
 .form-table label {
     font-size: 14px;
@@ -39,3 +46,4 @@
     padding-left: 0;
     list-style: none;
 }
+

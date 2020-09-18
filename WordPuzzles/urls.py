@@ -16,13 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from user_auth.views import NewUserView, LoginView, LogoutView
-from puzzles.views import HomeView
-from django.contrib.auth import logout
+from puzzles.views import HomeView, NewCrosswordView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('new_user/', NewUserView.as_view(), name="new_user"),
     path('', HomeView.as_view(), name="home"),
     path('login', LoginView.as_view(), name="login"),
-    path('logout', LogoutView.as_view(), name="logout")
+    path('logout', LogoutView.as_view(), name="logout"),
+    path('new_xword/', NewCrosswordView.as_view(), name="new_xword")
 ]

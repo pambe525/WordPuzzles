@@ -1,4 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<h5>Home Page</h5>
+    <h5>Home Page</h5>
+    <div class="mt-4">
+        <a role="button" href="{%  url 'new_xword' %}" class="btn-sm btn-primary p-1">Create New Crossword</a>
+    </div>
 {% endblock %}

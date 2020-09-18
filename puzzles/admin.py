@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Puzzle
+from .models import Crossword
 
 # Register your models here.
-admin.site.register(Puzzle)
+admin.site.register(Crossword)

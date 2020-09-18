@@ -9,7 +9,6 @@ from .forms import NewUserForm
 
 
 # ==============================================================================================
-# Testcase for NewUserForm
 #
 class NewUserFormTest(TestCase):
 
@@ -54,7 +53,6 @@ class NewUserFormTest(TestCase):
 
 
 # ==============================================================================================
-# Testcase for NewUserView
 #
 class NewUserViewTests(TestCase):
     def setUp(self):
@@ -105,7 +103,6 @@ class NewUserViewTests(TestCase):
         self.assertEquals(response.url, "/")
 
 # ==============================================================================================
-# Testcase for LogoutView
 #
 class LogoutViewTests(TestCase):
 
@@ -120,7 +117,6 @@ class LogoutViewTests(TestCase):
         self.assertEquals(response.url, "/login")
 
 # ==============================================================================================
-# Testcase for NewUserView
 #
 class LoginViewTests(TestCase):
     def setUp(self):

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+    {% load static %}
+    <h3>New Crossword Puzzle</h3>
+    <hr />
+    <div class="m-1 row p-2 bg-dark text-light rounded">
+        <span class="col-* pt-2 h6">Grid Size: </span>
+        <select id="grid-size" class="col-* p-0 ml-2" onchange="makeGrid();">
+          <option value=11>11 x 11</option>
+          <option value=13>13 x 13</option>
+          <option value=15 selected>15 x 15</option>
+        </select>
+        <button id="clear-grid" class="col-* btn btn-light ml-3" onclick="clearGrid();">Clear Grid</button>
+    </div>
+
+    <div class="row m-1 mt-2 pt-2">
+        <div class="col-*" style="width:350px">
+            <div class="row" style="height:30px">
+                <span class="col-* pt-2 ml-4 h6">Edit Mode: </span>
+                <select id="edit-mode" class="col-* ml-3" onchange="setEditMode();">
+                  <option value=1 selected>Select Squares to Block</option>
+                  <option value=2>Fill ACROSS Answers</option>
+                  <option value=3>Fill DOWN Answers</option>
+                </select>
+            </div>
+            <div id="message" class="m-4 helptext"></div>
+        </div>
+        <div id="xw-grid" class="col-*"></div>
+    </div>
+    <hr />
+    <script src="{% static '/javascript/xwordgrid.js' %}"></script>
+    <script src="{% static '/javascript/crossword.js' %}"></script>
+    <script>
+        var XWord;
+        $(document).ready(function() {
+            var gridSize = parseInt($("#grid-size").val());
+            try {
+                XWord = new Crossword("xw-grid", cellClicked, gridSize);
+            } catch(e) {
+                alert(e);
+            }
+           setEditMode();
+           setUIWidgetStates();
+        });
+    </script>
+{% endblock %}
