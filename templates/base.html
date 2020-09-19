@@ -12,6 +12,7 @@
             crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
             crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
 
     {% load static %}
     <link type="text/css" rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
@@ -29,7 +30,8 @@
             <!-- NAVBAR -->
             {% if user.is_authenticated %}
                 <div class="col-* p-2">
-                    <span class="text-light h6">Welcome {{ user.username }} </span>
+                    <i class="fas fa-user-circle" style="width:22px; top: 5px; position: relative"></i>
+                    <span class="text-light h6">{{ user.username }} </span>
                     <a href="{% url 'logout' %}" class="btn text-warning"> [ Logout ]</a>
                 </div>
             {% endif %}

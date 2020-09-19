@@ -1,9 +1,9 @@
 function setEditMode() {
     var msg;
     if ($("#edit-mode").val() == 1) {
-        msg = "Click on a grid square to block it. Re-select to unblock. Diametrically opposite square " +
-            "will also be blocked using 180 deg. rotational symmetry.";
-        $("#message").html(msg);
+        var msg = "Click on a grid square to block it. Re-select to unblock. " +
+            "Diametrically opposite square will also be blocked using 180 deg. rotational symmetry.";
+        $("#edit-tip").html(msg);
     }
 }
 
@@ -24,4 +24,13 @@ function cellClicked(event) {
 
 function clearGrid() {
 
+}
+
+class CrosswordEditor {
+
+    constructor(xword) {
+        if ( !xword ) throw new Error("Argument expected");
+        if (typeof(xword) != "Crossword") throw new Error("Object of type Crossword expected");
+        this.XWord = xword;
+    }
 }
