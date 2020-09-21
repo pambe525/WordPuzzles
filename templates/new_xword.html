@@ -5,28 +5,29 @@
     <hr />
     <div class="m-0 row p-2 bg-dark text-light rounded">
         <span class="col-* pt-3 h6">Grid Size: </span>
-        <select id="grid-size" class="col-* p-0 ml-2" onchange="makeGrid();">
+        <select id="grid-size" class="col-* p-0 ml-2">
           <option value=11>11 x 11</option>
           <option value=13>13 x 13</option>
           <option value=15 selected>15 x 15</option>
         </select>
-        <button id="clear-grid" class="col-* btn btn-light m-1 ml-3 h6" onclick="clearGrid();">Clear Grid</button>
+        <button id="reset-grid" class="col-* btn btn-light m-1 ml-3 h6">Reset Grid</button>
     </div>
 
     <div class="row m-1 mt-2 pt-2">
         <div class="col-*" style="width:350px">
             <div class="row mb-3" style="height:30px">
                 <span class="col-* pt-2 ml-4 h6">Edit Mode: </span>
-                <select id="edit-mode" class="col-* ml-2 mr-1" onchange="setEditMode();">
+                <select id="edit-mode" class="col-* ml-2 mr-1">
                   <option value=1 selected>Select Squares to Block</option>
-                  <option value=2>Fill ACROSS Answers</option>
-                  <option value=3>Fill DOWN Answers</option>
+                  <option value=2>Edit Answers & Clues</option>
                 </select>
                 <div class="col-* p-1 tip">
                     <i class="far fa-question-circle fa-lg" style="color:grey;"></i>
-                    <span id="edit-tip" class="tiptext"></span>
+                    <span id="mode-tip" class="tiptext"></span>
                 </div>
             </div>
+
+
         </div>
         <div id="xw-grid" class="col-*"></div>
     </div>
@@ -34,16 +35,16 @@
     <script src="{% static '/javascript/crossword_editor.js' %}"></script>
     <script src="{% static '/javascript/crossword.js' %}"></script>
     <script>
-        var XWord;
         $(document).ready(function() {
-            var gridSize = parseInt($("#grid-size").val());
             try {
-                XWord = new Crossword("xw-grid", cellClicked, gridSize);
+                CrosswordEditor.setSizeSelectorId("grid-size");
+                CrosswordEditor.setModeSelectorId("edit-mode");
+                CrosswordEditor.setModeHelpId("mode-tip");
+                CrosswordEditor.setResetBtnId("reset-grid");
+                CrosswordEditor.initialize("xw-grid");
             } catch(e) {
                 alert(e);
             }
-           setEditMode();
-           setUIWidgetStates();
         });
     </script>
 {% endblock %}

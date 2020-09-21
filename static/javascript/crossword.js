@@ -33,6 +33,7 @@ class Crossword {
     }
 
     _makeGrid() {
+        $(this.gridId).empty();
         for (var row = 0; row < this.gridSize; row++)
             for (var col = 0; col < this.gridSize; col++)
                 $(this.gridId).append(this._createGridCell(row, col));
@@ -47,7 +48,7 @@ class Crossword {
         css += ".xw-blocked {background-color:black;}";
         css += ".xw-number {font-size:9px; top:-2px; left:1px; position:absolute}";
         css += this.gridId + " > div {width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
-            "border:1px solid black; float:left; position: relative}"
+            "border:1px solid black; float:left; position: relative}";
         var styleTag = "<style id='xw-style' type='text/css'></style>";
         $(styleTag).html(css).appendTo("head");
     }
@@ -58,8 +59,7 @@ class Crossword {
 
     _createGridCell(row, col) {
         var cellId = this._getCellId(row, col);
-        var funcCall = this.clickHandler.name + "(this);"
-        return $("<div onclick='" + funcCall + "'></div>").attr('id', cellId);
+        return $("<div></div>").click(this.clickHandler).attr('id', cellId);
     }
 
     _autoNumberCells() {

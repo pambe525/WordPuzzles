@@ -22,9 +22,16 @@ QUnit.test('constructor: Creates grid of correct width, height & border', functi
 });
 
 QUnit.test('constructor: Creates grid of (gridSize x gridSize) div cells', function(assert) {
-  var grid = createXWord(10);
+  createXWord(10);
   assert.equal($(jqGridId).children('div').length, 100);
   assert.equal($(jqGridId).css("border-top-width"),"1px");
+});
+
+QUnit.test('constructor: Clears current grid area before adding grid', function(assert) {
+  createXWord(10);
+  assert.equal($(jqGridId).children('div').length, 100);
+  createXWord(5);
+  assert.equal($(jqGridId).children('div').length, 25);
 });
 
 QUnit.test("constructor: Each grid cell has correct styling", function(assert) {
