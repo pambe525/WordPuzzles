@@ -12,7 +12,7 @@ QUnit.module('Crossword', {
 QUnit.test('constructor: Throws errors if arguments are not valid', function(assert) {
   assert.throws(function(){ new Crossword(2,function(){}), '1'}, /gridSize must be a number/, Error);
   assert.throws(function(){ new Crossword('bad-id', function(){}, 1) }, /divId does not exist/, Error);
-//  assert.throws(function(){ new Crossword('xw-grid', "func", 2) }, /clickHandler must be a function/, Error);
+  assert.throws(function(){ new Crossword('xw-grid', "func", 2) }, /clickHandler must be a function/, Error);
 });
 
 QUnit.test('constructor: Creates grid of correct width, height & border', function(assert) {
@@ -161,6 +161,23 @@ QUnit.test("hasBlock: Returns true when blocks are present", function(assert) {
   assert.false(xword.hasBlocks());
   xword.toggleCellBlock("2-2");
   assert.true(xword.hasBlocks());
+});
+
+QUnit.test("getAcrossData: Returns null if cell is blocked or out of bounds", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("3-2");
+  assert.equal(xword.getAnswerData("3-4"), null);  // Symmetry cell
+  assert.equal(xword.getAnswerData("8-2"), null);
+});
+
+QUnit.test("getAcrossData: Returns null if cell is out of bounds", function(assert) {
+  var xword = createXWord(7);
+  assert.equal(xword.getAnswerData("8-2"), null);
+});
+
+QUnit.test("getAcrossData: Returns null if cell is not start of word", function(assert) {
+  var xword = createXWord(7);
+  assert.equal(xword.getAcrossData("1-2"), null);
 });
 
 /* HELPER FUNCTION */

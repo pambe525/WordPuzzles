@@ -3,9 +3,11 @@
     {% load static %}
     <h3>New Crossword Puzzle</h3>
     <hr />
+
+    <!-- PAGE-SPECIFIC NAVBAR WITH GRID SIZE SELECTION, RESET AND SAVE -->
     <div class="m-0 row p-2 bg-dark text-light rounded">
         <span class="col-* pt-3 h6">Grid Size: </span>
-        <select id="grid-size" class="col-* p-0 ml-2">
+        <select id="grid-size" class="col-* p-2 ml-2">
           <option value=11>11 x 11</option>
           <option value=13>13 x 13</option>
           <option value=15 selected>15 x 15</option>
@@ -13,32 +15,52 @@
         <button id="reset-grid" class="col-* btn btn-light m-1 ml-3 h6">Reset Grid</button>
     </div>
 
-    <div class="row m-1 mt-2 pt-2">
-        <!-- LEFT PANEL: Form -->
-        <div class="col-* m-2" style="width:280px">
-            <div class="row mb-3" style="height:25px">
+    <!-- EDIT MODE SELECTOR AND CROSSWORD GRID -->
+    <div class="m-1 mt-2 pt-2">
+        <!-- EDIT MODE SELCTOR & HELP TIP -->
+        <div class="m-1" style="width:350px">
+            <div class="row mb-4" style="height:25px">
                 <span class="col-* pt-2 ml-4 h6">Edit Mode: </span>
                 <select id="edit-mode" class="col-* ml-2 mr-1">
                   <option value=1 selected>Select Squares to Block</option>
-                  <option value=2>Edit Answers & Clues</option>
+                  <option value=2>Edit ACROSS Answers & Clues</option>
+                  <option value=3>Edit DOWN Answers & Clues</option>
                 </select>
                 <div class="col-* p-1 tip">
                     <i class="far fa-question-circle fa-lg" style="color:grey;"></i>
                     <span id="mode-tip" class="tiptext"></span>
                 </div>
             </div>
-            <!-- Form element IDs below must not be changed -->
-            <div id="answer-form" class="m-2 p-3" style="border: 1px solid darkgray">
-                <div class="h6"><span id="answer-ref"></span></div>
-                <input class="p-1 mb-1" type="text" id="answer" style="width:220px" />
-                <div class="h6">Clue:</div>
-                <textarea class="mb-2 p-1" cols=30 rows=2 id="answer-clue"></textarea>
-                <button id="answer-update" class="p-2 badge badge-dark">Update</button>
+        </div>
+        <!-- CROSSWORD GRID -->
+        <div id="xw-grid"></div>
+    </div>
+
+    <!-- MODAL DIALOG FOR ANSWER & CLUE INPUT -->
+    <div class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Enter Answer & Clue</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="h5">1 Across:</div>
+                    <label id="answer-ref" for="answer">Answer:</label>
+                    <input class="p-1 mb-1" type="text" id="answer" /><br />
+                    <label for="answer-clue">Clue:</label>
+                    <textarea class="mb-2 p-1" cols=30 rows=2 id="answer-clue"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">OK</button>
+                </div>
             </div>
         </div>
-        <!-- RIGHT PANEL: GRID -->
-        <div id="xw-grid" class="col-*"></div>
     </div>
+
     <hr />
     <script src="{% static '/javascript/crossword_editor.js' %}"></script>
     <script src="{% static '/javascript/crossword.js' %}"></script>

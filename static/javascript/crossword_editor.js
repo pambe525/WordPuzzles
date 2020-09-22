@@ -19,13 +19,12 @@ CrosswordEditor = (function() {
             msg = "Click on a grid square to block it. Re-select to unblock. " +
                 "Diametrically opposite square will also be blocked using 180 deg. rotational symmetry.";
         else
-            msg = "Click on a numbered square to edit ACROSS or DOWN answer. " +
-                "Re-select to toggle between ACROSS and DOWN answers if applicable";
+            msg = "Click on a numbered square to edit ACROSS or DOWN answer.";
         $(spanModeHelpId).text(msg);
     }
 
     function setWidgetStates() {
-        $(answerFormId).attr("hidden", true);
+        //$(answerFormId).attr("hidden", true);
         if (XWord.hasBlocks()) {
             $(selectSizeId).prop("disabled", true);
             $(btnResetId).prop("disabled", false);

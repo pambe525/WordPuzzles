@@ -24,6 +24,10 @@ class Crossword {
         return ($(".xw-blocked").length !== 0);
     }
 
+    getAnswerData(cellId) {
+        if ( this._isBlockedCell(cellId) ) return null;
+    }
+
     // NON-PUBLIC METHODS
 
     _validateArgs() {
@@ -47,8 +51,8 @@ class Crossword {
             "width:" + gridLength + "px;height:" + gridLength + "px}";
         css += ".xw-blocked {background-color:black;}";
         css += ".xw-number {font-size:9px; top:-2px; left:1px; position:absolute}";
-        css += this.gridId + " > div {width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
-            "border:1px solid black; float:left; position: relative}";
+        css += this.gridId + " > div { width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
+            "border:1px solid black; float:left; position: relative }";
         var styleTag = "<style id='xw-style' type='text/css'></style>";
         $(styleTag).html(css).appendTo("head");
     }

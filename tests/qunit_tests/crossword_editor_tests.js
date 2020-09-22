@@ -34,7 +34,7 @@ QUnit.module('CrosswordEditor', {
       var form = $("<div></div>").attr("id", answerFormId);
       $(jqFixtureId).append(form);
       form.append($("<span></span>").attr("id", answerRefId));
-      form.append($("<input></input>").attr("id", answerId));
+      form.append($("<input type='text'>").attr("id", answerId));
       form.append($("<textarea></textarea>").attr("id", answerClueId));
       form.append($("<button></button>").attr("id", answerUpdateId));
       CrosswordEditor.reset();
@@ -143,21 +143,15 @@ QUnit.test('resetBtnId: ClickHandler deactives Reset after grid is reset', funct
     assert.false($(jqSizeSelectorId).prop('disabled'));
 });
 
-QUnit.test('Changing edit mode does not block selected cells', function(assert) {
+QUnit.test('Changing edit mode disables blocking selected cells', function(assert) {
     initializeCrosswordEditor();
     $(jqModeSelectorId).val(2).change();
     $(jqGridId + " > div")[5].click();
     assert.equal($(".xw-blocked").length, 0);
 });
 
-QUnit.test('Answers input area is not shown by default', function(assert) {
-    initializeCrosswordEditor();
-    assert.true($(jqAnswerFormId).prop('hidden'));
-    $(jqModeSelectorId).val(2).change();
-    assert.true($(jqAnswerFormId).prop('hidden'));
-});
-
-QUnit.test('Selecting first numbered cell in answers input mode hilites first row', function(assert) {
+/*
+QUnit.test('In Edit Answers mode - selecting blocked cell does nothing', function(assert) {
     initializeCrosswordEditor();
     var firstRowCells = parseInt($(jqSizeSelectorId).val());
     $(jqModeSelectorId).val(2).change();
@@ -165,6 +159,7 @@ QUnit.test('Selecting first numbered cell in answers input mode hilites first ro
     assert.equal($(".hilite").length, firstRowCells);
     assert.true($(jqGridId + " > div:lt("+firstRowCells+")").hasClass("hilite"));
 });
+*/
 
 /* HELPER FUNCTIONS */
 function initializeCrosswordEditor() {
