@@ -14,8 +14,9 @@
     </div>
 
     <div class="row m-1 mt-2 pt-2">
-        <div class="col-*" style="width:350px">
-            <div class="row mb-3" style="height:30px">
+        <!-- LEFT PANEL: Form -->
+        <div class="col-* m-2" style="width:280px">
+            <div class="row mb-3" style="height:25px">
                 <span class="col-* pt-2 ml-4 h6">Edit Mode: </span>
                 <select id="edit-mode" class="col-* ml-2 mr-1">
                   <option value=1 selected>Select Squares to Block</option>
@@ -26,9 +27,16 @@
                     <span id="mode-tip" class="tiptext"></span>
                 </div>
             </div>
-
-
+            <!-- Form element IDs below must not be changed -->
+            <div id="answer-form" class="m-2 p-3" style="border: 1px solid darkgray">
+                <div class="h6"><span id="answer-ref"></span></div>
+                <input class="p-1 mb-1" type="text" id="answer" style="width:220px" />
+                <div class="h6">Clue:</div>
+                <textarea class="mb-2 p-1" cols=30 rows=2 id="answer-clue"></textarea>
+                <button id="answer-update" class="p-2 badge badge-dark">Update</button>
+            </div>
         </div>
+        <!-- RIGHT PANEL: GRID -->
         <div id="xw-grid" class="col-*"></div>
     </div>
     <hr />

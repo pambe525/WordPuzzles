@@ -7,6 +7,10 @@ CrosswordEditor = (function() {
     var spanModeHelpId = null;
     var XWord = null;
 
+    // Default Answer input area IDs
+    var answerFormId = "#answer-form", answerRefId = "#answer-ref", answerId = "#answer",
+        answerClueId = "#answer-clue", answerUpdateId = "#answer-update";
+
     /* PRIVATE METHODS */
     function setModeHelpText() {
         var msg;
@@ -21,6 +25,7 @@ CrosswordEditor = (function() {
     }
 
     function setWidgetStates() {
+        $(answerFormId).attr("hidden", true);
         if (XWord.hasBlocks()) {
             $(selectSizeId).prop("disabled", true);
             $(btnResetId).prop("disabled", false);

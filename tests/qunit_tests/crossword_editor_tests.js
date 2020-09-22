@@ -8,6 +8,11 @@ var sizeSelectorId = "gridSize", jqSizeSelectorId = "#"+sizeSelectorId;
 var resetBtnId = "resetBtn", jqResetBtnId = "#"+resetBtnId;
 var modeSelectorId = "editMode", jqModeSelectorId = "#"+modeSelectorId;
 var modeHelpId = "modeHelp", jqModeHelpId = "#"+modeHelpId;
+var answerFormId = "answer-form", jqAnswerFormId = "#"+answerFormId;
+var answerRefId  = "answer-ref", jqAnswerRefId = "#"+answerRefId;
+var answerId = "answer", jqAnswerId = "#"+answerId;
+var answerClueId = "answer-clue", jqAnswerClueId = "#"+answerClueId;
+var answerUpdateId = "answer-update", jqAnswerUpdate = "#"+answerUpdateId;
 
 var confirmMessage = "", confirmResponse=false;
 window.confirm = function(message) {
@@ -26,6 +31,12 @@ QUnit.module('CrosswordEditor', {
       $(jqModeSelectorId).append($("<option value=1 selected>Mode 1</option>"))
                          .append($("<option value=2>Mode 2</option>"));
       $(jqFixtureId).append($("<span></span>").attr('id',modeHelpId));
+      var form = $("<div></div>").attr("id", answerFormId);
+      $(jqFixtureId).append(form);
+      form.append($("<span></span>").attr("id", answerRefId));
+      form.append($("<input></input>").attr("id", answerId));
+      form.append($("<textarea></textarea>").attr("id", answerClueId));
+      form.append($("<button></button>").attr("id", answerUpdateId));
       CrosswordEditor.reset();
   },
 });
@@ -137,6 +148,22 @@ QUnit.test('Changing edit mode does not block selected cells', function(assert) 
     $(jqModeSelectorId).val(2).change();
     $(jqGridId + " > div")[5].click();
     assert.equal($(".xw-blocked").length, 0);
+});
+
+QUnit.test('Answers input area is not shown by default', function(assert) {
+    initializeCrosswordEditor();
+    assert.true($(jqAnswerFormId).prop('hidden'));
+    $(jqModeSelectorId).val(2).change();
+    assert.true($(jqAnswerFormId).prop('hidden'));
+});
+
+QUnit.test('Selecting first numbered cell in answers input mode hilites first row', function(assert) {
+    initializeCrosswordEditor();
+    var firstRowCells = parseInt($(jqSizeSelectorId).val());
+    $(jqModeSelectorId).val(2).change();
+    $(jqGridId + " > div")[0].click();
+    assert.equal($(".hilite").length, firstRowCells);
+    assert.true($(jqGridId + " > div:lt("+firstRowCells+")").hasClass("hilite"));
 });
 
 /* HELPER FUNCTIONS */
