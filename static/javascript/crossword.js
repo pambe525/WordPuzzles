@@ -1,6 +1,7 @@
 class Crossword {
 
     cellSize = 30;
+    words = {across:{}, down:{}};
 
     constructor(divId, clickHandler, gridSize) {
         this.gridSize = gridSize;
@@ -24,9 +25,37 @@ class Crossword {
         return ($(".xw-blocked").length !== 0);
     }
 
-    getAnswerData(cellId) {
-        if ( this._isBlockedCell(cellId) ) return null;
-    }
+    getWordLength(cellId, isAcross=true) {
+        if ( !this._isUnblockedCell(cellId) ) return 0;
+        var beginCoord = this._getCellCoord( this._getWordStartCellId(cellId, isAcross) );
+        var endCoord   = this._getCellCoord( this._getWordEndCellId(cellId, isAcross) );
+        var index = (isAcross) ? 1 : 0;
+        return (endCoord[index]-beginCoord[index]+1);
+     }
+
+     getClueNum(cellId, isAcross=true) {
+        return this._getCellNumber(this._getWordStartCellId(cellId, isAcross));
+     }
+
+     getWordData(cellId, isAcross=true) {
+        if (this.getWordLength(cellId) <= 1) return null;
+        var wordStartCellId = this._getWordStartCellId(cellId, isAcross);
+        var wordsDict = (isAcross) ? this.words.across : this.words.down;
+        if ( wordsDict[wordStartCellId] === undefined ) return {startCellId: wordStartCellId, word:"",clue:""};
+        var resultObj = wordsDict[wordStartCellId];
+        resultObj.startCellId = wordStartCellId;
+        return resultObj;
+     }
+
+     setWordData(wordData, isAcross=true) {
+        this._checkWordData(wordData, isAcross);
+        wordData.startCellId = this._getWordStartCellId(wordData.startCellId, isAcross)
+        var wordsDict = (isAcross) ? this.words.across : this.words.down;
+        wordsDict[wordData.startCellId] = {word: wordData.word, clue: wordData.clue};
+        var gridWord = this._makeGridWord(wordData.word);
+        //this._setGridWord(cellId, isAcross);
+        return true;
+     }
 
     // NON-PUBLIC METHODS
 
@@ -115,14 +144,75 @@ class Crossword {
     }
 
     _getOffsetCellId(cellId, rowOffset, colOffset) {
-        var coord = cellId.split("-");
-        var cellRow = parseInt(coord[0]) + rowOffset;
-        var cellCol = parseInt(coord[1]) + colOffset;
+        var coord = this._getCellCoord(cellId);
+        var cellRow = coord[0] + rowOffset;
+        var cellCol = coord[1] + colOffset;
         if (!this._isWithinGrid(cellRow, cellCol)) return null;
         return this._getCellId(cellRow, cellCol);
+    }
+
+    _getCellCoord(cellId) {
+        var coord = cellId.split("-");
+        coord[0] = parseInt(coord[0]);
+        coord[1] = parseInt(coord[1]);
+        return coord;
     }
 
     _isWithinGrid(row, col) {
         return !(row < 0 || row >= this.gridSize || col < 0 || col >= this.gridSize);
     }
+
+    _isUnblockedCell(cellId) {
+        if (cellId === null) return false;
+        var coord = this._getCellCoord(cellId);
+        return !(this._isBlockedCell(cellId) || !this._isWithinGrid(coord[0], coord[1]));
+    }
+
+    _getCellNumber(cellId) {
+        return $("#"+cellId + "> .xw-number").text();
+    }
+
+    _getWordStartCellId(cellId, isAcross=true) {
+        var newId = cellId, beginCellId;
+        var rowOffset = (isAcross) ? 0 : -1;
+        var colOffset = (isAcross) ? -1 : 0;
+        do {
+            beginCellId = newId;
+            newId = this._getOffsetCellId(beginCellId,rowOffset,colOffset)
+
+        } while ( this._isUnblockedCell(newId) );
+        return beginCellId;
+    }
+
+    _getWordEndCellId(cellId, isAcross=true) {
+        var newId = cellId, endCellId;
+        var rowOffset = (isAcross) ? 0 : 1;
+        var colOffset = (isAcross) ? 1 : 0;
+        do {
+            endCellId = newId;
+            newId = this._getOffsetCellId(endCellId,rowOffset,colOffset)
+        } while ( this._isUnblockedCell(newId) );
+        return endCellId;
+    }
+
+    _checkWordData(wordData, isAcross=true) {
+        if ( wordData.word === "" ) throw new Error("Word cannot be blank");
+        if ( !wordData.word.match(/^[a-z- ]+$/i) ) throw new Error("Word must contain letters only");
+        var gridWord = this._makeGridWord(wordData.word)
+        if ( gridWord.length !== this.getWordLength(wordData.startCellId, isAcross) )
+            throw new Error("Word length does not fit");
+    }
+
+    _makeGridWord(nativeWord) {
+        return nativeWord.replace(/[ -]/g,"").toUpperCase();
+    }
+
+    // _setGridWord(startCellId, gridWord, isAcross=true) {
+    //     var coord = this._getCellCoord(startCellId), cellId;
+    //     var startIndex = (isAcross) ? coord[1] : coord[0];
+    //     for (var i = 0; i < gridWord.length; i++) {
+    //         cellId = (isAcross) ? this._getCellId(coord[0], i+coord[1])
+    //         $("#"+cellId)
+    //     }
+    // }
 }

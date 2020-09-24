@@ -6,6 +6,11 @@ html {
     font-size: 14px;
 }
 
+.red-text {
+    font-size: 12px;
+    color: red;
+}
+
 /* Tooltip styling */
 .tip {
     position: relative;

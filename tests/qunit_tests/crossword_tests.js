@@ -10,7 +10,7 @@ QUnit.module('Crossword', {
 });
 
 QUnit.test('constructor: Throws errors if arguments are not valid', function(assert) {
-  assert.throws(function(){ new Crossword(2,function(){}), '1'}, /gridSize must be a number/, Error);
+  assert.throws(function(){ new Crossword(2, function(){}, '1') }, /gridSize must be a number/, Error);
   assert.throws(function(){ new Crossword('bad-id', function(){}, 1) }, /divId does not exist/, Error);
   assert.throws(function(){ new Crossword('xw-grid', "func", 2) }, /clickHandler must be a function/, Error);
 });
@@ -163,22 +163,157 @@ QUnit.test("hasBlock: Returns true when blocks are present", function(assert) {
   assert.true(xword.hasBlocks());
 });
 
-QUnit.test("getAcrossData: Returns null if cell is blocked or out of bounds", function(assert) {
+QUnit.test("getWordLength: Returns 0 if given cell is blocked or out of bounds", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("3-2");
-  assert.equal(xword.getAnswerData("3-4"), null);  // Symmetry cell
-  assert.equal(xword.getAnswerData("8-2"), null);
+  assert.equal(xword.getWordLength("3-4"), 0);  // Symmetry cell
+  assert.equal(xword.getWordLength("8-2"), 0);  // Outside grid
 });
 
-QUnit.test("getAcrossData: Returns null if cell is out of bounds", function(assert) {
+QUnit.test("getWordLength: ACROSS returns full length of grid with no blocks", function(assert) {
   var xword = createXWord(7);
-  assert.equal(xword.getAnswerData("8-2"), null);
+  assert.equal(xword.getWordLength("0-0"), 7);
 });
 
-QUnit.test("getAcrossData: Returns null if cell is not start of word", function(assert) {
+QUnit.test("getWordLength: ACROSS returns length between blocks", function(assert) {
   var xword = createXWord(7);
-  assert.equal(xword.getAcrossData("1-2"), null);
+  xword.toggleCellBlock("1-6");
+  xword.toggleCellBlock("3-1");
+  assert.equal(xword.getWordLength("1-1"), 6);
+  assert.equal(xword.getWordLength("5-1"), 6);
+  assert.equal(xword.getWordLength("3-3"), 3);
+  assert.equal(xword.getWordLength("3-0"), 1);
 });
+
+QUnit.test("getWordLength: DOWN returns full length of grid with no blocks", function(assert) {
+  var xword = createXWord(7);
+  assert.equal(xword.getWordLength("3-0", false), 7);
+});
+
+QUnit.test("getWordLength: DOWN returns length between blocks", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("1-6");
+  xword.toggleCellBlock("1-3");
+  assert.equal(xword.getWordLength("0-0", false), 5);
+  assert.equal(xword.getWordLength("5-6", false), 5);
+  assert.equal(xword.getWordLength("3-3", false), 3);
+  assert.equal(xword.getWordLength("0-3", false), 1);
+});
+
+QUnit.test("getClueNum: Returns 0 if given cell is blocked or out of bounds", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("3-2");
+  assert.equal(xword.getClueNum("3-4"), 0);  // Symmetry cell
+  assert.equal(xword.getClueNum("8-2"), 0);  // Outside grid
+});
+
+QUnit.test("getClueNum: Returns 0 if cell is the only letter in word", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("1-1");
+  assert.equal(xword.getClueNum("1-0"), 0);  // Across word - 1 letter
+  assert.equal(xword.getClueNum("0-1", false), 0);  // Down word - 1 letter
+});
+
+QUnit.test("getClueNum: Returns clue number on first cell of word", function(assert) {
+  var xword = createXWord(7);
+  assert.equal(xword.getClueNum("0-5"), 1);
+  assert.equal(xword.getClueNum("5-0", false), 1);
+});
+
+QUnit.test("getWord: Returns null if cell is blocked or no word", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("1-1");
+  assert.equal(xword.getWordData("1-1"), null);
+  assert.equal(xword.getWordData("1-0"), null);
+  assert.equal(xword.getWordData("1-0", false), null);
+});
+
+QUnit.test("getWordData: Returns blank if word is blank", function(assert) {
+  var xword = createXWord(7);
+  data = {startCellId:"0-0", word:"", clue:""};
+  assert.deepEqual(xword.getWordData("0-5"), data);
+  assert.deepEqual(xword.getWordData("5-0", false), data);
+});
+
+QUnit.test("setWordData: ACROSS - Replaces startCellId with first cell id", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-4");
+  inputData = {startCellId:"0-1", word:"four", clue:""};
+  xword.setWordData(inputData, true);
+  var outputData = xword.getWordData("0-1", true)
+  assert.equal(outputData.startCellId, "0-0");
+});
+
+QUnit.test("setWordData: DOWN - Replaces startCellId with first cell id", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("4-0");
+  inputData = {startCellId:"1-0", word:"four", clue:""};
+  xword.setWordData(inputData, false);
+  var outputData = xword.getWordData("2-0", false)
+  assert.equal(outputData.startCellId, "0-0");
+});
+
+QUnit.test("setWordData: Throws error if word is blank", function(assert) {
+  var xword = createXWord(7);
+  data = {startCellId:"0-1", word:"", clue:""};
+  assert.throws(function(){ xword.setWordData(data); }, /Word cannot be blank/, Error);
+});
+
+QUnit.test("setWordData: Throws error if word length does not match spaces in grid", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("4-0");
+  data = {startCellId:"0-0", word:"three", clue:""};
+  assert.throws(function(){ xword.setWordData(data, false); }, /Word length does not fit/, Error);
+});
+
+QUnit.test("setWordData: ACROSS Stores data so it can be retrieved", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-2");
+  xword.toggleCellBlock("1-1");
+  var dataIn = {startCellId:"1-2", word:"fiver", clue:""};
+  xword.setWordData(dataIn, true);
+  var dataOut = xword.getWordData("1-2", true);
+  assert.deepEqual(dataOut, dataIn);
+});
+
+QUnit.test("setWordData: DOWN Stores data so it can be retrieved", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-2");
+  xword.toggleCellBlock("1-1");
+  var dataIn = {startCellId:"1-2", word:"sixers", clue:""};
+  xword.setWordData(dataIn, false);
+  var dataOut = xword.getWordData("1-2", false);
+  assert.deepEqual(dataOut, dataIn);
+});
+
+QUnit.test("setWordData: Word must contain only letters", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-2");
+  xword.toggleCellBlock("1-1");
+  var dataIn = {startCellId:"1-2", word:"bad12", clue:""};
+  assert.throws(function(){ xword.setWordData(dataIn, true); }, /Word must contain letters only/, Error);
+});
+
+QUnit.test("setWordData: Word may contain spaces or hyphen but ignored for word length", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-2");
+  xword.toggleCellBlock("1-1");
+  var dataIn = {startCellId:"1-2", word:"a-b d-ef", clue:""};
+  assert.ok(xword.setWordData(dataIn, true));
+  assert.deepEqual(xword.getWordData("1-2", true), dataIn);  // original (not compressed) word saved
+});
+
+// QUnit.test("setWordData: ACROSS Word added to grid in all caps", function(assert) {
+//   var xword = createXWord(7);
+//   xword.toggleCellBlock("0-2");
+//   var dataIn = {startCellId:"0-3", word:"four", clue:""};
+//   assert.ok(xword.setWordData(dataIn, true));
+//   var letters = ['F','O','U','R'], cellId;
+//   for (var col = 3; col < 7; col++) {
+//     cellId = "#0-"+col;
+//     assert.equal($(cellId+"> .xw-letter").text(), letters[col-3]);
+//   }
+// });
 
 /* HELPER FUNCTION */
 function createXWord(size) {
