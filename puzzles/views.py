@@ -35,13 +35,13 @@ def get_grid_html(size):
     return html
 
 
-class NewCrosswordView(LoginRequiredMixin, View):
+class EditCrosswordView(LoginRequiredMixin, View):
 
     def get(self, request):
         form = NewCrosswordForm()
         #size = form.cleaned_data['size']
         grid_html = get_grid_html(13)
-        return render(request, "new_xword.html", {'form': form, 'grid': grid_html})
+        return render(request, "edit_xword.html", {'form': form, 'grid': grid_html})
 
     def post(self, request):
         form = NewCrosswordForm(request.POST)
@@ -49,6 +49,6 @@ class NewCrosswordView(LoginRequiredMixin, View):
         if form.is_valid():
             size = form.cleaned_data['size']
             grid_html = get_grid_html(size)
-        return render(request, "new_xword.html", {'form': form, 'grid': grid_html})
+        return render(request, "edit_xword.html", {'form': form, 'grid': grid_html})
 
 

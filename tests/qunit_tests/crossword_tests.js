@@ -17,8 +17,8 @@ QUnit.test('constructor: Throws errors if arguments are not valid', function(ass
 
 QUnit.test('constructor: Creates grid of correct width, height & border', function(assert) {
   var gridSize=5, grid = createXWord(gridSize);
-  assert.equal($(jqGridId).width(), (grid.cellSize*gridSize + 2));
-  assert.equal($(jqGridId).height(), (grid.cellSize*gridSize + 2))
+  assert.equal($(jqGridId).width(), (grid.cellSize*gridSize + 1));
+  assert.equal($(jqGridId).height(), (grid.cellSize*gridSize + 1))
 });
 
 QUnit.test('constructor: Creates grid of (gridSize x gridSize) div cells', function(assert) {
@@ -39,7 +39,7 @@ QUnit.test("constructor: Each grid cell has correct styling", function(assert) {
   assert.equal($(jqGridId + " > div").css("float"), "left");
   assert.equal($(jqGridId + " > div").width(), 30);
   assert.equal($(jqGridId + " > div").height(), 30);
-  assert.equal($(jqGridId + " > div").css("border-left-width"), "1px");});
+  assert.equal($(jqGridId + " > div").css("border-right-width"), "1px");});
 
 QUnit.test('constructor: Each grid cell has correct id and click handler', function(assert) {
   var size = 8, grid = createXWord(size), counter = 0;
@@ -100,6 +100,13 @@ QUnit.test("toggleCellBlock: Blocks center cell (no symmetric cell)", function(a
   assert.equal($(".xw-blocked").length, 0);
 });
 
+QUnit.test("toggleCellBlock: Does not block cell that contains a letter", function(assert) {
+    var xword = createXWord(5);
+    $("#0-0").append("A").addClass("xw-letter");
+    xword.toggleCellBlock("0-0");
+    assert.false($("#0-0").hasClass('xw-blocked'));
+});
+
 QUnit.test("toggleCellBlock: Clears existing blocked cell number", function(assert) {
   var xword = createXWord(5);
   var cells = $(jqGridId).children('div');
@@ -132,9 +139,7 @@ QUnit.test('constructor: Auto-number default blank grid', function(assert) {
 QUnit.test('constructor: Auto-numbers blocked grid', function(assert) {
   var xword = createXWord(5);
   var cells = $(jqGridId).children('div');
-  xword.toggleCellBlock("0-0");
-  xword.toggleCellBlock("1-4");
-  xword.toggleCellBlock("2-3");
+  setBlocks(xword, ["0-0", "1-4", "2-3"]);
   assert.equal($(".xw-blocked").length, 6);
   assert.equal($(".xw-number").length, 8);
   assert.equal($(cells[1]).text(), 1);
@@ -177,8 +182,7 @@ QUnit.test("getWordLength: ACROSS returns full length of grid with no blocks", f
 
 QUnit.test("getWordLength: ACROSS returns length between blocks", function(assert) {
   var xword = createXWord(7);
-  xword.toggleCellBlock("1-6");
-  xword.toggleCellBlock("3-1");
+  setBlocks(xword, ["1-6","3-1"]);
   assert.equal(xword.getWordLength("1-1"), 6);
   assert.equal(xword.getWordLength("5-1"), 6);
   assert.equal(xword.getWordLength("3-3"), 3);
@@ -220,102 +224,103 @@ QUnit.test("getClueNum: Returns clue number on first cell of word", function(ass
   assert.equal(xword.getClueNum("5-0", false), 1);
 });
 
-QUnit.test("getWord: Returns null if cell is blocked or no word", function(assert) {
+QUnit.test("toggleWordHilite: Hilites referenced ACROSS words", function(assert) {
   var xword = createXWord(7);
-  xword.toggleCellBlock("1-1");
-  assert.equal(xword.getWordData("1-1"), null);
-  assert.equal(xword.getWordData("1-0"), null);
-  assert.equal(xword.getWordData("1-0", false), null);
+  setBlocks(xword, ["0-0", "1-2", "2-4", "3-1"]);
+  xword.toggleWordHilite("0-2");
+  assertHilitedCells(assert, ["0-1","0-2","0-3","0-4","0-5","0-6"], true);
+  xword.toggleWordHilite("1-1");
+  assertHilitedCells(assert, ["1-0","1-1"], true);
+  xword.toggleWordHilite("1-3");
+  assertHilitedCells(assert, ["1-3","1-4","1-5","1-6"], true);
+  xword.toggleWordHilite("2-3");
+  assertHilitedCells(assert, ["2-0","2-1","2-2","2-3"], true);
+  xword.toggleWordHilite("3-3");
+  assertHilitedCells(assert, ["3-2","3-3","3-4"], true);
 });
 
-QUnit.test("getWordData: Returns blank if word is blank", function(assert) {
+QUnit.test("toggleWordHilite: Hilites referenced DOWN words", function(assert) {
   var xword = createXWord(7);
-  data = {startCellId:"0-0", word:"", clue:""};
-  assert.deepEqual(xword.getWordData("0-5"), data);
-  assert.deepEqual(xword.getWordData("5-0", false), data);
+  setBlocks(xword, ["0-0", "0-2", "1-2", "2-2", "2-4", "3-1"]);
+  xword.toggleWordHilite("0-1");
+  assertHilitedCells(assert, ["0-1","1-1","2-1"], false);
+  xword.toggleWordHilite("2-3");
+  assertHilitedCells(assert, ["0-3","1-3","2-3","3-3","4-3","5-3", "6-3"], false);
+  xword.toggleWordHilite("0-5");
+  assertHilitedCells(assert, ["0-5","1-5","2-5"], false);
 });
 
-QUnit.test("setWordData: ACROSS - Replaces startCellId with first cell id", function(assert) {
+QUnit.test("toggleWordHilite: Clears previous hilites", function(assert) {
   var xword = createXWord(7);
-  xword.toggleCellBlock("0-4");
-  inputData = {startCellId:"0-1", word:"four", clue:""};
-  xword.setWordData(inputData, true);
-  var outputData = xword.getWordData("0-1", true)
-  assert.equal(outputData.startCellId, "0-0");
+  xword.toggleCellBlock("0-0");
+  xword.toggleWordHilite("0-1");
+  xword.toggleWordHilite("1-1");
+  assert.equal($(jqGridId + "> .xw-hilited").length, 7);
+  assert.equal($(jqGridId + "> .xw-across").length, 7);
 });
 
-QUnit.test("setWordData: DOWN - Replaces startCellId with first cell id", function(assert) {
+QUnit.test("toggleWordHilite: Toggles from across to down if applicable", function(assert) {
   var xword = createXWord(7);
-  xword.toggleCellBlock("4-0");
-  inputData = {startCellId:"1-0", word:"four", clue:""};
-  xword.setWordData(inputData, false);
-  var outputData = xword.getWordData("2-0", false)
-  assert.equal(outputData.startCellId, "0-0");
+  setBlocks(xword, ["0-0", "0-2", "1-2", "2-4", "3-1"]);
+  xword.toggleWordHilite("0-3");
+  assertHilitedCells(assert, ["0-3","0-4","0-5","0-6"], true);
+  xword.toggleWordHilite("0-3");
+  assertHilitedCells(assert, ["0-3","1-3","2-3","3-3","4-3","5-3","6-3"], false);
 });
 
-QUnit.test("setWordData: Throws error if word is blank", function(assert) {
+QUnit.test("toggleWordHilite: Toggles from down to across if applicable", function(assert) {
   var xword = createXWord(7);
-  data = {startCellId:"0-1", word:"", clue:""};
-  assert.throws(function(){ xword.setWordData(data); }, /Word cannot be blank/, Error);
+  setBlocks(xword, ["0-0", "0-2", "1-2", "2-4", "3-1"]);
+  xword.toggleWordHilite("0-6");
+  assertHilitedCells(assert, ["0-6","1-6","2-6","3-6","4-6","5-6"], false);
+  xword.toggleWordHilite("0-6");
+  assertHilitedCells(assert, ["0-3","0-4","0-5","0-6"], true);
+  xword.toggleWordHilite("0-6");
+  assertHilitedCells(assert, ["0-6","1-6","2-6","3-6","4-6","5-6"], false);
 });
 
-QUnit.test("setWordData: Throws error if word length does not match spaces in grid", function(assert) {
+QUnit.test("clearHilites: Clears all hilites", function(assert) {
   var xword = createXWord(7);
-  xword.toggleCellBlock("4-0");
-  data = {startCellId:"0-0", word:"three", clue:""};
-  assert.throws(function(){ xword.setWordData(data, false); }, /Word length does not fit/, Error);
+  xword.toggleCellBlock("0-0");
+  xword.toggleWordHilite("0-1");
+  xword.clearHilites();
+  assert.equal($(jqGridId + "> .xw-hilited").length, 0);
 });
 
-QUnit.test("setWordData: ACROSS Stores data so it can be retrieved", function(assert) {
+QUnit.test("setEditable: TRUE Makes all cells editable", function(assert) {
   var xword = createXWord(7);
-  xword.toggleCellBlock("0-2");
-  xword.toggleCellBlock("1-1");
-  var dataIn = {startCellId:"1-2", word:"fiver", clue:""};
-  xword.setWordData(dataIn, true);
-  var dataOut = xword.getWordData("1-2", true);
-  assert.deepEqual(dataOut, dataIn);
+  xword.setEditable(true);
+  assert.equal($(jqGridId + "> div").attr("contenteditable"), "true");
 });
 
-QUnit.test("setWordData: DOWN Stores data so it can be retrieved", function(assert) {
+QUnit.test("setEditable: FALSE Makes all cells uneditable", function(assert) {
   var xword = createXWord(7);
-  xword.toggleCellBlock("0-2");
-  xword.toggleCellBlock("1-1");
-  var dataIn = {startCellId:"1-2", word:"sixers", clue:""};
-  xword.setWordData(dataIn, false);
-  var dataOut = xword.getWordData("1-2", false);
-  assert.deepEqual(dataOut, dataIn);
+  xword.setEditable(false);
+  assert.equal($(jqGridId + "> div").attr("contenteditable"),"false");
 });
 
-QUnit.test("setWordData: Word must contain only letters", function(assert) {
-  var xword = createXWord(7);
-  xword.toggleCellBlock("0-2");
-  xword.toggleCellBlock("1-1");
-  var dataIn = {startCellId:"1-2", word:"bad12", clue:""};
-  assert.throws(function(){ xword.setWordData(dataIn, true); }, /Word must contain letters only/, Error);
-});
 
-QUnit.test("setWordData: Word may contain spaces or hyphen but ignored for word length", function(assert) {
-  var xword = createXWord(7);
-  xword.toggleCellBlock("0-2");
-  xword.toggleCellBlock("1-1");
-  var dataIn = {startCellId:"1-2", word:"a-b d-ef", clue:""};
-  assert.ok(xword.setWordData(dataIn, true));
-  assert.deepEqual(xword.getWordData("1-2", true), dataIn);  // original (not compressed) word saved
-});
 
-// QUnit.test("setWordData: ACROSS Word added to grid in all caps", function(assert) {
-//   var xword = createXWord(7);
-//   xword.toggleCellBlock("0-2");
-//   var dataIn = {startCellId:"0-3", word:"four", clue:""};
-//   assert.ok(xword.setWordData(dataIn, true));
-//   var letters = ['F','O','U','R'], cellId;
-//   for (var col = 3; col < 7; col++) {
-//     cellId = "#0-"+col;
-//     assert.equal($(cellId+"> .xw-letter").text(), letters[col-3]);
-//   }
-// });
-
-/* HELPER FUNCTION */
+/******************************************************************************************
+/* HELPER FUNCTIONS */
 function createXWord(size) {
   return new Crossword(gridId, function(){}, size);
+}
+
+function setBlocks(xword, blockIds) {
+  blockIds.forEach( function(item) {
+    xword.toggleCellBlock(item);
+  });
+}
+
+function assertHilitedCells(assert, hilitedCellIds, isAcross) {
+  var hilitedCells = $(jqGridId + "> .xw-hilited");
+  assert.equal(hilitedCells.length, hilitedCellIds.length);
+  var hasClassLabel = (isAcross) ? "xw-across" : "xw-down";
+  var noClassLabel = (isAcross) ? "xw-down" : "xw-across";
+  hilitedCellIds.forEach( function(item, index) {
+    assert.equal(item, hilitedCells[index].id);
+    assert.ok(hilitedCells[index].className.indexOf(hasClassLabel) >= 0);
+    assert.ok(hilitedCells[index].className.indexOf(noClassLabel) < 0);
+  });
 }

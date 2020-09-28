@@ -8,8 +8,7 @@ CrosswordEditor = (function() {
     var XWord = null;
 
     // Default Answer input area IDs
-    var answerFormId = "#answer-form", answerRefId = "#answer-ref", answerId = "#answer",
-        answerClueId = "#answer-clue", answerUpdateId = "#answer-update";
+    //var wordFormId = "#word-input";
 
     /* PRIVATE METHODS */
     function setModeHelpText() {
@@ -24,13 +23,18 @@ CrosswordEditor = (function() {
     }
 
     function setWidgetStates() {
-        //$(answerFormId).attr("hidden", true);
         if (XWord.hasBlocks()) {
             $(selectSizeId).prop("disabled", true);
             $(btnResetId).prop("disabled", false);
         } else {
             $(selectSizeId).prop("disabled", false);
             $(btnResetId).prop("disabled", true);
+        }
+        if (parseInt($(selectModeId).val()) === 1) {
+            XWord.setEditable(false);
+            XWord.clearHilites();
+        } else {
+            XWord.setEditable(true);
         }
     }
 
@@ -50,12 +54,15 @@ CrosswordEditor = (function() {
 
     function modeSelectionChanged() {
         setModeHelpText();
+        setWidgetStates();
     }
 
     function cellClicked(event) {
         if ( parseInt($(selectModeId).val()) === 1) {
             XWord.toggleCellBlock(event.target.id);
             setWidgetStates();
+        } else {
+            XWord.toggleWordHilite(event.target.id);
         }
     }
 

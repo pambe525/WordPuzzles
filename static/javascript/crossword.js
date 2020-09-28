@@ -1,7 +1,6 @@
 class Crossword {
 
     cellSize = 30;
-    words = {across:{}, down:{}};
 
     constructor(divId, clickHandler, gridSize) {
         this.gridSize = gridSize;
@@ -13,7 +12,7 @@ class Crossword {
     }
 
     toggleCellBlock(cellId) {
-        if (cellId === null || $("#" + cellId).length === 0) return false;
+        if (cellId === null || $("#"+cellId).length === 0 || $("#"+cellId).hasClass("xw-letter")) return false;
         var symmCellId = this._getSymmetricCellId(cellId);
         this._toggleBlock(cellId);
         if (cellId !== symmCellId) this._toggleBlock(symmCellId);
@@ -25,40 +24,45 @@ class Crossword {
         return ($(".xw-blocked").length !== 0);
     }
 
-    getWordLength(cellId, isAcross=true) {
-        if ( !this._isUnblockedCell(cellId) ) return 0;
-        var beginCoord = this._getCellCoord( this._getWordStartCellId(cellId, isAcross) );
-        var endCoord   = this._getCellCoord( this._getWordEndCellId(cellId, isAcross) );
+    getWordLength(cellId, isAcross = true) {
+        if (!this._isUnblockedCell(cellId)) return 0;
+        var beginCoord = this._getCellCoord(this._getWordStartCellId(cellId, isAcross));
+        var endCoord = this._getCellCoord(this._getWordEndCellId(cellId, isAcross));
         var index = (isAcross) ? 1 : 0;
-        return (endCoord[index]-beginCoord[index]+1);
-     }
+        return (endCoord[index] - beginCoord[index] + 1);
+    }
 
-     getClueNum(cellId, isAcross=true) {
+    getClueNum(cellId, isAcross = true) {
         return this._getCellNumber(this._getWordStartCellId(cellId, isAcross));
-     }
+    }
 
-     getWordData(cellId, isAcross=true) {
-        if (this.getWordLength(cellId) <= 1) return null;
-        var wordStartCellId = this._getWordStartCellId(cellId, isAcross);
-        var wordsDict = (isAcross) ? this.words.across : this.words.down;
-        if ( wordsDict[wordStartCellId] === undefined ) return {startCellId: wordStartCellId, word:"",clue:""};
-        var resultObj = wordsDict[wordStartCellId];
-        resultObj.startCellId = wordStartCellId;
-        return resultObj;
-     }
+    toggleWordHilite(cellId) {
+        var jqCellId = "#"+cellId;
+        if ( !$(jqCellId).hasClass("xw-hilited") ) {
+            if (this._isWordStart(cellId, true)) this._hiliteCellsInWord(cellId, true);
+            else if (this._isWordStart(cellId, false)) this._hiliteCellsInWord(cellId, false);
+            else if (this._isInWord(cellId, true)) this._hiliteCellsInWord(cellId, true);
+            else if (this._isInWord(cellId, false)) this._hiliteCellsInWord(cellId, false);
+        } else {
+            if( $(jqCellId).hasClass("xw-across") && this._isInWord(cellId, false) )
+                this._hiliteCellsInWord(cellId, false);
+            else if ( $(jqCellId).hasClass("xw-down") && this._isInWord(cellId, true) )
+                this._hiliteCellsInWord(cellId, true);
+        }
+    }
 
-     setWordData(wordData, isAcross=true) {
-        this._checkWordData(wordData, isAcross);
-        wordData.startCellId = this._getWordStartCellId(wordData.startCellId, isAcross)
-        var wordsDict = (isAcross) ? this.words.across : this.words.down;
-        wordsDict[wordData.startCellId] = {word: wordData.word, clue: wordData.clue};
-        var gridWord = this._makeGridWord(wordData.word);
-        //this._setGridWord(cellId, isAcross);
-        return true;
-     }
+    clearHilites() {
+        $(this.gridId).children(".xw-hilited").removeClass("xw-hilited")
+            .removeClass("xw-across").removeClass("xw-down");
+    }
 
-    // NON-PUBLIC METHODS
+    setEditable(isEditable) {
+        $(this.gridId).children('div').attr('contenteditable', (isEditable) ? "true" : "false");
+    }
 
+    /**
+     * NON-PUBLIC METHODS
+     */
     _validateArgs() {
         if (typeof (this.gridSize) != "number") throw new Error("gridSize must be a number");
         if ($(this.gridId).length === 0) throw new Error("divId does not exist");
@@ -75,13 +79,16 @@ class Crossword {
 
     _setStyle() {
         $("#xw-style").remove();
-        var css, gridLength = this.gridSize * this.cellSize + 2;
-        css = this.gridId + "{border:1px solid black;" +
+        var css, gridLength = this.gridSize * this.cellSize + 1;
+        css = this.gridId + "{border-left:1px solid black; border-top: 1px solid black;" +
             "width:" + gridLength + "px;height:" + gridLength + "px}";
         css += ".xw-blocked {background-color:black;}";
         css += ".xw-number {font-size:9px; top:-2px; left:1px; position:absolute}";
         css += this.gridId + " > div { width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
-            "border:1px solid black; float:left; position: relative }";
+            "border-right:1px solid black; border-bottom:1px solid black; float:left; position: relative;" +
+            "text-align:center; font-size:17px; text-transform: uppercase}";
+        css += ".xw-hilited {background-color:yellow}";
+        css += this.gridId + " > div:focus {background-color: #FFFF99; text-align:center}"
         var styleTag = "<style id='xw-style' type='text/css'></style>";
         $(styleTag).html(css).appendTo("head");
     }
@@ -92,7 +99,25 @@ class Crossword {
 
     _createGridCell(row, col) {
         var cellId = this._getCellId(row, col);
-        return $("<div></div>").click(this.clickHandler).attr('id', cellId);
+        var cell = $("<div></div>");
+        cell.click(this.clickHandler).on('keydown', this._onKeyDown).attr('id', cellId);
+        return cell;
+    }
+
+    /** NEEDS WORK TO HANDLE TAB & SHIFT-TAB **/
+    _onKeyDown = (event) => {
+        var cellId = event.target.id, jqCellId = "#"+cellId;
+        event.preventDefault();
+        if (event.keyCode >= 65 && event.keyCode <= 90) {
+            $(jqCellId).html($(jqCellId).children());  // Deletes existing letter but leaves number intact
+            $(jqCellId).nextAll(".xw-hilited").first().focus();
+            $(jqCellId).append(String.fromCharCode(event.keyCode)).addClass("xw-letter");
+        } else if (event.keyCode === 8) {
+            if ( !$.isNumeric($(jqCellId).text()) ) $(jqCellId).html($(jqCellId).children());
+            else $(jqCellId).prevAll(".xw-hilited").first().focus();
+        } else if (event.keyCode === 9) {
+        } else if (event.shiftKey && event.keyCode === 9) {
+        }
     }
 
     _autoNumberCells() {
@@ -101,7 +126,7 @@ class Crossword {
         for (var row = 0; row < this.gridSize; row++) {
             for (var col = 0; col < this.gridSize; col++) {
                 id = this._getCellId(row, col);
-                if (this._cellIsStartOfWord(id)) this._setNumberOnCell(id, ++counter);
+                if (this._isWordStart(id) || this._isWordStart(id, false)) this._setNumberOnCell(id, ++counter);
             }
         }
     }
@@ -133,14 +158,11 @@ class Crossword {
         }
     }
 
-    _cellIsStartOfWord(cellId) {
+    _isWordStart(cellId, isAcross=true) {
         if (this._isBlockedCell(cellId)) return false;
-        var lCellId = this._getOffsetCellId(cellId, -1, 0);
-        var rCellId = this._getOffsetCellId(cellId, 1, 0);
-        var tCellId = this._getOffsetCellId(cellId, 0, -1);
-        var bCellId = this._getOffsetCellId(cellId, 0, 1);
-        if (this._isBlockedCell(lCellId) && !this._isBlockedCell(rCellId)) return true;
-        return !!(this._isBlockedCell(tCellId) && !this._isBlockedCell(bCellId));
+        var prevCellId = (isAcross) ? this._getOffsetCellId(cellId,0,-1) : this._getOffsetCellId(cellId,-1,0);
+        var nextCellId = (isAcross) ? this._getOffsetCellId(cellId,0, 1) : this._getOffsetCellId(cellId, 1,0);
+        return ( !this._isUnblockedCell(prevCellId) && this._isUnblockedCell(nextCellId) );
     }
 
     _getOffsetCellId(cellId, rowOffset, colOffset) {
@@ -169,43 +191,76 @@ class Crossword {
     }
 
     _getCellNumber(cellId) {
-        return $("#"+cellId + "> .xw-number").text();
+        return $("#" + cellId + "> .xw-number").text();
     }
 
-    _getWordStartCellId(cellId, isAcross=true) {
-        var newId = cellId, beginCellId;
+    _getWordStartCellId(cellId, isAcross = true) {
+        var newId = cellId, startCellId;
         var rowOffset = (isAcross) ? 0 : -1;
         var colOffset = (isAcross) ? -1 : 0;
         do {
-            beginCellId = newId;
-            newId = this._getOffsetCellId(beginCellId,rowOffset,colOffset)
-
-        } while ( this._isUnblockedCell(newId) );
-        return beginCellId;
+            startCellId = newId;
+            newId = this._getOffsetCellId(startCellId, rowOffset, colOffset)
+        } while (this._isUnblockedCell(newId));
+        return startCellId;
     }
 
-    _getWordEndCellId(cellId, isAcross=true) {
+    _getWordEndCellId(cellId, isAcross = true) {
         var newId = cellId, endCellId;
         var rowOffset = (isAcross) ? 0 : 1;
         var colOffset = (isAcross) ? 1 : 0;
         do {
             endCellId = newId;
-            newId = this._getOffsetCellId(endCellId,rowOffset,colOffset)
-        } while ( this._isUnblockedCell(newId) );
+            newId = this._getOffsetCellId(endCellId, rowOffset, colOffset)
+        } while (this._isUnblockedCell(newId));
         return endCellId;
     }
 
-    _checkWordData(wordData, isAcross=true) {
-        if ( wordData.word === "" ) throw new Error("Word cannot be blank");
-        if ( !wordData.word.match(/^[a-z- ]+$/i) ) throw new Error("Word must contain letters only");
-        var gridWord = this._makeGridWord(wordData.word)
-        if ( gridWord.length !== this.getWordLength(wordData.startCellId, isAcross) )
-            throw new Error("Word length does not fit");
+    _hasText(cellId) {
+        return (cellId === null) ? false : ($("#" + cellId).text().trim().length > 0);
     }
 
-    _makeGridWord(nativeWord) {
-        return nativeWord.replace(/[ -]/g,"").toUpperCase();
+    _isInWord(cellId, isAcross = true) {
+        if (!this._isUnblockedCell(cellId)) return false;
+        if (isAcross) {
+            var lCellId = this._getOffsetCellId(cellId, 0, -1);
+            var rCellId = this._getOffsetCellId(cellId, 0, 1);
+            return this._isUnblockedCell(rCellId) || this._isUnblockedCell(lCellId);
+        } else {
+            var tCellId = this._getOffsetCellId(cellId, -1, 0);
+            var bCellId = this._getOffsetCellId(cellId, 1, 0);
+            return this._isUnblockedCell(tCellId) || this._isUnblockedCell(bCellId);
+        }
     }
+
+    _hiliteCellsInWord(cellId, isAcross=true) {
+        this.clearHilites();
+        var cellsToHilite = this._getCellsInWord(cellId, isAcross);
+        var classLabel = (isAcross) ? "xw-across" : "xw-down";
+        if (cellsToHilite.length > 1) cellsToHilite.addClass("xw-hilited").addClass(classLabel);
+    }
+
+    _getCellsInWord(cellId, isAcross = true) {
+        var startCoord = this._getCellCoord(this._getWordStartCellId(cellId, isAcross));
+        var endCoord = this._getCellCoord(this._getWordEndCellId(cellId, isAcross));
+        var selector = (isAcross) ? "[id^='" + startCoord[0] + "-']" : "[id$='-" + startCoord[1] + "']";
+        var inlineCells = $(this.gridId + " > " + selector);
+        var startCellIndex = (isAcross) ? startCoord[1] : startCoord[0];
+        var endCellIndex   = (isAcross) ? endCoord[1] : endCoord[0];
+        return inlineCells.slice(startCellIndex, endCellIndex+1);
+    }
+
+    // _checkWordData(wordData, isAcross=true) {
+    //     if ( wordData.word === "" ) throw new Error("Word cannot be blank");
+    //     if ( !wordData.word.match(/^[a-z- ]+$/i) ) throw new Error("Word must contain letters only");
+    //     var gridWord = this._makeGridWord(wordData.word)
+    //     if ( gridWord.length !== this.getWordLength(wordData.startCellId, isAcross) )
+    //         throw new Error("Word length does not fit");
+    // }
+
+    // _makeGridWord(nativeWord) {
+    //     return nativeWord.replace(/[ -]/g,"").toUpperCase();
+    // }
 
     // _setGridWord(startCellId, gridWord, isAcross=true) {
     //     var coord = this._getCellCoord(startCellId), cellId;

@@ -4,7 +4,7 @@
     <h3>New Crossword Puzzle</h3>
 
     <!-- PAGE-SPECIFIC NAVBAR WITH GRID SIZE SELECTION, RESET AND SAVE -->
-    <div class="bg-dark text-light rounded-lg p-3" style="width:700px">
+    <div class="bg-dark text-light rounded-lg p-2" style="width:700px">
         <span class="h6">Grid Size: </span>
         <select id="grid-size" class="p-1 ml-2">
           <option value=11>11 x 11</option>
@@ -19,19 +19,26 @@
           <option value=3>Add clues</option>
         </select>
         <span class="p-1 tip">
-            <i class="far fa-question-circle fa-lg" style="color:white;"></i>
+            <i class="far fa-question-circle fa-lg" style="color:silver;"></i>
             <span id="mode-tip" class="tiptext"></span>
         </span>
         <button id="save-grid" class="btn btn-sm h6 ml-3 btn-primary">Save Grid</button>
     </div>
 
-    <!-- WORD & CLUE INOUT -->
-    <div id="word-input" class="m-3">
+    <!-- WORD & CLUE INPUT
+    <div id="word-input" class="m-3" style="width:700px">
         <span id="word-ref" class="h6">1 Across:</span>
         <input type="text" id="grid-word" />
-        <button type="button" class="ml-2 btn btn-sm btn-dark">OK</button>
+        <span class="p-1 tip">
+            <i class="far fa-question-circle fa-lg" style="color:darkgray;"></i>
+            <span id="mode-tip" class="tiptext">
+                Words must contain only letters and no spaces. Make sure each word fits in the highlighted spaces.
+            </span>
+        </span>
+        <button id="update-grid" type="button" class="ml-1 btn btn-sm btn-secondary">Update Grid</button>
         <span class="red-text ml-2">Hello</span>
     </div>
+    -->
 
     <!-- EDIT MODE SELECTOR AND CROSSWORD GRID -->
     <div class="m-1 mt-2 pt-2">

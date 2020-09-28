@@ -35,20 +35,20 @@ class HomeViewTests(TestCase):
         self.assertEquals(response.url, "/login?next=/")
 
 # ==============================================================================================
-class NewCrosswordViewTests(TestCase):
+class EditCrosswordViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
         user = User.objects.get_or_create(username="testuser")[0]
         self.client.force_login(user)
 
     def test_get_renders_view_if_user_is_authenticated(self):
-        response = self.client.get(reverse("new_xword"))
+        response = self.client.get(reverse("edit_xword"))
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.templates[0].name, "new_xword.html")
+        self.assertEquals(response.templates[0].name, "edit_xword.html")
         self.assertContains(response, "New Crossword Puzzle")
 
     def test_get_redirects_to_login_view_if_user_is_not_authenticated(self):
         logout(self.client)
-        response = self.client.get(reverse("new_xword"))
+        response = self.client.get(reverse("edit_xword"))
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(response.url, "/login?next=/new_xword/")
+        self.assertEquals(response.url, "/login?next=/edit_xword/")

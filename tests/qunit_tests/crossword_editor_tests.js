@@ -8,11 +8,11 @@ var sizeSelectorId = "gridSize", jqSizeSelectorId = "#"+sizeSelectorId;
 var resetBtnId = "resetBtn", jqResetBtnId = "#"+resetBtnId;
 var modeSelectorId = "editMode", jqModeSelectorId = "#"+modeSelectorId;
 var modeHelpId = "modeHelp", jqModeHelpId = "#"+modeHelpId;
-var answerFormId = "answer-form", jqAnswerFormId = "#"+answerFormId;
-var answerRefId  = "answer-ref", jqAnswerRefId = "#"+answerRefId;
-var answerId = "answer", jqAnswerId = "#"+answerId;
-var answerClueId = "answer-clue", jqAnswerClueId = "#"+answerClueId;
-var answerUpdateId = "answer-update", jqAnswerUpdate = "#"+answerUpdateId;
+// var wordFormId = "word-input", jqWordFormId = "#"+wordFormId;
+// var answerRefId  = "answer-ref", jqAnswerRefId = "#"+answerRefId;
+// var answerId = "answer", jqAnswerId = "#"+answerId;
+// var answerClueId = "answer-clue", jqAnswerClueId = "#"+answerClueId;
+// var answerUpdateId = "answer-update", jqAnswerUpdate = "#"+answerUpdateId;
 
 var confirmMessage = "", confirmResponse=false;
 window.confirm = function(message) {
@@ -31,12 +31,12 @@ QUnit.module('CrosswordEditor', {
       $(jqModeSelectorId).append($("<option value=1 selected>Mode 1</option>"))
                          .append($("<option value=2>Mode 2</option>"));
       $(jqFixtureId).append($("<span></span>").attr('id',modeHelpId));
-      var form = $("<div></div>").attr("id", answerFormId);
-      $(jqFixtureId).append(form);
-      form.append($("<span></span>").attr("id", answerRefId));
-      form.append($("<input type='text'>").attr("id", answerId));
-      form.append($("<textarea></textarea>").attr("id", answerClueId));
-      form.append($("<button></button>").attr("id", answerUpdateId));
+      // var form = $("<div></div>").attr("id", wordFormId);
+      // $(jqFixtureId).append(form);
+      // form.append($("<span></span>").attr("id", answerRefId));
+      // form.append($("<input type='text'>").attr("id", answerId));
+      // form.append($("<textarea></textarea>").attr("id", answerClueId));
+      // form.append($("<button></button>").attr("id", answerUpdateId));
       CrosswordEditor.reset();
   },
 });
@@ -87,6 +87,12 @@ QUnit.test('initialize: Disables reset button by default', function(assert) {
     assert.true($(jqResetBtnId).prop('disabled'));
 });
 
+QUnit.test('initialize: All cells are not editable', function(assert) {
+    initializeCrosswordEditor();
+    $(jqModeSelectorId).val(2).change();
+    assert.equal($(jqGridId+" > div").attr("contenteditable"), "true");
+});
+
 QUnit.test('setSizeSelectorId: Changehandler redraws grid to new size', function(assert) {
     initializeCrosswordEditor();
     assert.equal($(jqGridId + " > div").length, 25);
@@ -98,6 +104,21 @@ QUnit.test('modeSelectorId: Changehandler updates help text for new mode', funct
     initializeCrosswordEditor();
     $(jqModeSelectorId).val(2).change();
     assert.true($(jqModeHelpId).text().indexOf("Click on a numbered square") === 0);
+});
+
+QUnit.test('modeSelectorId: Switching back to block selection clears hilites', function(assert) {
+    initializeCrosswordEditor();
+    $(jqModeSelectorId).val(2).change();
+    $(jqGridId + " > div")[4].click();
+    assert.true($(jqGridId+">div").hasClass("xw-hilited"));
+    $(jqModeSelectorId).val(1).change();
+    assert.false($(jqGridId+">div").hasClass("xw-hilited"));
+});
+
+QUnit.test('modeSelectorId: In word edit mode all cells are editable', function(assert) {
+    initializeCrosswordEditor();
+    $(jqModeSelectorId).val(2).change();
+    assert.equal($(jqGridId+" > div").attr("contenteditable"), "true");
 });
 
 QUnit.test('Clicking on a cell sets block (in default edit mode)', function(assert) {
