@@ -172,7 +172,7 @@ QUnit.test('Changing edit mode disables blocking selected cells', function(asser
 });
 
 /*
-QUnit.test('In Edit Answers mode - selecting blocked cell does nothing', function(assert) {
+QUnit.unit_tests('In Edit Answers mode - selecting blocked cell does nothing', function(assert) {
     initializeCrosswordEditor();
     var firstRowCells = parseInt($(jqSizeSelectorId).val());
     $(jqModeSelectorId).val(2).change();

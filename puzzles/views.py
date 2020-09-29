@@ -1,14 +1,13 @@
 from django.views import View
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
-from puzzles.forms import NewCrosswordForm
+#from puzzles.forms import NewCrosswordForm
 
 
 class HomeView(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, "home.html", {})
-
 
 
 def get_grid_html(size):
@@ -38,17 +37,16 @@ def get_grid_html(size):
 class EditCrosswordView(LoginRequiredMixin, View):
 
     def get(self, request):
-        form = NewCrosswordForm()
         #size = form.cleaned_data['size']
         grid_html = get_grid_html(13)
-        return render(request, "edit_xword.html", {'form': form, 'grid': grid_html})
+        return render(request, "edit_xword.html", {'grid': grid_html})
 
     def post(self, request):
-        form = NewCrosswordForm(request.POST)
+        #form = NewCrosswordForm(request.POST)
         grid_html = ""
-        if form.is_valid():
-            size = form.cleaned_data['size']
-            grid_html = get_grid_html(size)
-        return render(request, "edit_xword.html", {'form': form, 'grid': grid_html})
+        # if form.is_valid():
+        #     size = form.cleaned_data['size']
+        #     grid_html = get_grid_html(size)
+        return render(request, "edit_xword.html", {'grid': grid_html})
 
 
