@@ -5,51 +5,28 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from .forms import NewUserForm
+from user_auth.forms import NewUserForm
 
 
 # ==============================================================================================
 #
-class NewUserFormTest(TestCase):
+class HomeViewTests(TestCase):
+    def setUp(self):
+        # Create a logged in user
+        user = User.objects.get_or_create(username="testuser")[0]
+        self.client.force_login(user)
 
-    def test_form_has_email_as_required(self):
-        form = NewUserForm()
-        self.assertEqual(form.fields["email"].required, True)
+    def test_get_renders_view_if_user_is_authenticated(self):
+        response = self.client.get(reverse("home"))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "home.html")
+        self.assertContains(response, "Home Page")
 
-    def test_form_has_correct_fields(self):
-        form = NewUserForm()
-        self.assertEquals(len(form.Meta.fields), 4)
-        self.assertEquals(form.Meta.fields[0], "username")
-        self.assertEquals(form.Meta.fields[1], "password1")
-        self.assertEquals(form.Meta.fields[2], "password2")
-        self.assertEquals(form.Meta.fields[3], "email")
-
-    def test_form_saved_with_correct_data(self):
-        data_dict = {
-            'username': 'pga', 'password1': 'tester1!', 'password2': 'tester1!', 'email': 'a@b.com'
-        }
-        form = NewUserForm(data_dict)
-        user = form.save()
-        self.assertEquals(type(user), User)
-
-    def test_form_label_modified_for_password2(self):
-        form = NewUserForm()
-        self.assertEquals(form.fields['password2'].label, "Confirm")
-
-    def test_form_helptext_for_parent_fields(self):
-        form = NewUserForm()
-        self.assertIn("Required. Use your first name", form.fields["username"].help_text)
-        self.assertIn("Must contain at least 8 characters", form.fields["password1"].help_text)
-        self.assertIn("Confirm Password", form.fields["password2"].help_text)
-
-    def test_form_email_is_cleaned_before_save(self):
-        data_dict = {
-            'username': 'pga', 'password1': 'tester1!', 'password2': 'tester1!', 'email': '\na@b.com'
-        }
-        form = NewUserForm(data_dict)
-        self.assertTrue(form.is_valid())
-        user = form.save()
-        self.assertEquals(user.email, "a@b.com")
+    def test_get_redirects_to_login_view_if_user_is_not_authenticated(self):
+        logout(self.client)
+        response = self.client.get(reverse("home"))
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, "/login?next=/")
 
 
 # ==============================================================================================
@@ -102,6 +79,7 @@ class NewUserViewTests(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, "/")
 
+
 # ==============================================================================================
 #
 class LogoutViewTests(TestCase):
@@ -116,12 +94,13 @@ class LogoutViewTests(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, "/login")
 
+
 # ==============================================================================================
 #
 class LoginViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
-        user = User.objects.create_user("testuser", "abc@email.com","secretkey1")
+        user = User.objects.create_user("testuser", "abc@email.com", "secretkey1")
         user.save()
         self.client.force_login(user)
 
@@ -160,3 +139,23 @@ class LoginViewTests(TestCase):
         response = self.client.post(reverse("login"), data=data_dict)
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, "/")
+
+
+# ==============================================================================================
+class EditCrosswordViewTests(TestCase):
+    def setUp(self):
+        # Create a logged in user
+        user = User.objects.get_or_create(username="testuser")[0]
+        self.client.force_login(user)
+
+    def test_get_renders_view_if_user_is_authenticated(self):
+        response = self.client.get(reverse("edit_xword"))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "edit_xword.html")
+        self.assertContains(response, "New Crossword Puzzle")
+
+    def test_get_redirects_to_login_view_if_user_is_not_authenticated(self):
+        logout(self.client)
+        response = self.client.get(reverse("edit_xword"))
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, "/login?next=/edit_xword/")
