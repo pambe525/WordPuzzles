@@ -1,24 +1,30 @@
-/*
+/**
   Tests for Class CrosswordEditor
-  */
+ */
 
 var jqFixtureId = "#qunit-fixture";
 var gridId = "xw-grid", jqGridId = "#"+gridId;
-var sizeSelectorId = "gridSize", jqSizeSelectorId = "#"+sizeSelectorId;
-var resetBtnId = "resetBtn", jqResetBtnId = "#"+resetBtnId;
-var modeSelectorId = "editMode", jqModeSelectorId = "#"+modeSelectorId;
-var modeHelpId = "modeHelp", jqModeHelpId = "#"+modeHelpId;
-// var wordFormId = "word-input", jqWordFormId = "#"+wordFormId;
-// var answerRefId  = "answer-ref", jqAnswerRefId = "#"+answerRefId;
-// var answerId = "answer", jqAnswerId = "#"+answerId;
-// var answerClueId = "answer-clue", jqAnswerClueId = "#"+answerClueId;
-// var answerUpdateId = "answer-update", jqAnswerUpdate = "#"+answerUpdateId;
+var sizeSelectorId = "grid-size", jqSizeSelectorId = "#"+sizeSelectorId;
+var resetBtnId = "reset-grid", jqResetBtnId = "#"+resetBtnId;
+var modeSelectorId = "edit-mode", jqModeSelectorId = "#"+modeSelectorId;
+var modeTipId = "mode-tip", jqModeTipId = "#"+modeTipId;
+var saveBtnId = "save-grid", jqSaveBtnId = "#"+saveBtnId;
+
+var clueFormId = "clue-form", jqClueFormId = "#"+clueFormId;
+var clueNumId  = "clue-num", jqClueNumId = "#"+clueNumId;
+var clueWordId = "clue-word", jqClueWordId = "#"+clueWordId;
+var clueHintId = "clue-hint", jqClueHintId = "#"+clueHintId;
+var clueTextId = "clue-text", jqClueTextId = "#"+clueTextId;
+var clueMsgId = "clue-msg", jqClueMsgId = "#"+clueMsgId;
+var clueUpdateId = "clue-update", jqClueUpdateId= "#"+clueUpdateId;
 
 var confirmMessage = "", confirmResponse=false;
 window.confirm = function(message) {
     confirmMessage = message;
     return confirmResponse;
 }
+
+var editor;
 
 QUnit.module('CrosswordEditor', {
   beforeEach: function() {
@@ -28,86 +34,108 @@ QUnit.module('CrosswordEditor', {
                          .append($("<option value=5 selected>5x5</option>"));
       $(jqFixtureId).append($("<button></button>").attr('id',resetBtnId));
       $(jqFixtureId).append($("<select></select>").attr('id',modeSelectorId));
-      $(jqModeSelectorId).append($("<option value=1 selected>Mode 1</option>"))
-                         .append($("<option value=2>Mode 2</option>"));
-      $(jqFixtureId).append($("<span></span>").attr('id',modeHelpId));
-      // var form = $("<div></div>").attr("id", wordFormId);
-      // $(jqFixtureId).append(form);
-      // form.append($("<span></span>").attr("id", answerRefId));
-      // form.append($("<input type='text'>").attr("id", answerId));
-      // form.append($("<textarea></textarea>").attr("id", answerClueId));
-      // form.append($("<button></button>").attr("id", answerUpdateId));
-      CrosswordEditor.reset();
+      $(jqModeSelectorId).append($("<option value=1 selected>Block Mode</option>"))
+                         .append($("<option value=2>Word Clue Mode</option>"));
+      $(jqFixtureId).append($("<span></span>").attr('id',modeTipId));
+      $(jqFixtureId).append($("<button></button>").attr('id',saveBtnId));
+      var form = $("<div></div>").attr("id", clueFormId);
+      $(jqFixtureId).append(form);
+      form.append($("<span></span>").attr("id", clueNumId));
+      form.append($("<input type='text'>").attr("id", clueWordId));
+      form.append($("<span></span>").attr("id", clueHintId));
+      form.append($("<span></span>").attr("id", clueMsgId));
+      form.append($("<textarea></textarea>").attr("id", clueTextId));
+      form.append($("<button></button>").attr("id", clueUpdateId));
+      editor = new CrosswordEditor(gridId);
   },
 });
 
-QUnit.test('initialize: Throws errors if divId does not exist', function(assert) {
-    assert.throws(function(){ CrosswordEditor.initialize("divId"); },
-      /divId does not exist/, Error);
+//--------------------------------------------------------------------------------------------------------------------
+// initialize tests
+//
+QUnit.test('initialize: Throws error if any element does not exist', function(assert) {
+    editor.IDs["selectorSize"] = "noElemId";
+    assert.throws(function(){ editor.initialize(); },
+      /noElemId does not exist/, Error);
 });
 
-QUnit.test('initialize: Throws error if grid size selector is not set', function(assert) {
-    assert.throws(function(){ CrosswordEditor.initialize(gridId); }, /Size selector not set/, Error);
-});
-
-QUnit.test('setSizeSelectorId: Throws error if selector does not exist', function(assert) {
-    assert.throws(function(){ CrosswordEditor.setSizeSelectorId("some-id"); },
-        /Size selector does not exist/, Error);
-});
-
-QUnit.test('initialize: Creates grid using selected size', function(assert) {
-    CrosswordEditor.setSizeSelectorId(sizeSelectorId);
+QUnit.test('initialize: Creates grid using default size', function(assert) {
     assert.equal($(jqGridId).children().length, 0);
-    CrosswordEditor.initialize(gridId);
+    editor.initialize();
     assert.equal($(jqGridId).children().length, 25)
 });
 
-QUnit.test('setResetBtnId: Throws error if button does not exist', function(assert) {
-    assert.throws(function(){ CrosswordEditor.setResetBtnId("some-id"); },
-        /Reset button does not exist/, Error);
-});
-
-QUnit.test('modeSelectorId: Throws error if selector does not exist', function(assert) {
-    assert.throws(function(){ CrosswordEditor.setModeSelectorId("some-id"); },
-        /Mode selector does not exist/, Error);
-});
-
-QUnit.test('modeHelpId: Throws error if mode help span does not exist', function(assert) {
-    assert.throws(function(){ CrosswordEditor.setModeHelpId("some-id"); },
-        /Mode help span does not exist/, Error);
-});
-
 QUnit.test('initialize: Sets help text based on select edit mode', function(assert) {
-    initializeCrosswordEditor();
-    assert.true($(jqModeHelpId).text().indexOf("Diametrically opposite square") > 0);
+    editor.initialize();
+    assert.true($(jqModeTipId).text().indexOf("Diametrically opposite square") > 0);
 });
 
 QUnit.test('initialize: Disables reset button by default', function(assert) {
-    initializeCrosswordEditor();
+    editor.initialize();
     assert.true($(jqResetBtnId).prop('disabled'));
 });
 
-QUnit.test('initialize: All cells are not editable', function(assert) {
-    initializeCrosswordEditor();
-    $(jqModeSelectorId).val(2).change();
-    assert.equal($(jqGridId+" > div").attr("contenteditable"), "true");
+QUnit.test('initialize: Hides clue entry form by default', function(assert) {
+    editor.initialize();
+    assert.true($(jqClueFormId).is(":hidden"));
 });
 
-QUnit.test('setSizeSelectorId: Changehandler redraws grid to new size', function(assert) {
-    initializeCrosswordEditor();
+//--------------------------------------------------------------------------------------------------------------------
+// setElementId tests
+//
+QUnit.test('setElementId: Throws exception if element reference key is incorrect', function(assert) {
+    assert.throws(function(){ editor.setElementId("wrongkey","selectorId"); },
+      /Invalid element reference wrongkey/, Error);
+});
+
+QUnit.test('setElementId: Throws exception if element id does not exist', function(assert) {
+    assert.throws(function(){ editor.setElementId("selectSize","selectorId"); },
+      /Element id selectorId not found/, Error);
+});
+
+QUnit.test('setElementId: Sets element id correctly if it exists', function(assert) {
+    editor.setElementId("selectSize","edit-mode");
+    assert.equal(editor.IDs["selectSize"], "edit-mode");
+});
+//--------------------------------------------------------------------------------------------------------------------
+// Grid Size Selection change tests
+//
+QUnit.test('Grid Size change redraws grid to new size', function(assert) {
+    editor.initialize();
     assert.equal($(jqGridId + " > div").length, 25);
     $(jqSizeSelectorId).val(3).change();
     assert.equal($(jqGridId + " > div").length, 9);
 });
 
-QUnit.test('modeSelectorId: Changehandler updates help text for new mode', function(assert) {
-    initializeCrosswordEditor();
+//--------------------------------------------------------------------------------------------------------------------
+// Word/Clue Edit Mode tests
+//
+QUnit.test('Clue Edit Mode: In this mode help text is correct and form is visible', function(assert) {
+    editor.initialize();
     $(jqModeSelectorId).val(2).change();
-    assert.true($(jqModeHelpId).text().indexOf("Click on a numbered square") === 0);
+    assert.true($(jqModeTipId).text().indexOf("Click on a numbered square") === 0);
+    assert.false($(jqClueFormId).is(":hidden"));
 });
 
-QUnit.test('modeSelectorId: Switching back to block selection clears hilites', function(assert) {
-    initializeCrosswordEditor();
+QUnit.test('Clue Edit Mode: Switching from Clue Edit mode hides form', function(assert) {
+    editor.initialize();
+    $(jqModeSelectorId).val(2).change();
+    $(jqModeSelectorId).val(1).change();
+    assert.true($(jqClueFormId).is(":hidden"));
+});
+
+QUnit.test('Clue Edit Mode: Switching to this mode disables blocking selected cells', function(assert) {
+    editor.initialize();
+    $(jqModeSelectorId).val(2).change();
+    $(jqGridId + " > div")[5].click();
+    assert.equal($(".xw-blocked").length, 0);
+});
+
+//--------------------------------------------------------------------------------------------------------------------
+// Blocks Edit Mode tests
+//
+QUnit.test('Block Edit Mode: Switching back to block selection clears hilites', function(assert) {
+    editor.initialize();
     $(jqModeSelectorId).val(2).change();
     $(jqGridId + " > div")[4].click();
     assert.true($(jqGridId+">div").hasClass("xw-hilited"));
@@ -115,30 +143,26 @@ QUnit.test('modeSelectorId: Switching back to block selection clears hilites', f
     assert.false($(jqGridId+">div").hasClass("xw-hilited"));
 });
 
-QUnit.test('modeSelectorId: In word edit mode all cells are editable', function(assert) {
-    initializeCrosswordEditor();
-    $(jqModeSelectorId).val(2).change();
-    assert.equal($(jqGridId+" > div").attr("contenteditable"), "true");
-});
-
-QUnit.test('Clicking on a cell sets block (in default edit mode)', function(assert) {
-    initializeCrosswordEditor();
+QUnit.test('BlockEdit Mode: Clicking on a cell sets block (in default edit mode)', function(assert) {
+    editor.initialize();
     assert.equal($(".xw-blocked").length, 0);
     $(jqGridId + " > div")[4].click();
     assert.equal($(".xw-blocked").length, 2); // Including symmetric cell
 });
 
-QUnit.test('Blocking a cell enables Reset button and disables size selector', function(assert) {
-    initializeCrosswordEditor();
+QUnit.test('BlockEdit Mode: Blocking a cell enables Reset button and disables size selector', function(assert) {
+    editor.initialize();
     assert.true($(jqResetBtnId).prop('disabled'));
     assert.false($(jqSizeSelectorId).prop('disabled'));
     $(jqGridId + " > div")[4].click();
     assert.false($(jqResetBtnId).prop('disabled'));
     assert.true($(jqSizeSelectorId).prop('disabled'));
 });
-
-QUnit.test('resetBtnId: ClickHandler asks for confirmation', function(assert) {
-    initializeCrosswordEditor();
+//--------------------------------------------------------------------------------------------------------------------
+// Reset button tests
+//
+QUnit.test('Reset Grid button clicked: ClickHandler asks for confirmation', function(assert) {
+    editor.initialize();
     $(jqGridId + " > div")[5].click();
     $(jqGridId + " > div")[1].click();
     confirmResponse = false;
@@ -147,46 +171,19 @@ QUnit.test('resetBtnId: ClickHandler asks for confirmation', function(assert) {
     assert.equal($(".xw-blocked").length, 4);
 });
 
-QUnit.test('resetBtnId: ClickHandler resets grid if confirmed', function(assert) {
-    initializeCrosswordEditor();
+QUnit.test('Reset Grid button clicked: Resets grid if confirmed', function(assert) {
+    editor.initialize();
     $(jqGridId + " > div")[5].click();
     confirmResponse = true;
     $(jqResetBtnId).click();
     assert.equal($(".xw-blocked").length, 0); // Including symmetric cell
 });
 
-QUnit.test('resetBtnId: ClickHandler deactives Reset after grid is reset', function(assert) {
-    initializeCrosswordEditor();
+QUnit.test('Reset Grid button clicked: Deactives Reset butoon after grid is reset', function(assert) {
+    editor.initialize();
     $(jqGridId + " > div")[5].click();
     confirmResponse = true;
     $(jqResetBtnId).click();
     assert.true($(jqResetBtnId).prop('disabled'));
     assert.false($(jqSizeSelectorId).prop('disabled'));
 });
-
-QUnit.test('Changing edit mode disables blocking selected cells', function(assert) {
-    initializeCrosswordEditor();
-    $(jqModeSelectorId).val(2).change();
-    $(jqGridId + " > div")[5].click();
-    assert.equal($(".xw-blocked").length, 0);
-});
-
-/*
-QUnit.unit_tests('In Edit Answers mode - selecting blocked cell does nothing', function(assert) {
-    initializeCrosswordEditor();
-    var firstRowCells = parseInt($(jqSizeSelectorId).val());
-    $(jqModeSelectorId).val(2).change();
-    $(jqGridId + " > div")[0].click();
-    assert.equal($(".hilite").length, firstRowCells);
-    assert.true($(jqGridId + " > div:lt("+firstRowCells+")").hasClass("hilite"));
-});
-*/
-
-/* HELPER FUNCTIONS */
-function initializeCrosswordEditor() {
-    CrosswordEditor.setModeSelectorId(modeSelectorId);
-    CrosswordEditor.setSizeSelectorId(sizeSelectorId);
-    CrosswordEditor.setModeHelpId(modeHelpId);
-    CrosswordEditor.setResetBtnId(resetBtnId);
-    CrosswordEditor.initialize(gridId);
-}

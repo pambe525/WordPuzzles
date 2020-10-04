@@ -11,34 +11,33 @@
           <option value=13>13 x 13</option>
           <option value=15 selected>15 x 15</option>
         </select>
-        <button id="reset-grid" class="btn btn-sm ml-2 h6 btn-primary">Reset Grid</button>
+        <button id="reset-grid" class="btn btn-sm ml-2 btn-primary">Reset Grid</button>
         <span class="pt-2 ml-4 h6">Edit Mode: </span>
         <select id="edit-mode" class="ml-2 mr-1 p-1">
           <option value=1 selected>Select Squares to Block</option>
-          <option value=2>Add words to grid</option>
-          <option value=3>Add clues</option>
+          <option value=2>Set words/clues</option>
         </select>
         <span class="p-1 tip">
             <i class="far fa-question-circle fa-lg" style="color:silver;"></i>
             <span id="mode-tip" class="tiptext"></span>
         </span>
-        <button id="save-grid" class="btn btn-sm h6 ml-3 btn-primary">Save Grid</button>
+        <button id="save-grid" class="btn btn-sm ml-3 btn-primary">Save Grid</button>
     </div>
 
-    <!-- WORD & CLUE INPUT
-    <div id="word-input" class="m-3" style="width:700px">
-        <span id="word-ref" class="h6">1 Across:</span>
-        <input type="text" id="grid-word" />
-        <span class="p-1 tip">
-            <i class="far fa-question-circle fa-lg" style="color:darkgray;"></i>
-            <span id="mode-tip" class="tiptext">
-                Words must contain only letters and no spaces. Make sure each word fits in the highlighted spaces.
-            </span>
-        </span>
-        <button id="update-grid" type="button" class="ml-1 btn btn-sm btn-secondary">Update Grid</button>
-        <span class="red-text ml-2">Hello</span>
+    <!-- WORD & CLUE INPUT -->
+    <div id="clue-form" class="mt-2 p-2" style="width:700px; border:1px solid silver; border-radius:5px;">
+        <div class="row m-0">
+            <span id="clue-num" class="h6 pt-1 col-*" style="width:70px"></span>
+            <input id="clue-word" type="text" class="ml-2 col-*" style="width:140px"/>
+            <span id="clue-hint" class="pt-1 ml-2 text-secondary"></span>
+            <span id="clue-msg" class="h6 pt-2 red-text ml-2"></span>
+        </div>
+        <div class="row m-0 mt-2">
+            <span class="h6 pt-1 col-*" style="width:70px">Enter Clue</span>
+            <textarea class="ml-2" id="clue-text" rows="1" cols="50"></textarea>
+            <button id="clue-update" class="ml-1 p-2 badge badge-dark" style="height:30px">Update Grid</button>
+        </div>
     </div>
-    -->
 
     <!-- EDIT MODE SELECTOR AND CROSSWORD GRID -->
     <div class="m-1 mt-2 pt-2">
@@ -46,18 +45,13 @@
         <div id="xw-grid"></div>
     </div>
 
-
     <hr />
     <script src="{% static '/javascript/crossword_editor.js' %}"></script>
     <script src="{% static '/javascript/crossword.js' %}"></script>
     <script>
         $(document).ready(function() {
             try {
-                CrosswordEditor.setSizeSelectorId("grid-size");
-                CrosswordEditor.setModeSelectorId("edit-mode");
-                CrosswordEditor.setModeHelpId("mode-tip");
-                CrosswordEditor.setResetBtnId("reset-grid");
-                CrosswordEditor.initialize("xw-grid");
+                new CrosswordEditor("xw-grid").initialize();
             } catch(e) {
                 alert(e);
             }

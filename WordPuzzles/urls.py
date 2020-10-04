@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from user_auth.views import NewUserView, LoginView, LogoutView
-from puzzles.views import HomeView, EditCrosswordView
+from puzzles.views import HomeView, NewCrosswordView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,5 +24,6 @@ urlpatterns = [
     path('', HomeView.as_view(), name="home"),
     path('login', LoginView.as_view(), name="login"),
     path('logout', LogoutView.as_view(), name="logout"),
-    path('edit_xword/', EditCrosswordView.as_view(), name="edit_xword")
+    path('new_xword', NewCrosswordView.as_view(), name="new_xword"),
+    # path('edit_xword/<int:pk>', EditCrosswordView.as_view(), name="edit_xword")
 ]

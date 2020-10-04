@@ -10,6 +10,6 @@ class CrosswordModelTest(TestCase):
         user = User.objects.create_user(username='testuser', password='12345')
         puzzle = Crossword.objects.create(editor=user)
         self.assertEquals(user, puzzle.editor)
-        self.assertEqual(13, puzzle.size)
-        self.assertEqual("", puzzle.blocks)
+        self.assertEqual(15, puzzle.grid_size)
+        self.assertEqual("", puzzle.grid_content)
         self.assertEqual("Crossword Puzzle #1", str(puzzle))

@@ -9,6 +9,9 @@ QUnit.module('Crossword', {
   },
 });
 
+//--------------------------------------------------------------------------------------------------------------------
+// constructor tests
+//
 QUnit.test('constructor: Throws errors if arguments are not valid', function(assert) {
   assert.throws(function(){ new Crossword(2, function(){}, '1') }, /gridSize must be a number/, Error);
   assert.throws(function(){ new Crossword('bad-id', function(){}, 1) }, /divId does not exist/, Error);
@@ -34,14 +37,14 @@ QUnit.test('constructor: Clears current grid area before adding grid', function(
   assert.equal($(jqGridId).children('div').length, 25);
 });
 
-QUnit.test("constructor: Each grid cell has correct styling", function(assert) {
+QUnit.test("constructor: Grid cells have correct styling", function(assert) {
   var grid = createXWord(4);
   assert.equal($(jqGridId + " > div").css("float"), "left");
   assert.equal($(jqGridId + " > div").width(), 30);
   assert.equal($(jqGridId + " > div").height(), 30);
   assert.equal($(jqGridId + " > div").css("border-right-width"), "1px");});
 
-QUnit.test('constructor: Each grid cell has correct id and click handler', function(assert) {
+QUnit.test('constructor: Grid cells have correct id and click handler', function(assert) {
   var size = 8, grid = createXWord(size), counter = 0;
   var cells = $(jqGridId).children('div');
   for (var row = 0; row < size; row++)
@@ -52,13 +55,50 @@ QUnit.test('constructor: Each grid cell has correct id and click handler', funct
     }
 });
 
-QUnit.test('constructor: Check cell number styling', function(assert) {
+QUnit.test('constructor: Grid cells have a span for letter', function(assert) {
+  var size = 8, grid = createXWord(size), counter = 0;
+  var letterSpans = $(jqGridId+" > div > .xw-letter");
+  assert.equal($(letterSpans).length, size*size);
+});
+
+QUnit.test('constructor: Grid cell numbers have correct styling', function(assert) {
   createXWord(2);
   assert.equal($(jqGridId + " > div > .xw-number").css("font-size"), "9px");
   assert.equal($(jqGridId + " > div > .xw-number").position().left, 1);
   assert.equal($(jqGridId + " > div > .xw-number").position().top, -2);
 });
 
+QUnit.test('constructor: Auto-numbers default blank grid', function(assert) {
+  var size = 6;
+  createXWord(size);
+  var cells = $(jqGridId).children('div');
+  for (var col = 0; col < size; col++)
+    assert.equal($(cells[col]).text(), col + 1);
+  for (var row = 1; row < size; row++)
+    assert.equal($(cells[row * size]).text(), row + size);
+  assert.equal($(".xw-number").length, 11);
+});
+
+QUnit.test('constructor: Auto-numbers grid with blocks added', function(assert) {
+  var xword = createXWord(5);
+  var cells = $(jqGridId).children('div');
+  setBlocks(xword, ["0-0", "1-4", "2-3"]);
+  assert.equal($(".xw-blocked").length, 6);
+  assert.equal($(".xw-number").length, 8);
+  assert.equal($(cells[1]).text(), 1);
+  assert.equal($(cells[2]).text(), 2);
+  assert.equal($(cells[3]).text(), 3);
+  assert.equal($(cells[5]).text(), 4);
+  assert.equal($(cells[14]).text(), 5);
+  assert.equal($(cells[16]).text(), 6);
+  assert.equal($(cells[18]).text(), 7);
+  assert.equal($(cells[20]).text(), 8);
+  assert.equal($(".xw-number").parent().length, 8);
+});
+
+//--------------------------------------------------------------------------------------------------------------------
+// toggleCellBlock tests
+//
 QUnit.test("toggleCellBlock: Returns false if cellId is not valid", function(assert) {
   var xword = createXWord(3);
   assert.false(xword.toggleCellBlock("0-3"));
@@ -71,7 +111,7 @@ QUnit.test("toggleCellBlock: Blocks a cell and returns true", function(assert) {
   assert.true($(cells[1]).hasClass('xw-blocked'));
 });
 
-QUnit.test("toggleCellBlock: Also automatically blocks symmetric cell", function(assert) {
+QUnit.test("toggleCellBlock: Automatically blocks symmetric cell", function(assert) {
   var xword = createXWord(4);
   assert.true(xword.toggleCellBlock("0-1"));
   var cells = $(jqGridId).children('div');
@@ -89,7 +129,7 @@ QUnit.test("toggleCellBlock: Unblocks cells if cells are already blocked", funct
   assert.equal($(".xw-blocked").length, 0);
 });
 
-QUnit.test("toggleCellBlock: Blocks center cell (no symmetric cell)", function(assert) {
+QUnit.test("toggleCellBlock: Blocks grid's center cell (no symmetric cell)", function(assert) {
   var xword = createXWord(5);
   var cells = $(jqGridId).children('div');
   xword.toggleCellBlock("2-2");  // BLOCK
@@ -125,34 +165,9 @@ QUnit.test("toggleCellBlock: Clears existing class names on numbered blocks", fu
   assert.equal($(".xw-number").length, 9);
 });
 
-QUnit.test('constructor: Auto-number default blank grid', function(assert) {
-  var size = 6;
-  createXWord(size);
-  var cells = $(jqGridId).children('div');
-  for (var col = 0; col < size; col++)
-    assert.equal($(cells[col]).text(), col + 1);
-  for (var row = 1; row < size; row++)
-    assert.equal($(cells[row * size]).text(), row + size);
-  assert.equal($(".xw-number").length, 11);
-});
-
-QUnit.test('constructor: Auto-numbers blocked grid', function(assert) {
-  var xword = createXWord(5);
-  var cells = $(jqGridId).children('div');
-  setBlocks(xword, ["0-0", "1-4", "2-3"]);
-  assert.equal($(".xw-blocked").length, 6);
-  assert.equal($(".xw-number").length, 8);
-  assert.equal($(cells[1]).text(), 1);
-  assert.equal($(cells[2]).text(), 2);
-  assert.equal($(cells[3]).text(), 3);
-  assert.equal($(cells[5]).text(), 4);
-  assert.equal($(cells[14]).text(), 5);
-  assert.equal($(cells[16]).text(), 6);
-  assert.equal($(cells[18]).text(), 7);
-  assert.equal($(cells[20]).text(), 8);
-  assert.equal($(".xw-number").parent().length, 8);
-});
-
+//--------------------------------------------------------------------------------------------------------------------
+// hasBlocks tests
+//
 QUnit.test("hasBlock: Returns false when no blocks are present", function(assert) {
   var xword =   createXWord(6);
   assert.false(xword.hasBlocks());
@@ -168,42 +183,9 @@ QUnit.test("hasBlock: Returns true when blocks are present", function(assert) {
   assert.true(xword.hasBlocks());
 });
 
-QUnit.test("getWordLength: Returns 0 if given cell is blocked or out of bounds", function(assert) {
-  var xword = createXWord(7);
-  xword.toggleCellBlock("3-2");
-  assert.equal(xword.getWordLength("3-4"), 0);  // Symmetry cell
-  assert.equal(xword.getWordLength("8-2"), 0);  // Outside grid
-});
-
-QUnit.test("getWordLength: ACROSS returns full length of grid with no blocks", function(assert) {
-  var xword = createXWord(7);
-  assert.equal(xword.getWordLength("0-0"), 7);
-});
-
-QUnit.test("getWordLength: ACROSS returns length between blocks", function(assert) {
-  var xword = createXWord(7);
-  setBlocks(xword, ["1-6","3-1"]);
-  assert.equal(xword.getWordLength("1-1"), 6);
-  assert.equal(xword.getWordLength("5-1"), 6);
-  assert.equal(xword.getWordLength("3-3"), 3);
-  assert.equal(xword.getWordLength("3-0"), 1);
-});
-
-QUnit.test("getWordLength: DOWN returns full length of grid with no blocks", function(assert) {
-  var xword = createXWord(7);
-  assert.equal(xword.getWordLength("3-0", false), 7);
-});
-
-QUnit.test("getWordLength: DOWN returns length between blocks", function(assert) {
-  var xword = createXWord(7);
-  xword.toggleCellBlock("1-6");
-  xword.toggleCellBlock("1-3");
-  assert.equal(xword.getWordLength("0-0", false), 5);
-  assert.equal(xword.getWordLength("5-6", false), 5);
-  assert.equal(xword.getWordLength("3-3", false), 3);
-  assert.equal(xword.getWordLength("0-3", false), 1);
-});
-
+//--------------------------------------------------------------------------------------------------------------------
+// getClueNum tests
+//
 QUnit.test("getClueNum: Returns 0 if given cell is blocked or out of bounds", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("3-2");
@@ -224,6 +206,9 @@ QUnit.test("getClueNum: Returns clue number on first cell of word", function(ass
   assert.equal(xword.getClueNum("5-0", false), 1);
 });
 
+//--------------------------------------------------------------------------------------------------------------------
+// toggleWordHilite tests
+//
 QUnit.test("toggleWordHilite: Hilites referenced ACROSS words", function(assert) {
   var xword = createXWord(7);
   setBlocks(xword, ["0-0", "1-2", "2-4", "3-1"]);
@@ -279,6 +264,9 @@ QUnit.test("toggleWordHilite: Toggles from down to across if applicable", functi
   assertHilitedCells(assert, ["0-6","1-6","2-6","3-6","4-6","5-6"], false);
 });
 
+//--------------------------------------------------------------------------------------------------------------------
+// clearHilites tests
+//
 QUnit.test("clearHilites: Clears all hilites", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("0-0");
@@ -287,6 +275,9 @@ QUnit.test("clearHilites: Clears all hilites", function(assert) {
   assert.equal($(jqGridId + "> .xw-hilited").length, 0);
 });
 
+//--------------------------------------------------------------------------------------------------------------------
+// setEditable tests
+//
 QUnit.test("setEditable: TRUE Makes all cells editable", function(assert) {
   var xword = createXWord(7);
   xword.setEditable(true);
@@ -299,7 +290,163 @@ QUnit.test("setEditable: FALSE Makes all cells uneditable", function(assert) {
   assert.equal($(jqGridId + "> div").attr("contenteditable"),"false");
 });
 
+//--------------------------------------------------------------------------------------------------------------------
+// readWord tests
+//
+QUnit.test("readWord: Returns null if current cell is blocked", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-0");
+  assert.equal(xword.readWord("0-0", true), null);
+});
 
+QUnit.test("readWord: Returns null if ACROSS or DOWN word does not exist", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");
+  assert.equal(xword.readWord("0-0", true), null);
+});
+
+QUnit.test("readWord: Returns word in grid containing given cell", function(assert) {
+  var xword = createXWord(7);
+  assert.equal(xword.readWord("0-0", true), "       ");
+  xword.setWordData("0-0", "testing", "clue", true);
+  assert.equal(xword.readWord("0-0", true), "TESTING");
+});
+
+//--------------------------------------------------------------------------------------------------------------------
+// getWordData tests
+//
+QUnit.test("getWordData: Returns null if cellId is blocked or not in grid", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");
+  assert.equal(xword.getWordData("0-1", true), null);
+  assert.equal(xword.getWordData("0-7", true), null);
+});
+
+QUnit.test("getWordData: Returns null if word does not exist", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");
+  assert.equal(xword.getWordData("0-1", true), null);
+  assert.equal(xword.getWordData("1-1", true), null);
+});
+
+QUnit.test("getWordData: Returns ACROSS word data if word is set", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");  // Block 2nd cell in first row
+  var acrossWordData = {word:"fiver",clue:"some text"};
+  xword.words["across"]["0-2"] = acrossWordData;
+  assert.equal(xword.getWordData("0-0", true), null);  // No across word
+  var wordData = xword.getWordData("0-5", true);  // Should return data for across word starting at 0-2
+  assert.equal(wordData.word, acrossWordData.word);
+  assert.equal(wordData.clue, acrossWordData.clue);
+});
+
+QUnit.test("getWordData: Returns DOWN word data if word is set", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");  // Block 2nd cell in first row
+  var downWordData = {word:"fiver",clue:"some text"};
+  xword.words["down"]["0-0"] = downWordData;
+  var wordData = xword.getWordData("3-0", false);  // Should return data for down starting at 0-0
+  assert.equal(wordData.word, downWordData.word);
+  assert.equal(wordData.clue, downWordData.clue);
+});
+
+//--------------------------------------------------------------------------------------------------------------------
+// setWordData tests
+//
+QUnit.test("setWordData: Throws error if cellId is blocked or not in grid", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-3");
+  assert.throws(function(){ xword.setWordData("0-3","Text","") }, /Invalid cell id/, Error);
+  assert.throws(function(){ xword.setWordData("0-7","Text","") }, /Invalid cell id/, Error);
+});
+
+QUnit.test("setWordData: Throws error if cellId is not in word (across or down)", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");
+  xword.toggleCellBlock("1-2");
+  assert.throws(function(){ xword.setWordData("0-0","Text","", true) }, /Invalid cell id/, Error);
+  assert.throws(function(){ xword.setWordData("0-2","Text","", false) }, /Invalid cell id/, Error);
+});
+
+QUnit.test("setWordData: Throws error if across or down word does not fit", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");
+  xword.toggleCellBlock("0-6");
+  assert.throws(function(){ xword.setWordData("0-5","tex","", true) }, /Word must be 4 chars/, Error);
+  assert.throws(function(){ xword.setWordData("1-2","text","", true) }, /Word must be 7 chars/, Error);
+  assert.throws(function(){ xword.setWordData("1-2","longword","", true) }, /Word must be 7 chars/, Error);
+  assert.throws(function(){ xword.setWordData("0-0","longword","", false) }, /Word must be 6 chars/, Error);
+});
+
+QUnit.test("setWordData: Throws error if word does not contain alphabets", function(assert) {
+  var xword = createXWord(7);
+  assert.throws(function(){ xword.setWordData("0-0","","", true) }, /Word must contain all letters/, Error);
+  assert.throws(function(){ xword.setWordData("0-0","a1de5gh","", true) }, /Word must contain all letters/, Error);
+  assert.throws(function(){ xword.setWordData("0-0","ab e gh","", true) }, /Word must contain all letters/, Error);
+});
+
+QUnit.test("setWordData: Stores the word and clue as across or down in json obj", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");
+  xword.toggleCellBlock("0-6");
+  xword.setWordData("0-4", "word", "clue1", true);
+  xword.setWordData("1-0", "downey", "clue2", false);
+  assert.deepEqual(xword.words["across"]["0-2"], {word:"word", clue:"clue1"});
+  assert.deepEqual(xword.words["down"]["0-0"], {word:"downey", clue:"clue2"});
+});
+
+QUnit.test("setWordData: Sets word letters in grid", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("0-1");
+  xword.toggleCellBlock("0-6");
+  xword.setWordData("0-4", "word", "clue1", true);
+  xword.setWordData("1-0", "downey", "clue2", false);
+  assert.equal(xword.readWord("0-3", true), "WORD");
+  assert.equal(xword.readWord("0-0", false), "DOWNEY");
+});
+
+QUnit.test("setWordData: Updates existing word letters in grid", function(assert) {
+  var xword = createXWord(7);
+  xword.setWordData("0-3", "current", "oldclue", true);
+  assert.equal(xword.readWord("0-3", true), "CURRENT");
+  assert.deepEqual(xword.words["across"]["0-0"], {word:"current", clue:"oldclue"});
+  assert.equal(xword.getClueNum("0-0", true), 1);  // Cell number should not be overwritten
+  xword.setWordData("0-3", "replace", "newclue", true);
+  assert.equal(xword.readWord("0-3", true), "REPLACE");
+  assert.deepEqual(xword.words["across"]["0-0"], {word:"replace", clue:"newclue"});
+  assert.equal(xword.getClueNum("0-0", true), 1);
+});
+
+QUnit.test("setWordData: Throws error if word conflicts with existing letters", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("0-0");
+  xword.toggleCellBlock("0-2");
+  xword.toggleCellBlock("2-2");
+  xword.setWordData("0-1", "snake", "clue1", false);
+  xword.setWordData("0-3", "tenet", "clue2", false);
+  assert.throws(function(){xword.setWordData("1-0","paper","", true)}, /Word conflicts with existing letters/, Error);
+  xword.setWordData("3-0", "skyer", "clue3", true);
+});
+
+QUnit.test("setWordData: Throws error if word length mismatch nos. in parenthesis at end of clue", function(assert) {
+  var xword = createXWord(7);
+  assert.throws(function(){xword.setWordData("3-2", "letters", "clue 1 (6)", true)},
+      /Incorrect number\(s\) in parentheses at end of clue/, Error);
+  assert.throws(function(){xword.setWordData("3-2", "letters", "clue 1 (2,3,1)", true)},
+      /Incorrect number\(s\) in parentheses at end of clue/, Error);
+  assert.throws(function(){xword.setWordData("3-2", "letters", "clue 1 (6-2)", true)},
+      /Incorrect number\(s\) in parentheses at end of clue/, Error);
+});
+
+QUnit.test("setWordData: Checks match between word length and number is parentheses in clue", function(assert) {
+  var xword = createXWord(7);
+  xword.setWordData("3-2", "letters", "clue 1 (7)", true);
+  assert.equal(xword.getWordData("3-2", true).clue, "clue 1 (7)");
+  xword.setWordData("3-2", "letters", "clue 1 (2,4,1)", true);
+  assert.equal(xword.getWordData("3-2", true).clue, "clue 1 (2,4,1)");
+  xword.setWordData("3-2", "letters", "clue 1 (2-2,1-1,1)", true);
+  assert.equal(xword.getWordData("3-2", true).clue, "clue 1 (2-2,1-1,1)");
+});
 
 /******************************************************************************************
 /* HELPER FUNCTIONS */
@@ -311,6 +458,12 @@ function setBlocks(xword, blockIds) {
   blockIds.forEach( function(item) {
     xword.toggleCellBlock(item);
   });
+}
+
+function setAcrossWord(xword, startCellIndex, word) {
+  var gridCells = $(jqGridId + " > div");
+  for (var i = 0; i < word.length; i++)
+    $(gridCells[i+startCellIndex]).children(".xw-letter").text(word[i]);
 }
 
 function assertHilitedCells(assert, hilitedCellIds, isAcross) {

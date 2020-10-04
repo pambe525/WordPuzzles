@@ -11,6 +11,16 @@ html {
     color: red;
 }
 
+textarea {
+    resize: none;
+}
+
+button, .btn {
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 14px;
+}
+
 /* Tooltip styling */
 .tip {
     position: relative;

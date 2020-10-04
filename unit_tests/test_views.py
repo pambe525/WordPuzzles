@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from user_auth.forms import NewUserForm
+from puzzles.models import Crossword
 
 
 # ==============================================================================================
@@ -31,7 +32,7 @@ class HomeViewTests(TestCase):
 
 # ==============================================================================================
 #
-class NewUserViewTests(TestCase):
+class EditUserViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
         user = User.objects.get_or_create(username="testuser")[0]
@@ -142,20 +143,52 @@ class LoginViewTests(TestCase):
 
 
 # ==============================================================================================
-class EditCrosswordViewTests(TestCase):
+#
+class NewCrosswordViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
         user = User.objects.get_or_create(username="testuser")[0]
         self.client.force_login(user)
 
-    def test_get_renders_view_if_user_is_authenticated(self):
-        response = self.client.get(reverse("edit_xword"))
+    def test_new_xword_GET_renders_view_if_user_is_authenticated(self):
+        response = self.client.get(reverse("new_xword"))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.templates[0].name, "edit_xword.html")
         self.assertContains(response, "New Crossword Puzzle")
+        self.assertEquals(0, response.context['pk'])
 
-    def test_get_redirects_to_login_view_if_user_is_not_authenticated(self):
+    def test_new_xword_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
         logout(self.client)
-        response = self.client.get(reverse("edit_xword"))
+        response = self.client.get(reverse("new_xword"))
         self.assertEquals(response.status_code, 302)
-        self.assertEquals(response.url, "/login?next=/edit_xword/")
+        self.assertEquals(response.url, "/login?next=/new_xword")
+
+    def test_new_xword_POST_returns_error_if_grid_size_is_zero(self):
+        data = {'grid_size': 0, 'grid_content': ""}
+        response = self.client.post(reverse('new_xword'), data=data)
+        self.assertTrue(response.context['has_error'])
+        self.assertEquals("Grid size cannot be zero", response.context['message'])
+
+    def test_new_xword_POST_returns_error_if_grid_content_does_not_match_grid_size(self):
+        data = {'grid_size': 10, 'grid_content': " "*99}
+        response = self.client.post(reverse('new_xword'), data=data)
+        self.assertTrue(response.context['has_error'])
+        self.assertEquals("Grid content length must match no. of grid squares", response.context['message'])
+
+    def test_new_xword_POST_saves_validated_data_and_returns_puzzle_id(self):
+        data = {'grid_size': 10, 'grid_content': " "*100}
+        response = self.client.post(reverse('new_xword'), data=data)
+        self.assertFalse(response.context['has_error'])
+        self.assertEquals("", response.context['message'])
+        self.assertEquals(1, response.context['puzzle_id'])
+        self.assertEqual(len(Crossword.objects.get_queryset()), 1)
+
+    def test_new_xword_POST_saves_data_correctly(self):
+        data = {'grid_size': 10, 'grid_content': " " * 100}
+        self.client.post(reverse('new_xword'), data=data)
+        self.assertEqual(len(Crossword.objects.get_queryset()), 1)
+        db_record = Crossword.objects.get(pk=1)
+        self.assertEquals(data['grid_size'], db_record.grid_size)
+        self.assertEquals(data['grid_content'], db_record.grid_content)
+        self.assertEquals(1, db_record.editor.id)
+

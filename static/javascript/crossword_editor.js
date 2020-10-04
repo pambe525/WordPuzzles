@@ -1,117 +1,94 @@
-CrosswordEditor = (function() {
+class CrosswordEditor {
 
-    var gridId = null;
-    var selectSizeId = null;
-    var btnResetId = null;
-    var selectModeId = null;
-    var spanModeHelpId = null;
-    var XWord = null;
+    IDs = { grid:null, selectSize:'#grid-size', resetBtn:'#reset-grid', selectMode:'#edit-mode',
+            modeTip:'#mode-tip', saveGrid:'#save-grid', clueForm:'#clue-form', clueNum:'#clue-num',
+            clueWord:'#clue-word', clueHint:'#clue-hint', clueText:'#clue-text', clueMsg:'#clue-msg',
+            clueUpdateBtn:'#clue-update'
+    };
+    gridId = "xw-grid";
 
-    // Default Answer input area IDs
-    //var wordFormId = "#word-input";
+    constructor(gridId) {
+        this.gridId = gridId;
+        this.IDs.grid = "#"+gridId;
+    }
 
-    /* PRIVATE METHODS */
-    function setModeHelpText() {
+    initialize() {
+        for (var key in this.IDs)
+            if ($(this.IDs[key]).length === 0) throw new Error(this.IDs[key] + " does not exist");
+        this._createNewCrossword();
+        $(this.IDs.selectSize).change(this._sizeSelectionChanged);
+        $(this.IDs.selectMode).change(this._modeSelectionChanged);
+        $(this.IDs.resetBtn).click(this._resetBtnClicked);
+        this._setModeHelpText();
+        this._setWidgetStates();
+    }
+
+    setElementId(elemRef, elemId) {
+        if (this.IDs[elemRef] === undefined) throw new Error("Invalid element reference " + elemRef);
+        if ($("#"+elemId).length === 0) throw new Error("Element id " + elemId + " not found");
+        this.IDs[elemRef] = elemId;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------
+    // PRIVATE FUNCTIONS
+    //
+    _createNewCrossword() {
+        var gridSize = parseInt($(this.IDs.selectSize).val());
+        this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
+    }
+    _cellClicked = (event) => {
+        if ( parseInt($(this.IDs.selectMode).val()) === 1) {
+            this.Xword.toggleCellBlock(event.target.id);
+            this._setWidgetStates();
+        } else {
+            this.Xword.toggleWordHilite(event.target.id);
+        }
+    }
+
+    _setModeHelpText() {
         var msg;
-        var selectMode = parseInt($(selectModeId).val());
+        var selectMode = parseInt($(this.IDs.selectMode).val());
         if (selectMode === 1)
             msg = "Click on a grid square to block it. Re-select to unblock. " +
                 "Diametrically opposite square will also be blocked using 180 deg. rotational symmetry.";
         else
             msg = "Click on a numbered square to edit ACROSS or DOWN answer.";
-        $(spanModeHelpId).text(msg);
+        $(this.IDs.modeTip).text(msg);
     }
 
-    function setWidgetStates() {
-        if (XWord.hasBlocks()) {
-            $(selectSizeId).prop("disabled", true);
-            $(btnResetId).prop("disabled", false);
+    _setWidgetStates() {
+        if (this.Xword.hasBlocks()) {
+            $(this.IDs.selectSize).prop("disabled", true);
+            $(this.IDs.resetBtn).prop("disabled", false);
         } else {
-            $(selectSizeId).prop("disabled", false);
-            $(btnResetId).prop("disabled", true);
+            $(this.IDs.selectSize).prop("disabled", false);
+            $(this.IDs.resetBtn).prop("disabled", true);
         }
-        if (parseInt($(selectModeId).val()) === 1) {
-            XWord.setEditable(false);
-            XWord.clearHilites();
+        var editModeSelection = parseInt($(this.IDs.selectMode).val());
+        if ( editModeSelection === 1 ) {
+            $(this.IDs.clueForm).hide();
+            this.Xword.clearHilites();
         } else {
-            XWord.setEditable(true);
+            $(this.IDs.clueForm).show();
         }
     }
 
-    function sizeSelectionChanged() {
-        var gridSize = parseInt($(selectSizeId).val());
-        XWord = new Crossword(gridId, cellClicked, gridSize);
+    _sizeSelectionChanged = () => {
+        var gridSize = parseInt($(this.IDs.selectSize).val());
+        this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
     }
 
-    function resetBtnClicked() {
+    _modeSelectionChanged = () => {
+        this._setModeHelpText();
+        this._setWidgetStates();
+    }
+
+    _resetBtnClicked = () => {
         var msg = "All changes to grid will be lost. Please confirm or cancel."
         if ( confirm(msg) ) {
-            var gridSize = parseInt($(selectSizeId).val());
-            XWord = new Crossword(gridId, cellClicked, gridSize);
-            setWidgetStates();
+            var gridSize = parseInt($(this.IDs.selectSize).val());
+            this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
+            this._setWidgetStates();
         }
     }
-
-    function modeSelectionChanged() {
-        setModeHelpText();
-        setWidgetStates();
-    }
-
-    function cellClicked(event) {
-        if ( parseInt($(selectModeId).val()) === 1) {
-            XWord.toggleCellBlock(event.target.id);
-            setWidgetStates();
-        } else {
-            XWord.toggleWordHilite(event.target.id);
-        }
-    }
-
-    /* PUBLIC METHODS */
-    return {
-        reset: function() {
-            gridId = null;
-            selectSizeId = null;
-            btnResetId = null;
-            selectModeId = null;
-            spanModeHelpId = null;
-            XWord = null;
-        },
-
-        initialize: function(divId) {
-            if ($("#" + divId).length === 0) throw new Error("divId does not exist");
-            gridId = divId;
-            if ( !selectSizeId ) throw new Error("Size selector not set");
-            var gridSize = parseInt($(selectSizeId).val());
-            XWord = new Crossword(gridId, cellClicked, gridSize);
-            setModeHelpText();
-            setWidgetStates();
-        },
-
-        setSizeSelectorId: function(selectorId) {
-            var jqId = "#" + selectorId;
-            if ($(jqId).length === 0) throw new Error("Size selector does not exist");
-            selectSizeId = jqId;
-            $(selectSizeId).change(sizeSelectionChanged);
-        },
-
-        setResetBtnId: function(btnId) {
-            var jqId = "#" + btnId;
-            if ($(jqId).length === 0) throw new Error("Reset button does not exist");
-            btnResetId = jqId;
-            $(btnResetId).click(resetBtnClicked);
-        },
-
-        setModeSelectorId: function(selectorId) {
-            var jqId = "#" + selectorId;
-            if ($(jqId).length === 0) throw new Error("Mode selector does not exist");
-            selectModeId = jqId;
-            $(selectModeId).change(modeSelectionChanged);
-        },
-
-        setModeHelpId: function(spanId) {
-            var jqId = "#" + spanId;
-            if ($(jqId).length === 0) throw new Error("Mode help span does not exist");
-            spanModeHelpId = jqId;
-        },
-     }
-})();
+}

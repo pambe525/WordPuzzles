@@ -1,7 +1,7 @@
 from django.views import View
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
-#from puzzles.forms import NewCrosswordForm
+from puzzles.models import Crossword
 
 
 class HomeView(LoginRequiredMixin, View):
@@ -10,43 +10,33 @@ class HomeView(LoginRequiredMixin, View):
         return render(request, "home.html", {})
 
 
-def get_grid_html(size):
-    width = 31 * size
-    grid_css = "style='width:" + str(width) + "px; height:" + str(width) + "px'"
-    cell_css = "style='width:28px; height:28px;'"
-    html = "<div class='xw-grid' " + grid_css + ">"
-    for row in range(size+1):
-        for col in range(size+1):
-            class_name = "class='xw-cell'"
-            if row == 0 and col != 0:
-                class_name = "class='xw-header-top'"
-            elif col == 0 and row != 0:
-                class_name = "class='xw-header-left'"
-            elif col == 0 and row == 0:
-                class_name ="class='xw-corner'"
-            html += "<div " + class_name + " " + cell_css + ">"
-            if row == 0 and col > 0:
-                html += "&#" + str(64+col)
-            if col == 0 and row > 0:
-                html += str(row)
-            html += "</div>"
-    html += '</div>'
-    return html
+class NewCrosswordView(LoginRequiredMixin, View):
 
+    model = Crossword
 
-class EditCrosswordView(LoginRequiredMixin, View):
+    def __init__(self):
+        super().__init__()
+        self.context = {'puzzle_id': 0, 'has_error': False, 'message': ''}
 
     def get(self, request):
-        #size = form.cleaned_data['size']
-        grid_html = get_grid_html(13)
-        return render(request, "edit_xword.html", {'grid': grid_html})
+        return render(request, "edit_xword.html", { 'pk':0 })
 
     def post(self, request):
-        #form = NewCrosswordForm(request.POST)
-        grid_html = ""
-        # if form.is_valid():
-        #     size = form.cleaned_data['size']
-        #     grid_html = get_grid_html(size)
-        return render(request, "edit_xword.html", {'grid': grid_html})
+        if self._validate_data(request.POST):
+            grid_size = request.POST.get('grid_size')
+            grid_content = request.POST.get('grid_content')
+            xword = self.model.objects.create(grid_size=grid_size, grid_content=grid_content, editor=request.user)
+            self.context['puzzle_id'] = xword.id
+        return render(request, "edit_xword.html", self.context)
 
-
+    def _validate_data(self, data_dict):
+        grid_size = int(data_dict.get('grid_size'))
+        if grid_size == 0:
+            self.context['has_error'] = True
+            self.context['message'] = "Grid size cannot be zero"
+            return False
+        elif len(data_dict.get('grid_content')) != grid_size * grid_size:
+            self.context['has_error'] = True
+            self.context['message'] = "Grid content length must match no. of grid squares"
+            return False
+        return True

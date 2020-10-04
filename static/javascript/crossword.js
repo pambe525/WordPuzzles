@@ -1,6 +1,8 @@
 class Crossword {
 
     cellSize = 30;
+    clickHandler = null;
+    words = {across:{}, down:{}};
 
     constructor(divId, clickHandler, gridSize) {
         this.gridSize = gridSize;
@@ -22,14 +24,6 @@ class Crossword {
 
     hasBlocks() {
         return ($(".xw-blocked").length !== 0);
-    }
-
-    getWordLength(cellId, isAcross = true) {
-        if (!this._isUnblockedCell(cellId)) return 0;
-        var beginCoord = this._getCellCoord(this._getWordStartCellId(cellId, isAcross));
-        var endCoord = this._getCellCoord(this._getWordEndCellId(cellId, isAcross));
-        var index = (isAcross) ? 1 : 0;
-        return (endCoord[index] - beginCoord[index] + 1);
     }
 
     getClueNum(cellId, isAcross = true) {
@@ -60,9 +54,39 @@ class Crossword {
         $(this.gridId).children('div').attr('contenteditable', (isEditable) ? "true" : "false");
     }
 
-    /**
-     * NON-PUBLIC METHODS
-     */
+    readWord(cellId, isAcross=true) {
+        if (!this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross)) return null;
+        var cells = this._getCellsInWord(cellId, isAcross)
+        var word = "", letter;
+        for (var i = 0; i < cells.length; i++) {
+            letter = $(cells[i]).children(".xw-letter").text();
+            if (letter === "") letter = " ";
+            word += letter;
+        }
+        return word;
+    }
+
+    getWordData(cellId, isAcross=true) {
+        if ( !this._isUnblockedCell(cellId) ) return null;
+        var startCellId = this._getWordStartCellId(cellId, isAcross);
+        var key = (isAcross) ? "across" : "down";
+        return (this.words[key][startCellId] === undefined) ? null : this.words[key][startCellId];
+    }
+
+    setWordData(cellId, word, clue, isAcross=true) {
+        if ( !this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross) ) throw new Error("Invalid cell id");
+        var wordCells = this._getCellsInWord(cellId, isAcross);
+        this._checkWordFitToGrid(cellId, word, wordCells, isAcross);
+        this._checkClue(word, clue);
+        var key = (isAcross) ? "across" : "down";
+        var startCellId = this._getWordStartCellId(cellId, isAcross);
+        this.words[key][startCellId] = {word:word, clue:clue};
+        this._setGridWord(word, wordCells);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------
+    // PRIVATE METHODS
+    //
     _validateArgs() {
         if (typeof (this.gridSize) != "number") throw new Error("gridSize must be a number");
         if ($(this.gridId).length === 0) throw new Error("divId does not exist");
@@ -88,7 +112,8 @@ class Crossword {
             "border-right:1px solid black; border-bottom:1px solid black; float:left; position: relative;" +
             "text-align:center; font-size:17px; text-transform: uppercase}";
         css += ".xw-hilited {background-color:yellow}";
-        css += this.gridId + " > div:focus {background-color: #FFFF99; text-align:center}"
+        css += ".xw-letter {font-size:17px;}; .xw-red {font-weight:bold; color:red;}"
+        //css += this.gridId + " > div:focus {background-color: #FFFF99; text-align:center}"
         var styleTag = "<style id='xw-style' type='text/css'></style>";
         $(styleTag).html(css).appendTo("head");
     }
@@ -99,12 +124,12 @@ class Crossword {
 
     _createGridCell(row, col) {
         var cellId = this._getCellId(row, col);
-        var cell = $("<div></div>");
+        var cell = $("<div><span class='xw-letter'></span></div>");
         cell.click(this.clickHandler).on('keydown', this._onKeyDown).attr('id', cellId);
         return cell;
     }
 
-    /** NEEDS WORK TO HANDLE TAB & SHIFT-TAB **/
+    /** NOT CURRENTLY USED - MAY NEED WORK TO HANDLE TAB & SHIFT-TAB **/
     _onKeyDown = (event) => {
         var cellId = event.target.id, jqCellId = "#"+cellId;
         event.preventDefault();
@@ -250,24 +275,31 @@ class Crossword {
         return inlineCells.slice(startCellIndex, endCellIndex+1);
     }
 
-    // _checkWordData(wordData, isAcross=true) {
-    //     if ( wordData.word === "" ) throw new Error("Word cannot be blank");
-    //     if ( !wordData.word.match(/^[a-z- ]+$/i) ) throw new Error("Word must contain letters only");
-    //     var gridWord = this._makeGridWord(wordData.word)
-    //     if ( gridWord.length !== this.getWordLength(wordData.startCellId, isAcross) )
-    //         throw new Error("Word length does not fit");
-    // }
+    _checkWordFitToGrid(cellId, word, wordCells, isAcross=true) {
+        if ( !/^[A-Za-z]+$/.test(word) ) throw new Error("Word must contain all letters");
+        if (word.length !== wordCells.length) throw new Error("Word must be "+wordCells.length+" chars");
+        var allCapsWord = word.toUpperCase(), gridLetter;
+        for (var i = 0; i < wordCells.length; i++ ) {
+            gridLetter = $(wordCells[i]).children(".xw-letter").text();
+            if ( this.getWordData(wordCells[i].id, !isAcross) !== null && allCapsWord[i] !== gridLetter )
+                throw new Error("Word conflicts with existing letters");
+        }
+        return true;
+    }
 
-    // _makeGridWord(nativeWord) {
-    //     return nativeWord.replace(/[ -]/g,"").toUpperCase();
-    // }
+    _checkClue(word, clue) {
+        var numbers = clue.match(/\(([^)]*)\)[^(]*$/);
+        if (numbers === null) return;
+        numbers = numbers[1].split(/,| |-/);
+        var parenSum = numbers.reduce((a, b) => parseInt(a) + parseInt(b),0);
+        if (parenSum !== word.length) throw new Error("Incorrect number(s) in parentheses at end of clue");
+        return true;
+    }
 
-    // _setGridWord(startCellId, gridWord, isAcross=true) {
-    //     var coord = this._getCellCoord(startCellId), cellId;
-    //     var startIndex = (isAcross) ? coord[1] : coord[0];
-    //     for (var i = 0; i < gridWord.length; i++) {
-    //         cellId = (isAcross) ? this._getCellId(coord[0], i+coord[1])
-    //         $("#"+cellId)
-    //     }
-    // }
+    _setGridWord(word, wordCells) {
+        var gridWord = word.toUpperCase();
+        for (var i = 0; i < gridWord.length; i++)
+            $(wordCells[i]).children(".xw-letter").text(gridWord[i]);
+    }
 }
+
