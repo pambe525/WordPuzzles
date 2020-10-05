@@ -209,29 +209,29 @@ QUnit.test("getClueNum: Returns clue number on first cell of word", function(ass
 //--------------------------------------------------------------------------------------------------------------------
 // toggleWordHilite tests
 //
-QUnit.test("toggleWordHilite: Hilites referenced ACROSS words", function(assert) {
+QUnit.test("toggleWordHilite: Hilites referenced ACROSS words and returns true", function(assert) {
   var xword = createXWord(7);
   setBlocks(xword, ["0-0", "1-2", "2-4", "3-1"]);
-  xword.toggleWordHilite("0-2");
+  assert.true(xword.toggleWordHilite("0-2"));
   assertHilitedCells(assert, ["0-1","0-2","0-3","0-4","0-5","0-6"], true);
-  xword.toggleWordHilite("1-1");
+  assert.true(xword.toggleWordHilite("1-1"));
   assertHilitedCells(assert, ["1-0","1-1"], true);
-  xword.toggleWordHilite("1-3");
+  assert.true(xword.toggleWordHilite("1-3"));
   assertHilitedCells(assert, ["1-3","1-4","1-5","1-6"], true);
-  xword.toggleWordHilite("2-3");
+  assert.true(xword.toggleWordHilite("2-3"));
   assertHilitedCells(assert, ["2-0","2-1","2-2","2-3"], true);
-  xword.toggleWordHilite("3-3");
+  assert.true(xword.toggleWordHilite("3-3"));
   assertHilitedCells(assert, ["3-2","3-3","3-4"], true);
 });
 
-QUnit.test("toggleWordHilite: Hilites referenced DOWN words", function(assert) {
+QUnit.test("toggleWordHilite: Hilites referenced DOWN words and returns false", function(assert) {
   var xword = createXWord(7);
   setBlocks(xword, ["0-0", "0-2", "1-2", "2-2", "2-4", "3-1"]);
-  xword.toggleWordHilite("0-1");
+  assert.false(xword.toggleWordHilite("0-1"));
   assertHilitedCells(assert, ["0-1","1-1","2-1"], false);
-  xword.toggleWordHilite("2-3");
+  assert.false(xword.toggleWordHilite("2-3"));
   assertHilitedCells(assert, ["0-3","1-3","2-3","3-3","4-3","5-3", "6-3"], false);
-  xword.toggleWordHilite("0-5");
+  assert.false(xword.toggleWordHilite("0-5"));
   assertHilitedCells(assert, ["0-5","1-5","2-5"], false);
 });
 
@@ -247,25 +247,25 @@ QUnit.test("toggleWordHilite: Clears previous hilites", function(assert) {
 QUnit.test("toggleWordHilite: Toggles from across to down if applicable", function(assert) {
   var xword = createXWord(7);
   setBlocks(xword, ["0-0", "0-2", "1-2", "2-4", "3-1"]);
-  xword.toggleWordHilite("0-3");
+  assert.true(xword.toggleWordHilite("0-3"));
   assertHilitedCells(assert, ["0-3","0-4","0-5","0-6"], true);
-  xword.toggleWordHilite("0-3");
+  assert.false(xword.toggleWordHilite("0-3"));
   assertHilitedCells(assert, ["0-3","1-3","2-3","3-3","4-3","5-3","6-3"], false);
 });
 
 QUnit.test("toggleWordHilite: Toggles from down to across if applicable", function(assert) {
   var xword = createXWord(7);
   setBlocks(xword, ["0-0", "0-2", "1-2", "2-4", "3-1"]);
-  xword.toggleWordHilite("0-6");
+  assert.false(xword.toggleWordHilite("0-6"));
   assertHilitedCells(assert, ["0-6","1-6","2-6","3-6","4-6","5-6"], false);
-  xword.toggleWordHilite("0-6");
+  assert.true(xword.toggleWordHilite("0-6"));
   assertHilitedCells(assert, ["0-3","0-4","0-5","0-6"], true);
-  xword.toggleWordHilite("0-6");
+  assert.false(xword.toggleWordHilite("0-6"));
   assertHilitedCells(assert, ["0-6","1-6","2-6","3-6","4-6","5-6"], false);
 });
 
 //--------------------------------------------------------------------------------------------------------------------
-// clearHilites tests
+// Hilites tests
 //
 QUnit.test("clearHilites: Clears all hilites", function(assert) {
   var xword = createXWord(7);
@@ -273,6 +273,29 @@ QUnit.test("clearHilites: Clears all hilites", function(assert) {
   xword.toggleWordHilite("0-1");
   xword.clearHilites();
   assert.equal($(jqGridId + "> .xw-hilited").length, 0);
+});
+
+QUnit.test("getFirstHilitedCellId: Returns null if no hilited cells", function(assert) {
+  var xword = createXWord(7);
+  assert.equal(xword.getFirstHilitedCellId(), null);
+});
+
+QUnit.test("getFirstHilitedCellId: Returns first cell id of hilited cells", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleCellBlock("1-1");
+  xword.toggleWordHilite("1-4");
+  assert.equal(xword.getFirstHilitedCellId(), "1-2");
+});
+
+QUnit.test("isHiliteAcross: Returns null if no hilited cells", function(assert) {
+  var xword = createXWord(7);
+  assert.equal(xword.isHiliteAcross(), null);
+});
+
+QUnit.test("isHiliteAcross: Returns true if hilited is across", function(assert) {
+  var xword = createXWord(7);
+  xword.toggleWordHilite("0-0");
+  assert.true(xword.isHiliteAcross());
 });
 
 //--------------------------------------------------------------------------------------------------------------------

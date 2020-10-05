@@ -31,18 +31,19 @@ class Crossword {
     }
 
     toggleWordHilite(cellId) {
-        var jqCellId = "#"+cellId;
+        var jqCellId = "#"+cellId, isAcross = null;
         if ( !$(jqCellId).hasClass("xw-hilited") ) {
-            if (this._isWordStart(cellId, true)) this._hiliteCellsInWord(cellId, true);
-            else if (this._isWordStart(cellId, false)) this._hiliteCellsInWord(cellId, false);
-            else if (this._isInWord(cellId, true)) this._hiliteCellsInWord(cellId, true);
-            else if (this._isInWord(cellId, false)) this._hiliteCellsInWord(cellId, false);
+            if (this._isWordStart(cellId, true)) isAcross = true;
+            else if (this._isWordStart(cellId, false)) isAcross = false;
+            else if (this._isInWord(cellId, true)) isAcross = true;
+            else if (this._isInWord(cellId, false)) isAcross = false;
+            this._hiliteCellsInWord(cellId, isAcross);
         } else {
-            if( $(jqCellId).hasClass("xw-across") && this._isInWord(cellId, false) )
-                this._hiliteCellsInWord(cellId, false);
-            else if ( $(jqCellId).hasClass("xw-down") && this._isInWord(cellId, true) )
-                this._hiliteCellsInWord(cellId, true);
+            if( $(jqCellId).hasClass("xw-across") && this._isInWord(cellId, false) ) isAcross = false;
+            else if ( $(jqCellId).hasClass("xw-down") && this._isInWord(cellId, true) ) isAcross = true;
+            this._hiliteCellsInWord(cellId, isAcross);
         }
+        return isAcross;
     }
 
     clearHilites() {
@@ -84,6 +85,18 @@ class Crossword {
         this._setGridWord(word, wordCells);
     }
 
+    getFirstHilitedCellId() {
+        var hilitedCells = $(this.gridId+">.xw-hilited");
+        return (hilitedCells.length === 0) ? null : hilitedCells[0].id;
+    }
+
+    isHiliteAcross() {
+        var isAcross = false;
+        var hilitedCells = $(this.gridId+">.xw-across");
+        if (hilitedCells.length > 0) isAcross = true;
+        return (hilitedCells.length === 0) ? null : isAcross;
+    }
+
     //--------------------------------------------------------------------------------------------------------------------
     // PRIVATE METHODS
     //
@@ -109,10 +122,10 @@ class Crossword {
         css += ".xw-blocked {background-color:black;}";
         css += ".xw-number {font-size:9px; top:-2px; left:1px; position:absolute}";
         css += this.gridId + " > div { width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
-            "border-right:1px solid black; border-bottom:1px solid black; float:left; position: relative;" +
-            "text-align:center; font-size:17px; text-transform: uppercase}";
+            "border-right:1px solid black; border-bottom:1px solid black; float:left; position: relative;"+
+            "text-align:center;}";
         css += ".xw-hilited {background-color:yellow}";
-        css += ".xw-letter {font-size:17px;}; .xw-red {font-weight:bold; color:red;}"
+        css += ".xw-letter {font-size:16px;}; .xw-red {font-weight:bold; color:red;}"
         //css += this.gridId + " > div:focus {background-color: #FFFF99; text-align:center}"
         var styleTag = "<style id='xw-style' type='text/css'></style>";
         $(styleTag).html(css).appendTo("head");
@@ -125,7 +138,7 @@ class Crossword {
     _createGridCell(row, col) {
         var cellId = this._getCellId(row, col);
         var cell = $("<div><span class='xw-letter'></span></div>");
-        cell.click(this.clickHandler).on('keydown', this._onKeyDown).attr('id', cellId);
+        cell.on("click", this.clickHandler).attr('id', cellId);
         return cell;
     }
 
