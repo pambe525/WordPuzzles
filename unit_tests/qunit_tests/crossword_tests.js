@@ -159,10 +159,26 @@ QUnit.test("toggleCellBlock: Clears existing blocked cell number", function(asse
 
 QUnit.test("toggleCellBlock: Clears existing class names on numbered blocks", function(assert) {
   var xword = createXWord(5);
-  var cells = $(jqGridId).children('div');
   assert.equal($(".xw-number").length, 9);
   xword.toggleCellBlock("0-4");  // BLOCK CELL WITH A NUMBER
   assert.equal($(".xw-number").length, 9);
+});
+
+QUnit.test("toggleCellBlock: Does not unblock cell if it has a letter in any neighbor", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("2-2");  // BLOCK CENTRAL CELL
+  $("#1-2 >.xw-letter").text("T");
+  xword.toggleCellBlock("2-2");
+  assert.true($("#2-2").hasClass('xw-blocked'));
+});
+
+QUnit.test("toggleCellBlock: Does not unblock cell its symm cell has a letter in any neighbor", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("1-0");  // BLOCK CELL
+  $("#1-1 >.xw-letter").text("T");
+  assert.true($("#3-4").hasClass('xw-blocked')); // SYMMETRIC CELL IS ALSO BLOCKED
+  xword.toggleCellBlock("3-4");                  // TRY TO UNBLOCK SYMMETRIC CELL
+  assert.true($("#3-4").hasClass('xw-blocked')); // SYMMETRIC CELL REMAINS BLOCKED
 });
 
 //--------------------------------------------------------------------------------------------------------------------
@@ -262,6 +278,13 @@ QUnit.test("toggleWordHilite: Toggles from down to across if applicable", functi
   assertHilitedCells(assert, ["0-3","0-4","0-5","0-6"], true);
   assert.false(xword.toggleWordHilite("0-6"));
   assertHilitedCells(assert, ["0-6","1-6","2-6","3-6","4-6","5-6"], false);
+});
+
+QUnit.test("toggleWordHilite: Return null if cell is blocked and does nothing", function(assert) {
+  var xword = createXWord(7);
+  setBlocks(xword, ["0-0", "0-2", "1-2", "2-4", "3-1"]);
+  assert.equal(xword.toggleWordHilite("1-2"), null);
+  assert.equal($(".xw-hilited").length, 0);
 });
 
 //--------------------------------------------------------------------------------------------------------------------
@@ -412,10 +435,10 @@ QUnit.test("setWordData: Stores the word and clue as across or down in json obj"
   var xword = createXWord(7);
   xword.toggleCellBlock("0-1");
   xword.toggleCellBlock("0-6");
-  xword.setWordData("0-4", "word", "clue1", true);
-  xword.setWordData("1-0", "downey", "clue2", false);
-  assert.deepEqual(xword.words["across"]["0-2"], {word:"word", clue:"clue1"});
-  assert.deepEqual(xword.words["down"]["0-0"], {word:"downey", clue:"clue2"});
+  xword.setWordData("0-4", "word", "clue1 (4)", true);
+  xword.setWordData("1-0", "downey", "clue2 (6)", false);
+  assert.deepEqual(xword.words["across"]["0-2"], {word:"word", clue:"clue1 (4)"});
+  assert.deepEqual(xword.words["down"]["0-0"], {word:"downey", clue:"clue2 (6)"});
 });
 
 QUnit.test("setWordData: Sets word letters in grid", function(assert) {
@@ -432,11 +455,11 @@ QUnit.test("setWordData: Updates existing word letters in grid", function(assert
   var xword = createXWord(7);
   xword.setWordData("0-3", "current", "oldclue", true);
   assert.equal(xword.readWord("0-3", true), "CURRENT");
-  assert.deepEqual(xword.words["across"]["0-0"], {word:"current", clue:"oldclue"});
+  assert.deepEqual(xword.words["across"]["0-0"], {word:"current", clue:"oldclue (7)"});
   assert.equal(xword.getClueNum("0-0", true), 1);  // Cell number should not be overwritten
   xword.setWordData("0-3", "replace", "newclue", true);
   assert.equal(xword.readWord("0-3", true), "REPLACE");
-  assert.deepEqual(xword.words["across"]["0-0"], {word:"replace", clue:"newclue"});
+  assert.deepEqual(xword.words["across"]["0-0"], {word:"replace", clue:"newclue (7)"});
   assert.equal(xword.getClueNum("0-0", true), 1);
 });
 
@@ -471,6 +494,46 @@ QUnit.test("setWordData: Checks match between word length and number is parenthe
   assert.equal(xword.getWordData("3-2", true).clue, "clue 1 (2-2,1-1,1)");
 });
 
+QUnit.test("setWordData: No tooltip set if clue text is empty", function(assert) {
+  var xword = createXWord(7);
+  xword.setWordData("3-2", "letters", "", true);
+  assert.equal($("#3-0").prop("title"), "");
+});
+
+QUnit.test("setWordData: Sets tooltip if clue text is not empty", function(assert) {
+  var xword = createXWord(7);
+  xword.setWordData("3-2", "letters", "Clue text (7)", true);
+  assert.equal($("#3-0").prop("title"), "10 Across: Clue text (7)\n");
+});
+
+QUnit.test("setWordData: Replaces tooltip if clue text is changed", function(assert) {
+  var xword = createXWord(7);
+  xword.setWordData("3-2", "letters", "Clue text (7)", true);
+  xword.setWordData("3-2", "letters", "", true);
+  assert.equal($("#3-0").prop("title"), "");
+});
+
+QUnit.test("setWordData: Adds to ACROSS tooltip if DOWN clue text is added", function(assert) {
+  var xword = createXWord(6);
+  xword.setWordData("0-0", "across", "Clue text1 (6)", true);
+  xword.setWordData("0-0", "adowns", "Clue text2 (6)", false);
+  assert.equal($("#0-0").prop("title"), "1 Across: Clue text1 (6)\n1 Down: Clue text2 (6)\n");
+});
+
+QUnit.test("setWordData: Keeps DOWN tooltip if blank ACROSS clue text is added", function(assert) {
+  var xword = createXWord(6);
+  xword.setWordData("0-0", "adowns", "Clue text2 (6)", false);
+  xword.setWordData("0-0", "across", "", true);
+  assert.equal($("#0-0").prop("title"), "1 Down: Clue text2 (6)\n");
+});
+
+QUnit.test("setWordData: Adds no. of letters parentheses in clue text if missing", function(assert) {
+  var xword = createXWord(6);
+  xword.setWordData("0-0", "across", "Clue text2", false);
+  assert.equal(xword.getWordData("0-0", false).clue, "Clue text2 (6)");
+});
+
+
 /******************************************************************************************
 /* HELPER FUNCTIONS */
 function createXWord(size) {
@@ -481,12 +544,6 @@ function setBlocks(xword, blockIds) {
   blockIds.forEach( function(item) {
     xword.toggleCellBlock(item);
   });
-}
-
-function setAcrossWord(xword, startCellIndex, word) {
-  var gridCells = $(jqGridId + " > div");
-  for (var i = 0; i < word.length; i++)
-    $(gridCells[i+startCellIndex]).children(".xw-letter").text(word[i]);
 }
 
 function assertHilitedCells(assert, hilitedCellIds, isAcross) {

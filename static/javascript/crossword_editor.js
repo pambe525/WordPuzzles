@@ -51,12 +51,14 @@ class CrosswordEditor {
         $(this.IDs.resetBtn).click(this._resetBtnClicked);
         $(this.IDs.clueUpdateBtn).click(this._updateClue);
         $(this.IDs.clueWord).keyup(this._onEnterKey);
-        $(this.IDs.clueText).keyup(this._onEnterKey);
+        $(this.IDs.clueText).keydown(this._onEnterKey);
     }
 
     _onEnterKey = (event) => {
-        if (event.keyCode === 13)
+        if (event.keyCode === 13) {
+            event.preventDefault();
             $(this.IDs.clueUpdateBtn).click();
+        }
     }
 
     _setModeHelpText() {
@@ -108,18 +110,8 @@ class CrosswordEditor {
 
     _hiliteWordAndLoadClue(cellId) {
         var isAcross = this.Xword.toggleWordHilite(cellId);
-        var label = (isAcross) ? "Across" : "Down";
-        var clueNum = this.Xword.getClueNum(cellId, isAcross);
-        var gridWord = this.Xword.readWord(cellId, isAcross);
-        var maxLength = gridWord.length;
-        $(this.IDs.clueNum).text("#" + clueNum + " " + label);
-        $(this.IDs.clueHint).text("("+ maxLength + ")");
-        $(this.IDs.clueMsg).text("");
-        $(this.IDs.clueWord).attr("maxlength", maxLength);
-        $(this.IDs.clueText).val("");
+        this._setClueFormFields(cellId, isAcross);
         $(this.IDs.clueWord).focus();
-        var defaultWord = (gridWord.replace(" ","").length !== maxLength) ? "" : gridWord;
-        $(this.IDs.clueWord).val(defaultWord);
     }
 
     _updateClue = () => {
@@ -129,8 +121,30 @@ class CrosswordEditor {
         var isAcross = this.Xword.isHiliteAcross();
         try {
             this.Xword.setWordData(cellId, word, clue, isAcross);
+            $(this.IDs.clueMsg).text("");
         } catch(err) {
             $(this.IDs.clueMsg).text(err.message);
         }
+    }
+
+    _getClueRefText (clueNum, maxLength, isAcross) {
+       var label = (isAcross) ? "Across" : "Down";
+       return ("#" + clueNum + " " + label + " (" + maxLength + ")");
+    }
+
+    _getWordData(cellId, isAcross) {
+        var wordData = this.Xword.getWordData(cellId, isAcross);
+        return (wordData === null) ? {word:"", clue:""} : wordData;
+    }
+
+    _setClueFormFields(cellId, isAcross) {
+        var maxLength = this.Xword.readWord(cellId, isAcross).length;
+        var clueNum = this.Xword.getClueNum(cellId, isAcross);
+        var clueRef = this._getClueRefText(clueNum, maxLength, isAcross);
+        var wordData = this._getWordData(cellId, isAcross);
+        $(this.IDs.clueNum).text(clueRef);
+        $(this.IDs.clueWord).val(wordData.word);
+        $(this.IDs.clueText).val(wordData.clue);
+        $(this.IDs.clueWord).attr("maxlength", maxLength);
     }
 }

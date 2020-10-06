@@ -24,7 +24,7 @@ window.confirm = function(message) {
     return confirmResponse;
 }
 
-var editor;
+var editor, assert = QUnit.assert;
 
 QUnit.module('CrosswordEditor', {
   beforeEach: function() {
@@ -192,11 +192,7 @@ QUnit.test('Clue Edit Mode: Hiliting a blank grid word initializes form', functi
     editor.initialize();
     $(jqModeSelectorId).val(2).change();
     $(jqGridId + " > div")[0].click();
-    assert.equal($(jqClueNumId).text(), "#1 Across");
-    assert.equal($(jqClueHintId).text(), "(5)");
-    assert.equal($(jqClueMsgId).text(), "");
-    assert.equal($(jqClueWordId).val(), "");
-    assert.equal($(jqClueTextId).val(), "");
+    assertClueFormFields("#1 Across (5)", "", "", "")
 });
 
 QUnit.test('Clue Edit Mode: Hiliting a blank grid word sets maxlength of word input field', function(assert) {
@@ -223,29 +219,56 @@ QUnit.test('Clue Edit Mode: Invalid input in clue form shows error message', fun
     assert.equal($(jqClueMsgId).text(), "Word must be 3 chars");
 });
 
-QUnit.test('Clue Edit Mode: Valid input populates grid word', function(assert) {
+QUnit.test('Clue Edit Mode: Valid input populates grid word and word data', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     var cells = $(jqGridId + " > div");
     cells[0].click();
     cells[4].click();
     $(jqModeSelectorId).val(2).change();
     cells[1].click();
-    $(jqClueWordId).val("abc");
-    $(jqClueUpdateId).click();
+    assertClueFormFields("#1 Across (3)", "", "", "");
+    doClueFormInput("abc","clue text");  // 3 letters across
     assert.equal($(jqClueMsgId).text(), "");
-    assert.equal($(cells[1]).children(".xw-letter").text(), "A");
-    assert.equal($(cells[2]).children(".xw-letter").text(), "B");
-    assert.equal($(cells[3]).children(".xw-letter").text(), "C");
+    assert.equal(editor.Xword.readWord("0-1"), "ABC");
+    assert.equal(editor.Xword.words.across["0-1"].word, "abc");
+    assert.equal(editor.Xword.words.across["0-1"].clue, "clue text (3)");
 });
 
-QUnit.test('Clue Edit Mode: Existing letters are populated in form for full word', function(assert) {
+QUnit.test('Clue Edit Mode: Existing word and clue populated in form for full word', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     var cells = $(jqGridId + " > div");
     $(jqModeSelectorId).val(2).change();
     cells[0].click();  // Cell to be populated first
-    $(jqClueWordId).val("abcde");
-    $(jqClueUpdateId).click();
+    doClueFormInput("abcde","clue text");
     cells[6].click();  // Click another cell
+    assertClueFormFields("#6 Across (5)", "", "", "");
     cells[0].click();  // Click populated cell
-    assert.equal($(jqClueWordId).val(), "ABCDE");
+    assertClueFormFields("#1 Across (5)", "abcde", "clue text (5)", "");
 });
+
+QUnit.test('Clue Edit Mode: Previous message is cleared when input is valid', function(assert) {
+    editor.initialize();  // NOTE: Grid is 5x5 by default
+    var cells = $(jqGridId + " > div");
+    $(jqModeSelectorId).val(2).change();
+    cells[0].click();
+    doClueFormInput("abc",""); // short word - error msg
+    assert.equal($(jqClueMsgId).text(), "Word must be 5 chars");
+    doClueFormInput("abcde",""); // correct input
+    assert.equal($(jqClueMsgId).text(), "");
+});
+
+//====================================================================================================================
+// HELPER FUNCTIONS
+//
+function doClueFormInput(word, clueText) {
+    $(jqClueWordId).val(word);
+    $(jqClueTextId).val(clueText);
+    $(jqClueUpdateId).click();
+}
+
+function assertClueFormFields(clueRef, word, clueText, msg) {
+    assert.equal($(jqClueNumId).text(), clueRef);
+    assert.equal($(jqClueMsgId).text(), msg);
+    assert.equal($(jqClueWordId).val(), word);
+    assert.equal($(jqClueTextId).val(), clueText);
+}
