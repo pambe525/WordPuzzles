@@ -14,7 +14,7 @@ class Crossword {
     }
 
     toggleCellBlock(cellId) {
-        if (cellId === null || $("#"+cellId).length === 0 || $("#"+cellId).hasClass("xw-letter")) return false;
+        if (cellId === null || $("#"+cellId).length === 0 || this._hasText(cellId)) return false;
         var symmCellId = this._getSymmetricCellId(cellId);
         if ( this._isBlockedCell(cellId) &&
             (this._hasLetterInNeighbor(cellId) || this._hasLetterInNeighbor(symmCellId)) ) return false;
@@ -127,7 +127,7 @@ class Crossword {
         css += ".xw-number {font-size:9px; top:-2px; left:1px; position:absolute}";
         css += this.gridId + " > div { width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
             "border-right:1px solid black; border-bottom:1px solid black; float:left; position: relative;"+
-            "text-align:center; z-index:1}";
+            "text-align:center;}";
         css += ".xw-hilited {background-color:yellow}";
         css += ".xw-letter {font-size:16px;}; .xw-red {font-weight:bold; color:red;}"
         //css += this.gridId + " > div:focus {background-color: #FFFF99; text-align:center}"
@@ -143,6 +143,7 @@ class Crossword {
         var cellId = this._getCellId(row, col);
         var cell = $("<div><span class='xw-letter'></span></div>");
         cell.on("click", this.clickHandler).attr('id', cellId).attr('contenteditable','false');
+        $(cell).children(".xw-letter").on("click", this.clickHandler);
         return cell;
     }
 

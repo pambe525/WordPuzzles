@@ -142,7 +142,7 @@ QUnit.test("toggleCellBlock: Blocks grid's center cell (no symmetric cell)", fun
 
 QUnit.test("toggleCellBlock: Does not block cell that contains a letter", function(assert) {
     var xword = createXWord(5);
-    $("#0-0").append("A").addClass("xw-letter");
+    $("#0-0>.xw-letter").text("A");
     xword.toggleCellBlock("0-0");
     assert.false($("#0-0").hasClass('xw-blocked'));
 });
