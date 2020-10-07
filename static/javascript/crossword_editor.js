@@ -41,7 +41,8 @@ class CrosswordEditor {
             this.Xword.toggleCellBlock(event.target.id);
             this._setWidgetStates();
         } else {
-            this._hiliteWordAndLoadClue(event.target.id);
+            this.Xword.toggleWordHilite(event.target.id);
+            this._loadClueForm(event.target.id);
        }
     }
 
@@ -73,7 +74,7 @@ class CrosswordEditor {
     }
 
     _setWidgetStates() {
-        if (this.Xword.hasBlocks()) {
+        if ( this.Xword.hasData() ) {
             $(this.IDs.selectSize).prop("disabled", true);
             $(this.IDs.resetBtn).prop("disabled", false);
         } else {
@@ -84,10 +85,11 @@ class CrosswordEditor {
         if ( editModeSelection === 1 ) {
             $(this.IDs.clueForm).hide();
             this.Xword.clearHilites();
-        } else {
+        } else if ( editModeSelection === 2 ) {
             $(this.IDs.clueForm).show();
+            this._hiliteNextAndLoadForm();
         }
-    }
+   }
 
     _sizeSelectionChanged = () => {
         var gridSize = parseInt($(this.IDs.selectSize).val());
@@ -96,7 +98,7 @@ class CrosswordEditor {
 
     _modeSelectionChanged = () => {
         this._setModeHelpText();
-        this._setWidgetStates();
+        this._setWidgetStates()
     }
 
     _resetBtnClicked = () => {
@@ -108,8 +110,8 @@ class CrosswordEditor {
         }
     }
 
-    _hiliteWordAndLoadClue(cellId) {
-        var isAcross = this.Xword.toggleWordHilite(cellId);
+    _loadClueForm(cellId) {
+        var isAcross = this.Xword.isHiliteAcross();
         this._setClueFormFields(cellId, isAcross);
         $(this.IDs.clueWord).focus();
     }
@@ -121,10 +123,16 @@ class CrosswordEditor {
         var isAcross = this.Xword.isHiliteAcross();
         try {
             this.Xword.setWordData(cellId, word, clue, isAcross);
-            $(this.IDs.clueMsg).text("");
+            this._hiliteNextAndLoadForm();
         } catch(err) {
             $(this.IDs.clueMsg).text(err.message);
         }
+    }
+
+    _hiliteNextAndLoadForm() {
+        this.Xword.hiliteNextIncomplete();
+        var cellId = this.Xword.getFirstHilitedCellId();
+        this._loadClueForm(cellId);
     }
 
     _getClueRefText (clueNum, maxLength, isAcross) {

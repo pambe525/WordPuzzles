@@ -9,9 +9,8 @@ QUnit.module('Crossword', {
   },
 });
 
+// Constructor tests
 //--------------------------------------------------------------------------------------------------------------------
-// constructor tests
-//
 QUnit.test('constructor: Throws errors if arguments are not valid', function(assert) {
   assert.throws(function(){ new Crossword(2, function(){}, '1') }, /gridSize must be a number/, Error);
   assert.throws(function(){ new Crossword('bad-id', function(){}, 1) }, /divId does not exist/, Error);
@@ -96,9 +95,8 @@ QUnit.test('constructor: Auto-numbers grid with blocks added', function(assert) 
   assert.equal($(".xw-number").parent().length, 8);
 });
 
-//--------------------------------------------------------------------------------------------------------------------
 // toggleCellBlock tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("toggleCellBlock: Returns false if cellId is not valid", function(assert) {
   var xword = createXWord(3);
   assert.false(xword.toggleCellBlock("0-3"));
@@ -181,9 +179,8 @@ QUnit.test("toggleCellBlock: Does not unblock cell its symm cell has a letter in
   assert.true($("#3-4").hasClass('xw-blocked')); // SYMMETRIC CELL REMAINS BLOCKED
 });
 
-//--------------------------------------------------------------------------------------------------------------------
 // hasBlocks tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("hasBlock: Returns false when no blocks are present", function(assert) {
   var xword =   createXWord(6);
   assert.false(xword.hasBlocks());
@@ -199,9 +196,8 @@ QUnit.test("hasBlock: Returns true when blocks are present", function(assert) {
   assert.true(xword.hasBlocks());
 });
 
-//--------------------------------------------------------------------------------------------------------------------
 // getClueNum tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("getClueNum: Returns 0 if given cell is blocked or out of bounds", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("3-2");
@@ -222,9 +218,8 @@ QUnit.test("getClueNum: Returns clue number on first cell of word", function(ass
   assert.equal(xword.getClueNum("5-0", false), 1);
 });
 
-//--------------------------------------------------------------------------------------------------------------------
 // toggleWordHilite tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("toggleWordHilite: Hilites referenced ACROSS words and returns true", function(assert) {
   var xword = createXWord(7);
   setBlocks(xword, ["0-0", "1-2", "2-4", "3-1"]);
@@ -287,9 +282,8 @@ QUnit.test("toggleWordHilite: Return null if cell is blocked and does nothing", 
   assert.equal($(".xw-hilited").length, 0);
 });
 
-//--------------------------------------------------------------------------------------------------------------------
 // Hilites tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("clearHilites: Clears all hilites", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("0-0");
@@ -359,10 +353,8 @@ QUnit.test("hiliteNextIncomplete: If no incomplete Across words finds first down
   assert.false(xword.isHiliteAcross());
 });
 
-
-//--------------------------------------------------------------------------------------------------------------------
 // setEditable tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("setEditable: TRUE Makes all cells editable", function(assert) {
   var xword = createXWord(7);
   xword.setEditable(true);
@@ -375,9 +367,8 @@ QUnit.test("setEditable: FALSE Makes all cells uneditable", function(assert) {
   assert.equal($(jqGridId + "> div").attr("contenteditable"),"false");
 });
 
-//--------------------------------------------------------------------------------------------------------------------
 // readWord tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("readWord: Returns null if current cell is blocked", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("0-0");
@@ -397,9 +388,8 @@ QUnit.test("readWord: Returns word in grid containing given cell", function(asse
   assert.equal(xword.readWord("0-0", true), "TESTING");
 });
 
-//--------------------------------------------------------------------------------------------------------------------
 // getWordData tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("getWordData: Returns null if cellId is blocked or not in grid", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("0-1");
@@ -435,9 +425,8 @@ QUnit.test("getWordData: Returns DOWN word data if word is set", function(assert
   assert.equal(wordData.clue, downWordData.clue);
 });
 
-//--------------------------------------------------------------------------------------------------------------------
 // setWordData tests
-//
+//--------------------------------------------------------------------------------------------------------------------
 QUnit.test("setWordData: Throws error if cellId is blocked or not in grid", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("0-3");
@@ -572,6 +561,22 @@ QUnit.test("setWordData: Adds no. of letters parentheses in clue text if missing
   assert.equal(xword.getWordData("0-0", false).clue, "Clue text2 (6)");
 });
 
+QUnit.test("hasData: returns false if no data in grid", function(assert) {
+  var xword = createXWord(6);
+  assert.false(xword.hasData());
+});
+
+QUnit.test("hasData: returns true if grid has blocks", function(assert) {
+  var xword = createXWord(6);
+  xword.toggleCellBlock("0-0");
+  assert.true(xword.hasData());
+});
+
+QUnit.test("hasData: returns true if grid has word data", function(assert) {
+  var xword = createXWord(6);
+  xword.setWordData("0-0", "ACROSS", "", true);
+  assert.true(xword.hasData());
+});
 
 /******************************************************************************************
 /* HELPER FUNCTIONS */

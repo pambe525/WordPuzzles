@@ -7,6 +7,9 @@
     <div class="bg-dark text-light rounded-lg p-2" style="width:700px">
         <span class="h6">Grid Size: </span>
         <select id="grid-size" class="p-1 ml-2">
+          <option value=5>5 x 5</option>
+          <option value=7>7 x 7</option>
+          <option value=9>9 x 9</option>
           <option value=11>11 x 11</option>
           <option value=13>13 x 13</option>
           <option value=15 selected>15 x 15</option>
@@ -20,7 +23,7 @@
 
             <!-- EDIT MODE SELECTOR -->
             <span class="pt-2 h6">Edit Mode: </span><br />
-            <select id="edit-mode" class="mt-1 p-1">
+            <select id="edit-mode" class="mt-1 p-1" style="width:180px !important;">
               <option value=1 selected>Select Cells to Block</option>
               <option value=2>Set words/clues</option>
             </select>
@@ -32,7 +35,7 @@
             <!-- WORD & CLUE INPUT FORM -->
             <div id="clue-form" class="col mt-3 p-2" style="width:200px; border:1px solid silver; border-radius:5px;">
                 <span id="clue-num" class="h6 pt-1"></span><br />
-                <input id="clue-word" type="text" style="width:140px"/>
+                <input id="clue-word" type="text" size="25"/>
                 <span id="clue-hint" class="pt-1 ml-1 h6 text-secondary"></span>
                 <div class="mt-2">
                     <span class="h6 pt-1 col-*" style="width:80px">Enter Clue</span><br />

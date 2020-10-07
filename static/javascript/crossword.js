@@ -28,6 +28,12 @@ class Crossword {
         return ($(".xw-blocked").length !== 0);
     }
 
+    hasData() {
+        var acrossWords = Object.keys(this.words.across).length;
+        var downWords = Object.keys(this.words.down).length;
+        return (this.hasBlocks() || acrossWords !== 0 || downWords !== 0);
+    }
+
     getClueNum(cellId, isAcross = true) {
         return this._getCellNumber(this._getWordStartCellId(cellId, isAcross));
     }
