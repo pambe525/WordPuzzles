@@ -2,7 +2,7 @@ class Crossword {
 
     cellSize = 30;
     clickHandler = null;
-    words = {across:{}, down:{}};
+    words = {across: {}, down: {}};
 
     constructor(divId, clickHandler, gridSize) {
         this.gridSize = gridSize;
@@ -14,10 +14,10 @@ class Crossword {
     }
 
     toggleCellBlock(cellId) {
-        if (cellId === null || $("#"+cellId).length === 0 || this._hasText(cellId)) return false;
+        if (cellId === null || $("#" + cellId).length === 0 || this._hasText(cellId)) return false;
         var symmCellId = this._getSymmetricCellId(cellId);
-        if ( this._isBlockedCell(cellId) &&
-            (this._hasLetterInNeighbor(cellId) || this._hasLetterInNeighbor(symmCellId)) ) return false;
+        if (this._isBlockedCell(cellId) &&
+            (this._hasLetterInNeighbor(cellId) || this._hasLetterInNeighbor(symmCellId))) return false;
         this._toggleBlock(cellId);
         if (cellId !== symmCellId) this._toggleBlock(symmCellId);
         this._autoNumberCells();
@@ -34,16 +34,16 @@ class Crossword {
 
     toggleWordHilite(cellId) {
         if (this._isBlockedCell(cellId)) return null;
-        var jqCellId = "#"+cellId, isAcross = null;
-        if ( !$(jqCellId).hasClass("xw-hilited") ) {
+        var jqCellId = "#" + cellId, isAcross = null;
+        if (!$(jqCellId).hasClass("xw-hilited")) {
             if (this._isWordStart(cellId, true)) isAcross = true;
             else if (this._isWordStart(cellId, false)) isAcross = false;
             else if (this._isInWord(cellId, true)) isAcross = true;
             else if (this._isInWord(cellId, false)) isAcross = false;
             this._hiliteCellsInWord(cellId, isAcross);
         } else {
-            if( $(jqCellId).hasClass("xw-across") && this._isInWord(cellId, false) ) isAcross = false;
-            else if ( $(jqCellId).hasClass("xw-down") && this._isInWord(cellId, true) ) isAcross = true;
+            if ($(jqCellId).hasClass("xw-across") && this._isInWord(cellId, false)) isAcross = false;
+            else if ($(jqCellId).hasClass("xw-down") && this._isInWord(cellId, true)) isAcross = true;
             this._hiliteCellsInWord(cellId, isAcross);
         }
         return isAcross;
@@ -58,7 +58,7 @@ class Crossword {
         $(this.gridId).children('div').attr('contenteditable', (isEditable) ? "true" : "false");
     }
 
-    readWord(cellId, isAcross=true) {
+    readWord(cellId, isAcross = true) {
         if (!this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross)) return null;
         var cells = this._getCellsInWord(cellId, isAcross)
         var word = "", letter;
@@ -70,35 +70,47 @@ class Crossword {
         return word;
     }
 
-    getWordData(cellId, isAcross=true) {
-        if ( !this._isUnblockedCell(cellId) ) return null;
+    getWordData(cellId, isAcross = true) {
+        if (!this._isUnblockedCell(cellId)) return null;
         var startCellId = this._getWordStartCellId(cellId, isAcross);
         var key = (isAcross) ? "across" : "down";
         return (this.words[key][startCellId] === undefined) ? null : this.words[key][startCellId];
     }
 
-    setWordData(cellId, word, clue, isAcross=true) {
-        if ( !this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross) ) throw new Error("Invalid cell id");
+    setWordData(cellId, word, clue, isAcross = true) {
+        if (!this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross)) throw new Error("Invalid cell id");
         var wordCells = this._getCellsInWord(cellId, isAcross);
         this._checkWordFitToGrid(cellId, word, wordCells, isAcross);
         clue = this._checkAndFixClue(word, clue);
         var key = (isAcross) ? "across" : "down";
         var startCellId = this._getWordStartCellId(cellId, isAcross);
-        this.words[key][startCellId] = {word:word, clue:clue};
+        this.words[key][startCellId] = {word: word, clue: clue};
         this._setGridWord(word, wordCells);
         this._setToolTip(cellId, isAcross);
     }
 
     getFirstHilitedCellId() {
-        var hilitedCells = $(this.gridId+">.xw-hilited");
+        var hilitedCells = $(this.gridId + ">.xw-hilited");
         return (hilitedCells.length === 0) ? null : hilitedCells[0].id;
     }
 
     isHiliteAcross() {
-        var isAcross = false;
-        var hilitedCells = $(this.gridId+">.xw-across");
+        var isAcross = false, hilitedCells = $(".xw-across");
         if (hilitedCells.length > 0) isAcross = true;
+        else hilitedCells = $(".xw-down");
         return (hilitedCells.length === 0) ? null : isAcross;
+    }
+
+    hiliteNextIncomplete() {
+        var currentFirstCellId = this.getFirstHilitedCellId(), cellId;
+        var isAcross = this.isHiliteAcross();
+        isAcross = (isAcross === null) ? true : isAcross;
+        cellId = this._nextIncompleteWordFirstCellId(currentFirstCellId, isAcross);
+        if (cellId === null) {
+            isAcross = !isAcross;
+            cellId = this._nextIncompleteWordFirstCellId(null, isAcross);
+        }
+        this._hiliteCellsInWord(cellId, isAcross);
     }
 
     //--------------------------------------------------------------------------------------------------------------------
@@ -118,49 +130,12 @@ class Crossword {
         this._autoNumberCells();
     }
 
-    _setStyle() {
-        $("#xw-style").remove();
-        var css, gridLength = this.gridSize * this.cellSize + 1;
-        css = this.gridId + "{border-left:1px solid black; border-top: 1px solid black;" +
-            "width:" + gridLength + "px;height:" + gridLength + "px}";
-        css += ".xw-blocked {background-color:black;}";
-        css += ".xw-number {font-size:9px; top:-2px; left:1px; position:absolute}";
-        css += this.gridId + " > div { width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
-            "border-right:1px solid black; border-bottom:1px solid black; float:left; position: relative;"+
-            "text-align:center;}";
-        css += ".xw-hilited {background-color:yellow}";
-        css += ".xw-letter {font-size:16px;}; .xw-red {font-weight:bold; color:red;}"
-        //css += this.gridId + " > div:focus {background-color: #FFFF99; text-align:center}"
-        var styleTag = "<style id='xw-style' type='text/css'></style>";
-        $(styleTag).html(css).appendTo("head");
-    }
-
-    _getCellId(row, col) {
-        return (row + "-" + col);
-    }
-
     _createGridCell(row, col) {
         var cellId = this._getCellId(row, col);
         var cell = $("<div><span class='xw-letter'></span></div>");
-        cell.on("click", this.clickHandler).attr('id', cellId).attr('contenteditable','false');
+        cell.on("click", this.clickHandler).attr('id', cellId).attr('contenteditable', 'false');
         $(cell).children(".xw-letter").on("click", this.clickHandler);
         return cell;
-    }
-
-    /** NOT CURRENTLY USED - MAY NEED WORK TO HANDLE TAB & SHIFT-TAB **/
-    _onKeyDown = (event) => {
-        var cellId = event.target.id, jqCellId = "#"+cellId;
-        event.preventDefault();
-        if (event.keyCode >= 65 && event.keyCode <= 90) {
-            $(jqCellId).html($(jqCellId).children());  // Deletes existing letter but leaves number intact
-            $(jqCellId).nextAll(".xw-hilited").first().focus();
-            $(jqCellId).append(String.fromCharCode(event.keyCode)).addClass("xw-letter");
-        } else if (event.keyCode === 8) {
-            if ( !$.isNumeric($(jqCellId).text()) ) $(jqCellId).html($(jqCellId).children());
-            else $(jqCellId).prevAll(".xw-hilited").first().focus();
-        } else if (event.keyCode === 9) {
-        } else if (event.shiftKey && event.keyCode === 9) {
-        }
     }
 
     _autoNumberCells() {
@@ -174,10 +149,80 @@ class Crossword {
         }
     }
 
+    _nextIncompleteWordFirstCellId(currentFirstCellId, isAcross=true) {
+        var currentCellIndex = 0;
+        if (currentFirstCellId !== null) currentCellIndex = this.getClueNum(currentFirstCellId, isAcross);
+        var numberedCells = $(".xw-number").parent();
+        var nextCellIndex, nextCellId, firstCellId;
+        for (var i = 0; i < numberedCells.length; i++) {
+            nextCellIndex = (i+currentCellIndex) % numberedCells.length;
+            nextCellId = numberedCells[nextCellIndex].id;
+            if (this._isInWord(nextCellId, isAcross)) {
+                firstCellId = this._getWordStartCellId(nextCellId, isAcross);
+                if (firstCellId === nextCellId && !this._hasToolTip(firstCellId, isAcross)) return nextCellId;
+            }
+        }
+        return null;
+    }
+
+    _setStyle() {
+        $("#xw-style").remove();
+        var css, gridLength = this.gridSize * this.cellSize + 1;
+        css = this.gridId + "{border-left:1px solid black; border-top: 1px solid black;" +
+            "width:" + gridLength + "px;height:" + gridLength + "px}";
+        css += ".xw-blocked {background-color:black;}";
+        css += ".xw-number {font-size:9px; top:-2px; left:1px; position:absolute}";
+        css += this.gridId + " > div { width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
+            "border-right:1px solid black; border-bottom:1px solid black; float:left; position: relative;" +
+            "text-align:center;}";
+        css += ".xw-hilited {background-color:yellow}";
+        css += ".xw-letter {font-size:16px; pointer-events:none};";
+        css += ".xw-red {font-weight:bold; color:red;}"
+        //css += this.gridId + " > div:focus {background-color: #FFFF99; text-align:center}"
+        var styleTag = "<style id='xw-style' type='text/css'></style>";
+        $(styleTag).html(css).appendTo("head");
+    }
+
     _setNumberOnCell(id, number) {
         var cellNumber = $("<span></span>").text(number);
         cellNumber.addClass("xw-number");
         $("#" + id).append(cellNumber);
+    }
+
+    _setToolTip(cellId, isAcross) {
+        var firstCellId = this._getWordStartCellId(cellId, isAcross);
+        var wordDataA = this.getWordData(cellId, true);
+        var wordDataD = this.getWordData(cellId, false);
+        var toolTipText;
+        if (wordDataA !== null) toolTipText = this._getToolTipText(firstCellId, wordDataA.clue, true);
+        if (wordDataD !== null) toolTipText += this._getToolTipText(firstCellId, wordDataD.clue, false);
+        $("#" + firstCellId).prop("title", toolTipText);
+    }
+
+    _setGridWord(word, wordCells) {
+        var gridWord = word.toUpperCase();
+        for (var i = 0; i < gridWord.length; i++)
+            $(wordCells[i]).children(".xw-letter").text(gridWord[i]);
+    }
+
+    /** NOT CURRENTLY USED - MAY NEED WORK TO HANDLE TAB & SHIFT-TAB **/
+    _onKeyDown = (event) => {
+        var cellId = event.target.id, jqCellId = "#" + cellId;
+        event.preventDefault();
+        if (event.keyCode >= 65 && event.keyCode <= 90) {
+            $(jqCellId).html($(jqCellId).children());  // Deletes existing letter but leaves number intact
+            $(jqCellId).nextAll(".xw-hilited").first().focus();
+            $(jqCellId).append(String.fromCharCode(event.keyCode)).addClass("xw-letter");
+        } else if (event.keyCode === 8) {
+            if (!$.isNumeric($(jqCellId).text())) $(jqCellId).html($(jqCellId).children());
+            else $(jqCellId).prevAll(".xw-hilited").first().focus();
+        } else if (event.keyCode === 9) {
+        } else if (event.shiftKey && event.keyCode === 9) {
+        }
+    }
+
+    _getCellId(row, col) {
+        return (row + "-" + col);
     }
 
     _getSymmetricCellId(cellId) {
@@ -185,37 +230,6 @@ class Crossword {
         var symmRow = this.gridSize - parseInt(coord[0]) - 1;
         var symmCol = this.gridSize - parseInt(coord[1]) - 1;
         return this._getCellId(symmRow, symmCol);
-    }
-
-    _isBlockedCell(cellId) {
-        if (cellId === null) return true;
-        return !!($("#" + cellId).hasClass("xw-blocked"));
-    }
-
-    _toggleBlock(cellId) {
-        var jqCellId = "#" + cellId;
-        if (this._isBlockedCell(cellId))
-            $(jqCellId).removeClass("xw-blocked");
-        else {
-            $(jqCellId).addClass("xw-blocked");
-            $(jqCellId + " > .xw-number").remove();
-        }
-    }
-
-    _hasLetterInNeighbor(cellId) {
-        var coords = [[0,1],[0,-1],[1,0],[-1,0]], neighborId;
-        for (var index in coords) {
-            neighborId = this._getOffsetCellId(cellId, coords[index][0], coords[index][1]);
-            if (this._hasText(neighborId)) return true;
-        }
-        return false;
-    }
-
-    _isWordStart(cellId, isAcross=true) {
-        if (this._isBlockedCell(cellId)) return false;
-        var prevCellId = (isAcross) ? this._getOffsetCellId(cellId,0,-1) : this._getOffsetCellId(cellId,-1,0);
-        var nextCellId = (isAcross) ? this._getOffsetCellId(cellId,0, 1) : this._getOffsetCellId(cellId, 1,0);
-        return ( !this._isUnblockedCell(prevCellId) && this._isUnblockedCell(nextCellId) );
     }
 
     _getOffsetCellId(cellId, rowOffset, colOffset) {
@@ -233,18 +247,10 @@ class Crossword {
         return coord;
     }
 
-    _isWithinGrid(row, col) {
-        return !(row < 0 || row >= this.gridSize || col < 0 || col >= this.gridSize);
-    }
-
-    _isUnblockedCell(cellId) {
-        if (cellId === null) return false;
-        var coord = this._getCellCoord(cellId);
-        return !(this._isBlockedCell(cellId) || !this._isWithinGrid(coord[0], coord[1]));
-    }
-
     _getCellNumber(cellId) {
-        return $("#" + cellId + "> .xw-number").text();
+        if (cellId === null) return 0;
+        var cellNumText = $("#" + cellId + "> .xw-number").text();
+        return (cellNumText) ? parseInt(cellNumText) : 0;
     }
 
     _getWordStartCellId(cellId, isAcross = true) {
@@ -269,8 +275,69 @@ class Crossword {
         return endCellId;
     }
 
+    _getCellsInWord(cellId, isAcross = true) {
+        var startCoord = this._getCellCoord(this._getWordStartCellId(cellId, isAcross));
+        var endCoord = this._getCellCoord(this._getWordEndCellId(cellId, isAcross));
+        var selector = (isAcross) ? "[id^='" + startCoord[0] + "-']" : "[id$='-" + startCoord[1] + "']";
+        var inlineCells = $(this.gridId + " > " + selector);
+        var startCellIndex = (isAcross) ? startCoord[1] : startCoord[0];
+        var endCellIndex = (isAcross) ? endCoord[1] : endCoord[0];
+        return inlineCells.slice(startCellIndex, endCellIndex + 1);
+    }
+
+    _getToolTipText(firstCellId, clue, isAcross) {
+        var label = (isAcross) ? "Across" : "Down";
+        var clueNum = this.getClueNum(firstCellId);
+        return (clue !== "") ? (clueNum + " " + label + ": " + clue + "\n") : "";
+    }
+
+    _hasLetterInNeighbor(cellId) {
+        var coords = [[0, 1], [0, -1], [1, 0], [-1, 0]], neighborId;
+        for (var index in coords) {
+            neighborId = this._getOffsetCellId(cellId, coords[index][0], coords[index][1]);
+            if (this._hasText(neighborId)) return true;
+        }
+        return false;
+    }
+
     _hasText(cellId) {
-        return ( !this._isUnblockedCell(cellId) ) ? false : ($("#"+cellId+"> .xw-letter").text() !== "");
+        return (!this._isUnblockedCell(cellId)) ? false : ($("#" + cellId + "> .xw-letter").text() !== "");
+    }
+
+    _hasToolTip(cellId, isAcross=true) {
+        var toolTip = $("#"+cellId).prop("title");
+        var label = (isAcross) ? " Across:" : " Down:";
+        if (toolTip.trim().length === 0) return false;
+        return (toolTip.includes(label));
+    }
+
+    _hiliteCellsInWord(cellId, isAcross = true) {
+        this.clearHilites();
+        var cellsToHilite = this._getCellsInWord(cellId, isAcross);
+        var classLabel = (isAcross) ? "xw-across" : "xw-down";
+        if (cellsToHilite.length > 1) cellsToHilite.addClass("xw-hilited").addClass(classLabel);
+    }
+
+    _isBlockedCell(cellId) {
+        if (cellId === null) return true;
+        return !!($("#" + cellId).hasClass("xw-blocked"));
+    }
+
+    _isWordStart(cellId, isAcross = true) {
+        if (this._isBlockedCell(cellId)) return false;
+        var prevCellId = (isAcross) ? this._getOffsetCellId(cellId, 0, -1) : this._getOffsetCellId(cellId, -1, 0);
+        var nextCellId = (isAcross) ? this._getOffsetCellId(cellId, 0, 1) : this._getOffsetCellId(cellId, 1, 0);
+        return (!this._isUnblockedCell(prevCellId) && this._isUnblockedCell(nextCellId));
+    }
+
+    _isWithinGrid(row, col) {
+        return !(row < 0 || row >= this.gridSize || col < 0 || col >= this.gridSize);
+    }
+
+    _isUnblockedCell(cellId) {
+        if (cellId === null) return false;
+        var coord = this._getCellCoord(cellId);
+        return !(this._isBlockedCell(cellId) || !this._isWithinGrid(coord[0], coord[1]));
     }
 
     _isInWord(cellId, isAcross = true) {
@@ -286,30 +353,13 @@ class Crossword {
         }
     }
 
-    _hiliteCellsInWord(cellId, isAcross=true) {
-        this.clearHilites();
-        var cellsToHilite = this._getCellsInWord(cellId, isAcross);
-        var classLabel = (isAcross) ? "xw-across" : "xw-down";
-        if (cellsToHilite.length > 1) cellsToHilite.addClass("xw-hilited").addClass(classLabel);
-    }
-
-    _getCellsInWord(cellId, isAcross = true) {
-        var startCoord = this._getCellCoord(this._getWordStartCellId(cellId, isAcross));
-        var endCoord = this._getCellCoord(this._getWordEndCellId(cellId, isAcross));
-        var selector = (isAcross) ? "[id^='" + startCoord[0] + "-']" : "[id$='-" + startCoord[1] + "']";
-        var inlineCells = $(this.gridId + " > " + selector);
-        var startCellIndex = (isAcross) ? startCoord[1] : startCoord[0];
-        var endCellIndex   = (isAcross) ? endCoord[1] : endCoord[0];
-        return inlineCells.slice(startCellIndex, endCellIndex+1);
-    }
-
-    _checkWordFitToGrid(cellId, word, wordCells, isAcross=true) {
-        if ( !/^[A-Za-z]+$/.test(word) ) throw new Error("Word must contain all letters");
-        if (word.length !== wordCells.length) throw new Error("Word must be "+wordCells.length+" chars");
+    _checkWordFitToGrid(cellId, word, wordCells, isAcross = true) {
+        if (!/^[A-Za-z]+$/.test(word)) throw new Error("Word must contain all letters");
+        if (word.length !== wordCells.length) throw new Error("Word must be " + wordCells.length + " chars");
         var allCapsWord = word.toUpperCase(), gridLetter;
-        for (var i = 0; i < wordCells.length; i++ ) {
+        for (var i = 0; i < wordCells.length; i++) {
             gridLetter = $(wordCells[i]).children(".xw-letter").text();
-            if ( this.getWordData(wordCells[i].id, !isAcross) !== null && allCapsWord[i] !== gridLetter )
+            if (this.getWordData(wordCells[i].id, !isAcross) !== null && allCapsWord[i] !== gridLetter)
                 throw new Error("Word conflicts with existing letters");
         }
         return true;
@@ -328,26 +378,14 @@ class Crossword {
         return clue;
     }
 
-    _setGridWord(word, wordCells) {
-        var gridWord = word.toUpperCase();
-        for (var i = 0; i < gridWord.length; i++)
-            $(wordCells[i]).children(".xw-letter").text(gridWord[i]);
-    }
-
-    _setToolTip(cellId, isAcross) {
-        var firstCellId = this._getWordStartCellId(cellId, isAcross);
-        var wordDataA = this.getWordData(cellId, true);
-        var wordDataD = this.getWordData(cellId, false);
-        var toolTipText;
-        if (wordDataA !== null) toolTipText = this._getToolTipText(firstCellId, wordDataA.clue, true);
-        if (wordDataD !== null) toolTipText += this._getToolTipText(firstCellId, wordDataD.clue, false);
-        $("#"+firstCellId).prop("title", toolTipText);
-    }
-
-    _getToolTipText(firstCellId, clue, isAcross) {
-        var label = (isAcross) ? "Across" : "Down";
-        var clueNum = this.getClueNum(firstCellId);
-        return (clue !== "") ? (clueNum + " " + label + ": " + clue + "\n") : "";
+    _toggleBlock(cellId) {
+        var jqCellId = "#" + cellId;
+        if (this._isBlockedCell(cellId))
+            $(jqCellId).removeClass("xw-blocked");
+        else {
+            $(jqCellId).addClass("xw-blocked");
+            $(jqCellId + " > .xw-number").remove();
+        }
     }
 }
 
