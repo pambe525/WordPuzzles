@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
     {% load static %}
-    <h3>New Crossword Puzzle</h3>
+    <h3>New Crossword Puzzle</h3><br />
 
     <!-- PAGE-SPECIFIC NAVBAR WITH GRID SIZE SELECTION, RESET AND SAVE -->
-    <div class="bg-dark text-light rounded-lg p-2" style="width:700px">
+    <div class="bg-light border border-dark rounded-lg shadow-sm p-2" style="width:700px">
         <span class="h6">Grid Size: </span>
         <select id="grid-size" class="p-1 ml-2">
+          <option value=3>3 x 3</option>
           <option value=5>5 x 5</option>
           <option value=7>7 x 7</option>
           <option value=9>9 x 9</option>
@@ -14,11 +15,13 @@
           <option value=13>13 x 13</option>
           <option value=15 selected>15 x 15</option>
         </select>
-        <button id="reset-grid" class="btn btn-sm ml-2 btn-primary">Reset Grid</button>
-        <button id="save-grid" class="btn btn-sm ml-3 btn-primary">Save Grid</button>
+        <button id="reset-grid" class="btn btn-sm ml-2 btn-primary rounded-lg">Reset Grid</button>
+        <button id="save-grid" class="btn btn-sm ml-2 btn-primary rounded-lg">Save Crossword</button>
+        <button id="delete-xword" class="btn btn-sm ml-2 btn-danger rounded-lg">Delete Crossword</button>
+        <button id="home-btn" class="btn btn-sm ml-2 btn-dark rounded-lg">Back to List</button>
     </div>
 
-    <div class="row m-0" style="width:700px">
+    <div class="row m-0 mt-2" style="width:700px">
         <div class="col-* mt-2">
 
             <!-- EDIT MODE SELECTOR -->
@@ -41,7 +44,7 @@
                     <span class="h6 pt-1 col-*" style="width:80px">Enter Clue</span><br />
                     <textarea id="clue-text" rows="2" cols="22"></textarea>
                     <button id="clue-update" class="mt-2 p-2 badge badge-dark" style="height:30px">Update Grid</button>
-                    <button id="clue-delete" class="mt-2 p-2 badge badge-danger" style="height:30px">Delete</button>
+                    <button id="clue-delete" class="mt-2 p-2 badge badge-danger" style="height:30px">Remove</button>
                 </div>
                 <span id="clue-msg" class="h6 pt-1 red-text"></span>
             </div>

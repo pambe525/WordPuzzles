@@ -162,21 +162,32 @@ QUnit.test("toggleCellBlock: Clears existing class names on numbered blocks", fu
   assert.equal($(".xw-number").length, 9);
 });
 
-QUnit.test("toggleCellBlock: Does not unblock cell if it has a letter in any neighbor", function(assert) {
+QUnit.test("toggleCellBlock: Does not unblock if a neighbor letter is in an in-line ACROSS word", function(assert) {
   var xword = createXWord(5);
-  xword.toggleCellBlock("2-2");  // BLOCK CENTRAL CELL
-  $("#1-2 >.xw-letter").text("T");
-  xword.toggleCellBlock("2-2");
-  assert.true($("#2-2").hasClass('xw-blocked'));
+  xword.toggleCellBlock("1-4");
+  xword.setWordData("1-0", "left", "", true);
+  xword.toggleCellBlock("1-4");  // TRY TO UNBLOCK CELL
+  assert.true($("#1-4").hasClass('xw-blocked'));
+  xword.toggleCellBlock("3-0");  // TRY TO UNBLOCK SYMMETRIC CELL
+  assert.true($("#3-0").hasClass('xw-blocked'));
 });
 
-QUnit.test("toggleCellBlock: Does not unblock cell its symm cell has a letter in any neighbor", function(assert) {
+QUnit.test("toggleCellBlock: if a neighbor letter is in an in-line DOWN word", function(assert) {
   var xword = createXWord(5);
-  xword.toggleCellBlock("1-0");  // BLOCK CELL
-  $("#1-1 >.xw-letter").text("T");
-  assert.true($("#3-4").hasClass('xw-blocked')); // SYMMETRIC CELL IS ALSO BLOCKED
-  xword.toggleCellBlock("3-4");                  // TRY TO UNBLOCK SYMMETRIC CELL
-  assert.true($("#3-4").hasClass('xw-blocked')); // SYMMETRIC CELL REMAINS BLOCKED
+  xword.toggleCellBlock("1-4");  // BLOCK CELL
+  xword.setWordData("2-4", "dwn", "", false);
+  xword.toggleCellBlock("1-4");  // TRY TO UNBLOCK CELL
+  assert.true($("#1-4").hasClass('xw-blocked')); // CELL REMAINS BLOCKED
+  xword.toggleCellBlock("3-0");  // TRY TO UNBLOCK SYMMETRIC CELL
+  assert.true($("#3-0").hasClass('xw-blocked'));
+});
+
+QUnit.test("toggleCellBlock: Unblocks cell if neighbor letter is not in in-line word", function(assert) {
+  var xword = createXWord(4);
+  xword.toggleCellBlock("0-1");  // BLOCK CELL
+  xword.setWordData("0-0", "down", "", false);
+  xword.toggleCellBlock("0-1");  // UNBLOCK CELL
+  assert.false($("#0-1").hasClass('xw-blocked'));
 });
 
 // hasBlocks tests
@@ -555,11 +566,52 @@ QUnit.test("setWordData: Keeps DOWN tooltip if blank ACROSS clue text is added",
   assert.equal($("#0-0").prop("title"), "1 Down: Clue text2 (6)\n");
 });
 
+QUnit.test("setWordData: Does no add ACROSS tooltip to DOWN only clue", function(assert) {
+  var xword = createXWord(6);
+  xword.setWordData("0-0", "across", "Clue text1 (6)", true);
+  xword.setWordData("0-1", "crossd", "Clue text2 (6)", false);
+  assert.equal($("#0-1").prop("title"), "2 Down: Clue text2 (6)\n");
+});
+
 QUnit.test("setWordData: Adds no. of letters parentheses in clue text if missing", function(assert) {
   var xword = createXWord(6);
   xword.setWordData("0-0", "across", "Clue text2", false);
   assert.equal(xword.getWordData("0-0", false).clue, "Clue text2 (6)");
 });
+
+QUnit.test("setWordData: Set word letters to red if no clue is added", function(assert) {
+  var xword = createXWord(6);
+  xword.setWordData("0-0", "across", "", true);
+  assert.equal($(".xw-letter.xw-red").length, 6);
+});
+
+QUnit.test("setWordData: Do not set word letters color if clue is added", function(assert) {
+  var xword = createXWord(6);
+  xword.setWordData("0-0", "across", "Clue text", true);
+  assert.equal($(".xw-letter.xw-red").length, 0);
+});
+
+QUnit.test("setWordData: Remove word letters color if clue is subsequently added", function(assert) {
+  var xword = createXWord(6);
+  xword.setWordData("0-0", "across", "", true);
+  assert.equal($(".xw-letter.xw-red").length, 6);
+  xword.setWordData("0-0", "across", "clue test", true);
+  assert.equal($(".xw-letter.xw-red").length, 0);
+});
+
+QUnit.test("setWordData: Preserves containing word letters colors that belong to cross words", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("0-1");
+  xword.toggleCellBlock("2-1");
+  xword.setWordData("0-0", "scale", "", false);   // Down word colored RED
+  xword.setWordData("0-2", "solos", "", false);   // Down word colored RED
+  assert.equal($(".xw-letter.xw-red").length, 10);
+  xword.setWordData("1-0", "cross", "clue test", true);  // Across word NOT red
+  assert.equal($(".xw-letter.xw-red").length, 10); // Skips letters C and O (still red)
+});
+
+// hasData tests
+//--------------------------------------------------------------------------------------------------------------------
 
 QUnit.test("hasData: returns false if no data in grid", function(assert) {
   var xword = createXWord(6);

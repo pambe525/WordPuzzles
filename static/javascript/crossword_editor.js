@@ -28,9 +28,8 @@ class CrosswordEditor {
         this.IDs[elemRef] = elemId;
     }
 
-    //--------------------------------------------------------------------------------------------------------------------
     // PRIVATE FUNCTIONS
-    //
+    //--------------------------------------------------------------------------------------------------------------------
     _createNewCrossword() {
         var gridSize = parseInt($(this.IDs.selectSize).val());
         this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
@@ -42,7 +41,8 @@ class CrosswordEditor {
             this._setWidgetStates();
         } else {
             this.Xword.toggleWordHilite(event.target.id);
-            this._loadClueForm(event.target.id);
+            $(this.IDs.clueForm).show();
+            this._setupClueForm(event.target.id);
        }
     }
 
@@ -50,9 +50,9 @@ class CrosswordEditor {
         $(this.IDs.selectSize).change(this._sizeSelectionChanged);
         $(this.IDs.selectMode).change(this._modeSelectionChanged);
         $(this.IDs.resetBtn).click(this._resetBtnClicked);
-        $(this.IDs.clueUpdateBtn).click(this._updateClue);
+        $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
         $(this.IDs.clueWord).keyup(this._onEnterKey);
-        $(this.IDs.clueText).keydown(this._onEnterKey);
+        $(this.IDs.clueText).keyup(this._onEnterKey);
     }
 
     _onEnterKey = (event) => {
@@ -69,7 +69,9 @@ class CrosswordEditor {
             msg = "Click on a grid square to block it. Re-select to unblock. " +
                 "Diametrically opposite square will also be blocked using 180 deg. rotational symmetry.";
         else
-            msg = "Click on a numbered square to edit ACROSS or DOWN word and its clue.";
+            msg = "Click on a numbered square to edit ACROSS or DOWN word and its clue. " +
+            "Clicking ENTER in the clue form updates the word & clue in grid.  Valid clue is shown as a tooltip "+
+            "in the grid square.  RED letters indicare missing clues.  BLUE letters indicate clue is complete.";
         $(this.IDs.modeTip).text(msg);
     }
 
@@ -94,15 +96,17 @@ class CrosswordEditor {
     _sizeSelectionChanged = () => {
         var gridSize = parseInt($(this.IDs.selectSize).val());
         this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
+        $(this.IDs.selectMode).val(1);
+        this._setWidgetStates();
     }
 
     _modeSelectionChanged = () => {
         this._setModeHelpText();
-        this._setWidgetStates()
+        this._setWidgetStates();
     }
 
     _resetBtnClicked = () => {
-        var msg = "All changes to grid will be lost. Please confirm or cancel."
+        var msg = "All changes to grid will be cleared. Please confirm or cancel."
         if ( confirm(msg) ) {
             var gridSize = parseInt($(this.IDs.selectSize).val());
             this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
@@ -110,20 +114,15 @@ class CrosswordEditor {
         }
     }
 
-    _loadClueForm(cellId) {
-        var isAcross = this.Xword.isHiliteAcross();
-        this._setClueFormFields(cellId, isAcross);
-        $(this.IDs.clueWord).focus();
-    }
-
-    _updateClue = () => {
+    _updateWordDataClicked = () => {
         var word = $(this.IDs.clueWord).val();
         var clue = $(this.IDs.clueText).val();
         var cellId = this.Xword.getFirstHilitedCellId();
         var isAcross = this.Xword.isHiliteAcross();
         try {
+            $(this.IDs.clueMsg).text("");
             this.Xword.setWordData(cellId, word, clue, isAcross);
-            this._hiliteNextAndLoadForm();
+            this._setWidgetStates();
         } catch(err) {
             $(this.IDs.clueMsg).text(err.message);
         }
@@ -132,7 +131,8 @@ class CrosswordEditor {
     _hiliteNextAndLoadForm() {
         this.Xword.hiliteNextIncomplete();
         var cellId = this.Xword.getFirstHilitedCellId();
-        this._loadClueForm(cellId);
+        if (cellId === null) $(this.IDs.clueForm).hide();
+        else this._setupClueForm(cellId);
     }
 
     _getClueRefText (clueNum, maxLength, isAcross) {
@@ -140,19 +140,31 @@ class CrosswordEditor {
        return ("#" + clueNum + " " + label + " (" + maxLength + ")");
     }
 
-    _getWordData(cellId, isAcross) {
-        var wordData = this.Xword.getWordData(cellId, isAcross);
-        return (wordData === null) ? {word:"", clue:""} : wordData;
+    _setupClueForm(cellId) {
+        var isAcross = this.Xword.isHiliteAcross();
+        var formFields = this._gatherClueFormData(cellId, isAcross);
+        $(this.IDs.clueNum).text(formFields.clueRef);
+        $(this.IDs.clueWord).val(formFields.word);
+        $(this.IDs.clueText).val(formFields.clue);
+        $(this.IDs.clueWord).attr("maxlength", formFields.maxLength);
+        $(this.IDs.clueMsg).text("");
+        (formFields.word === "") ? $(this.IDs.clueWord).focus() : $(this.IDs.clueText).focus()
     }
 
-    _setClueFormFields(cellId, isAcross) {
-        var maxLength = this.Xword.readWord(cellId, isAcross).length;
-        var clueNum = this.Xword.getClueNum(cellId, isAcross);
-        var clueRef = this._getClueRefText(clueNum, maxLength, isAcross);
-        var wordData = this._getWordData(cellId, isAcross);
-        $(this.IDs.clueNum).text(clueRef);
-        $(this.IDs.clueWord).val(wordData.word);
-        $(this.IDs.clueText).val(wordData.clue);
-        $(this.IDs.clueWord).attr("maxlength", maxLength);
+    _gatherClueFormData(cellId, isAcross) {
+        var formFields = {clueRef:null, word:"", clue:"", maxLength:null};
+        var gridWord = this.Xword.readWord(cellId, isAcross);
+        formFields.maxLength = gridWord.length;
+        formFields.clueNum = this.Xword.getClueNum(cellId, isAcross);
+        formFields.clueRef = this._getClueRefText(formFields.clueNum, formFields.maxLength, isAcross);
+        var wordData = this.Xword.getWordData(cellId, isAcross);
+        if (wordData === null) {
+            gridWord = gridWord.replaceAll(" ","");
+            if (gridWord.length === formFields.maxLength) formFields.word = gridWord;
+        } else {
+            formFields.word = wordData.word;
+            formFields.clue = wordData.clue;
+        }
+        return formFields;
     }
 }
