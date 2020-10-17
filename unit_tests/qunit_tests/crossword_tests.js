@@ -231,7 +231,7 @@ QUnit.test("getClueNum: Returns clue number on first cell of word", function(ass
 
 // toggleWordHilite tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test("toggleWordHilite: Hilites referenced ACROSS words and returns true", function(assert) {
+QUnit.test("toggleWordHilite: Hilites referenced ACROSS word and returns true", function(assert) {
   var xword = createXWord(7);
   setBlocks(xword, ["0-0", "1-2", "2-4", "3-1"]);
   assert.true(xword.toggleWordHilite("0-2"));
@@ -246,7 +246,7 @@ QUnit.test("toggleWordHilite: Hilites referenced ACROSS words and returns true",
   assertHilitedCells(assert, ["3-2","3-3","3-4"], true);
 });
 
-QUnit.test("toggleWordHilite: Hilites referenced DOWN words and returns false", function(assert) {
+QUnit.test("toggleWordHilite: Hilites referenced DOWN word and returns false", function(assert) {
   var xword = createXWord(7);
   setBlocks(xword, ["0-0", "0-2", "1-2", "2-2", "2-4", "3-1"]);
   assert.false(xword.toggleWordHilite("0-1"));
@@ -291,6 +291,22 @@ QUnit.test("toggleWordHilite: Return null if cell is blocked and does nothing", 
   setBlocks(xword, ["0-0", "0-2", "1-2", "2-4", "3-1"]);
   assert.equal(xword.toggleWordHilite("1-2"), null);
   assert.equal($(".xw-hilited").length, 0);
+});
+
+QUnit.test("toggleWordHilite: ACROSS hilite is retained if no DOWN word and returns true", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("1-0");
+  assert.equal(xword.toggleWordHilite("0-0"), true);
+  assert.equal(xword.toggleWordHilite("0-0"), true);
+  assertHilitedCells(assert, ["0-0","0-1","0-2","0-3","0-4"], true);
+});
+
+QUnit.test("toggleWordHilite: DOWN hilite is retained if no ACROSS word and returns false", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("0-1");
+  assert.equal(xword.toggleWordHilite("0-0"), false);
+  assert.equal(xword.toggleWordHilite("0-0"), false);
+  assertHilitedCells(assert, ["0-0","1-0","2-0","3-0","4-0"], false);
 });
 
 // Hilites tests
@@ -556,21 +572,21 @@ QUnit.test("setWordData: Adds to ACROSS tooltip if DOWN clue text is added", fun
   var xword = createXWord(6);
   xword.setWordData("0-0", "across", "Clue text1 (6)", true);
   xword.setWordData("0-0", "adowns", "Clue text2 (6)", false);
-  assert.equal($("#0-0").prop("title"), "1 Across: Clue text1 (6)\n1 Down: Clue text2 (6)\n");
+  assert.equal($("#0-0").prop("title"), "1 Across: Clue text1 (6)\n1 Down: Clue text2 (6)");
 });
 
 QUnit.test("setWordData: Keeps DOWN tooltip if blank ACROSS clue text is added", function(assert) {
   var xword = createXWord(6);
   xword.setWordData("0-0", "adowns", "Clue text2 (6)", false);
   xword.setWordData("0-0", "across", "", true);
-  assert.equal($("#0-0").prop("title"), "1 Down: Clue text2 (6)\n");
+  assert.equal($("#0-0").prop("title"), "1 Down: Clue text2 (6)");
 });
 
-QUnit.test("setWordData: Does no add ACROSS tooltip to DOWN only clue", function(assert) {
+QUnit.test("setWordData: Does not add ACROSS tooltip to DOWN only clue", function(assert) {
   var xword = createXWord(6);
   xword.setWordData("0-0", "across", "Clue text1 (6)", true);
   xword.setWordData("0-1", "crossd", "Clue text2 (6)", false);
-  assert.equal($("#0-1").prop("title"), "2 Down: Clue text2 (6)\n");
+  assert.equal($("#0-1").prop("title"), "2 Down: Clue text2 (6)");
 });
 
 QUnit.test("setWordData: Adds no. of letters parentheses in clue text if missing", function(assert) {
@@ -579,35 +595,41 @@ QUnit.test("setWordData: Adds no. of letters parentheses in clue text if missing
   assert.equal(xword.getWordData("0-0", false).clue, "Clue text2 (6)");
 });
 
-QUnit.test("setWordData: Set word letters to red if no clue is added", function(assert) {
+QUnit.test("setWordData: By default word letters are red without clue", function(assert) {
   var xword = createXWord(6);
   xword.setWordData("0-0", "across", "", true);
-  assert.equal($(".xw-letter.xw-red").length, 6);
+  var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
+  assert.equal(wordLetters.css("color"), "rgb(255, 0, 0)");
 });
 
-QUnit.test("setWordData: Do not set word letters color if clue is added", function(assert) {
-  var xword = createXWord(6);
-  xword.setWordData("0-0", "across", "Clue text", true);
-  assert.equal($(".xw-letter.xw-red").length, 0);
-});
-
-QUnit.test("setWordData: Remove word letters color if clue is subsequently added", function(assert) {
-  var xword = createXWord(6);
-  xword.setWordData("0-0", "across", "", true);
-  assert.equal($(".xw-letter.xw-red").length, 6);
-  xword.setWordData("0-0", "across", "clue test", true);
-  assert.equal($(".xw-letter.xw-red").length, 0);
-});
-
-QUnit.test("setWordData: Preserves containing word letters colors that belong to cross words", function(assert) {
+QUnit.test("setWordData: With clue set, word letters in single cells are blue", function(assert) {
   var xword = createXWord(5);
-  xword.toggleCellBlock("0-1");
-  xword.toggleCellBlock("2-1");
-  xword.setWordData("0-0", "scale", "", false);   // Down word colored RED
-  xword.setWordData("0-2", "solos", "", false);   // Down word colored RED
-  assert.equal($(".xw-letter.xw-red").length, 10);
-  xword.setWordData("1-0", "cross", "clue test", true);  // Across word NOT red
-  assert.equal($(".xw-letter.xw-red").length, 10); // Skips letters C and O (still red)
+  xword.toggleCellBlock("1-0");
+  xword.toggleCellBlock("1-2");
+  xword.toggleCellBlock("1-4");
+  xword.setWordData("0-0", "WORDS", "Clue text", true);
+  var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
+  assert.equal(wordLetters.even().css("color"), "rgb(0, 0, 255)");
+  assert.equal(wordLetters.odd().css("color"), "rgb(255, 0, 0)");
+});
+
+QUnit.test("setWordData: Letters in cross-cells are blue only if both words have clues", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("1-0");
+  xword.toggleCellBlock("1-2");
+  xword.toggleCellBlock("1-4");
+  xword.setWordData("0-0", "WORDS", "Clue text", true);
+  xword.setWordData("0-1", "OVERT", "", false);  // DOWN word but no clue
+  xword.setWordData("0-3", "DIVER", "Clue text", false); // DOWN word with clue
+  xword.setWordData("2-0", "SERVE", "", true);     //ACROSS word with no clue
+  var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
+  assert.equal($(wordLetters[0]).css("color"), "rgb(0, 0, 255)");
+  assert.equal($(wordLetters[1]).css("color"), "rgb(255, 0, 0)");
+  assert.equal($(wordLetters[2]).css("color"), "rgb(0, 0, 255)");
+  assert.equal($(wordLetters[3]).css("color"), "rgb(0, 0, 255)");
+  assert.equal($(wordLetters[4]).css("color"), "rgb(0, 0, 255)");
+  wordLetters = $(xword._getCellsInWord("2-0").children(".xw-letter"));
+  assert.equal(wordLetters.css("color"), "rgb(255, 0, 0)");
 });
 
 // hasData tests
@@ -628,6 +650,86 @@ QUnit.test("hasData: returns true if grid has word data", function(assert) {
   var xword = createXWord(6);
   xword.setWordData("0-0", "ACROSS", "", true);
   assert.true(xword.hasData());
+});
+
+// deleteWordData tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test("deleteWordData: Returns false if cellId is blocked or out of range", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("1-0");
+  assert.false(xword.deleteWordData("1-0"));
+  assert.false(xword.deleteWordData("0-5"));
+});
+
+QUnit.test("deleteWordData: Returns false if referenced word does not exist", function(assert) {
+  var xword = createXWord(5);
+  assert.false(xword.deleteWordData("0-0"));
+});
+
+QUnit.test("deleteWordData: Deletes word data of existing word and returns true ", function(assert) {
+  var xword = createXWord(5);
+  xword.setWordData("0-0", "ACROS", "", true);  // ACROSS WORD
+  xword.setWordData("0-0", "ADOWN", "", false); // DOWN WORD
+  assert.true(xword.deleteWordData("0-0", true));
+  assert.equal(xword.getWordData("0-0", true), null)
+  assert.true(xword.deleteWordData("0-0", false));
+  assert.equal(xword.getWordData("0-0", false), null);
+});
+
+QUnit.test("deleteWordData: Deletes existing word in grid", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("0-0")
+  xword.setWordData("0-1", "CROS", "", true);  // ACROSS WORD
+  xword.setWordData("1-0", "DOWN", "", false); // DOWN WORD
+  xword.deleteWordData("0-1", true);
+  assert.true(xword._getCellsInWord("0-1", true).children(".xw-letter").is(":empty"));
+  xword.deleteWordData("1-0", false);
+  assert.true(xword._getCellsInWord("1-0", false).children(".xw-letter").is(":empty"));
+});
+
+QUnit.test("deleteWordData: Preserves ACROSS letters in grid shared by cross-words", function(assert) {
+  var xword = createXWord(5);
+  xword.setWordData("1-0", "ACROS", "", true);  // ACROSS WORD 1
+  xword.setWordData("3-0", "WIDER", "", true);  // ACROSS WORD 2
+  xword.setWordData("0-1", "ACRID", "", false); // DOWN WORD 1
+  xword.setWordData("0-3", "COVER", "", false); // DOWN WORD 2
+  xword.deleteWordData("1-0", true);
+  assert.true(xword._getCellsInWord("1-0", true).children(".xw-letter:even").is(":empty"));
+  assert.false(xword._getCellsInWord("1-0", true).children(".xw-letter:odd").is(":empty"));
+});
+
+QUnit.test("deleteWordData: Preserves DOWN letters in grid shared by cross-words", function(assert) {
+  var xword = createXWord(5);
+  xword.setWordData("1-0", "ACROS", "", true);  // ACROSS WORD 1
+  xword.setWordData("3-0", "WIDER", "", true);  // ACROSS WORD 2
+  xword.setWordData("0-1", "ACRID", "", false); // DOWN WORD 1
+  xword.setWordData("0-3", "COVER", "", false); // DOWN WORD 2
+  xword.deleteWordData("0-1", false);
+  assert.true(xword._getCellsInWord("0-1", false).children(".xw-letter:even").is(":empty"));
+  assert.false(xword._getCellsInWord("0-1", false).children(".xw-letter:odd").is(":empty"));
+});
+
+QUnit.test("deleteWordData: Deletes letter color classes", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("1-0");
+  xword.toggleCellBlock("1-2");
+  xword.toggleCellBlock("1-4");
+  xword.setWordData("0-0", "ACROS", "clue 1A", true);   // ACROSS WORD
+  xword.setWordData("0-1", "COVER", "clue 2D", false);  // DOWN WORD 1
+  xword.setWordData("0-3", "OVERT", "clue 3D", false);  // DOWN WORD 2
+  xword.deleteWordData("0-0", true);
+  var wordCells = xword._getCellsInWord("0-0", true).children(".xw-letter");
+  assert.false(wordCells.hasClass("xw-blue"));
+  assert.false(wordCells.hasClass("xw-xblue"));
+});
+
+
+QUnit.test("deleteWordData: Deletes tooltip for the word if it exists", function(assert) {
+  var xword = createXWord(5);
+  xword.setWordData("0-0", "AVERT", "clue 1D", false);  // DOWN WORD 1
+  xword.setWordData("0-0", "ACROS", "clue 1A", true);   // ACROSS WORD
+  xword.deleteWordData("0-0", true);
+  assert.equal($("#0-0").attr("title"), "1 Down: clue 1D (5)");
 });
 
 /******************************************************************************************

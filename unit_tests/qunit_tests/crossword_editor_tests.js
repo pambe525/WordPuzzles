@@ -17,6 +17,7 @@ var clueHintId = "clue-hint", jqClueHintId = "#"+clueHintId;
 var clueTextId = "clue-text", jqClueTextId = "#"+clueTextId;
 var clueMsgId = "clue-msg", jqClueMsgId = "#"+clueMsgId;
 var clueUpdateId = "clue-update", jqClueUpdateId= "#"+clueUpdateId;
+var clueDeleteId = "clue-delete", jqClueDeleteId= "#"+clueDeleteId;
 
 var confirmMessage = "", confirmResponse=false;
 window.confirm = function(message) {
@@ -46,6 +47,7 @@ QUnit.module('CrosswordEditor', {
       form.append($("<span></span>").attr("id", clueMsgId));
       form.append($("<textarea></textarea>").attr("id", clueTextId));
       form.append($("<button></button>").attr("id", clueUpdateId));
+      form.append($("<button></button>").attr("id", clueDeleteId));
       editor = new CrosswordEditor(gridId);
   },
 });
@@ -208,7 +210,9 @@ QUnit.test('Clue Edit Mode: Hiliting a blank grid word sets maxlength of word in
     assert.equal($(jqClueWordId).attr("maxlength"), "5");
 });
 
-QUnit.test('Clue Edit Mode: Invalid input in clue form shows error message', function(assert) {
+// Word/Clue Edit Form - Update Grid Btn tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('Clue Edit Form: Invalid input in clue form shows error message', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     clickOnCellId("0-0");
     clickOnCellId("0-4");
@@ -218,7 +222,7 @@ QUnit.test('Clue Edit Mode: Invalid input in clue form shows error message', fun
     assert.equal($(jqClueMsgId).text(), "Word must be 3 chars");
 });
 
-QUnit.test('Clue Edit Mode: Valid input populates grid word and word data', function(assert) {
+QUnit.test('Clue Edit Form: Valid input populates grid word and word data', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     clickOnCellId(("0-0"));
     clickOnCellId(("0-4"));
@@ -231,7 +235,7 @@ QUnit.test('Clue Edit Mode: Valid input populates grid word and word data', func
     assert.equal(editor.Xword.words.across["0-1"].clue, "clue text (3)");
 });
 
-QUnit.test('Clue Edit Mode: Valid input activates reset btn and disables size selector ', function(assert) {
+QUnit.test('Clue Edit Form: Valid input activates reset btn and disables size selector ', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     $(jqModeSelectorId).val(2).change();
     doClueFormInput("abcde","clue text");
@@ -239,7 +243,7 @@ QUnit.test('Clue Edit Mode: Valid input activates reset btn and disables size se
     assert.false($(jqResetBtnId).is(":disabled"));
 });
 
-QUnit.test('Clue Edit Mode: Existing stored word and clue populated in form if full word', function(assert) {
+QUnit.test('Clue Edit Form: Existing stored word and clue populated in form if full word', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     $(jqModeSelectorId).val(2).change();
     doClueFormInput("abcde","clue text"); // 1 ACROSS input updated; next across hilited
@@ -248,7 +252,7 @@ QUnit.test('Clue Edit Mode: Existing stored word and clue populated in form if f
     assertClueFormFields("#1 Across (5)", "abcde", "clue text (5)", "");
 });
 
-QUnit.test('Clue Edit Mode: Word is populated in form if full word is formed by letters in grid', function(assert) {
+QUnit.test('Clue Edit Form: Word is populated in form if full word is formed by letters in grid', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     $(jqModeSelectorId).val(2).change();
     doClueFormInput("abcde","clue text"); // 1 ACROSS input updated; next across hilited
@@ -259,7 +263,7 @@ QUnit.test('Clue Edit Mode: Word is populated in form if full word is formed by 
     assertClueFormFields("#1 Down (5)", "AFKPU", "", "");
 });
 
-QUnit.test('Clue Edit Mode: Previous message is cleared when input is valid', function(assert) {
+QUnit.test('Clue Edit Form: Previous message is cleared when input is valid', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     var cells = $(jqGridId + " > div");
     $(jqModeSelectorId).val(2).change();
@@ -269,16 +273,16 @@ QUnit.test('Clue Edit Mode: Previous message is cleared when input is valid', fu
     assert.equal($(jqClueMsgId).text(), "");
 });
 
-QUnit.test('Clue Edit Mode: Loading new word in form clears previous message', function(assert) {
+QUnit.test('Clue Edit Form: Loading new word in form clears previous message', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     $(jqModeSelectorId).val(2).change();
     doClueFormInput("abc",""); // short word - error msg
     assert.equal($(jqClueMsgId).text(), "Word must be 5 chars");
-    clickOnCellId("1-0")
+    clickOnCellId("1-0");
     assert.equal($(jqClueMsgId).text(), "");
 });
 
-QUnit.test('Clue Edit Mode: Form is hidden when all words and clues are complete', function(assert) {
+QUnit.test('Clue Edit Form: Form is hidden when all words and clues are complete', function(assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     $(jqModeSelectorId).val(2).change();
     doClueFormInput("abcde","clue text"); // 1 ACROSS input updated; next across hilited
@@ -292,6 +296,32 @@ QUnit.test('Clue Edit Mode: Form is hidden when all words and clues are complete
     doClueFormInput("dinsx","clue text"); // 4 DOWN input updated; next across hilited
     doClueFormInput("ejoty","clue text"); // 5 DOWN input updated; DONE - FORM IS HIDDEN
     assert.false($(jqClueFormId).is(":visible"));
+});
+
+// Word/Clue Edit Form - Remove Btn tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('Clue Edit Form: Delete Btn removes word from grid', function(assert) {
+    editor.initialize();  // NOTE: Grid is 5x5 by default
+    $(jqModeSelectorId).val(2).change(); // By default hilites 1A
+    clickOnCellId("0-0");                // Hilite 1D
+    doClueFormInput("adown","clue 1D");  // Enter 1D
+    clickOnCellId("0-0");                // Hilite 1A
+    doClueFormInput("acros","clue 1A");  // Enter 1A
+    clickOnCellId("0-0");                // Hilite 1A
+    $(jqClueDeleteId).click();           // Delete 1A
+    assert.equal(editor.Xword.readWord("0-0", true), "A    ");
+    clickOnCellId("0-0");                // Hilite 1D
+    $(jqClueDeleteId).click();           // Delete 1D
+    assert.equal(editor.Xword.readWord("0-0", false), "     ");
+});
+
+QUnit.test('Clue Edit Form: Delete Btn clears form', function(assert) {
+    editor.initialize();  // NOTE: Grid is 5x5 by default
+    $(jqModeSelectorId).val(2).change();
+    doClueFormInput("abcde","clue 1A");
+    clickOnCellId("0-0");
+    $(jqClueDeleteId).click();
+    assertClueFormFields("#1 Across (5)", "", "", "");
 });
 
 // HELPER FUNCTIONS
