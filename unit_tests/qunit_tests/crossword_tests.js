@@ -732,6 +732,71 @@ QUnit.test("deleteWordData: Deletes tooltip for the word if it exists", function
   assert.equal($("#0-0").attr("title"), "1 Down: clue 1D (5)");
 });
 
+// getGridData tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test("getGridData: Returns grid data for an empty grid as JSON obj", function(assert) {
+  var xword = createXWord(5);
+  var gridDataObj = xword.getGridData();
+  assert.equal(gridDataObj.puzzle_id, 0);
+  assert.equal(gridDataObj.grid_size, 5);
+  assert.equal(gridDataObj.is_ready, false);
+  assert.deepEqual(gridDataObj.content, {blocks:"", words:{across:{}, down:{}}});
+});
+
+QUnit.test("getGridData: Returns grid data for blocks", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("0-1");
+  xword.toggleCellBlock("1-1");
+  xword.toggleCellBlock("1-4");
+  xword.toggleCellBlock("2-2");
+  var gridDataObj = xword.getGridData();
+  assert.equal(gridDataObj.content.blocks, "1,6,9,12,15,18,23");
+  assert.equal(gridDataObj.is_ready, false);
+});
+
+QUnit.test("getGridData: Returns grid data for words", function(assert) {
+  var xword = createXWord(5);
+  xword.toggleCellBlock("0-1");
+  xword.toggleCellBlock("1-4");
+  xword.toggleCellBlock("2-2");
+  xword.setWordData("0-2","NET","clue 2a");
+  xword.setWordData("1-1","DOWN","clue 4d", false);
+  xword.setWordData("4-0","ONE", "");
+  var gridDataObj = xword.getGridData();
+  assert.equal(gridDataObj.content.blocks, "1,9,12,15,23");
+  var expected = {across:{"0-2":{word:"NET",clue:"clue 2a (3)"},"4-0":{word:"ONE",clue:""}},
+                  down:{"1-1":{word:"DOWN", clue:"clue 4d (4)"}}};
+  assert.deepEqual(gridDataObj.content.words, expected);
+  assert.equal(gridDataObj.is_ready, false);
+});
+
+QUnit.test("getGridData: Returns false for is_ready when grid is incomplete", function(assert) {
+  var xword = createXWord(5);
+  xword.setWordData("0-0","ABCDE", "clue 1a");
+  xword.setWordData("1-0","FGHIJ", "clue 6a");
+  xword.setWordData("2-0","KLMNO", "clue 7a");
+  xword.setWordData("3-0","PQRST", "clue 8a");
+  xword.setWordData("4-0","UVWXY", "clue 9a");
+  var gridDataObj = xword.getGridData();
+  assert.equal(gridDataObj.is_ready, false);
+});
+
+QUnit.test("getGridData: Returns true for is_ready when grid is complete", function(assert) {
+  var xword = createXWord(5);
+  xword.setWordData("0-0","ABCDE", "clue 1a");
+  xword.setWordData("1-0","FGHIJ", "clue 6a");
+  xword.setWordData("2-0","KLMNO", "clue 7a");
+  xword.setWordData("3-0","PQRST", "clue 8a");
+  xword.setWordData("4-0","UVWXY", "clue 9a");
+  xword.setWordData("0-0", "AFKPU", "clue 1d", false);
+  xword.setWordData("0-1", "BGLQV", "clue 2d", false);
+  xword.setWordData("0-2", "CHMRW", "clue 3d", false);
+  xword.setWordData("0-3", "DINSX", "clue 4d", false);
+  xword.setWordData("0-4", "EJOTY", "clue 5d", false);
+  var gridDataObj = xword.getGridData();
+  assert.equal(gridDataObj.is_ready, true);
+});
+
 /******************************************************************************************
 /* HELPER FUNCTIONS */
 function createXWord(size) {

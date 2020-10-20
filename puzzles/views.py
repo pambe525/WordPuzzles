@@ -1,7 +1,9 @@
 from django.views import View
 from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from puzzles.models import Crossword
+import logging
 
 
 class HomeView(LoginRequiredMixin, View):
@@ -22,6 +24,10 @@ class NewCrosswordView(LoginRequiredMixin, View):
         return render(request, "edit_xword.html", { 'pk':0 })
 
     def post(self, request):
+        if self.request.is_ajax():
+            request.POST.get('data')
+            return JsonResponse({"success": "succeeded"})
+
         if self._validate_data(request.POST):
             grid_size = request.POST.get('grid_size')
             grid_content = request.POST.get('grid_content')

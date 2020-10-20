@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 class Crossword(models.Model):
     editor = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     grid_size = models.IntegerField(default=15)
-    grid_content = models.TextField(default="", max_length=625)  # 25x25 grid
+    is_ready = models.BooleanField(default=False)
+    grid_content = models.TextField(default="")  # as json string of blocks and word data
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 

@@ -7,7 +7,6 @@
     <div class="bg-light border border-dark rounded-lg shadow-sm p-2" style="width:700px">
         <span class="h6">Grid Size: </span>
         <select id="grid-size" class="p-1 ml-2">
-          <option value=3>3 x 3</option>
           <option value=5>5 x 5</option>
           <option value=7>7 x 7</option>
           <option value=9>9 x 9</option>
@@ -38,7 +37,7 @@
             <!-- WORD & CLUE INPUT FORM -->
             <div id="clue-form" class="col mt-3 p-2" style="width:200px; border:1px solid silver; border-radius:5px;">
                 <span id="clue-num" class="h6 pt-1"></span><br />
-                <input id="clue-word" type="text" size="25"/>
+                <input id="clue-word" type="text" />
                 <span id="clue-hint" class="pt-1 ml-1 h6 text-secondary"></span>
                 <div class="mt-2">
                     <span class="h6 pt-1 col-*" style="width:80px">Enter Clue</span><br />
@@ -60,6 +59,9 @@
     <script src="{% static '/javascript/crossword_editor.js' %}"></script>
     <script src="{% static '/javascript/crossword.js' %}"></script>
     <script>
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+}       );
         $(document).ready(function() {
             try {
                 new CrosswordEditor("xw-grid").initialize();

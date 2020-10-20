@@ -1,7 +1,7 @@
 class CrosswordEditor {
 
     IDs = { grid:null, selectSize:'#grid-size', resetBtn:'#reset-grid', selectMode:'#edit-mode',
-            modeTip:'#mode-tip', saveGrid:'#save-grid', clueForm:'#clue-form', clueNum:'#clue-num',
+            modeTip:'#mode-tip', saveBtn:'#save-grid', clueForm:'#clue-form', clueNum:'#clue-num',
             clueWord:'#clue-word', clueHint:'#clue-hint', clueText:'#clue-text', clueMsg:'#clue-msg',
             clueUpdateBtn:'#clue-update', clueDeleteBtn:"#clue-delete"
     };
@@ -50,6 +50,7 @@ class CrosswordEditor {
         $(this.IDs.selectSize).change(this._sizeSelectionChanged);
         $(this.IDs.selectMode).change(this._modeSelectionChanged);
         $(this.IDs.resetBtn).click(this._resetBtnClicked);
+        $(this.IDs.saveBtn).click(this._saveBtnClicked);
         $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
         $(this.IDs.clueDeleteBtn).click(this._deleteWordDataClicked)
         $(this.IDs.clueWord).keyup(this._onEnterKey);
@@ -136,6 +137,17 @@ class CrosswordEditor {
         $(this.IDs.clueWord).val("");
         $(this.IDs.clueText).val("");
         $(this.IDs.clueMsg).text("");
+    }
+
+    _saveBtnClicked = () => {
+        $.ajax({
+            method: "POST",
+            data: this.Xword.getGridData(),
+            dataType: "json",
+            success: function (result) {
+                alert(result.success);
+            }
+        })
     }
 
     _hiliteNextAndLoadForm() {

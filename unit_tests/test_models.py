@@ -11,5 +11,6 @@ class CrosswordModelTest(TestCase):
         puzzle = Crossword.objects.create(editor=user)
         self.assertEquals(user, puzzle.editor)
         self.assertEqual(15, puzzle.grid_size)
+        self.assertEqual(False, puzzle.is_ready)
         self.assertEqual("", puzzle.grid_content)
         self.assertEqual("Crossword Puzzle #1", str(puzzle))

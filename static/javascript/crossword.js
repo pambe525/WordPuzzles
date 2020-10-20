@@ -5,12 +5,112 @@ class Crossword {
     words = {across: {}, down: {}};
 
     constructor(divId, clickHandler, gridSize) {
+        this.puzzleId = 0;
         this.gridSize = gridSize;
         this.gridId = "#" + divId;
         this.clickHandler = clickHandler;
         this._validateArgs();
         this._makeGrid();
         this._setStyle();
+    }
+
+    hasBlocks() {
+        return ($(".xw-blocked").length !== 0);
+    }
+
+    hasData() {
+        var acrossWords = Object.keys(this.words.across).length;
+        var downWords = Object.keys(this.words.down).length;
+        return (this.hasBlocks() || acrossWords !== 0 || downWords !== 0);
+    }
+
+    getClueNum(cellId, isAcross = true) {
+        return this._getCellNumber(this._getWordStartCellId(cellId, isAcross));
+    }
+
+    getFirstHilitedCellId() {
+        var hilitedCells = $(this.gridId + ">.xw-hilited");
+        return (hilitedCells.length === 0) ? null : hilitedCells[0].id;
+    }
+
+    getWordData(cellId, isAcross = true) {
+        if (!this._isUnblockedCell(cellId)) return null;
+        var startCellId = this._getWordStartCellId(cellId, isAcross);
+        var key = (isAcross) ? "across" : "down";
+        return (this.words[key][startCellId] === undefined) ? null : this.words[key][startCellId];
+    }
+
+    clearHilites() {
+        $(this.gridId).children(".xw-hilited").removeClass("xw-hilited")
+            .removeClass("xw-across").removeClass("xw-down");
+    }
+
+    setEditable(isEditable) {
+        $(this.gridId).children('div').attr('contenteditable', (isEditable) ? "true" : "false");
+    }
+
+    setWordData(cellId, word, clue, isAcross = true) {
+        if (!this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross)) throw new Error("Invalid cell id");
+        var wordCells = this._getCellsInWord(cellId, isAcross);
+        this._checkWordFitToGrid(cellId, word, wordCells, isAcross);
+        clue = this._checkAndFixClue(word, clue);
+        var key = (isAcross) ? "across" : "down";
+        var startCellId = this._getWordStartCellId(cellId, isAcross);
+        this.words[key][startCellId] = {word: word, clue: clue};
+        this._setGridWord(word, wordCells);
+        this._setToolTip(startCellId, isAcross);
+        this._setWordColor(startCellId, isAcross);
+    }
+
+    readWord(cellId, isAcross = true) {
+        if (!this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross)) return null;
+        var cells = this._getCellsInWord(cellId, isAcross)
+        var word = "", letter;
+        for (var i = 0; i < cells.length; i++) {
+            letter = $(cells[i]).children(".xw-letter").text();
+            if (letter === "") letter = " ";
+            word += letter;
+        }
+        return word;
+    }
+
+    deleteWordData(cellId, isAcross=true) {
+        var wordData = this.getWordData(cellId, isAcross);
+        if ( !this._isUnblockedCell(cellId) || wordData === null ) return false;
+        var key = (isAcross) ? "across" : "down";
+        var startCellId = this._getWordStartCellId(cellId, isAcross);
+        delete this.words[key][startCellId];
+        var wordCells = this._getCellsInWord(cellId, isAcross);
+        var xyColorClass = (isAcross) ? "xw-xblue" : "xw-yblue";
+        for (var i = 0; i < wordCells.length; i++) {
+            if ( !this.getWordData(wordCells[i].id, !isAcross) ) {
+                $(wordCells[i]).children(".xw-letter").empty();
+                $(wordCells[i]).children(".xw-letter").removeClass("xw-blue");
+            }
+            else $(wordCells[i]).children(".xw-letter").removeClass(xyColorClass);
+        }
+        this._setToolTip(startCellId, isAcross);
+        return true;
+    }
+
+    isHiliteAcross() {
+        var isAcross = false, hilitedCells = $(".xw-across");
+        if (hilitedCells.length > 0) isAcross = true;
+        else hilitedCells = $(".xw-down");
+        return (hilitedCells.length === 0) ? null : isAcross;
+    }
+
+    hiliteNextIncomplete() {
+        var currentFirstCellId = this.getFirstHilitedCellId(), cellId;
+        var isAcross = this.isHiliteAcross();
+        isAcross = (isAcross === null) ? true : isAcross;
+        cellId = this._nextIncompleteWordFirstCellId(currentFirstCellId, isAcross);
+        if (cellId === null) {
+            isAcross = !isAcross;
+            cellId = this._nextIncompleteWordFirstCellId(null, isAcross);
+        }
+        if (cellId !== null) this._hiliteCellsInWord(cellId, isAcross);
+        else this.clearHilites();
     }
 
     toggleCellBlock(cellId) {
@@ -41,103 +141,14 @@ class Crossword {
         return isAcross;
     }
 
-    hasBlocks() {
-        return ($(".xw-blocked").length !== 0);
-    }
-
-    hasData() {
-        var acrossWords = Object.keys(this.words.across).length;
-        var downWords = Object.keys(this.words.down).length;
-        return (this.hasBlocks() || acrossWords !== 0 || downWords !== 0);
-    }
-
-    getClueNum(cellId, isAcross = true) {
-        return this._getCellNumber(this._getWordStartCellId(cellId, isAcross));
-    }
-
-    clearHilites() {
-        $(this.gridId).children(".xw-hilited").removeClass("xw-hilited")
-            .removeClass("xw-across").removeClass("xw-down");
-    }
-
-    setEditable(isEditable) {
-        $(this.gridId).children('div').attr('contenteditable', (isEditable) ? "true" : "false");
-    }
-
-    readWord(cellId, isAcross = true) {
-        if (!this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross)) return null;
-        var cells = this._getCellsInWord(cellId, isAcross)
-        var word = "", letter;
-        for (var i = 0; i < cells.length; i++) {
-            letter = $(cells[i]).children(".xw-letter").text();
-            if (letter === "") letter = " ";
-            word += letter;
-        }
-        return word;
-    }
-
-    getWordData(cellId, isAcross = true) {
-        if (!this._isUnblockedCell(cellId)) return null;
-        var startCellId = this._getWordStartCellId(cellId, isAcross);
-        var key = (isAcross) ? "across" : "down";
-        return (this.words[key][startCellId] === undefined) ? null : this.words[key][startCellId];
-    }
-
-    setWordData(cellId, word, clue, isAcross = true) {
-        if (!this._isUnblockedCell(cellId) || !this._isInWord(cellId, isAcross)) throw new Error("Invalid cell id");
-        var wordCells = this._getCellsInWord(cellId, isAcross);
-        this._checkWordFitToGrid(cellId, word, wordCells, isAcross);
-        clue = this._checkAndFixClue(word, clue);
-        var key = (isAcross) ? "across" : "down";
-        var startCellId = this._getWordStartCellId(cellId, isAcross);
-        this.words[key][startCellId] = {word: word, clue: clue};
-        this._setGridWord(word, wordCells);
-        this._setToolTip(startCellId, isAcross);
-        this._setWordColor(startCellId, isAcross);
-    }
-
-    deleteWordData(cellId, isAcross=true) {
-        var wordData = this.getWordData(cellId, isAcross);
-        if ( !this._isUnblockedCell(cellId) || wordData === null ) return false;
-        var key = (isAcross) ? "across" : "down";
-        var startCellId = this._getWordStartCellId(cellId, isAcross);
-        delete this.words[key][startCellId];
-        var wordCells = this._getCellsInWord(cellId, isAcross);
-        var xyColorClass = (isAcross) ? "xw-xblue" : "xw-yblue";
-        for (var i = 0; i < wordCells.length; i++) {
-            if ( !this.getWordData(wordCells[i].id, !isAcross) ) {
-                $(wordCells[i]).children(".xw-letter").empty();
-                $(wordCells[i]).children(".xw-letter").removeClass("xw-blue");
-            }
-            else $(wordCells[i]).children(".xw-letter").removeClass(xyColorClass);
-        }
-        this._setToolTip(startCellId, isAcross);
-        return true;
-    }
-
-    getFirstHilitedCellId() {
-        var hilitedCells = $(this.gridId + ">.xw-hilited");
-        return (hilitedCells.length === 0) ? null : hilitedCells[0].id;
-    }
-
-    isHiliteAcross() {
-        var isAcross = false, hilitedCells = $(".xw-across");
-        if (hilitedCells.length > 0) isAcross = true;
-        else hilitedCells = $(".xw-down");
-        return (hilitedCells.length === 0) ? null : isAcross;
-    }
-
-    hiliteNextIncomplete() {
-        var currentFirstCellId = this.getFirstHilitedCellId(), cellId;
-        var isAcross = this.isHiliteAcross();
-        isAcross = (isAcross === null) ? true : isAcross;
-        cellId = this._nextIncompleteWordFirstCellId(currentFirstCellId, isAcross);
-        if (cellId === null) {
-            isAcross = !isAcross;
-            cellId = this._nextIncompleteWordFirstCellId(null, isAcross);
-        }
-        if (cellId !== null) this._hiliteCellsInWord(cellId, isAcross);
-        else this.clearHilites();
+    getGridData() {
+        var blocks = [], cells = $(this.gridId+">div");
+        for (var i = 0; i < cells.length; i++)
+            if ($(cells[i]).hasClass("xw-blocked")) blocks.push(i);
+        blocks = blocks.toString();
+        var dataObj = { puzzle_id: this.puzzleId, grid_size: this.gridSize, is_ready: this._isComplete(),
+                        content: {blocks:blocks, words: this.words} };
+        return dataObj;
     }
 
     // PRIVATE METHODS
@@ -377,6 +388,20 @@ class Crossword {
             var tCellId = this._getOffsetCellId(cellId, -1, 0);
             var bCellId = this._getOffsetCellId(cellId, 1, 0);
             return this._isUnblockedCell(tCellId) || this._isUnblockedCell(bCellId);
+        }
+    }
+
+    _isComplete() {
+        if ( $(this.gridId+">div>.xw-letter:empty").length !== 0 ) return false;
+        else {
+            var cells = $(this.gridId+">div").has(".xw-number");
+            for (var i = 0; i < cells.length; i++) {
+                if (this._isWordStart(cells[i].id, true) && (this.words.across[cells[i].id] === undefined ||
+                    this.words.across[cells[i].id].clue === "")) return false;
+                if (this._isWordStart(cells[i].id, false) && (this.words.down[cells[i].id] === undefined ||
+                    this.words.down[cells[i].id].clue === "")) return false;
+            }
+            return true;
         }
     }
 
