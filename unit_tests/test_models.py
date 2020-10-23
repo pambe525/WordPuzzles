@@ -12,5 +12,7 @@ class CrosswordModelTest(TestCase):
         self.assertEquals(user, puzzle.editor)
         self.assertEqual(15, puzzle.grid_size)
         self.assertEqual(False, puzzle.is_ready)
-        self.assertEqual("", puzzle.grid_content)
+        self.assertEqual("", puzzle.grid_blocks)
+        self.assertEqual("", puzzle.across_words)
+        self.assertEqual("", puzzle.down_words)
         self.assertEqual("Crossword Puzzle #1", str(puzzle))

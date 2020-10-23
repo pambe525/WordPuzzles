@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
     {% load static %}
-    <h3>New Crossword Puzzle</h3><br />
+    <h3>New Crossword Puzzle</h3>
 
     <!-- PAGE-SPECIFIC NAVBAR WITH GRID SIZE SELECTION, RESET AND SAVE -->
-    <div class="bg-light border border-dark rounded-lg shadow-sm p-2" style="width:700px">
+    <div class="bg-light border border-dark rounded-lg shadow-sm p-2 mt-3" style="width:700px">
         <span class="h6">Grid Size: </span>
         <select id="grid-size" class="p-1 ml-2">
           <option value=5>5 x 5</option>
@@ -16,8 +16,15 @@
         </select>
         <button id="reset-grid" class="btn btn-sm ml-2 btn-primary rounded-lg">Reset Grid</button>
         <button id="save-grid" class="btn btn-sm ml-2 btn-primary rounded-lg">Save Crossword</button>
-        <button id="delete-xword" class="btn btn-sm ml-2 btn-danger rounded-lg">Delete Crossword</button>
-        <button id="home-btn" class="btn btn-sm ml-2 btn-dark rounded-lg">Back to List</button>
+        <!-- ALERT BOX FOR GENERAL MESSAGES -->
+        <span id="saved-msg" class="text-success" style="display:none">
+            <i class="fas fa-check-circle fa-lg"></i>
+            Saved
+        </span>
+        <button id="back-btn" class="btn btn-sm ml-2 btn-dark rounded-lg" style="float:right">
+            <i class="fas fa-arrow-circle-left fa-lg"></i>
+            Back to List
+        </button>
     </div>
 
     <div class="row m-0 mt-2" style="width:700px">

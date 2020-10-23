@@ -146,9 +146,10 @@ class Crossword {
         for (var i = 0; i < cells.length; i++)
             if ($(cells[i]).hasClass("xw-blocked")) blocks.push(i);
         blocks = blocks.toString();
-        var dataObj = { puzzle_id: this.puzzleId, grid_size: this.gridSize, is_ready: this._isComplete(),
-                        content: {blocks:blocks, words: this.words} };
-        return dataObj;
+        return {
+            puzzle_id: this.puzzleId, grid_size: this.gridSize, is_ready: this._isComplete(),
+            blocks: blocks, across: this.words.across, down: this.words.down
+        };
     }
 
     // PRIVATE METHODS
@@ -392,7 +393,9 @@ class Crossword {
     }
 
     _isComplete() {
-        if ( $(this.gridId+">div>.xw-letter:empty").length !== 0 ) return false;
+        var blockedCells = $(this.gridId+">div.xw-blocked").length;
+        var emptyCells = $(this.gridId+">div>.xw-letter:empty").length - blockedCells;
+        if ( emptyCells !== 0 ) return false;
         else {
             var cells = $(this.gridId+">div").has(".xw-number");
             for (var i = 0; i < cells.length; i++) {

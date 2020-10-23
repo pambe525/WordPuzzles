@@ -140,13 +140,13 @@ class CrosswordEditor {
     }
 
     _saveBtnClicked = () => {
+        var reqData = JSON.stringify(this.Xword.getGridData());
         $.ajax({
             method: "POST",
-            data: this.Xword.getGridData(),
+            data: {'data': reqData},
             dataType: "json",
-            success: function (result) {
-                alert(result.success);
-            }
+            success: this._saveSuccess,
+            error: this._saveError
         })
     }
 
@@ -188,5 +188,14 @@ class CrosswordEditor {
             formFields.clue = wordData.clue;
         }
         return formFields;
+    }
+
+    _saveSuccess = (result) => {
+        this.Xword.puzzleId = result.puzzle_id;
+        alert("Successfully saved");
+    }
+
+    _saveError = (jqXHR, status, error) => {
+        alert(status+":"+jqXHR.responseText);
     }
 }

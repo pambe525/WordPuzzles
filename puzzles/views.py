@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from puzzles.models import Crossword
-import logging
+import json
 
 
 class HomeView(LoginRequiredMixin, View):
@@ -18,31 +18,58 @@ class NewCrosswordView(LoginRequiredMixin, View):
 
     def __init__(self):
         super().__init__()
-        self.context = {'puzzle_id': 0, 'has_error': False, 'message': ''}
+        self.grid_size = self.puzzle_id = self.is_ready = self.grid_blocks = None
+        self.across_words = self.down_words = self.editor = None
 
     def get(self, request):
-        return render(request, "edit_xword.html", { 'pk':0 })
+        return render(request, "edit_xword.html", { 'puzzle_id':0 })
 
     def post(self, request):
-        if self.request.is_ajax():
-            request.POST.get('data')
-            return JsonResponse({"success": "succeeded"})
+        self._get_raw_data(request)
+        self._clean_data()
+        if self._validate_data():
+            xword = None
+            if self.puzzle_id == 0:
+                xword = self._save_as_new()
+            else:
+                xword = self._save_as_update()
+            return JsonResponse({'puzzle_id': xword.id})
 
-        if self._validate_data(request.POST):
-            grid_size = request.POST.get('grid_size')
-            grid_content = request.POST.get('grid_content')
-            xword = self.model.objects.create(grid_size=grid_size, grid_content=grid_content, editor=request.user)
-            self.context['puzzle_id'] = xword.id
-        return render(request, "edit_xword.html", self.context)
+    def _get_raw_data(self, request):
+        dict_obj = json.loads(request.POST.get('data'))
+        self.grid_size = dict_obj.get('grid_size')
+        self.puzzle_id = dict_obj.get('puzzle_id')
+        self.is_ready = dict_obj.get('is_ready')
+        self.grid_blocks = dict_obj.get('blocks')
+        self.across_words = dict_obj.get('across')
+        self.down_words = dict_obj.get('down')
+        self.editor = request.user
 
-    def _validate_data(self, data_dict):
-        grid_size = int(data_dict.get('grid_size'))
-        if grid_size == 0:
-            self.context['has_error'] = True
-            self.context['message'] = "Grid size cannot be zero"
-            return False
-        elif len(data_dict.get('grid_content')) != grid_size * grid_size:
-            self.context['has_error'] = True
-            self.context['message'] = "Grid content length must match no. of grid squares"
-            return False
+    def _clean_data(self):
+        self.across_words = json.dumps(self.across_words) if self.across_words is not None else ""
+        self.down_words = json.dumps(self.down_words) if self.down_words is not None else ""
+
+    def _validate_data(self):
+        if self.grid_size == 0:
+            raise Exception("Grid size cannot be zero")
+        if self.is_ready is None or self.grid_blocks is None:
+            raise Exception("Missing keys in grid data")
         return True
+
+    def _save_as_new(self):
+        xword = self.model.objects.create(
+            grid_size=self.grid_size, is_ready=self.is_ready,
+            grid_blocks=self.grid_blocks, across_words=self.across_words, down_words=self.down_words,
+            editor=self.editor
+        )
+        return xword
+
+    def _save_as_update(self):
+        record = self.model.objects.get(id=self.puzzle_id)
+        record.grid_size = self.grid_size
+        record.is_ready = self.is_ready
+        record.grid_blocks = self.grid_blocks
+        record.across_words = self.across_words
+        record.down_words = self.down_words
+        record.save()
+        return record
