@@ -30,12 +30,12 @@ class CrosswordEditor {
 
     // PRIVATE FUNCTIONS
     //--------------------------------------------------------------------------------------------------------------------
-    _createNewCrossword() {
+    #_createNewCrossword() {
         var gridSize = parseInt($(this.IDs.selectSize).val());
         this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
     }
 
-    _cellClicked = (event) => {
+    #_cellClicked = (event) => {
         if ( parseInt($(this.IDs.selectMode).val() ) === 1) {
             this.Xword.toggleCellBlock(event.target.id);
             this._setWidgetStates();
@@ -46,7 +46,7 @@ class CrosswordEditor {
        }
     }
 
-    _setupHandlers() {
+    #_setupHandlers() {
         $(this.IDs.selectSize).change(this._sizeSelectionChanged);
         $(this.IDs.selectMode).change(this._modeSelectionChanged);
         $(this.IDs.resetBtn).click(this._resetBtnClicked);
@@ -57,14 +57,14 @@ class CrosswordEditor {
         $(this.IDs.clueText).keyup(this._onEnterKey);
     }
 
-    _onEnterKey = (event) => {
+    #_onEnterKey = (event) => {
         if (event.keyCode === 13) {
             event.preventDefault();
             $(this.IDs.clueUpdateBtn).click();
         }
     }
 
-    _setModeHelpText() {
+    #_setModeHelpText() {
         var msg;
         var selectMode = parseInt($(this.IDs.selectMode).val());
         if (selectMode === 1)
@@ -77,7 +77,7 @@ class CrosswordEditor {
         $(this.IDs.modeTip).text(msg);
     }
 
-    _setWidgetStates() {
+    #_setWidgetStates() {
         if ( this.Xword.hasData() ) {
             $(this.IDs.selectSize).prop("disabled", true);
             $(this.IDs.resetBtn).prop("disabled", false);
@@ -95,7 +95,7 @@ class CrosswordEditor {
         }
    }
 
-    _sizeSelectionChanged = () => {
+    #_sizeSelectionChanged = () => {
         var gridSize = parseInt($(this.IDs.selectSize).val());
         this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
         $(this.IDs.selectMode).val(1);
@@ -107,7 +107,7 @@ class CrosswordEditor {
         this._setWidgetStates();
     }
 
-    _resetBtnClicked = () => {
+    #_resetBtnClicked = () => {
         var msg = "All changes to grid will be cleared. Please confirm or cancel."
         if ( confirm(msg) ) {
             var gridSize = parseInt($(this.IDs.selectSize).val());
@@ -116,7 +116,7 @@ class CrosswordEditor {
         }
     }
 
-    _updateWordDataClicked = () => {
+    #_updateWordDataClicked = () => {
         var word = $(this.IDs.clueWord).val();
         var clue = $(this.IDs.clueText).val().replace(/\n/g,"");
         var cellId = this.Xword.getFirstHilitedCellId();
@@ -130,7 +130,7 @@ class CrosswordEditor {
         }
     }
 
-    _deleteWordDataClicked = () => {
+    #_deleteWordDataClicked = () => {
         var cellId = this.Xword.getFirstHilitedCellId();
         var isAcross = this.Xword.isHiliteAcross();
         this.Xword.deleteWordData(cellId, isAcross);
@@ -139,7 +139,7 @@ class CrosswordEditor {
         $(this.IDs.clueMsg).text("");
     }
 
-    _saveBtnClicked = () => {
+    #_saveBtnClicked = () => {
         var reqData = JSON.stringify(this.Xword.getGridData());
         $.ajax({
             method: "POST",
@@ -150,19 +150,19 @@ class CrosswordEditor {
         })
     }
 
-    _hiliteNextAndLoadForm() {
+    #_hiliteNextAndLoadForm() {
         this.Xword.hiliteNextIncomplete();
         var cellId = this.Xword.getFirstHilitedCellId();
         if (cellId === null) $(this.IDs.clueForm).hide();
         else this._setupClueForm(cellId);
     }
 
-    _getClueRefText (clueNum, maxLength, isAcross) {
+    #_getClueRefText (clueNum, maxLength, isAcross) {
        var label = (isAcross) ? "Across" : "Down";
        return ("#" + clueNum + " " + label + " (" + maxLength + ")");
     }
 
-    _setupClueForm(cellId) {
+    #_setupClueForm(cellId) {
         var isAcross = this.Xword.isHiliteAcross();
         var formFields = this._gatherClueFormData(cellId, isAcross);
         $(this.IDs.clueNum).text(formFields.clueRef);
@@ -173,7 +173,7 @@ class CrosswordEditor {
         (formFields.word === "") ? $(this.IDs.clueWord).focus() : $(this.IDs.clueText).focus()
     }
 
-    _gatherClueFormData(cellId, isAcross) {
+    #_gatherClueFormData(cellId, isAcross) {
         var formFields = {clueRef:null, word:"", clue:"", maxLength:null};
         var gridWord = this.Xword.readWord(cellId, isAcross);
         formFields.maxLength = gridWord.length;
@@ -190,12 +190,12 @@ class CrosswordEditor {
         return formFields;
     }
 
-    _saveSuccess = (result) => {
+    #_saveSuccess = (result) => {
         this.Xword.puzzleId = result.puzzle_id;
         alert("Successfully saved");
     }
 
-    _saveError = (jqXHR, status, error) => {
+    #_saveError = (jqXHR, status, error) => {
         alert(status+":"+jqXHR.responseText);
     }
 }
