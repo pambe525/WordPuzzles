@@ -4,9 +4,9 @@
     <h3>New Crossword Puzzle</h3>
 
     <!-- PAGE-SPECIFIC NAVBAR WITH GRID SIZE SELECTION, RESET AND SAVE -->
-    <div class="bg-light border border-dark rounded-lg shadow-sm p-2 mt-3" style="width:700px">
+    <div class="bg-light border border-dark rounded-lg shadow-sm p-2 mt-3" style="width:460px">
         <span class="h6">Grid Size: </span>
-        <select id="grid-size" class="p-1 ml-2">
+        <select id="grid-size" class="p-1 ml-2 mr-2">
           <option value=5>5 x 5</option>
           <option value=7>7 x 7</option>
           <option value=9>9 x 9</option>
@@ -14,53 +14,40 @@
           <option value=13>13 x 13</option>
           <option value=15 selected>15 x 15</option>
         </select>
-        <button id="reset-grid" class="btn btn-sm ml-2 btn-primary rounded-lg">Reset Grid</button>
-        <button id="save-grid" class="btn btn-sm ml-2 btn-primary rounded-lg">Save Crossword</button>
-        <!-- ALERT BOX FOR GENERAL MESSAGES -->
-        <span id="saved-msg" class="text-success" style="display:none">
-            <i class="fas fa-check-circle fa-lg"></i>
-            Saved
-        </span>
-        <button id="back-btn" class="btn btn-sm ml-2 btn-dark rounded-lg" style="float:right">
-            <i class="fas fa-arrow-circle-left fa-lg"></i>
-            Back to List
-        </button>
+        <input id="edit-toggle" class="ml-2" type="checkbox" data-toggle="toggle" data-width=120 data-height=30
+               data-off="Edit Blocks" data-offstyle="dark" data-onstyle="warning" data-on="Edit Words">
+        <button id="save-grid" class="btn btn-sm ml-2 btn-primary rounded-lg">Save</button>
+        <button id="done" class="btn btn-sm ml-2 btn-secondary rounded-lg">Done</button>
     </div>
 
-    <div class="row m-0 mt-2" style="width:700px">
-        <div class="col-* mt-2">
+    <div class="m-0 mt-2" style="width:460px">
+        <!-- EDIT MODE SELECTOR
+        <span class="pt-2 h6">Edit Mode: </span><br />
+        <select id="edit-mode" class="mt-1 p-1" style="width:180px !important;">
+          <option value=1 selected>Select Cells to Block</option>
+          <option value=2>Set words/clues</option>
+        </select>
+        -->
+        <div id="mode-tip" class="tiptext"></div>
 
-            <!-- EDIT MODE SELECTOR -->
-            <span class="pt-2 h6">Edit Mode: </span><br />
-            <select id="edit-mode" class="mt-1 p-1" style="width:180px !important;">
-              <option value=1 selected>Select Cells to Block</option>
-              <option value=2>Set words/clues</option>
-            </select>
-            <span class="p-1 tip">
-                <i class="far fa-question-circle fa-lg" style="color:darkgray;"></i>
-                <span id="mode-tip" class="tiptext"></span>
-            </span>
-
-            <!-- WORD & CLUE INPUT FORM -->
-            <div id="clue-form" class="col mt-3 p-2" style="width:200px; border:1px solid silver; border-radius:5px;">
+        <!-- WORD & CLUE INPUT FORM -->
+        <div id="clue-form" class="row m-0 p-2" style="width:460px; border:1px solid darkgray;
+            border-radius:5px; background-color: lightyellow">
+            <div class="col-*">
                 <span id="clue-num" class="h6 pt-1"></span><br />
-                <input id="clue-word" type="text" />
-                <span id="clue-hint" class="pt-1 ml-1 h6 text-secondary"></span>
-                <div class="mt-2">
-                    <span class="h6 pt-1 col-*" style="width:80px">Enter Clue</span><br />
-                    <textarea id="clue-text" rows="2" cols="22"></textarea>
-                    <button id="clue-update" class="mt-2 p-2 badge badge-dark" style="height:30px">Update Grid</button>
-                    <button id="clue-delete" class="mt-2 p-2 badge badge-danger" style="height:30px">Delete</button>
-                </div>
-                <span id="clue-msg" class="h6 pt-1 red-text"></span>
+                <input id="clue-word" type="text" /><br />
+                <button id="clue-update" class="mt-2 p-2 badge badge-dark" style="height:30px">Update Grid</button>
+                <button id="clue-delete" class="mt-2 p-2 badge badge-danger" style="height:30px">Delete</button>
             </div>
+            <div class="col-* ml-2">
+                <span class="h6 pt-1 col-*" style="width:80px">Enter Clue</span><br />
+                <textarea id="clue-text" cols="38"></textarea>
+            </div>
+            <div id="clue-msg" class="h6 pt-1 red-text"></div>
+        </div>
 
-        </div>
         <!-- CROSSWORD GRID -->
-        <div class="col mt-2">
-            <!-- CROSSWORD GRID -->
-            <div id="xw-grid"></div>
-        </div>
+        <div class="m-1 mt-3" id="xw-grid"></div>
     </div>
     <hr />
     <script src="{% static '/javascript/crossword_editor.js' %}"></script>

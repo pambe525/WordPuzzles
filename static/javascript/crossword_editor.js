@@ -1,11 +1,12 @@
 class CrosswordEditor {
 
-    IDs = { grid:null, selectSize:'#grid-size', resetBtn:'#reset-grid', selectMode:'#edit-mode',
+    IDs = { grid:null, selectSize:'#grid-size', selectMode:'#edit-toggle',
             modeTip:'#mode-tip', saveBtn:'#save-grid', clueForm:'#clue-form', clueNum:'#clue-num',
-            clueWord:'#clue-word', clueHint:'#clue-hint', clueText:'#clue-text', clueMsg:'#clue-msg',
-            clueUpdateBtn:'#clue-update', clueDeleteBtn:"#clue-delete"
+            clueWord:'#clue-word', clueText:'#clue-text', clueMsg:'#clue-msg',
+            clueUpdateBtn:'#clue-update', clueDeleteBtn:"#clue-delete", doneBtn:"#done"
     };
     gridId = "xw-grid";
+    dataSaved = false;
 
     constructor(gridId) {
         this.gridId = gridId;
@@ -36,7 +37,7 @@ class CrosswordEditor {
     }
 
     _cellClicked = (event) => {
-        if ( parseInt($(this.IDs.selectMode).val() ) === 1) {
+        if ( !$(this.IDs.selectMode).is(":checked") ) {
             this.Xword.toggleCellBlock(event.target.id);
             this._setWidgetStates();
         } else {
@@ -49,10 +50,10 @@ class CrosswordEditor {
     _setupHandlers() {
         $(this.IDs.selectSize).change(this._sizeSelectionChanged);
         $(this.IDs.selectMode).change(this._modeSelectionChanged);
-        $(this.IDs.resetBtn).click(this._resetBtnClicked);
         $(this.IDs.saveBtn).click(this._saveBtnClicked);
         $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
         $(this.IDs.clueDeleteBtn).click(this._deleteWordDataClicked)
+        $(this.IDs.doneBtn).click(this._doneBtnClicked)
         $(this.IDs.clueWord).keyup(this._onEnterKey);
         $(this.IDs.clueText).keyup(this._onEnterKey);
     }
@@ -66,40 +67,36 @@ class CrosswordEditor {
 
     _setModeHelpText() {
         var msg;
-        var selectMode = parseInt($(this.IDs.selectMode).val());
-        if (selectMode === 1)
-            msg = "Click on a grid square to block it. Re-select to unblock. " +
-                "Diametrically opposite square will also be blocked using 180 deg. rotational symmetry.";
+        var editMode = $(this.IDs.selectMode).is(":checked");
+        if (!editMode)
+            msg = "Click on a grid square to block it. Re-select to unblock. Diametrically opposite square " +
+                  "will also be blocked or unblocked using 180 deg. rotational symmetry.";
         else
-            msg = "Click on a numbered square to edit ACROSS or DOWN word and its clue. " +
-            "Clicking ENTER in the clue form updates the word & clue in grid.  Valid clue is shown as a tooltip "+
-            "in the grid square.  RED letters indicare missing clues.  BLUE letters indicate clue is complete.";
+            msg = "Click on a square to toggle editing ACROSS or DOWN word and its clue. Clicking ENTER in " +
+                  "the clue form updates the word & clue in grid.  Valid clue is shown as a tooltip in the grid "+
+                  "square. RED letters indicare missing clues.  BLUE letters indicate clue is complete.";
         $(this.IDs.modeTip).text(msg);
     }
 
     _setWidgetStates() {
-        if ( this.Xword.hasData() ) {
-            $(this.IDs.selectSize).prop("disabled", true);
-            $(this.IDs.resetBtn).prop("disabled", false);
-        } else {
-            $(this.IDs.selectSize).prop("disabled", false);
-            $(this.IDs.resetBtn).prop("disabled", true);
-        }
-        var editModeSelection = parseInt($(this.IDs.selectMode).val());
-        if ( editModeSelection === 1 ) {
+        var editMode = $(this.IDs.selectMode).is(":checked");
+        if ( !editMode ) {
             $(this.IDs.clueForm).hide();
             this.Xword.clearHilites();
-        } else if ( editModeSelection === 2 ) {
+        } else {
             $(this.IDs.clueForm).show();
             this._hiliteNextAndLoadForm();
         }
    }
 
     _sizeSelectionChanged = () => {
-        var gridSize = parseInt($(this.IDs.selectSize).val());
-        this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
-        $(this.IDs.selectMode).val(1);
-        this._setWidgetStates();
+        var changeGrid = true;
+        if ( this.Xword.hasData() ) {
+            var msg = "All changes to grid will be cleared. Please confirm or cancel."
+            changeGrid = confirm(msg);
+        }
+        if (changeGrid) this._changeGridSize();
+        else $(this.IDs.selectSize).val(this.Xword.gridSize);
     }
 
     _modeSelectionChanged = () => {
@@ -107,13 +104,10 @@ class CrosswordEditor {
         this._setWidgetStates();
     }
 
-    _resetBtnClicked = () => {
-        var msg = "All changes to grid will be cleared. Please confirm or cancel."
-        if ( confirm(msg) ) {
-            var gridSize = parseInt($(this.IDs.selectSize).val());
-            this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
-            this._setWidgetStates();
-        }
+    _changeGridSize() {
+        var gridSize = parseInt($(this.IDs.selectSize).val());
+        this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
+        $(this.IDs.selectMode).prop("checked", false).change();
     }
 
     _updateWordDataClicked = () => {
@@ -148,6 +142,10 @@ class CrosswordEditor {
             success: this._saveSuccess,
             error: this._saveError
         })
+    }
+
+    _doneBtnClicked() {
+
     }
 
     _hiliteNextAndLoadForm() {

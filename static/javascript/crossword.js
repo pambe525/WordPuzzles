@@ -202,14 +202,14 @@ class Crossword {
 
     _setStyle() {
         $("#xw-style").remove();
-        var css, gridLength = this.gridSize * this.cellSize + 1;
+        var css, gridLength = this.gridSize * this.cellSize + 2;
         css = this.gridId + "{border-left:1px solid black; border-top: 1px solid black;" +
             "width:" + gridLength + "px;height:" + gridLength + "px}";
         css += ".xw-blocked {background-color:black;}";
-        css += ".xw-number {font-size:9px; top:-2px; left:1px; position:absolute}";
+        css += ".xw-number {font-size: 9px; top:-2px; left:1px; position:absolute}";
         css += this.gridId + " > div { width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
-            "border-right:1px solid black; border-bottom:1px solid black; float:left; position: relative;" +
-            "text-align:center;}";
+            "box-sizing: border-box; border-right: 1px solid black; border-bottom: 1px solid black; " +
+            "float:left; position: relative; text-align: center;}";
         css += ".xw-hilited {background-color:yellow}";
         css += ".xw-letter {font-size:16px; pointer-events:none; color: red; font-weight:bold}";
         css += ".xw-letter.xw-blue, .xw-letter.xw-xblue.xw-yblue {color:blue;}"

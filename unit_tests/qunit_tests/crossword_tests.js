@@ -19,8 +19,8 @@ QUnit.test('constructor: Throws errors if arguments are not valid', function(ass
 
 QUnit.test('constructor: Creates grid of correct width, height & border', function(assert) {
   var gridSize=5, grid = createXWord(gridSize);
-  assert.equal($(jqGridId).width(), (grid.cellSize*gridSize + 1));
-  assert.equal($(jqGridId).height(), (grid.cellSize*gridSize + 1))
+  assert.equal($(jqGridId).width(), (grid.cellSize*gridSize + 2));
+  assert.equal($(jqGridId).height(), (grid.cellSize*gridSize + 2))
 });
 
 QUnit.test('constructor: Creates grid of (gridSize x gridSize) div cells', function(assert) {
@@ -39,8 +39,8 @@ QUnit.test('constructor: Clears current grid area before adding grid', function(
 QUnit.test("constructor: Grid cells have correct styling", function(assert) {
   var grid = createXWord(4);
   assert.equal($(jqGridId + " > div").css("float"), "left");
-  assert.equal($(jqGridId + " > div").width(), 30);
-  assert.equal($(jqGridId + " > div").height(), 30);
+  assert.equal($(jqGridId + " > div").width(), 29);   // due to border-box box-sizing
+  assert.equal($(jqGridId + " > div").height(), 29);  // due to border-box box-sizing
   assert.equal($(jqGridId + " > div").css("border-right-width"), "1px");});
 
 QUnit.test('constructor: Grid cells have correct id and click handler', function(assert) {

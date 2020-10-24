@@ -21,27 +21,24 @@ button, .btn {
     font-size: 14px;
 }
 
-/* Tooltip styling */
-.tip {
-    position: relative;
+/* Bootstrap Toggle v2.2.2 corrections for Bootsrtap 4*/
+.toggle-off {
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+}
+.toggle.off {
+    border-color: rgba(0, 0, 0, .25);
 }
 
+.toggle-handle {
+    background-color: white;
+    border: thin rgba(0, 0, 0, .25) solid;
+}
+
+/* Tip text styling */
 .tiptext {
-    width:250px;
-    background-color:black;
-    color: white;
-    padding: 10px;
-    font-size: 11px;
-    border-radius: 5px;
-    position: absolute;
-    top: 35px;
-    left: -100px;
-    display: none;
-    z-index:1;
-}
-
-.tip:hover .tiptext {
-    display: block;
+    color: #505050;
+    font-size: 12px;
+    margin: 6px;
 }
 
 /* Form box styling */
