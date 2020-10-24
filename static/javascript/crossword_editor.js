@@ -39,7 +39,7 @@ class CrosswordEditor {
     _cellClicked = (event) => {
         if ( !$(this.IDs.selectMode).is(":checked") ) {
             this.Xword.toggleCellBlock(event.target.id);
-            this._setWidgetStates();
+            this._dataChanged();
         } else {
             this.Xword.toggleWordHilite(event.target.id);
             $(this.IDs.clueForm).show();
@@ -108,6 +108,7 @@ class CrosswordEditor {
         var gridSize = parseInt($(this.IDs.selectSize).val());
         this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
         $(this.IDs.selectMode).prop("checked", false).change();
+        this._dataChanged();
     }
 
     _updateWordDataClicked = () => {
@@ -118,7 +119,8 @@ class CrosswordEditor {
         try {
             $(this.IDs.clueMsg).text("");
             this.Xword.setWordData(cellId, word, clue, isAcross);
-            this._setWidgetStates();
+            this._hiliteNextAndLoadForm();
+            this._dataChanged();
         } catch(err) {
             $(this.IDs.clueMsg).text(err.message);
         }
@@ -131,6 +133,7 @@ class CrosswordEditor {
         $(this.IDs.clueWord).val("");
         $(this.IDs.clueText).val("");
         $(this.IDs.clueMsg).text("");
+        this._dataChanged();
     }
 
     _saveBtnClicked = () => {
@@ -141,7 +144,7 @@ class CrosswordEditor {
             dataType: "json",
             success: this._saveSuccess,
             error: this._saveError
-        })
+        });
     }
 
     _doneBtnClicked() {
@@ -190,10 +193,20 @@ class CrosswordEditor {
 
     _saveSuccess = (result) => {
         this.Xword.puzzleId = result.puzzle_id;
-        alert("Successfully saved");
+        this._dataSaved();
     }
 
     _saveError = (jqXHR, status, error) => {
         alert(status+":"+jqXHR.responseText);
+    }
+
+    _dataChanged() {
+        $(this.IDs.saveBtn).prop("disabled", false);
+        this.dataSaved = false;
+    }
+
+    _dataSaved() {
+        $(this.IDs.saveBtn).prop("disabled", true);
+        this.dataSaved = true;
     }
 }
