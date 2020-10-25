@@ -373,6 +373,7 @@ QUnit.test('Save Btn: Is re-enabled when grid size is changed', function (assert
     assert.false(editor.dataSaved);
 });
 
+
 // HELPER FUNCTIONS
 //====================================================================================================================
 function clickOnCellId(cellId) {

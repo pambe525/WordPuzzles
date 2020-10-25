@@ -56,6 +56,7 @@ class CrosswordEditor {
         $(this.IDs.doneBtn).click(this._doneBtnClicked)
         $(this.IDs.clueWord).keyup(this._onEnterKey);
         $(this.IDs.clueText).keyup(this._onEnterKey);
+        $(window).on('beforeunload', this._handleUnload);
     }
 
     _onEnterKey = (event) => {
@@ -147,8 +148,17 @@ class CrosswordEditor {
         });
     }
 
-    _doneBtnClicked() {
+    // This is not unit tested
+    _doneBtnClicked = () => {
+        window.location.replace("/");
+    }
 
+    // This is not unit tested
+    _handleUnload = (e) => {
+        if ( this.dataSaved ) return;
+        var msg = "Do you really want to leave this page?"
+        if (e) e.returnValue = msg;
+        return msg;
     }
 
     _hiliteNextAndLoadForm() {
