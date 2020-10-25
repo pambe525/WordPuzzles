@@ -12,7 +12,7 @@ class HomeView(LoginRequiredMixin, View):
         return render(request, "home.html", {})
 
 
-class NewCrosswordView(LoginRequiredMixin, View):
+class EditCrosswordView(LoginRequiredMixin, View):
 
     model = Crossword
 
