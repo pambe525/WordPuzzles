@@ -21,11 +21,27 @@ class EditCrosswordView(LoginRequiredMixin, View):
         self.grid_size = self.puzzle_id = self.is_ready = self.grid_blocks = None
         self.across_words = self.down_words = self.editor = None
 
-    def get(self, request):
-        return render(request, "edit_xword.html", { 'puzzle_id':0 })
+    def get(self, request, puzzle_id=0):
+        if puzzle_id == 0:
+            data_dict = {'puzzle_id':0}
+            return self.render_response(request, data_dict)
+        else:
+            error_msg = None
+            if self.model.objects.filter(id=puzzle_id).exists():
+                record = self.model.objects.get(id=puzzle_id)
+                if request.user == record.editor:
+                    data_dict = self._build_puzzle_data_dict_from_dbrecord(record)
+                    print(data_dict)
+                else:
+                    data_dict = {'puzzle_id': puzzle_id}
+                    error_msg = "You are not authorized to edit this puzzle"
+            else:
+                data_dict = {'puzzle_id': puzzle_id}
+                error_msg = "Puzzle ID " + str(puzzle_id) + " does not exist"
+            return self.render_response(request, data_dict, error_msg)
 
     def post(self, request):
-        self._get_raw_data(request)
+        self._extract_puzzle_data_from_request(request)
         self._clean_data()
         if self._validate_data():
             xword = None
@@ -35,7 +51,7 @@ class EditCrosswordView(LoginRequiredMixin, View):
                 xword = self._save_as_update()
             return JsonResponse({'puzzle_id': xword.id})
 
-    def _get_raw_data(self, request):
+    def _extract_puzzle_data_from_request(self, request):
         dict_obj = json.loads(request.POST.get('data'))
         self.grid_size = dict_obj.get('grid_size')
         self.puzzle_id = dict_obj.get('puzzle_id')
@@ -73,3 +89,18 @@ class EditCrosswordView(LoginRequiredMixin, View):
         record.down_words = self.down_words
         record.save()
         return record
+
+    def _build_puzzle_data_dict_from_dbrecord(self, record):
+        data_dict = {'puzzle_id': record.id, 'grid_size': record.grid_size,
+         'grid_blocks': record.grid_blocks, 'is_ready': record.is_ready,
+         'across_words': json.loads(record.across_words),
+         'down_words': json.loads(record.down_words)
+         }
+        return data_dict
+
+    def render_response(self, request, data_dict, error_msg=None):
+        page_title = "New Crossword Puzzle" if data_dict['puzzle_id'] == 0 else "Edit Crossword Puzzle"
+        context = {'data': json.dumps(data_dict), 'title':page_title}
+        if error_msg:
+            context['error_message'] = error_msg
+        return render(request, "edit_xword.html", context=context)

@@ -25,5 +25,5 @@ urlpatterns = [
     path('login', LoginView.as_view(), name="login"),
     path('logout', LogoutView.as_view(), name="logout"),
     path('new_xword', EditCrosswordView.as_view(), name="new_xword"),
-    # path('edit_xword/<int:pk>', EditCrosswordView.as_view(), name="edit_xword")
+    path('edit_xword/<int:puzzle_id>/', EditCrosswordView.as_view(), name="edit_xword"),
 ]

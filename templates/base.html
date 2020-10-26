@@ -43,13 +43,19 @@
         </div>
         <hr style="margin:0; padding:0; border-top:4px solid darkorange">
 
-        <!-- FLASH MESSAGES -->
-        <div class="alert alert-warning" role="alert" style="display:none"></div>
 
-        <!-- MAIN CONTENT -->
-        <div class="m-4">
-            {% block content %}{% endblock %}
-        </div>
+        {% if error_message %}
+            <!-- FATAL ERROR MESSAGE -->
+            <div id="flash-msg" class="alert alert-danger h6" role="alert">{{ error_message }}</div>
+            <a href="{% url 'home' %}" class="btn btn-primary m-3">
+               <i class="mr-2 fas fa-backward fa-lg"></i> Back to Home Page
+            </a>
+        {% else %}
+            <!-- MAIN CONTENT -->
+            <div class="m-4">
+                {% block content %}{% endblock %}
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>

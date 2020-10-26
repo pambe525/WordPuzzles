@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
+
     {% load static %}
-    <h3>New Crossword Puzzle</h3>
+    <h3> {{ title }} </h3>
 
     <!-- PAGE-SPECIFIC NAVBAR WITH GRID SIZE SELECTION, RESET AND SAVE -->
     <div class="bg-light border border-dark rounded-lg shadow-sm p-2 mt-3" style="width:460px">
@@ -58,7 +59,9 @@
 }       );
         $(document).ready(function() {
             try {
-                new CrosswordEditor("xw-grid").initialize();
+                var puzzle_data = {{ data | safe }};
+                if ( puzzle_data.puzzle_id == 0 ) new CrosswordEditor("xw-grid").initialize();
+                else new CrosswordEditor("xw-grid", puzzle_data).initialize();
             } catch(e) {
                 alert(e);
             }

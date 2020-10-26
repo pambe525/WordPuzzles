@@ -141,18 +141,21 @@ class LoginViewTests(TestCase):
 
 # ==============================================================================================
 #
-class NewCrosswordViewTests(TestCase):
+class EditCrosswordViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
         user = User.objects.get_or_create(username="testuser")[0]
         self.client.force_login(user)
 
+    ### GET Tests ------------------------------------------------------------------------------
+    #
     def test_new_xword_GET_renders_view_if_user_is_authenticated(self):
         response = self.client.get(reverse("new_xword"))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.templates[0].name, "edit_xword.html")
         self.assertContains(response, "New Crossword Puzzle")
-        self.assertEquals(0, response.context['puzzle_id'])
+        puzzle_data = json.loads(response.context['data'])
+        self.assertEquals(0, puzzle_data['puzzle_id'])
 
     def test_new_xword_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
         logout(self.client)
@@ -160,13 +163,58 @@ class NewCrosswordViewTests(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, "/login?next=/new_xword")
 
+    def test_edit_xword_GET_with_puzzle_id_zero_treats_it_as_new_xword(self):
+        response = self.client.get("/edit_xword/0/")
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "edit_xword.html")
+        self.assertContains(response, "New Crossword Puzzle")
+        puzzle_data = json.loads(response.context['data'])
+        self.assertEquals(0, puzzle_data['puzzle_id'])
+
+    def test_edit_xword_GET_existing_puzzle_id_sets_html_response_title(self):
+        puzzle_id = self._create_new_puzzle_record()  # first create a record
+        response = self.client.get("/edit_xword/"+str(puzzle_id)+"/")
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "edit_xword.html")
+        self.assertContains(response, "Edit Crossword Puzzle")
+        puzzle_data = json.loads(response.context['data'])
+        self.assertEquals(puzzle_id, puzzle_data['puzzle_id'])
+
+    def test_edit_xword_GET_existing_puzzle_id_returns_puzzle_data(self):
+        puzzle_id = self._create_new_puzzle_record()  # first create a record
+        response = self.client.get("/edit_xword/"+str(puzzle_id)+"/")
+        self.assertEquals(response.status_code, 200)
+        puzzle_data = json.loads(response.context['data'])
+        self.assertEquals(5, puzzle_data['grid_size'])
+        self.assertEquals("0,1,2,3,6", puzzle_data['grid_blocks'])
+        self.assertEquals(False, puzzle_data['is_ready'])
+        self.assertEquals({"0-3": {"word": "one", "clue": "clue for one (3)"}}, puzzle_data['across_words'])
+        self.assertEquals({"1-0": {"word": "four", "clue": "clue for four (4)"}}, puzzle_data['down_words'])
+
+    def test_edit_xword_GET_flashes_error_message_if_puzzle_id_does_not_exist(self):
+        response = self.client.get("/edit_xword/1/")
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.context['error_message'], "Puzzle ID 1 does not exist")
+        self.assertNotContains(response, "Edit Crossword Puzzle")
+
+    def test_edit_xword_GET_flashes_error_message_if_current_user_is_not_editor(self):
+        puzzle_id = self._create_new_puzzle_record()  # first create a record
+        logout(self.client)
+        user = User.objects.get_or_create(username="newuser")[0]
+        self.client.force_login(user)
+        response = self.client.get("/edit_xword/1/")
+        self.assertEquals(response.context['error_message'], "You are not authorized to edit this puzzle")
+        self.assertNotContains(response, "Edit Crossword Puzzle")
+
+    ### POST Tests ------------------------------------------------------------------------------
+    #
     def test_new_xword_POST_returns_error_if_grid_size_is_zero(self):
         data = {'data': json.dumps({'grid_size': 0})}
         with self.assertRaises(Exception) as context:
             self.client.post(reverse('new_xword'), data=data)
         self.assertTrue("Grid size cannot be zero" in str(context.exception))
 
-    def test_new_xword_POST_returns_error_if_puzzle_id__or_content_is_missing(self):
+    def test_new_xword_POST_returns_error_if_puzzle_id__or_blocks_is_missing(self):
         data = {'data':json.dumps({'grid_size': 10, 'blocks':""})}
         with self.assertRaises(Exception) as context:
             self.client.post(reverse('new_xword'), data=data)
@@ -231,3 +279,10 @@ class NewCrosswordViewTests(TestCase):
         self.assertEqual(records[0].grid_blocks, data['blocks'])
         self.assertEqual(records[0].across_words, json.dumps(data['across']))
         self.assertEqual(records[0].down_words, json.dumps(data['down']))
+
+    def _create_new_puzzle_record(self):
+        data = {'puzzle_id': 0, 'grid_size': 5, 'is_ready': 'False', 'blocks': "0,1,2,3,6",
+                "across": {"0-3": {"word": "one", "clue": "clue for one (3)"}},
+                "down": {"1-0": {"word": "four", "clue": "clue for four (4)"}}}
+        response = self.client.post(reverse('new_xword'), data={'data':json.dumps(data)})
+        return response.json()['puzzle_id']
