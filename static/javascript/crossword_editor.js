@@ -20,6 +20,7 @@ class CrosswordEditor {
         this._setupHandlers();
         this._setModeHelpText();
         this._setWidgetStates();
+        this._setClueFormTabIndex();
         $(this.IDs.clueWord).css("text-transform","uppercase");
     }
 
@@ -88,6 +89,11 @@ class CrosswordEditor {
             $(this.IDs.clueForm).show();
             this._hiliteNextAndLoadForm();
         }
+   }
+
+   _setClueFormTabIndex() {
+        $(this.IDs.clueWord).attr('tabindex', 1);
+        $(this.IDs.clueText).attr('tabindex', 2);
    }
 
     _sizeSelectionChanged = () => {
