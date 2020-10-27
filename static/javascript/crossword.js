@@ -11,7 +11,6 @@ class Crossword {
         this.clickHandler = clickHandler;
         this._validateArgs();
         this._makeGrid();
-        this._setStyle();
     }
 
     hasBlocks() {
@@ -165,6 +164,7 @@ class Crossword {
         for (var row = 0; row < this.gridSize; row++)
             for (var col = 0; col < this.gridSize; col++)
                 $(this.gridId).append(this._createGridCell(row, col));
+        this._setStyle();
         this._autoNumberCells();
     }
 

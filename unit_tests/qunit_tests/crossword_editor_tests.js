@@ -7,6 +7,8 @@ const sizeSelectorId = "grid-size", jqSizeSelectorId = "#" + sizeSelectorId;
 const modeSelectorId = "edit-toggle", jqModeSelectorId = "#" + modeSelectorId;
 const modeTipId = "mode-tip", jqModeTipId = "#" + modeTipId;
 const saveBtnId = "save-grid", jqSaveBtnId = "#" + saveBtnId;
+const deleteBtnId = "delete", jqDeleteBtnId = "#" + deleteBtnId;
+const doneBtnId = "done", jqDoneBtnId = "#" + doneBtnId;
 const clueFormId = "clue-form", jqClueFormId = "#" + clueFormId;
 const clueNumId = "clue-num", jqClueNumId = "#" + clueNumId;
 const clueWordId = "clue-word", jqClueWordId = "#" + clueWordId;
@@ -14,7 +16,7 @@ const clueTextId = "clue-text", jqClueTextId = "#" + clueTextId;
 const clueMsgId = "clue-msg", jqClueMsgId = "#" + clueMsgId;
 const clueUpdateId = "clue-update", jqClueUpdateId = "#" + clueUpdateId;
 const clueDeleteId = "clue-delete", jqClueDeleteId = "#" + clueDeleteId;
-const doneBtnId = "done", jqDoneBtnId = "#" + doneBtnId;
+
 
 var confirmMessage = "", confirmResponse = false;
 window.confirm = function (message) {
@@ -35,6 +37,7 @@ QUnit.module('CrosswordEditor', {
             .append($("<option value=2>Word Clue Mode</option>"));
         $(jqFixtureId).append($("<div></div>").attr('id', modeTipId));
         $(jqFixtureId).append($("<button></button>").attr('id', saveBtnId));
+        $(jqFixtureId).append($("<button></button>").attr('id', deleteBtnId));
         $(jqFixtureId).append($("<button></button>").attr('id', doneBtnId));
         var form = $("<div></div>").attr("id", clueFormId);
         $(jqFixtureId).append(form);
@@ -73,6 +76,11 @@ QUnit.test('initialize: Sets help text for default block edit mode', function (a
 QUnit.test('initialize: Hides clue entry form by default', function (assert) {
     editor.initialize();
     assert.true($(jqClueFormId).is(":hidden"));
+});
+
+QUnit.test('initialize: Disables Delete button by default', function (assert) {
+    editor.initialize();
+    assert.true($(jqDeleteBtnId).prop("disabled"));
 });
 
 // setElementId tests
@@ -316,6 +324,13 @@ QUnit.test('Save Btn: Is disabled and dataSaved is true on successful save', fun
     assert.true(editor.dataSaved);
 });
 
+QUnit.test('Save Btn: On first save, delete btn is enabled', function (assert) {
+    editor.initialize();  // NOTE: Grid is 5x5 by default
+    $.ajax = function(dataObj) { dataObj.success({puzzle_id:1}) };
+    $(jqSaveBtnId).click();
+    assert.false($(jqDeleteBtnId).prop("disabled"));
+});
+
 QUnit.test('Save Btn: On successful save saved puzzle id is assigned to xword', function (assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
@@ -416,13 +431,24 @@ QUnit.test('initialize(with data): Sets words in grid using puzzle_data', functi
     assert.true(true);
 });
 
-QUnit.test('initialize(with data): Disables Save btn on load', function (assert) {
+QUnit.test('initialize(with data): Disables Save btn and enables Delete btn on load', function (assert) {
     var puzzleData = {puzzle_id: 1, grid_size: 5, grid_blocks: "", across_words:{}, down_words:{}}
     editor.initialize(puzzleData);
     assert.true($(jqSaveBtnId).prop("disabled"));
-    assert.true(editor.dataSaved);
+    assert.false($(jqDeleteBtnId).prop("disabled"));
 });
 
+// Delete btn tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('Delete Btn: Show confirmation box', function (assert) {
+    editor.initialize();
+    $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
+    $(jqSaveBtnId).click();   // First save the grid to enable Delete btn
+    confirmResponse = false;                // Cancel confirmation box
+    $(jqDeleteBtnId).click();    // Change to 3x3 grid size
+    assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
+    //assert.equal($();  // No change to grid
+});
 
 // HELPER FUNCTIONS
 //====================================================================================================================

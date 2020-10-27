@@ -16,9 +16,10 @@ textarea {
 }
 
 button, .btn {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 12px;
+    padding-right: 12px;
     font-size: 14px;
+    border: 1px solid black;
 }
 
 /* Bootstrap Toggle v2.2.2 corrections for Bootsrtap 4*/
