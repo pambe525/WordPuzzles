@@ -24,32 +24,48 @@ class EditCrosswordView(LoginRequiredMixin, View):
     def get(self, request, puzzle_id=0):
         if puzzle_id == 0:
             data_dict = {'puzzle_id':0}
-            return self.render_response(request, data_dict)
+            return self._render_get_response(request, data_dict)
         else:
             error_msg = None
             if self.model.objects.filter(id=puzzle_id).exists():
                 record = self.model.objects.get(id=puzzle_id)
                 if request.user == record.editor:
                     data_dict = self._build_puzzle_data_dict_from_dbrecord(record)
-                    print(data_dict)
                 else:
                     data_dict = {'puzzle_id': puzzle_id}
                     error_msg = "You are not authorized to edit this puzzle"
             else:
                 data_dict = {'puzzle_id': puzzle_id}
                 error_msg = "Puzzle ID " + str(puzzle_id) + " does not exist"
-            return self.render_response(request, data_dict, error_msg)
+            return self._render_get_response(request, data_dict, error_msg)
 
-    def post(self, request):
+    def post(self, request, puzzle_id=0):
+        try:
+            if request.POST.get('action') == 'delete':
+                return self._delete_puzzle_data(request)
+            else:
+                return self._save_puzzle_data(request)
+        except Exception as err:
+            return JsonResponse({'error_message': "TRAPP"+str(err)})
+
+    def _save_puzzle_data(self, request):
         self._extract_puzzle_data_from_request(request)
         self._clean_data()
         if self._validate_data():
-            xword = None
+            record = None
             if self.puzzle_id == 0:
-                xword = self._save_as_new()
+                record = self._save_as_new()
             else:
-                xword = self._save_as_update()
-            return JsonResponse({'puzzle_id': xword.id})
+                record = self._save_as_update()
+            return JsonResponse({'puzzle_id': record.id})
+
+    def _delete_puzzle_data(self, request):
+        puzzle_id = request.POST.get('puzzle_id')
+        if not self.model.objects.filter(id=puzzle_id).exists():
+            raise Exception("Puzzle id does not exist")
+        else:
+            self.model.objects.filter(id=puzzle_id).delete()
+            return JsonResponse({'puzzle_id': puzzle_id})
 
     def _extract_puzzle_data_from_request(self, request):
         dict_obj = json.loads(request.POST.get('data'))
@@ -98,7 +114,7 @@ class EditCrosswordView(LoginRequiredMixin, View):
          }
         return data_dict
 
-    def render_response(self, request, data_dict, error_msg=None):
+    def _render_get_response(self, request, data_dict, error_msg=None):
         page_title = "New Crossword Puzzle" if data_dict['puzzle_id'] == 0 else "Edit Crossword Puzzle"
         context = {'data': json.dumps(data_dict), 'title':page_title}
         if error_msg:

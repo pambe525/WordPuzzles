@@ -30,6 +30,10 @@ class CrosswordEditor {
         this.IDs[elemRef] = elemId;
     }
 
+    setUnloadHandler() {
+        $(window).on('beforeunload', this._handleUnload);
+    }
+
     // PRIVATE FUNCTIONS
     //--------------------------------------------------------------------------------------------------------------------
     _checkPageElementsExist() {
@@ -94,7 +98,6 @@ class CrosswordEditor {
         $(this.IDs.doneBtn).click(this._doneBtnClicked)
         $(this.IDs.clueWord).keyup(this._onEnterKey);
         $(this.IDs.clueText).keyup(this._onEnterKey);
-        $(window).on('beforeunload', this._handleUnload);
     }
 
     _onEnterKey = (event) => {
@@ -184,10 +187,10 @@ class CrosswordEditor {
         var reqData = JSON.stringify(this.Xword.getGridData());
         $.ajax({
             method: "POST",
-            data: {'data': reqData},
+            data: {'action':'save', 'data': reqData},
             dataType: "json",
             success: this._saveSuccess,
-            error: this._saveError
+            error: this._ajaxResponseError
         });
     }
 
@@ -245,12 +248,16 @@ class CrosswordEditor {
     }
 
     _saveSuccess = (result) => {
-        this.Xword.puzzleId = result.puzzle_id;
-        this._dataSaved();
+        if ( result['error_message'] ) {
+            alert(result['error_message']);
+        } else {
+            this.Xword.puzzleId = result.puzzle_id;
+            this._dataSaved();
+        }
     }
 
-    _saveError = (jqXHR, status, error) => {
-        alert(status+":"+jqXHR.responseText);
+    _ajaxResponseError = (jqXHR, status, error) => {
+        alert(error);
     }
 
     _dataChanged() {
