@@ -1,7 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-    <h3>Home Page</h3>
+    <h3><i class="fas fa-home" ></i> Home of the Puzzlers</h3>
     <div class="mt-4">
         <a role="button" href="{%  url 'new_xword' %}" class="btn btn-primary p-2">Create New Crossword</a>
+    </div>
+    <div id="puzzle-list" class="table-responsive">
+        <table class="mt-4 table table-sm table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr><th>Puzzle</th><th>Editor</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tr class="h6">
+                <td>Crossword Puzzle #1 (15x15)</td>
+                <td>prashant</td>
+                <td>In progress</td>
+                <td>Edit | Delete | View</td>
+            </tr>
+            <tr class="h6">
+                <td>Crossword Puzzle #2 (15x15)</td>
+                <td>prashant</td>
+                <td>Solve Now</td>
+                <td>Edit | Delete | Stats</td>
+            </tr>
+        </table>
     </div>
 {% endblock %}

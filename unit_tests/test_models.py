@@ -15,4 +15,4 @@ class CrosswordModelTest(TestCase):
         self.assertEqual("", puzzle.grid_blocks)
         self.assertEqual("", puzzle.across_words)
         self.assertEqual("", puzzle.down_words)
-        self.assertEqual("Crossword Puzzle #1", str(puzzle))
+        self.assertEqual("Crossword Puzzle #1 (15x15)", str(puzzle))

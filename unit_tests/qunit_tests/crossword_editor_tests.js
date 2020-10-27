@@ -373,6 +373,56 @@ QUnit.test('Save Btn: Is re-enabled when grid size is changed', function (assert
     assert.false(editor.dataSaved);
 });
 
+// InitializeFromData tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('initialize(with data): Throws exception if puzzle data is not an object', function (assert) {
+    assert.throws(function () {
+            editor.initialize(5);
+        }, /Invalid puzzle data/, Error);
+});
+
+QUnit.test('initialize(with data): Throws exception if grid size is not a valid option', function (assert) {
+    var puzzleData = {puzzle_id: 1, grid_size: 7}
+    assert.throws(function () {
+            editor.initialize(puzzleData);
+        }, /Invalid grid size in puzzle data/, Error);
+});
+
+QUnit.test('initialize(with data): Creates grid using size in puzzle data', function (assert) {
+    var puzzleData = {puzzle_id: 1, grid_size: 3, grid_blocks:""}
+    editor.initialize(puzzleData);
+    assert.equal($(jqGridId).children().length, 9)
+});
+
+QUnit.test('initialize(with data): Sets puzzle_id in crossword object', function (assert) {
+    var puzzleData = {puzzle_id: 28, grid_size: 5, grid_blocks:""};
+    editor.initialize(puzzleData);
+    assert.equal(editor.Xword.puzzleId, 28)
+});
+
+QUnit.test('initialize(with data): Sets blocks in grid using puzzle_data', function (assert) {
+    var puzzleData = {puzzle_id: 1, grid_size: 5, grid_blocks: "0,2,11,12,13,22,24"}
+    editor.initialize(puzzleData);
+    var blocked_cells = $(jqGridId).children(".xw-blocked");
+    assert.equal(blocked_cells.length, 7);
+    var blocked_ids = ["0-0", "0-2", "2-1", "2-2", "2-3", "4-2", "4-4"];
+    for (var i = 0; i < blocked_cells.length; i++)
+        assert.true(blocked_ids.includes(blocked_cells[i].id));
+});
+
+QUnit.test('initialize(with data): Sets words in grid using puzzle_data', function (assert) {
+    var puzzleData = {puzzle_id: 1, grid_size: 5, grid_blocks: "", across_words:{}, down_words:{}}
+    editor.initialize(puzzleData);
+    assert.true(true);
+});
+
+QUnit.test('initialize(with data): Disables Save btn on load', function (assert) {
+    var puzzleData = {puzzle_id: 1, grid_size: 5, grid_blocks: "", across_words:{}, down_words:{}}
+    editor.initialize(puzzleData);
+    assert.true($(jqSaveBtnId).prop("disabled"));
+    assert.true(editor.dataSaved);
+});
+
 
 // HELPER FUNCTIONS
 //====================================================================================================================

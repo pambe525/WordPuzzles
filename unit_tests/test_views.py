@@ -22,7 +22,7 @@ class HomeViewTests(TestCase):
         response = self.client.get(reverse("home"))
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.templates[0].name, "home.html")
-        self.assertContains(response, "Home Page")
+        self.assertContains(response, "Home")
 
     def test_get_redirects_to_login_view_if_user_is_not_authenticated(self):
         logout(self.client)

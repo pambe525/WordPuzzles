@@ -13,10 +13,10 @@ class CrosswordEditor {
         this.IDs.grid = "#"+gridId;
     }
 
-    initialize() {
-        for (var key in this.IDs)
-            if ($(this.IDs[key]).length === 0) throw new Error(this.IDs[key] + " does not exist");
-        this._createNewCrossword();
+    initialize(puzzleData) {
+        if (puzzleData && typeof(puzzleData) !== 'object') throw new Error("Invalid puzzle data");
+        this._checkPageElementsExist();
+        this._createNewCrossword(puzzleData);
         this._setupHandlers();
         this._setModeHelpText();
         this._setWidgetStates();
@@ -32,9 +32,46 @@ class CrosswordEditor {
 
     // PRIVATE FUNCTIONS
     //--------------------------------------------------------------------------------------------------------------------
-    _createNewCrossword() {
+    _checkPageElementsExist() {
+        for (var key in this.IDs)
+            if ($(this.IDs[key]).length === 0) throw new Error(this.IDs[key] + " does not exist");
+    }
+
+    _createNewCrossword(puzzleData) {
+        if (puzzleData) {
+            this._checkGridSizeOptionExists(puzzleData.grid_size);
+            $(this.IDs.selectSize).val(puzzleData.grid_size);
+        }
         var gridSize = parseInt($(this.IDs.selectSize).val());
         this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
+        if (puzzleData) this._loadPuzzleData(puzzleData);
+    }
+
+    _checkGridSizeOptionExists(gridSize) {
+        if ($(this.IDs.selectSize + " option[value='" + gridSize + "']").length === 0)
+            throw new Error("Invalid grid size in puzzle data");
+    }
+
+    _loadPuzzleData(puzzleData) {
+        this.Xword.puzzleId = puzzleData.puzzle_id;
+        var indices = puzzleData.grid_blocks.split(","), index, cellId;
+        for (var i = 0; i < Math.ceil(indices.length/2); i++) {
+            index = parseInt(indices[i]);
+            cellId = Math.floor(index/puzzleData.grid_size)+"-"+(index % puzzleData.grid_size);
+            this.Xword.toggleCellBlock(cellId);
+        }
+        var word, clue;
+        for (cellId in puzzleData.across_words) {
+            word = puzzleData.across_words[cellId].word;
+            clue = puzzleData.across_words[cellId].clue;
+            this.Xword.setWordData(cellId, word, clue, true);
+        }
+        for (cellId in puzzleData.down_words) {
+            word = puzzleData.down_words[cellId].word;
+            clue = puzzleData.down_words[cellId].clue;
+            this.Xword.setWordData(cellId, word, clue, false);
+        }
+        this._dataSaved();
     }
 
     _cellClicked = (event) => {

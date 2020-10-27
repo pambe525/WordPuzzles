@@ -59,9 +59,10 @@
 }       );
         $(document).ready(function() {
             try {
-                var puzzle_data = {{ data | safe }};
-                if ( puzzle_data.puzzle_id == 0 ) new CrosswordEditor("xw-grid").initialize();
-                else new CrosswordEditor("xw-grid", puzzle_data).initialize();
+                var puzzleData = {{ data | safe }};
+                var xwordEditor = new CrosswordEditor("xw-grid");
+                if ( puzzleData.puzzle_id === 0 ) xwordEditor.initialize();
+                else xwordEditor.initialize(puzzleData);
             } catch(e) {
                 alert(e);
             }

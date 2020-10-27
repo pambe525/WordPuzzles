@@ -14,4 +14,5 @@ class Crossword(models.Model):
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        return "Crossword Puzzle #" + str(self.id)
+        puzzle_size = "(" + str(self.grid_size) + "x" + str(self.grid_size) + ")"
+        return "Crossword Puzzle #" + str(self.id) + " " + puzzle_size
