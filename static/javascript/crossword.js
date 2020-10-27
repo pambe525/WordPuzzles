@@ -113,8 +113,9 @@ class Crossword {
     }
 
     toggleCellBlock(cellId) {
-        if (cellId === null || $("#" + cellId).length === 0 || this._hasText(cellId)) return false;
+        if (cellId === null || $("#" + cellId).length === 0) return false;
         var symmCellId = this._getSymmetricCellId(cellId);
+        if (this._hasText(cellId) || this._hasText(symmCellId)) return false;
         if (this._isBlockedCell(cellId) &&
             (this._hasInlineLetterInNeighbor(cellId) || this._hasInlineLetterInNeighbor(symmCellId))) return false;
         this._toggleBlock(cellId);

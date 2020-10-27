@@ -190,6 +190,13 @@ QUnit.test("toggleCellBlock: Unblocks cell if neighbor letter is not in in-line 
   assert.false($("#0-1").hasClass('xw-blocked'));
 });
 
+QUnit.test("toggleCellBlock: Does not block cell if symmetric cell has a letter", function(assert) {
+  var xword = createXWord(4);
+  xword.setWordData("0-0", "down", "", false);
+  xword.toggleCellBlock("3-3");  // BLOCK SYMMETRIC CELL
+  assert.false($("#0-0").hasClass('xw-blocked'));
+});
+
 // hasBlocks tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test("hasBlock: Returns false when no blocks are present", function(assert) {
