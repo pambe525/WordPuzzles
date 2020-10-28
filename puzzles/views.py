@@ -46,7 +46,7 @@ class EditCrosswordView(LoginRequiredMixin, View):
             else:
                 return self._save_puzzle_data(request)
         except Exception as err:
-            return JsonResponse({'error_message': "TRAPP"+str(err)})
+            return JsonResponse({'error_message': str(err)})
 
     def _save_puzzle_data(self, request):
         self._extract_puzzle_data_from_request(request)

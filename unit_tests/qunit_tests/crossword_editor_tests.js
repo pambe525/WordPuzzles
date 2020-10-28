@@ -17,12 +17,15 @@ const clueMsgId = "clue-msg", jqClueMsgId = "#" + clueMsgId;
 const clueUpdateId = "clue-update", jqClueUpdateId = "#" + clueUpdateId;
 const clueDeleteId = "clue-delete", jqClueDeleteId = "#" + clueDeleteId;
 
-
+// MOCK FUNCTIONS TO REPLACE WINDOWS FUNCTIONS
 var confirmMessage = "", confirmResponse = false;
-window.confirm = function (message) {
+window.confirm = function(message) {
     confirmMessage = message;
     return confirmResponse;
 }
+
+var alertMessage = "";
+window.alert = function(message) { alertMessage = message; }
 
 var editor, assert = QUnit.assert;
 
@@ -388,6 +391,13 @@ QUnit.test('Save Btn: Is re-enabled when grid size is changed', function (assert
     assert.false(editor.dataSaved);
 });
 
+QUnit.test('Save Btn: After ajax returns with error message', function (assert) {
+    editor.initialize();  // NOTE: Grid is 5x5 by default
+    $.ajax = function(dataObj) { dataObj.success({error_message: "Error occurred"}) }; // Mock Ajax call
+    $(jqSaveBtnId).click();   // First save the grid to disable Save btn
+    assert.equal(alertMessage, "Error occurred");
+});
+
 // InitializeFromData tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('initialize(with data): Throws exception if puzzle data is not an object', function (assert) {
@@ -447,8 +457,19 @@ QUnit.test('Delete Btn: Show confirmation box', function (assert) {
     confirmResponse = false;                // Cancel confirmation box
     $(jqDeleteBtnId).click();    // Change to 3x3 grid size
     assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
-    //assert.equal($();  // No change to grid
+    assert.equal($(jqGridId).children().length, 25)
 });
+
+QUnit.test('Delete Btn: Show confirmation box (cancel)', function (assert) {
+    editor.initialize();
+    $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
+    $(jqSaveBtnId).click();      // First save the grid to enable Delete btn
+    confirmResponse = false;     // Cancel confirmation box
+    $(jqDeleteBtnId).click();
+    assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
+    assert.equal($(jqGridId).children().length, 25)
+});
+
 
 // HELPER FUNCTIONS
 //====================================================================================================================

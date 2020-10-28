@@ -210,25 +210,21 @@ class EditCrosswordViewTests(TestCase):
     #
     def test_new_xword_POST_returns_error_if_grid_size_is_zero(self):
         data = {'action':'save','data': json.dumps({'grid_size': 0})}
-        with self.assertRaises(Exception) as context:
-            self.client.post(reverse('new_xword'), data=data)
-        self.assertTrue("Grid size cannot be zero" in str(context.exception))
+        response = self.client.post(reverse('new_xword'), data=data)
+        self.assertTrue("Grid size cannot be zero" in response.json()["error_message"])
 
     def test_new_xword_POST_returns_error_if_puzzle_id_or_blocks_is_missing(self):
         data = {'action':'save','data':json.dumps({'grid_size': 10, 'blocks':""})}
-        with self.assertRaises(Exception) as context:
-            self.client.post(reverse('new_xword'), data=data)
-        self.assertTrue("Missing keys in grid data" in str(context.exception))
+        response = self.client.post(reverse('new_xword'), data=data)
+        self.assertTrue("Missing keys in grid data" in response.json()["error_message"])
         data = {'action':'save', 'data':json.dumps({'puzzle_id': 0, 'grid_size': 10})}
-        with self.assertRaises(Exception) as context:
-            self.client.post(reverse('new_xword'), data=data)
-        self.assertTrue("Missing keys in grid data" in str(context.exception))
+        response = self.client.post(reverse('new_xword'), data=data)
+        self.assertTrue("Missing keys in grid data" in response.json()["error_message"])
 
     def test_new_xword_POST_returns_error_if_is_ready_key_is_missing(self):
         data = {'action':'save','data':json.dumps({'puzzle_id': 0, 'grid_size': 10, 'blocks':"1,2,3"})}
-        with self.assertRaises(Exception) as context:
-            self.client.post(reverse('new_xword'), data=data)
-        self.assertTrue("Missing keys in grid data" in str(context.exception))
+        response = self.client.post(reverse('new_xword'), data=data)
+        self.assertTrue("Missing keys in grid data" in response.json()["error_message"])
 
     def test_new_xword_POST_saves_an_empty_grid_and_returns_puzzle_id(self):
         data = {'action':'save', 'data':json.dumps({'puzzle_id': 0, 'grid_size': 10,
@@ -283,9 +279,8 @@ class EditCrosswordViewTests(TestCase):
 
     def test_new_xword_POST_delete_action_raises_error_if_record_does_not_exist(self):
         data={'action':'delete', 'puzzle_id': 2}
-        with self.assertRaises(Exception) as context:
-            self.client.post(reverse('new_xword'), data=data)
-        self.assertTrue("Puzzle id does not exist" in str(context.exception))
+        response = self.client.post(reverse('new_xword'), data=data)
+        self.assertTrue("Puzzle id does not exist" in response.json()["error_message"])
 
     def test_new_xword_POST_delete_action_deletes_record(self):
         puzzle_id = self._create_new_puzzle_record()
