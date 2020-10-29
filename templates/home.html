@@ -37,7 +37,7 @@
         });
 
         function getStatus(puzzleItem) {
-            var dateString = new Date(puzzleItem['date']).toString();
+            var dateString = new Date(puzzleItem['edit_date']).toString();
             var td = $("<td></td>").attr("title","Last Ediited: "+dateString);
             td.text("Under Construction");
             return td;

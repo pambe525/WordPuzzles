@@ -1,22 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from datetime import datetime
-from puzzles.models import Crossword, Puzzle
-
-
-# ==============================================================================================
-class CrosswordModelTest(TestCase):
-    def test_string_representation(self):
-        user = User.objects.create_user(username='testuser', password='12345')
-        puzzle = Crossword.objects.create(editor=user)
-        self.assertEquals(user, puzzle.editor)
-        self.assertEqual(15, puzzle.grid_size)
-        self.assertEqual(False, puzzle.is_ready)
-        self.assertEqual("", puzzle.grid_blocks)
-        self.assertEqual("", puzzle.across_words)
-        self.assertEqual("", puzzle.down_words)
-        self.assertEqual("Crossword Puzzle #1 (15x15)", str(puzzle))
-
+from puzzles.models import Puzzle
 
 class PuzzleModelTest(TestCase):
     def setUp(self):

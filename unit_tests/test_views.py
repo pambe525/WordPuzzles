@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from user_auth.forms import NewUserForm
-from puzzles.models import Crossword
+from puzzles.models import Puzzle
 import json
 
 
@@ -231,14 +231,14 @@ class EditCrosswordViewTests(TestCase):
                 'is_ready': 'False', 'blocks': ""})}
         response = self.client.post(reverse('new_xword'), data=data)
         self.assertEquals(1, response.json()['puzzle_id'])
-        records = Crossword.objects.get_queryset()
+        records = Puzzle.objects.get_queryset()
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].id, 1)
-        self.assertEqual(records[0].grid_size, 10)
+        self.assertEqual(records[0].size, 10)
         self.assertEqual(records[0].is_ready, 0)
-        self.assertEqual(records[0].grid_blocks, "")
-        self.assertEqual(records[0].across_words, "")
-        self.assertEqual(records[0].down_words, "")
+        self.assertEqual(json.loads(records[0].data)['blocks'], '')
+        self.assertEqual(json.loads(records[0].data)['across'], {})
+        self.assertEqual(json.loads(records[0].data)['down'], {})
 
     def test_new_xword_POST_saves_a_populated_grid_correctly(self):
         data = {'puzzle_id': 0, 'grid_size': 5, 'is_ready': 'False', 'blocks': "0,1,2",
@@ -246,14 +246,14 @@ class EditCrosswordViewTests(TestCase):
                 "down": {"1-0": {"word": "four", "clue": "clue for four (4)"}}}
         response = self.client.post(reverse('new_xword'), data={'action':'save','data':json.dumps(data)})
         self.assertEquals(1, response.json()['puzzle_id'])
-        records = Crossword.objects.get_queryset()
+        records = Puzzle.objects.get_queryset()
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].id, 1)
-        self.assertEqual(records[0].grid_size, data['grid_size'])
+        self.assertEqual(records[0].size, data['grid_size'])
         self.assertEqual(records[0].is_ready, 0)
-        self.assertEqual(records[0].grid_blocks, data['blocks'])
-        self.assertEqual(records[0].across_words, json.dumps(data['across']))
-        self.assertEqual(records[0].down_words, json.dumps(data['down']))
+        self.assertEqual(json.loads(records[0].data)['blocks'], data['blocks'])
+        self.assertEquals(json.loads(records[0].data)['across'], data['across'])
+        self.assertEquals(json.loads(records[0].data)['down'], data['down'])
 
     def test_new_xword_POST_second_save_updates_record(self):
         data = {'puzzle_id': 0, 'grid_size': 5, 'is_ready': 'False', 'blocks': "0,1,2,3",
@@ -268,14 +268,14 @@ class EditCrosswordViewTests(TestCase):
         data['down']['1-0']['word'] = "five"
         data['down']['1-0']['clue'] = "clue for five (4)"
         response = self.client.post(reverse('new_xword'), data={'action':'save','data':json.dumps(data)})  # 2nd save
-        records = Crossword.objects.get_queryset()
+        records = Puzzle.objects.get_queryset()
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0].id, 1)
-        self.assertEqual(records[0].grid_size, data['grid_size'])
+        self.assertEqual(records[0].size, data['grid_size'])
         self.assertEqual(records[0].is_ready, 1)
-        self.assertEqual(records[0].grid_blocks, data['blocks'])
-        self.assertEqual(records[0].across_words, json.dumps(data['across']))
-        self.assertEqual(records[0].down_words, json.dumps(data['down']))
+        self.assertEqual(json.loads(records[0].data)['blocks'], data['blocks'])
+        self.assertEqual(json.loads(records[0].data)['across'], data['across'])
+        self.assertEqual(json.loads(records[0].data)['down'], data['down'])
 
     def test_new_xword_POST_delete_action_raises_error_if_record_does_not_exist(self):
         data={'action':'delete', 'puzzle_id': 2}
@@ -286,7 +286,7 @@ class EditCrosswordViewTests(TestCase):
         puzzle_id = self._create_new_puzzle_record()
         data = {'action': 'delete', 'puzzle_id': puzzle_id}
         self.client.post(reverse('new_xword'), data=data)
-        records = Crossword.objects.get_queryset()
+        records = Puzzle.objects.get_queryset()
         self.assertEqual(len(records), 0)
 
     ### HELPER FUNCTIONS ------------------------------------------------------------------------------
