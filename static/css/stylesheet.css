@@ -16,8 +16,8 @@ textarea {
 }
 
 button, .btn {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
     font-size: 14px;
     border: 1px solid black;
 }
