@@ -1,6 +1,6 @@
 class Crossword {
 
-    cellSize = 30;
+    cellSize = 32;
     clickHandler = null;
     words = {across: {}, down: {}};
 
@@ -207,12 +207,12 @@ class Crossword {
         css = this.gridId + "{border-left:1px solid black; border-top: 1px solid black;" +
             "width:" + gridLength + "px;height:" + gridLength + "px}";
         css += ".xw-blocked {background-color:black;}";
-        css += ".xw-number {font-size: 9px; top:-2px; left:1px; position:absolute}";
+        css += ".xw-number {font-size: 9px; top:-1px; left:2px; position:absolute}";
         css += this.gridId + " > div { width:" + this.cellSize + "px; height:" + this.cellSize + "px;" +
             "box-sizing: border-box; border-right: 1px solid black; border-bottom: 1px solid black; " +
             "float:left; position: relative; text-align: center;}";
         css += ".xw-hilited {background-color:yellow}";
-        css += ".xw-letter {font-size:18px; pointer-events:none; color: red; line-height:30px}";
+        css += ".xw-letter {font-size:20px; pointer-events:none; color: red; line-height:30px}";
         css += ".xw-letter.xw-blue, .xw-letter.xw-xblue.xw-yblue {color:blue;}"
         var styleTag = "<style id='xw-style' type='text/css'></style>";
         $(styleTag).html(css).appendTo("head");
