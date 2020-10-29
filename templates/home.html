@@ -2,25 +2,56 @@
 {% block content %}
     <h3><i class="fas fa-home" ></i> Home of the Puzzlers</h3>
     <div class="mt-4">
-        <a role="button" href="{%  url 'new_xword' %}" class="btn btn-primary p-2">Create New Crossword</a>
+        <a role="button" href="{%  url 'new_xword' %}" class="btn btn-primary p-2">New Crossword</a>
     </div>
-    <div id="puzzle-list" class="table-responsive">
-        <table class="mt-4 table table-sm table-bordered table-striped">
+    <div class="table-responsive" style="width:500px">
+        <table id="puzzle-list" class="mt-4 table table-sm table-striped">
             <thead class="thead-dark">
                 <tr><th>Puzzle</th><th>Editor</th><th>Status</th><th>Action</th></tr>
             </thead>
-            <tr class="h6">
-                <td>Crossword Puzzle #1 (15x15)</td>
-                <td>prashant</td>
-                <td>In progress</td>
-                <td>Edit | Delete | View</td>
-            </tr>
-            <tr class="h6">
-                <td>Crossword Puzzle #2 (15x15)</td>
-                <td>prashant</td>
-                <td>Solve Now</td>
-                <td>Edit | Delete | Stats</td>
-            </tr>
         </table>
     </div>
+    <script>
+        var puzzleList, currentUser;
+
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+}       );
+
+        $(document).ready(function() {
+            puzzleList = {{ data | safe }};
+            currentUser = '{{ user.username }}';
+            try {
+                var row;
+                for (var i = 0; i < puzzleList.length; i++) {
+                    row = $("<tr></tr>");
+                    row.append($("<td>"+puzzleList[i]['name']+"</td>"));
+                    row.append($("<td>"+puzzleList[i]['editor']+"</td>"));
+                    row.append(getStatus(puzzleList[i]));
+                    row.append(getActions(puzzleList[i]));
+                    $("#puzzle-list").append(row);
+                }
+            } catch(e) {
+                alert(e)
+            }
+        });
+
+        function getStatus(puzzleItem) {
+            var dateString = new Date(puzzleItem['date']).toString();
+            var td = $("<td></td>").attr("title","Last Ediited: "+dateString);
+            td.text("Under Construction");
+            return td;
+        }
+
+        function getActions(puzzleItem) {
+            var td = $("<td></td>");
+            if ( currentUser === puzzleItem['editor'] ) {
+                var link = "/edit_xword/" + puzzleItem['id'] + "/";
+                var icon = $("<i></i>").addClass("fas fa-edit fa");
+                var anchor = $("<a></a>").attr("href", link).attr("title","Edit").html(icon);
+                td.html(anchor);
+            }
+            return td;
+        }
+    </script>
 {% endblock %}

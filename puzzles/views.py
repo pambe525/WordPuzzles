@@ -3,17 +3,25 @@ from django.shortcuts import render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from puzzles.models import Crossword
+from datetime import timezone
 import json
 
 
 class HomeView(LoginRequiredMixin, View):
+    model = Crossword
 
     def get(self, request):
-        return render(request, "home.html", {})
+        puzzles = self.model.objects.order_by('-modified_at')
+        puzzles_list = []
+        for i in range(len(puzzles)):
+            timestamp = puzzles[i].modified_at.replace(tzinfo=timezone.utc).timestamp()
+            dict_obj = {'id': puzzles[i].id, 'date': timestamp, 'is_ready': puzzles[i].is_ready,
+                        'name': str(puzzles[i]), 'editor': str(puzzles[i].editor)}
+            puzzles_list.append(dict_obj)
+        return render(request, "home.html", context={'data': json.dumps(puzzles_list)})
 
 
 class EditCrosswordView(LoginRequiredMixin, View):
-
     model = Crossword
 
     def __init__(self):
@@ -23,7 +31,7 @@ class EditCrosswordView(LoginRequiredMixin, View):
 
     def get(self, request, puzzle_id=0):
         if puzzle_id == 0:
-            data_dict = {'puzzle_id':0}
+            data_dict = {'puzzle_id': 0}
             return self._render_get_response(request, data_dict)
         else:
             error_msg = None
@@ -108,15 +116,15 @@ class EditCrosswordView(LoginRequiredMixin, View):
 
     def _build_puzzle_data_dict_from_dbrecord(self, record):
         data_dict = {'puzzle_id': record.id, 'grid_size': record.grid_size,
-         'grid_blocks': record.grid_blocks, 'is_ready': record.is_ready,
-         'across_words': json.loads(record.across_words),
-         'down_words': json.loads(record.down_words)
-         }
+                     'grid_blocks': record.grid_blocks, 'is_ready': record.is_ready,
+                     'across_words': json.loads(record.across_words),
+                     'down_words': json.loads(record.down_words)
+                     }
         return data_dict
 
     def _render_get_response(self, request, data_dict, error_msg=None):
         page_title = "New Crossword Puzzle" if data_dict['puzzle_id'] == 0 else "Edit Crossword Puzzle"
-        context = {'data': json.dumps(data_dict), 'title':page_title}
+        context = {'data': json.dumps(data_dict), 'title': page_title}
         if error_msg:
             context['error_message'] = error_msg
         return render(request, "edit_xword.html", context=context)
