@@ -212,7 +212,7 @@ class Crossword {
             "box-sizing: border-box; border-right: 1px solid black; border-bottom: 1px solid black; " +
             "float:left; position: relative; text-align: center;}";
         css += ".xw-hilited {background-color:yellow}";
-        css += ".xw-letter {font-size:17px; pointer-events:none; color: red;}";
+        css += ".xw-letter {font-size:18px; pointer-events:none; color: red; line-height:30px}";
         css += ".xw-letter.xw-blue, .xw-letter.xw-xblue.xw-yblue {color:blue;}"
         var styleTag = "<style id='xw-style' type='text/css'></style>";
         $(styleTag).html(css).appendTo("head");
