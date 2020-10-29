@@ -5,7 +5,7 @@
     <h3> {{ title }} </h3>
 
     <!-- PAGE-SPECIFIC NAVBAR WITH GRID SIZE SELECTION, RESET AND SAVE -->
-    <div class="bg-light border border-dark rounded-lg shadow-sm p-2 mt-3" style="width:510px">
+    <div class="bg-light border border-dark rounded-lg shadow-sm p-2 mt-3" style="width:500px">
         <span class="h6">Grid Size:</span>
         <select id="grid-size" class="p-1 ml-1 mr-2">
           <option value=5>5 x 5</option>
@@ -30,14 +30,14 @@
         <div id="clue-form" class="row m-0 p-2" style="width:auto; border:1px solid darkgray;
             border-radius:5px; background-color: lightyellow">
             <div class="col-*">
-                <span id="clue-num" class="h6 pt-1"></span><br />
-                <input id="clue-word" type="text" /><br />
+                <span id="clue-num" class="h6 p-1"></span><br />
+                <input id="clue-word" type="text"/><br />
                 <button id="clue-update" class="mt-2 p-2 badge badge-dark" style="height:30px">Update Grid</button>
                 <button id="clue-delete" class="mt-2 p-2 badge badge-danger" style="height:30px">Delete</button>
             </div>
             <div class="col-* ml-2">
-                <span class="h6 pt-1 col-*">Enter Clue</span><br />
-                <textarea id="clue-text" cols="45"></textarea>
+                <span class="h6 p-1">Enter Clue</span><br />
+                <textarea id="clue-text" cols="35"></textarea>
             </div>
             <div id="clue-msg" class="h6 pt-1 red-text"></div>
         </div>
