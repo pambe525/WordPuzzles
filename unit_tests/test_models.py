@@ -17,6 +17,7 @@ class PuzzleModelTest(TestCase):
         self.assertFalse(puzzle.is_ready)
         self.assertIsNone(puzzle.editor)
         self.assertEqual(0, puzzle.size)
+        self.assertEqual("", puzzle.desc)
         self.assertEqual("", puzzle.data)
         self.assertIsNone(puzzle.shared_at)
         self.assertEqual("", puzzle.data)

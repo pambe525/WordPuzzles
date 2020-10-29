@@ -6,6 +6,7 @@ class Puzzle(models.Model):
     is_ready = models.BooleanField(default=False)
     editor = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     size = models.IntegerField(default=0)
+    desc = models.TextField(default="")
     data = models.TextField(default="")
     shared_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
