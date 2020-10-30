@@ -1,6 +1,6 @@
 QUnit.module('Puzzle', {
   beforeEach: function () {
-    //$("#qunit-fixture").append($(document.createElement('div')).attr('id',gridId));
+    $("#qunit-fixture").append($(document.createElement('div')).attr('id',"display-id"));
   },
 });
 
@@ -174,4 +174,33 @@ QUnit.test('Data change does nothing if datChangedHandler is not set', function(
         puzzle._dataChanged();
         assert.ok(true);
     } catch(e) { assert.notOk(true, "No exception expected.")}
+});
+
+// setSharingOn tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('SetSharingOn sets current datetime string if true else null', function(assert) {
+    var puzzle = new Puzzle();
+    puzzle.setSharingOn();
+    assert.equal(puzzle.sharedAt, new Date().toISOString());
+    puzzle.setSharingOn(false);
+    assert.equal(puzzle.sharedAt, null);
+});
+
+// show() tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('show appends html to given container div id', function(assert) {
+    var puzzle = new Puzzle();
+    var called = true;
+    puzzle._setHtmlOnDiv = function() { $(puzzle.divId).html("<span>SOME HTML</span>")};
+    puzzle.show("display-id");
+    assert.equal($("#display-id").html(), "<span>SOME HTML</span>");
+});
+
+QUnit.test('show calls _loadPuzzleData if passed as argument', function(assert) {
+    var puzzle = new Puzzle();
+    var dataPassed = null;
+    puzzle._loadPuzzleData = function(data) { dataPassed = data; };
+    puzzleData = "some data";
+    puzzle.show("display-id", puzzleData);
+    assert.equal(dataPassed, "some data");
 });

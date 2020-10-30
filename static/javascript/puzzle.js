@@ -8,9 +8,8 @@ class Puzzle {
     editor = null;
     size = 0;
     desc = "";
-    data = null;
     sharedAt = null;
-    divId = null
+    divId = null;
 
     saveSuccessHandler = null;
     saveFailureHandler = null;
@@ -28,13 +27,20 @@ class Puzzle {
      */
 
     // Derived class must call super.show() and implement this
-    show(divId) {
+    show(divId, puzzleData=null) {
         this.divId = "#"+divId;
         $(this.divId).empty();
+        this._setHtmlOnDiv();
+        if (puzzleData) this._loadPuzzleData(puzzleData);
     }
 
     // Derived class must implement this
     isReady() {
+    }
+
+    setSharingOn(turnOn=true) {
+        if (turnOn) this.sharedAt = new Date().toISOString();
+        else this.sharedAt = null;
     }
 
     save() {
@@ -103,6 +109,14 @@ class Puzzle {
 
     _deleteFailed = (result) => {
         if (this.deleteFailureHandler) this.deleteFailureHandler(result);
+    }
+
+    // Must be implemented by derived classes
+    _setHtmlOnDiv() {
+    }
+
+    // Must be implemented by derived classes
+    _loadPuzzleData(puzzleData) {
     }
 
     // Must be called by derived classes when data changes

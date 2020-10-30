@@ -8,11 +8,6 @@ class Crossword extends Puzzle {
         this._validateArgs();
     }
 
-    show(divId) {
-        super.show(divId);
-        this._makeGrid();
-    }
-
     hasBlocks() {
         return ($(".xw-blocked").length !== 0);
     }
@@ -158,6 +153,33 @@ class Crossword extends Puzzle {
 
     _validateArgs() {
         if (typeof (this.size) != "number") throw new Error("gridSize must be a number");
+    }
+
+    _setHtmlOnDiv() {
+        this._makeGrid();
+    }
+
+    _loadPuzzleData(puzzleData) {
+        this.puzzleId = puzzleData.puzzle_id;
+        var indices = puzzleData.grid_blocks.split(","), index, cellId;
+        for (var i = 0; i < Math.ceil(indices.length / 2); i++) {
+            index = parseInt(indices[i]);
+            cellId = Math.floor(index / puzzleData.grid_size) + "-" + (index % puzzleData.grid_size);
+            this.Xword.toggleCellBlock(cellId);
+        }
+        var word, clue;
+        for (cellId in puzzleData.across_words) {
+            word = puzzleData.across_words[cellId].word;
+            clue = puzzleData.across_words[cellId].clue;
+            this.Xword.setWordData(cellId, word, clue, true);
+        }
+        for (cellId in puzzleData.down_words) {
+            word = puzzleData.down_words[cellId].word;
+            clue = puzzleData.down_words[cellId].clue;
+            this.Xword.setWordData(cellId, word, clue, false);
+        }
+        this._dataSaved();
+        $(this.IDs.deleteBtn).prop("disabled", false);
     }
 
     _makeGrid() {
