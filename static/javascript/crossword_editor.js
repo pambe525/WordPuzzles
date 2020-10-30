@@ -49,7 +49,9 @@ class CrosswordEditor {
             $(this.IDs.selectSize).val(puzzleData.grid_size);
         }
         var gridSize = parseInt($(this.IDs.selectSize).val());
-        this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
+        this.Xword = new Crossword(gridSize);
+        this.Xword.setClickHandler(this._cellClicked);
+        this.Xword.show(this.gridId);
         if (puzzleData) this._loadPuzzleData(puzzleData);
     }
 
@@ -147,7 +149,7 @@ class CrosswordEditor {
             changeGrid = confirm(msg);
         }
         if (changeGrid) this._changeGridSize();
-        else $(this.IDs.selectSize).val(this.Xword.gridSize);
+        else $(this.IDs.selectSize).val(this.Xword.size);
     }
 
     _modeSelectionChanged = () => {
@@ -157,7 +159,9 @@ class CrosswordEditor {
 
     _changeGridSize() {
         var gridSize = parseInt($(this.IDs.selectSize).val());
-        this.Xword = new Crossword(this.gridId, this._cellClicked, gridSize);
+        this.Xword = new Crossword(gridSize);
+        this.Xword.setClickHandler(this._cellClicked);
+        this.Xword.show(this.gridId);
         $(this.IDs.selectMode).prop("checked", false).change();
         this._dataChanged();
     }

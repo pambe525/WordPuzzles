@@ -145,7 +145,7 @@ QUnit.test('Grid Size change changes grid if confirmed', function (assert) {
     $(jqSizeSelectorId).val(3).change();       // Change to 3x3 grid size
     assert.equal($(".xw-blocked").length, 0);  // Grid changed
     assert.equal($(jqSizeSelectorId).val(), 3);
-    assert.equal(editor.Xword.gridSize, 3)
+    assert.equal(editor.Xword.size, 3)
 });
 
 // Blocks Edit Mode tests
