@@ -11,10 +11,6 @@ QUnit.module('Crossword', {
 
 // Constructor tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test('constructor: Throws errors if arguments are not valid', function(assert) {
-  assert.throws(function(){ new Crossword('1') }, /gridSize must be a number/, Error);
-});
-
 QUnit.test('constructor: Creates grid of correct width, height & border', function(assert) {
   var gridSize=5, grid = createXWord(gridSize);
   assert.equal($(jqGridId).width(), (grid.cellSize*gridSize + 2));
@@ -816,10 +812,38 @@ QUnit.test("getGridData: Returns true for is_ready when grid with blocks is comp
   assert.equal(gridDataObj.is_ready, true);
 });
 
+// show with PuzzleData tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test("show: With puzzleData loads blocks into the grid", function(assert) {
+  var puzzleData = {puzzle_id: 10, size: 5, blocks:"0,4,20,24", across:{}, down:{}};
+  var xword = createXWord(puzzleData);
+  var blockedCells = $(jqGridId + ">.xw-blocked");
+  assert.equal(blockedCells.length, 4);
+  assert.equal(blockedCells[0].id, "0-0");
+  assert.equal(blockedCells[1].id, "0-4");
+  assert.equal(blockedCells[2].id, "4-0");
+  assert.equal(blockedCells[3].id, "4-4");
+});
+
+QUnit.test("show: With puzzleData loads words as data", function(assert) {
+  var puzzleData = {
+    puzzle_id: 10, size: 5, blocks:"0,4,20,24", across:{"0-1":{word:"pin",clue:"clue for pin"},
+    "1-0":{word:"trial", clue:""}}, down:{"0-1":{word:"prime", clue:"clue for prime"}}
+  };
+  var xword = createXWord(puzzleData);
+  assert.equal(Object.keys(xword.words.across).length, 2);
+  assert.equal(Object.keys(xword.words.down).length, 1);
+  assert.equal(xword.words.across["0-1"].word, "pin");
+  assert.equal(xword.words.across["0-1"].clue, "clue for pin (3)");
+  assert.equal(xword.words.down["0-1"].word, "prime");
+  assert.equal(xword.words.down["0-1"].clue, "clue for prime (5)");
+  assert.equal(xword.readWord("1-0", true), "TRIAL");
+});
+
 /******************************************************************************************
 /* HELPER FUNCTIONS */
-function createXWord(size) {
-  var xword = new Crossword(size);
+function createXWord(arg) {
+  var xword = new Crossword(arg);
   xword.setClickHandler(function(){});
   xword.show(gridId);
   return xword;

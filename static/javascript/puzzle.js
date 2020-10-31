@@ -10,6 +10,7 @@ class Puzzle {
     desc = "";
     sharedAt = null;
     divId = null;
+    puzzleData = null;
 
     saveSuccessHandler = null;
     saveFailureHandler = null;
@@ -18,20 +19,25 @@ class Puzzle {
     dataChangedHandler = null;
     clickHandler = null;
 
-    constructor(size) {
-        if (size) this.size = size;
+    constructor(arg) {
+        if (!arg) throw new Error("No argument specified on Puzzle");
+        if (typeof(arg) !== 'object') this.size = arg;
+        else {
+            this.puzzleData = arg;
+            this.size = this.puzzleData['size'];
+            this.puzzleId = this.puzzleData['puzzle_id'];
+        }
     }
 
     /**
      * PUBLIC METHODS
      */
 
-    // Derived class must call super.show() and implement this
-    show(divId, puzzleData=null) {
+    show(divId) {
         this.divId = "#"+divId;
         $(this.divId).empty();
         this._setHtmlOnDiv();
-        if (puzzleData) this._loadPuzzleData(puzzleData);
+        if (this.puzzleData) this._loadPuzzleData();
     }
 
     // Derived class must implement this
@@ -67,7 +73,7 @@ class Puzzle {
         })
      }
 
-    setDataChangedHndler(handlerFunc) {
+    setDataChangedHandler(handlerFunc) {
         this.dataChangedHandler = handlerFunc;
     }
 

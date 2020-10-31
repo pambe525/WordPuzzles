@@ -3,11 +3,6 @@ class Crossword extends Puzzle {
     cellSize = 30;
     words = {across: {}, down: {}};
 
-    constructor(gridSize) {
-        super(gridSize);
-        this._validateArgs();
-    }
-
     hasBlocks() {
         return ($(".xw-blocked").length !== 0);
     }
@@ -150,36 +145,27 @@ class Crossword extends Puzzle {
     /**
      * PRIVATE METHODS
      */
-
-    _validateArgs() {
-        if (typeof (this.size) != "number") throw new Error("gridSize must be a number");
-    }
-
     _setHtmlOnDiv() {
         this._makeGrid();
     }
 
-    _loadPuzzleData(puzzleData) {
-        this.puzzleId = puzzleData.puzzle_id;
-        var indices = puzzleData.grid_blocks.split(","), index, cellId;
+    _loadPuzzleData() {
+        var indices = this.puzzleData['blocks'].split(","), index, cellId, word, clue;
         for (var i = 0; i < Math.ceil(indices.length / 2); i++) {
             index = parseInt(indices[i]);
-            cellId = Math.floor(index / puzzleData.grid_size) + "-" + (index % puzzleData.grid_size);
-            this.Xword.toggleCellBlock(cellId);
+            cellId = Math.floor(index / this.size) + "-" + (index % this.size);
+            this.toggleCellBlock(cellId);
         }
-        var word, clue;
-        for (cellId in puzzleData.across_words) {
-            word = puzzleData.across_words[cellId].word;
-            clue = puzzleData.across_words[cellId].clue;
-            this.Xword.setWordData(cellId, word, clue, true);
+        for (cellId in this.puzzleData.across) {
+            word = this.puzzleData.across[cellId].word;
+            clue = this.puzzleData.across[cellId].clue;
+            this.setWordData(cellId, word, clue, true);
         }
-        for (cellId in puzzleData.down_words) {
-            word = puzzleData.down_words[cellId].word;
-            clue = puzzleData.down_words[cellId].clue;
-            this.Xword.setWordData(cellId, word, clue, false);
+        for (cellId in this.puzzleData.down) {
+            word = this.puzzleData.down[cellId].word;
+            clue = this.puzzleData.down[cellId].clue;
+            this.setWordData(cellId, word, clue, false);
         }
-        this._dataSaved();
-        $(this.IDs.deleteBtn).prop("disabled", false);
     }
 
     _makeGrid() {
@@ -252,24 +238,6 @@ class Crossword extends Puzzle {
         var gridWord = word.toUpperCase();
         for (var i = 0; i < gridWord.length; i++)
             $(wordCells[i]).children(".xw-letter").text(gridWord[i]);
-    }
-
-    // NOT CURRENTLY USED - MAY NEED WORK TO HANDLE TAB & SHIFT-TAB **/
-    //--------------------------------------------------------------------------------------------------------------------
-
-    _onKeyDown = (event) => {
-        var cellId = event.target.id, jqCellId = "#" + cellId;
-        event.preventDefault();
-        if (event.keyCode >= 65 && event.keyCode <= 90) {
-            $(jqCellId).html($(jqCellId).children());  // Deletes existing letter but leaves number intact
-            $(jqCellId).nextAll(".xw-hilited").first().focus();
-            $(jqCellId).append(String.fromCharCode(event.keyCode)).addClass("xw-letter");
-        } else if (event.keyCode === 8) {
-            if (!$.isNumeric($(jqCellId).text())) $(jqCellId).html($(jqCellId).children());
-            else $(jqCellId).prevAll(".xw-hilited").first().focus();
-        } else if (event.keyCode === 9) {
-        } else if (event.shiftKey && event.keyCode === 9) {
-        }
     }
 
     // *** CELL METHODS
@@ -477,6 +445,23 @@ class Crossword extends Puzzle {
         else {
             $(jqCellId).addClass("xw-blocked");
             $(jqCellId + " > .xw-number").remove();
+        }
+    }
+
+    // NOT CURRENTLY USED - MAY NEED WORK TO HANDLE TAB & SHIFT-TAB **/
+    //--------------------------------------------------------------------------------------------------------------------
+    _onKeyDown = (event) => {
+        var cellId = event.target.id, jqCellId = "#" + cellId;
+        event.preventDefault();
+        if (event.keyCode >= 65 && event.keyCode <= 90) {
+            $(jqCellId).html($(jqCellId).children());  // Deletes existing letter but leaves number intact
+            $(jqCellId).nextAll(".xw-hilited").first().focus();
+            $(jqCellId).append(String.fromCharCode(event.keyCode)).addClass("xw-letter");
+        } else if (event.keyCode === 8) {
+            if (!$.isNumeric($(jqCellId).text())) $(jqCellId).html($(jqCellId).children());
+            else $(jqCellId).prevAll(".xw-hilited").first().focus();
+        } else if (event.keyCode === 9) {
+        } else if (event.shiftKey && event.keyCode === 9) {
         }
     }
 }

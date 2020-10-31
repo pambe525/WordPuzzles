@@ -4,10 +4,33 @@ QUnit.module('Puzzle', {
   },
 });
 
+// Constructor tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('Constructor: No argument throws error', function(assert) {
+    assert.throws( function(){ new Puzzle(); }, /No argument specified on Puzzle/, Error)
+});
+
+QUnit.test('Constructor: Sets size if integer is passed as argument', function(assert) {
+    var puzzle = new Puzzle(8);
+    assert.equal(puzzle.size, 8);
+});
+
+QUnit.test('Constructor: Sets size from puzzleData if passed as argument', function(assert) {
+    var puzzleData = {size: 10};
+    var puzzle = new Puzzle(puzzleData);
+    assert.equal(puzzle.size, 10);
+});
+
+QUnit.test("constructor: With puzzleData updates puzzleId", function(assert) {
+  var puzzleData = {puzzle_id: 23, size: 5, blocks:"", across:{}, down:{}};
+  var puzzle = new Puzzle(puzzleData);
+  assert.equal(puzzle.puzzleId, 23);
+});
+
 // SAVE tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('Save success invokes saveSuccessHandler', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     var handlerCalled = false, dataArg;
     var handler = function(data){ handlerCalled=true; dataArg=data};
     $.ajax = function(obj) { obj.success({status:"OK"}); }  // mock save success
@@ -18,7 +41,7 @@ QUnit.test('Save success invokes saveSuccessHandler', function(assert) {
 });
 
 QUnit.test('Save failure invokes saveFailureHandler', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     var handlerCalled = false;
     var handler = function(){ handlerCalled=true; };
     $.ajax = function(obj) { obj.error(); };  // mock save failure
@@ -28,7 +51,7 @@ QUnit.test('Save failure invokes saveFailureHandler', function(assert) {
 });
 
 QUnit.test('Save success does nothing if saveSuccessHandler is not set', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     $.ajax = function(obj) { obj.success({puzzle_id:2}); };  // mock failure
     try {
         puzzle.save();
@@ -37,7 +60,7 @@ QUnit.test('Save success does nothing if saveSuccessHandler is not set', functio
 });
 
 QUnit.test('Save failure does nothing if saveFailureHandler is not set', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     $.ajax = function(obj) { obj.error(); };  // mock save failure
     try {
         puzzle.save();
@@ -46,7 +69,7 @@ QUnit.test('Save failure does nothing if saveFailureHandler is not set', functio
 });
 
 QUnit.test('Save invokes ajax call with correct parameters', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     var ajaxArg = null;
     $.ajax = function(obj) { ajaxArg = obj };
     puzzle.save();
@@ -55,7 +78,7 @@ QUnit.test('Save invokes ajax call with correct parameters', function(assert) {
 });
 
 QUnit.test('Save includes proper data parameters in ajax call', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     puzzle.puzzleId = 222;
     puzzle._getDataToSave = function(){ return {somedata:"blah"}; };
     var ajaxArg = null;
@@ -63,7 +86,7 @@ QUnit.test('Save includes proper data parameters in ajax call', function(assert)
     puzzle.save();
     var ajaxDataObj = JSON.parse(ajaxArg.data['data']);
     assert.equal(ajaxDataObj['puzzle_id'], 222);
-    assert.equal(ajaxDataObj['size'], 0);
+    assert.equal(ajaxDataObj['size'], 5);
     assert.equal(ajaxDataObj['desc'], "");
     assert.equal(ajaxDataObj['is_xword'], true);
     assert.equal(ajaxDataObj['shared_at'], null);
@@ -71,7 +94,7 @@ QUnit.test('Save includes proper data parameters in ajax call', function(assert)
 });
 
 QUnit.test('Save includes action parameter in ajax call', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(10);
     puzzle._getDataToSave = function(){ return {somedata:"blah"}; };
     var ajaxArg = null;
     $.ajax = function(obj) { ajaxArg = obj };
@@ -80,7 +103,7 @@ QUnit.test('Save includes action parameter in ajax call', function(assert) {
 });
 
 QUnit.test('Save updates puzzle_id', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(10);
     assert.equal(puzzle.puzzleId, 0);   // Initial puzzle_id is zero
     var handlerCalled = false, dataArg;
     var handler = function(data){ handlerCalled=true; dataArg=data};
@@ -93,7 +116,7 @@ QUnit.test('Save updates puzzle_id', function(assert) {
 // DELETE tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('Delete success invokes deleteSuccessHandler', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     var handlerCalled = false, dataArg;
     var handler = function(data){ handlerCalled=true; dataArg=data};
     $.ajax = function(obj) { obj.success({status:"OK"}); }  // mock success
@@ -104,7 +127,7 @@ QUnit.test('Delete success invokes deleteSuccessHandler', function(assert) {
 });
 
 QUnit.test('Delete failure invokes deleteFailureHandler', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(6);
     var handlerCalled = false;
     var handler = function(){ handlerCalled=true; };
     $.ajax = function(obj) { obj.error(); };  // mock failure
@@ -114,7 +137,7 @@ QUnit.test('Delete failure invokes deleteFailureHandler', function(assert) {
 });
 
 QUnit.test('Delete success does nothing if saveSuccessHandler is not set', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(7);
     $.ajax = function(obj) { obj.success(); };  // mock failure
     try {
         puzzle.delete();
@@ -123,7 +146,7 @@ QUnit.test('Delete success does nothing if saveSuccessHandler is not set', funct
 });
 
 QUnit.test('Delete failure does nothing if saveFailureHandler is not set', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(7);
     $.ajax = function(obj) { obj.error(); };  // mock failure
     try {
         puzzle.delete();
@@ -132,7 +155,7 @@ QUnit.test('Delete failure does nothing if saveFailureHandler is not set', funct
 });
 
 QUnit.test('Delete invokes ajax call with correct parameters', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(6);
     var ajaxArg = null;
     $.ajax = function(obj) { ajaxArg = obj };
     puzzle.delete();
@@ -141,7 +164,7 @@ QUnit.test('Delete invokes ajax call with correct parameters', function(assert) 
 });
 
 QUnit.test('Delete includes puzzle_id in ajax call', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     puzzle.puzzleId = 10;
     var ajaxArg = null;
     $.ajax = function(obj) { ajaxArg = obj };
@@ -150,7 +173,7 @@ QUnit.test('Delete includes puzzle_id in ajax call', function(assert) {
 });
 
 QUnit.test('Delete includes action parameter in ajax call', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(4);
     var ajaxArg = null;
     $.ajax = function(obj) { ajaxArg = obj };
     puzzle.delete();
@@ -160,16 +183,16 @@ QUnit.test('Delete includes action parameter in ajax call', function(assert) {
 // DATA CHANGE tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('Data change invokes dataChangedHandler', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     var handlerCalled = false;
     var handler = function(){ handlerCalled=true; };
-    puzzle.setDataChangedHndler(handler);
+    puzzle.setDataChangedHandler(handler);
     puzzle._dataChanged();
     assert.true(handlerCalled);
 });
 
 QUnit.test('Data change does nothing if datChangedHandler is not set', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     try {
         puzzle._dataChanged();
         assert.ok(true);
@@ -179,7 +202,7 @@ QUnit.test('Data change does nothing if datChangedHandler is not set', function(
 // setSharingOn tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('SetSharingOn sets current datetime string if true else null', function(assert) {
-    var puzzle = new Puzzle();
+    var puzzle = new Puzzle(5);
     puzzle.setSharingOn();
     assert.equal(puzzle.sharedAt, new Date().toISOString());
     puzzle.setSharingOn(false);
@@ -188,19 +211,19 @@ QUnit.test('SetSharingOn sets current datetime string if true else null', functi
 
 // show() tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test('show appends html to given container div id', function(assert) {
-    var puzzle = new Puzzle();
+QUnit.test('show() appends html to given container div id', function(assert) {
+    var puzzle = new Puzzle(5);
     var called = true;
     puzzle._setHtmlOnDiv = function() { $(puzzle.divId).html("<span>SOME HTML</span>")};
     puzzle.show("display-id");
     assert.equal($("#display-id").html(), "<span>SOME HTML</span>");
 });
 
-QUnit.test('show calls _loadPuzzleData if passed as argument', function(assert) {
-    var puzzle = new Puzzle();
-    var dataPassed = null;
-    puzzle._loadPuzzleData = function(data) { dataPassed = data; };
-    puzzleData = "some data";
-    puzzle.show("display-id", puzzleData);
-    assert.equal(dataPassed, "some data");
+QUnit.test('show() calls _loadPuzzleData if passed as argument in constructor', function(assert) {
+    puzzleData = {size: 10};
+    var puzzle = new Puzzle(puzzleData);
+    var called = null;
+    puzzle._loadPuzzleData = function() { called = true; };
+    puzzle.show("display-id");
+    assert.true(called);
 });
