@@ -15,7 +15,7 @@ class Puzzle(models.Model):
     def __str__(self):
         if (self.is_xword):
             puzzle_size = "(" + str(self.size) + "x" + str(self.size) + ")"
-            return "#" + str(self.id) + " Crossword Puzzle " + puzzle_size
+            return "Puzzle #" + str(self.id) + ": Crossword Puzzle " + puzzle_size
         else:
             puzzle_size = "(" + str(self.size) + " clues)"
-            return "#" + str(self.id) + " Word Puzzle " + puzzle_size
+            return "Puzzle #" + str(self.id) + ": Word Puzzle " + puzzle_size

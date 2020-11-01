@@ -24,7 +24,7 @@ QUnit.test('Constructor: Sets size from puzzleData if passed as argument', funct
 QUnit.test("constructor: With puzzleData updates puzzleId", function(assert) {
   var puzzleData = {puzzle_id: 23, size: 5, blocks:"", across:{}, down:{}};
   var puzzle = new Puzzle(puzzleData);
-  assert.equal(puzzle.puzzleId, 23);
+  assert.equal(puzzle.id, 23);
 });
 
 // SAVE tests
@@ -79,13 +79,13 @@ QUnit.test('Save invokes ajax call with correct parameters', function(assert) {
 
 QUnit.test('Save includes proper data parameters in ajax call', function(assert) {
     var puzzle = new Puzzle(5);
-    puzzle.puzzleId = 222;
+    puzzle.id = 222;
     puzzle._getDataToSave = function(){ return {somedata:"blah"}; };
     var ajaxArg = null;
     $.ajax = function(obj) { ajaxArg = obj };
     puzzle.save();
     var ajaxDataObj = JSON.parse(ajaxArg.data['data']);
-    assert.equal(ajaxDataObj['puzzle_id'], 222);
+    assert.equal(ajaxDataObj['id'], 222);
     assert.equal(ajaxDataObj['size'], 5);
     assert.equal(ajaxDataObj['desc'], "");
     assert.equal(ajaxDataObj['is_xword'], true);
@@ -104,13 +104,13 @@ QUnit.test('Save includes action parameter in ajax call', function(assert) {
 
 QUnit.test('Save updates puzzle_id', function(assert) {
     var puzzle = new Puzzle(10);
-    assert.equal(puzzle.puzzleId, 0);   // Initial puzzle_id is zero
+    assert.equal(puzzle.id, 0);   // Initial puzzle_id is zero
     var handlerCalled = false, dataArg;
     var handler = function(data){ handlerCalled=true; dataArg=data};
-    $.ajax = function(obj) { obj.success({puzzle_id: 2}); }  // mock success
+    $.ajax = function(obj) { obj.success({id: 2}); }  // mock success
     puzzle.setSaveSuccessHandler(handler);
     puzzle.save();
-    assert.equal(puzzle.puzzleId, 2);  // Update puzzle_id
+    assert.equal(puzzle.id, 2);  // Update puzzle_id
 });
 
 // DELETE tests
@@ -165,11 +165,11 @@ QUnit.test('Delete invokes ajax call with correct parameters', function(assert) 
 
 QUnit.test('Delete includes puzzle_id in ajax call', function(assert) {
     var puzzle = new Puzzle(5);
-    puzzle.puzzleId = 10;
+    puzzle.id = 10;
     var ajaxArg = null;
     $.ajax = function(obj) { ajaxArg = obj };
     puzzle.delete();
-    assert.deepEqual(ajaxArg.data['puzzle_id'], puzzle.puzzleId);
+    assert.deepEqual(ajaxArg.data['puzzle_id'], puzzle.id);
 });
 
 QUnit.test('Delete includes action parameter in ajax call', function(assert) {

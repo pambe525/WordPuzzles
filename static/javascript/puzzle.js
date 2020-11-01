@@ -3,7 +3,7 @@
  */
 class Puzzle {
 
-    puzzleId = 0;
+    id = 0;
     isXword = true;
     editor = null;
     size = 0;
@@ -25,7 +25,7 @@ class Puzzle {
         else {
             this.puzzleData = arg;
             this.size = this.puzzleData['size'];
-            this.puzzleId = this.puzzleData['puzzle_id'];
+            this.id = this.puzzleData['puzzle_id'];
         }
     }
 
@@ -51,7 +51,7 @@ class Puzzle {
 
     save() {
         var puzzle_data = {
-            puzzle_id: this.puzzleId, size: this.size, is_ready: this.isReady(), desc: this.desc,
+            id: this.id, size: this.size, is_ready: this.isReady(), desc: this.desc,
             is_xword: this.isXword, shared_at: this.sharedAt, data: this._getDataToSave()
         };
         $.ajax({
@@ -67,7 +67,7 @@ class Puzzle {
         $.ajax({
             method: "POST",
             dataType: "json",
-            data: {'action': 'delete', 'puzzle_id': this.puzzleId},
+            data: {'action': 'delete', 'puzzle_id': this.id},
             success: this._deleteSucceeded,
             error: this._deleteFailed,
         })
@@ -101,7 +101,7 @@ class Puzzle {
      * PRIVATE METHODS
      */
     _saveSucceeded = (result) => {
-        this.puzzleId = result.puzzle_id;
+        this.id = result.id;
         if (this.saveSuccessHandler) this.saveSuccessHandler(result);
     }
 

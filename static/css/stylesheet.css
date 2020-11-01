@@ -35,13 +35,6 @@ button, .btn {
     border: thin rgba(0, 0, 0, .25) solid;
 }
 
-/* Tip text styling */
-.tiptext {
-    color: #505050;
-    font-size: 12px;
-    margin: 6px;
-}
-
 /* Form box styling */
 .form-box {
     margin: 10px;

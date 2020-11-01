@@ -337,9 +337,9 @@ QUnit.test('Save Btn: On first save, delete btn is enabled', function (assert) {
 QUnit.test('Save Btn: On successful save saved puzzle id is assigned to xword', function (assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
     $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
-    assert.equal(editor.Xword.puzzleId, 0);
+    assert.equal(editor.Xword.id, 0);
     $(jqSaveBtnId).click();
-    assert.equal(editor.Xword.puzzleId, 5);
+    assert.equal(editor.Xword.id, 5);
 });
 
 QUnit.test('Save Btn: Is re-enabled when a cell is blocked or unblocked', function (assert) {
@@ -422,7 +422,7 @@ QUnit.test('initialize(with data): Creates grid using size in puzzle data', func
 QUnit.test('initialize(with data): Sets puzzle_id in crossword object', function (assert) {
     var puzzleData = {puzzle_id: 28, grid_size: 5, grid_blocks:""};
     editor.initialize(puzzleData);
-    assert.equal(editor.Xword.puzzleId, 28)
+    assert.equal(editor.Xword.id, 28)
 });
 
 QUnit.test('initialize(with data): Sets blocks in grid using puzzle_data', function (assert) {

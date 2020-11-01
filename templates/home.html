@@ -2,7 +2,7 @@
 {% block content %}
     <h3><i class="fas fa-home" ></i> Home of the Puzzlers</h3>
     <div class="mt-4">
-        <a role="button" href="{%  url 'new_xword' %}" class="btn btn-primary p-2">New Crossword</a>
+        <a role="button" href="{%  url 'new_xword_puzzle' %}" class="btn btn-primary p-2">New Crossword</a>
     </div>
     <div class="table-responsive" style="width:500px">
         <table id="puzzle-list" class="mt-4 table table-sm table-striped">
@@ -37,8 +37,8 @@
         });
 
         function getStatus(puzzleItem) {
-            var dateString = new Date(puzzleItem['edit_date']).toString();
-            var td = $("<td></td>").attr("title","Last Ediited: "+dateString);
+            var dateString = new Date(puzzleItem['modified_at']).toString();
+            var td = $("<td></td>").attr("title","Last Edited: "+dateString);
             td.text("Under Construction");
             return td;
         }
@@ -46,7 +46,7 @@
         function getActions(puzzleItem) {
             var td = $("<td></td>");
             if ( currentUser === puzzleItem['editor'] ) {
-                var link = "/edit_xword/" + puzzleItem['id'] + "/";
+                var link = "/edit_puzzle/" + puzzleItem['id'] + "/";
                 var icon = $("<i></i>").addClass("fas fa-edit fa");
                 var anchor = $("<a></a>").attr("href", link).attr("title","Edit").html(icon);
                 td.html(anchor);

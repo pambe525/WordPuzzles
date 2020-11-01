@@ -24,7 +24,7 @@ class PuzzleModelTest(TestCase):
 
     def test_string_representation(self):
         puzzle = Puzzle.objects.create(size=10)
-        self.assertEqual("#1 Crossword Puzzle (10x10)", str(puzzle))
+        self.assertEqual("Puzzle #1: Crossword Puzzle (10x10)", str(puzzle))
         puzzle = Puzzle.objects.create(size=20, is_xword=False)
-        self.assertEqual("#2 Word Puzzle (20 clues)", str(puzzle))
+        self.assertEqual("Puzzle #2: Word Puzzle (20 clues)", str(puzzle))
 

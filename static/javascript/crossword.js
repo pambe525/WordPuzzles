@@ -137,7 +137,7 @@ class Crossword extends Puzzle {
             if ($(cells[i]).hasClass("xw-blocked")) blocks.push(i);
         blocks = blocks.toString();
         return {
-            puzzle_id: this.puzzleId, grid_size: this.size, is_ready: this._isReady(),
+            puzzle_id: this.id, grid_size: this.size, is_ready: this._isReady(),
             blocks: blocks, across: this.words.across, down: this.words.down
         };
     }

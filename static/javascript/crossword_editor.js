@@ -61,7 +61,7 @@ class CrosswordEditor {
     }
 
     _loadPuzzleData(puzzleData) {
-        this.Xword.puzzleId = puzzleData.puzzle_id;
+        this.Xword.id = puzzleData.puzzle_id;
         var indices = puzzleData.grid_blocks.split(","), index, cellId;
         for (var i = 0; i < Math.ceil(indices.length / 2); i++) {
             index = parseInt(indices[i]);
@@ -192,7 +192,7 @@ class CrosswordEditor {
     }
 
     _saveBtnClicked = () => {
-        if (this.Xword.puzzleId === 0) $(this.IDs.deleteBtn).prop("disabled", false);
+        if (this.Xword.id === 0) $(this.IDs.deleteBtn).prop("disabled", false);
         var reqData = JSON.stringify(this.Xword.getGridData());
         $.ajax({
             method: "POST",
@@ -210,7 +210,7 @@ class CrosswordEditor {
         if (deleteData) {
             $.ajax({
                 method: "POST",
-                data: {'action': 'delete', 'puzzle_id': this.Xword.puzzleId},
+                data: {'action': 'delete', 'puzzle_id': this.Xword.id},
                 dataType: "json",
                 success: this._deleteSuccess,
                 error: this._ajaxResponseError
@@ -275,7 +275,7 @@ class CrosswordEditor {
         if (result['error_message']) {
             alert(result['error_message']);
         } else {
-            this.Xword.puzzleId = result.puzzle_id;
+            this.Xword.id = result.puzzle_id;
             this._dataSaved();
         }
     }
