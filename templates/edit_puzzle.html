@@ -59,7 +59,7 @@
             try {
                 var puzzleData = {{ data | safe }};
                 var xwordEditor = new CrosswordEditor("xw-grid");
-                if ( puzzleData.puzzle_id === 0 ) xwordEditor.initialize();
+                if ( puzzleData.id === 0 ) xwordEditor.initialize();
                 else xwordEditor.initialize(puzzleData);
                 xwordEditor.setUnloadHandler();
             } catch(e) {

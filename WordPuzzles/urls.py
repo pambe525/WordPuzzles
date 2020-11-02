@@ -24,7 +24,7 @@ urlpatterns = [
     path('login', LoginView.as_view(), name="login"),
     path('logout', LogoutView.as_view(), name="logout"),
     path('new_user/', NewUserView.as_view(), name="new_user"),
-    path('new_xword_puzzle', NewPuzzleView.as_view(), name="new_xword_puzzle"),
-    path('new_word_puzzle', NewPuzzleView.as_view(), name="new_word_puzzle"),
-    path('edit_puzzle/<int:puzzle_id>/', EditPuzzleView.as_view(), name="edit_puzzle")
+    path('new_xword_puzzle', EditPuzzleView.as_view(), name="new_xword_puzzle"),
+    path('new_word_puzzle', EditPuzzleView.as_view(), name="new_word_puzzle"),
+    path('edit_puzzle/<int:id>/', EditPuzzleView.as_view(), name="edit_puzzle")
 ]

@@ -738,7 +738,7 @@ QUnit.test("deleteWordData: Deletes tooltip for the word if it exists", function
 QUnit.test("getGridData: Returns grid data for an empty grid as JSON obj", function(assert) {
   var xword = createXWord(5);
   var gridDataObj = xword.getGridData();
-  assert.equal(gridDataObj.puzzle_id, 0);
+  assert.equal(gridDataObj.puzzle_id, null);
   assert.equal(gridDataObj.grid_size, 5);
   assert.equal(gridDataObj.is_ready, false);
   assert.equal(gridDataObj.blocks, "");

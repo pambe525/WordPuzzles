@@ -22,7 +22,7 @@ QUnit.test('Constructor: Sets size from puzzleData if passed as argument', funct
 });
 
 QUnit.test("constructor: With puzzleData updates puzzleId", function(assert) {
-  var puzzleData = {puzzle_id: 23, size: 5, blocks:"", across:{}, down:{}};
+  var puzzleData = {id: 23, size: 5, blocks:"", across:{}, down:{}};
   var puzzle = new Puzzle(puzzleData);
   assert.equal(puzzle.id, 23);
 });
@@ -104,7 +104,7 @@ QUnit.test('Save includes action parameter in ajax call', function(assert) {
 
 QUnit.test('Save updates puzzle_id', function(assert) {
     var puzzle = new Puzzle(10);
-    assert.equal(puzzle.id, 0);   // Initial puzzle_id is zero
+    assert.equal(puzzle.id, null);   // Initial puzzle_id is null
     var handlerCalled = false, dataArg;
     var handler = function(data){ handlerCalled=true; dataArg=data};
     $.ajax = function(obj) { obj.success({id: 2}); }  // mock success

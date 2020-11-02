@@ -3,7 +3,7 @@
  */
 class Puzzle {
 
-    id = 0;
+    id = null;
     isXword = true;
     editor = null;
     size = 0;
@@ -11,7 +11,6 @@ class Puzzle {
     sharedAt = null;
     divId = null;
     puzzleData = null;
-
     saveSuccessHandler = null;
     saveFailureHandler = null;
     deleteSuccessHandler = null;
@@ -25,7 +24,7 @@ class Puzzle {
         else {
             this.puzzleData = arg;
             this.size = this.puzzleData['size'];
-            this.id = this.puzzleData['puzzle_id'];
+            this.id = this.puzzleData['id'];
         }
     }
 

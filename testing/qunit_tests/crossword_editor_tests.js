@@ -321,7 +321,7 @@ QUnit.test('Save Btn: Is enabled by default and dataSaved is false', function (a
 
 QUnit.test('Save Btn: Is disabled and dataSaved is true on successful save', function (assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
-    $.ajax = function(dataObj) { dataObj.success({puzzle_id:1}) };
+    $.ajax = function(dataObj) { dataObj.success({id:1}) };
     $(jqSaveBtnId).click();
     assert.true($(jqSaveBtnId).prop("disabled"));
     assert.true(editor.dataSaved);
@@ -329,15 +329,15 @@ QUnit.test('Save Btn: Is disabled and dataSaved is true on successful save', fun
 
 QUnit.test('Save Btn: On first save, delete btn is enabled', function (assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
-    $.ajax = function(dataObj) { dataObj.success({puzzle_id:1}) };
+    $.ajax = function(dataObj) { dataObj.success({id:1}) };
     $(jqSaveBtnId).click();
     assert.false($(jqDeleteBtnId).prop("disabled"));
 });
 
 QUnit.test('Save Btn: On successful save saved puzzle id is assigned to xword', function (assert) {
     editor.initialize();  // NOTE: Grid is 5x5 by default
-    $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
-    assert.equal(editor.Xword.id, 0);
+    assert.equal(editor.Xword.id, null);
+    $.ajax = function(dataObj) { dataObj.success({id: 5}) };
     $(jqSaveBtnId).click();
     assert.equal(editor.Xword.id, 5);
 });
