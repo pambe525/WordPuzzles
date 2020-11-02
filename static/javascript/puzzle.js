@@ -66,7 +66,7 @@ class Puzzle {
         $.ajax({
             method: "POST",
             dataType: "json",
-            data: {'action': 'delete', 'puzzle_id': this.id},
+            data: {'action': 'delete', 'id': this.id},
             success: this._deleteSucceeded,
             error: this._deleteFailed,
         })
