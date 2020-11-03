@@ -33,8 +33,8 @@
             <!-- NAVBAR -->
             {% if user.is_authenticated %}
                 <div class="col-* p-2" style="float:right">
-                    <i class="fas fa-user fa-sm" ></i>
-                    <span class="text-light h5">{{ user.username }} </span>&nbsp;&nbsp; |
+                    <i class="fas fa-user fa-sm" style="color:white"></i>
+                    <span class="text-light h5 ml-1">{{ user.username }} </span>&nbsp;&nbsp; |
                     <a href="{% url 'logout' %}" class="btn text-light">
                         <i class="fas fa-sign-out-alt fa-lg" style="color: white"></i>
                         Logout
