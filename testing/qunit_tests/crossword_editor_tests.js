@@ -407,26 +407,26 @@ QUnit.test('initialize(with data): Throws exception if puzzle data is not an obj
 });
 
 QUnit.test('initialize(with data): Throws exception if grid size is not a valid option', function (assert) {
-    var puzzleData = {puzzle_id: 1, grid_size: 7}
+    var puzzleData = {id: 1, size: 7}
     assert.throws(function () {
             editor.initialize(puzzleData);
         }, /Invalid grid size in puzzle data/, Error);
 });
 
 QUnit.test('initialize(with data): Creates grid using size in puzzle data', function (assert) {
-    var puzzleData = {puzzle_id: 1, grid_size: 3, grid_blocks:""}
+    var puzzleData = {id: 1, size: 3, data:{blocks:""}}
     editor.initialize(puzzleData);
     assert.equal($(jqGridId).children().length, 9)
 });
 
 QUnit.test('initialize(with data): Sets puzzle_id in crossword object', function (assert) {
-    var puzzleData = {puzzle_id: 28, grid_size: 5, grid_blocks:""};
+    var puzzleData = {id: 28, size: 5, data:{blocks:""}};
     editor.initialize(puzzleData);
     assert.equal(editor.Xword.id, 28)
 });
 
 QUnit.test('initialize(with data): Sets blocks in grid using puzzle_data', function (assert) {
-    var puzzleData = {puzzle_id: 1, grid_size: 5, grid_blocks: "0,2,11,12,13,22,24"}
+    var puzzleData = {id: 1, size: 5, data:{blocks: "0,2,11,12,13,22,24"}}
     editor.initialize(puzzleData);
     var blocked_cells = $(jqGridId).children(".xw-blocked");
     assert.equal(blocked_cells.length, 7);
@@ -436,13 +436,13 @@ QUnit.test('initialize(with data): Sets blocks in grid using puzzle_data', funct
 });
 
 QUnit.test('initialize(with data): Sets words in grid using puzzle_data', function (assert) {
-    var puzzleData = {puzzle_id: 1, grid_size: 5, grid_blocks: "", across_words:{}, down_words:{}}
+    var puzzleData = {id: 1, size: 5, data:{blocks: "", across:{}, down:{}}}
     editor.initialize(puzzleData);
     assert.true(true);
 });
 
 QUnit.test('initialize(with data): Disables Save btn and enables Delete btn on load', function (assert) {
-    var puzzleData = {puzzle_id: 1, grid_size: 5, grid_blocks: "", across_words:{}, down_words:{}}
+    var puzzleData = {id: 1, size: 5, data:{blocks: "", across:{}, down:{}}}
     editor.initialize(puzzleData);
     assert.true($(jqSaveBtnId).prop("disabled"));
     assert.false($(jqDeleteBtnId).prop("disabled"));

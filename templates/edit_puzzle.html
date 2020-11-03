@@ -1,10 +1,24 @@
 {% extends "base.html" %}
 {% block content %}
-
+<div width="500px">
     {% load static %}
-    <h3> {{ title }} </h3>
+    <div class="row m-0">
+        <h4 class="col p-0" id="page-title">Crossword</h4>
+        <button id="save" class="btn btn-sm ml-1 btn-primary rounded-lg">SAVE</button>
+        <button id="delete" class="btn btn-sm ml-1 btn-danger rounded-lg">DELETE</button>
+        <button id="done" class="btn btn-sm ml-1 btn-primary rounded-lg">DONE</button>
+    </div>
 
-    <!-- PAGE-SPECIFIC NAVBAR WITH GRID SIZE SELECTION, RESET AND SAVE -->
+
+    <!-- PUZZLE DESCRIPTION & SHARING -->
+    <div class="p-1">
+        <label class="h6" for="desc">Description: </label><br />
+        <input class="mb-2" id="desc" type="text" style="width:100%" />
+        <label class="h6 pb-2 mr-1" for="share-toggle">Share Puzzle: </label>
+        <input id="share-toggle" class="ml-2 largerCheckbox" type="checkbox" />
+    </div>
+
+    <!-- NAVBAR WITH SIZE SELECTION, RESET AND SAVE -->
     <div class="bg-light border border-dark rounded-lg shadow-sm p-2 mt-3" style="width:500px">
         <span class="h6">Grid Size:</span>
         <select id="grid-size" class="p-1 ml-1 mr-2">
@@ -17,9 +31,7 @@
         </select>
         <input id="edit-toggle" class="ml-2" type="checkbox" data-toggle="toggle" data-width=120 data-height=30
                data-off="Edit Blocks" data-offstyle="dark" data-onstyle="warning" data-on="Edit Words">
-        <button id="save-grid" class="btn btn-sm ml-1 btn-primary rounded-lg">Save</button>
-        <button id="delete" class="btn btn-sm ml-1 btn-danger rounded-lg">Delete</button>
-        <button id="done" class="btn btn-sm ml-1 btn-primary rounded-lg">Done</button>
+
     </div>
 
     <div class="m-0 mt-2" style="width:500px">
@@ -67,4 +79,5 @@
             }
         });
     </script>
+</div>
 {% endblock %}

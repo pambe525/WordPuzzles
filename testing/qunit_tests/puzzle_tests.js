@@ -169,7 +169,7 @@ QUnit.test('Delete includes puzzle_id in ajax call', function(assert) {
     var ajaxArg = null;
     $.ajax = function(obj) { ajaxArg = obj };
     puzzle.delete();
-    assert.deepEqual(ajaxArg.data['puzzle_id'], puzzle.id);
+    assert.deepEqual(ajaxArg.data['id'], puzzle.id);
 });
 
 QUnit.test('Delete includes action parameter in ajax call', function(assert) {
