@@ -214,7 +214,7 @@ QUnit.test('SetSharingOn sets current datetime string if true else null', functi
 QUnit.test('show() appends html to given container div id', function(assert) {
     var puzzle = new Puzzle(5);
     var called = true;
-    puzzle._setHtmlOnDiv = function() { $(puzzle.divId).html("<span>SOME HTML</span>")};
+    puzzle._setHtmlOnPuzzleDiv = function() { $(puzzle.divId).html("<span>SOME HTML</span>")};
     puzzle.show("display-id");
     assert.equal($("#display-id").html(), "<span>SOME HTML</span>");
 });

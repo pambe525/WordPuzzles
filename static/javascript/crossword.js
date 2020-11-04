@@ -145,7 +145,7 @@ class Crossword extends Puzzle {
     /**
      * PRIVATE METHODS
      */
-    _setHtmlOnDiv() {
+    _setHtmlOnPuzzleDiv() {
         this._makeGrid();
     }
 

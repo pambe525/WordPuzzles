@@ -35,7 +35,7 @@ class Puzzle {
     show(divId) {
         this.divId = "#"+divId;
         $(this.divId).empty();
-        this._setHtmlOnDiv();
+        this._setHtmlOnPuzzleDiv();
         if (this.puzzleData) this._loadPuzzleData();
     }
 
@@ -117,7 +117,7 @@ class Puzzle {
     }
 
     // Must be implemented by derived classes
-    _setHtmlOnDiv() {
+    _setHtmlOnPuzzleDiv() {
     }
 
     // Must be implemented by derived classes

@@ -4,7 +4,7 @@
     {% load static %}
     <div class="row m-0">
         <h4 class="col p-0" id="page-title">Crossword</h4>
-        <i id="save-ok" class="mr-2 fa fa-check-circle fa-2x" style="color:green"></i>
+        <i id="save-ok" class="mr-2 fa fa-check-circle fa-2x" style="color:green; display:none"></i>
         <div style="height:30px">
             <button id="save" class="btn btn-sm ml-1 btn-primary rounded-lg">Save</button>
             <button id="delete" class="btn btn-sm ml-1 btn-danger rounded-lg">Delete</button>
@@ -26,7 +26,7 @@
               title="Enabled only after clues are complete. Save your setting to activate it.">
             <i class="fa fa-question-circle fa-lg"></i>
         </span>
-        <small class="text-muted">Makes puzzle immediately visible to all registered users</small>
+        <small class="text-muted">Makes puzzle immediately accessible to all registered users</small>
     </div>
 
     <!-- NAVBAR WITH SIZE SELECTION, RESET AND SAVE -->
@@ -37,7 +37,7 @@
         <input id="mode-toggle" class="ml-2" type="checkbox" data-toggle="toggle" data-width=120 data-height=30
                data-off="Edit Blocks" data-offstyle="secondary" data-onstyle="secondary" data-on="Edit Words">
         <span id="symm-option" style="display:none">
-            <label id="symm-label" class="h6 ml-2" for="symm-toggle">Symmetry:</label>
+            <label class="h6 ml-2" for="symm-toggle">Symmetry:</label>
             <label class="switch">
                 <input id="symm-toggle" type="checkbox" checked>
                 <span class="slider round"></span>
@@ -65,7 +65,7 @@
         </div>
 
         <!-- CROSSWORD GRID -->
-        <div class="m-1 mt-3" id="xw-grid"></div>
+        <div class="m-1 mt-3" id="puzzle"></div>
     </div>
 
     <script src="{% static '/javascript/puzzle.js' %}"></script>

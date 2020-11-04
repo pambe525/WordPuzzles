@@ -56,13 +56,6 @@ QUnit.module('CrosswordEditor', {
 
 // initialize tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test('initialize: Throws error if any element does not exist', function (assert) {
-    editor.IDs["selectorSize"] = "noElemId";
-    assert.throws(function () {
-            editor.initialize();
-        }, /noElemId does not exist/, Error);
-});
-
 QUnit.test('initialize: Creates grid using default size', function (assert) {
     assert.equal($(jqGridId).children().length, 0);
     editor.initialize();
@@ -74,37 +67,6 @@ QUnit.test('initialize: Sets help text for default block edit mode', function (a
     assert.false($(jqModeSelectorId).is(":checked"));
     assert.true($(jqModeTipId).is(":visible"));
     assert.true($(jqModeTipId).text().indexOf("Diametrically opposite square") > 0);
-});
-
-QUnit.test('initialize: Hides clue entry form by default', function (assert) {
-    editor.initialize();
-    assert.true($(jqClueFormId).is(":hidden"));
-});
-
-QUnit.test('initialize: Disables Delete button by default', function (assert) {
-    editor.initialize();
-    assert.true($(jqDeleteBtnId).prop("disabled"));
-});
-
-// setElementId tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test('setElementId: Throws exception if element reference key is incorrect', function (assert) {
-    assert.throws(function () {
-            editor.setElementId("wrongkey", "selectorId");
-        },
-        /Invalid element reference wrongkey/, Error);
-});
-
-QUnit.test('setElementId: Throws exception if element id does not exist', function (assert) {
-    assert.throws(function () {
-            editor.setElementId("selectSize", "selectorId");
-        },
-        /Element id selectorId not found/, Error);
-});
-
-QUnit.test('setElementId: Sets element id correctly if it exists', function (assert) {
-    editor.setElementId("selectSize", "edit-toggle");
-    assert.equal(editor.IDs["selectSize"], "edit-toggle");
 });
 
 // Grid Size Selection change tests
