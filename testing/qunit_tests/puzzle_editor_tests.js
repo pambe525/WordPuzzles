@@ -72,28 +72,6 @@ QUnit.test('Constructor: No argument throws error', function (assert) {
     }, /No argument specified on Puzzle/, Error)
 });
 
-// initialize tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test('initialize: Throws error if any element does not exist', function (assert) {
-    editor.IDs["sizeSelect"] = "noElemId";
-    assert.throws(function () {
-        editor.initialize();
-    }, /noElemId does not exist/, Error);
-});
-
-QUnit.test('initialize: Sets UI elements starting states', function (assert) {
-    editor.initialize();
-    assert.true($(jqSaveOkId).is(":hidden"));       // Check Icon is hidden
-    assert.true($(jqDeleteBtnId).prop("disabled")); // Delete button is disabled
-    assert.true($(jqClueFormId).is(":hidden"));     // Clue form is hidden
-    assert.equal($(jqClueWordId).css("text-transform"), "uppercase");  // Clue entry UPPERCASED
-});
-
-QUnit.test('initialize: Sets UI elements starting states', function (assert) {
-    editor.initialize();
-});
-
-
 // setElementId tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('setElementId: Throws exception if element reference key is incorrect', function (assert) {
@@ -112,5 +90,36 @@ QUnit.test('setElementId: Throws exception if given id does not exist in DOM', f
 
 QUnit.test('setElementId: Sets element id correctly if it exists', function (assert) {
     editor.setElementId("sizeSelect", "mode-toggle");
-    assert.equal(editor.IDs["sizeSelect"], "mode-toggle");
+    assert.equal(editor.IDs.sizeSelect, "mode-toggle");
 });
+
+// setSizeSelector and getSelectedSize tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('setSizeSelector: Sets select options for size', function (assert) {
+    var jsonData = {1: "Option1", 2: "Option2", 3: "Option 3"};
+    editor.setSizeSelector(jsonData, 2);
+    assert.equal($(editor.IDs.sizeSelect + ">option").length, 3);
+    assert.equal(editor.getSelectedSize(), 2);
+});
+
+// initialize tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('initialize: Throws error if any predefined element id is not in DOM', function (assert) {
+    editor.IDs.sizeSelect = "noElemId";
+    assert.throws(function () {
+        editor.initialize();
+    }, /noElemId does not exist/, Error);
+});
+
+QUnit.test('initialize: Sets UI elements starting states', function (assert) {
+    editor.initialize();
+    assert.true($(jqSaveOkId).is(":hidden"));       // Check Icon is hidden
+    assert.true($(jqDeleteBtnId).prop("disabled")); // Delete button is disabled
+    assert.true($(jqClueFormId).is(":hidden"));     // Clue form is hidden
+    assert.equal($(jqClueWordId).css("text-transform"), "uppercase");  // Clue entry UPPERCASED
+});
+
+QUnit.test('initialize: Sets page tile for Crossword', function (assert) {
+    editor.initialize();
+});
+

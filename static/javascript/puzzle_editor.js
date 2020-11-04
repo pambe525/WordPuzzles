@@ -27,6 +27,18 @@ class PuzzleEditor {
         this._configureUIElements();
     }
 
+    setSizeSelector(jsonData, defaultVal) {
+        for (let value in jsonData)
+            $(jqSizeSelectorId).append($("<option></option>").val(value).text(jsonData[value]));
+        $(jqSizeSelectorId + " option[value='" + defaultVal + "']").attr("selected","selected");
+    }
+
+    getSelectedSize() {
+        return parseInt($(jqSizeSelectorId).val());
+    }
+    /**
+     * PRIVATE METHODS
+     */
     _setDefaultUIState() {
         $(this.IDs.saveOk).hide();
         $(this.IDs.deleteBtn).prop("disabled", "true");
@@ -67,6 +79,7 @@ class PuzzleEditor {
     }
     _configureUIElements() {
         // setup size selector and element labels
+        // call this.setSizeSelector()
     }
 
     _sizeSelectionChanged = () => {
