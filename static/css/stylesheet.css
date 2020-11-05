@@ -23,7 +23,7 @@ button, .btn {
 }
 
 
-/* Bootstrap Toggle v2.2.2 corrections for Bootsrtap 4*/
+/* Bootstrap Toggle v2.2.2 corrections for Bootstrap 4*/
 .toggle-off {
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
 }
@@ -117,8 +117,8 @@ i {
 .switch {
   position: relative;
   display: inline-block;
-  width: 36px;
-  height: 20px;
+  width: 40px;
+  height: 24px;
 }
 
 /* Hide default HTML checkbox */
@@ -144,10 +144,10 @@ i {
 .slider:before {
   position: absolute;
   content: "";
-  height: 14px;
-  width: 14px;
-  left: 3px;
-  bottom: 3px;
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
   background-color: white;
   -webkit-transition: .4s;
   transition: .4s;
@@ -169,7 +169,7 @@ input:checked + .slider:before {
 
 /* Rounded sliders */
 .slider.round {
-  border-radius: 20px;
+  border-radius: 24px;
 }
 
 .slider.round:before {

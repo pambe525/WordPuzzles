@@ -1,3 +1,6 @@
+/**
+ * ABSTRACT BASE CLASS PuzzleEditor. This class cannot be instantiated.
+ */
 class PuzzleEditor {
 
     IDs = {
@@ -9,10 +12,11 @@ class PuzzleEditor {
     };
     dataSaved = false;
     puzzleInstance = null;
+    puzzleDivId = null;
 
-    constructor(puzzleDivId) {
-        if (!puzzleDivId) throw new Error("No argument specified on Puzzle");
-        this.IDs.puzzleDiv = "#" + puzzleDivId;
+    constructor() {
+        if (this.constructor.name === "PuzzleEditor")
+            throw new Error("Abstract Class PuzzleEditor cannot be instantiated");
     }
 
     setElementId(elemRef, elemId) {
@@ -21,21 +25,34 @@ class PuzzleEditor {
         this.IDs[elemRef] = elemId;
     }
 
-    initialize() {
+    initialize(puzzleDivId, data) {
+        if (!puzzleDivId) throw new Error("puzzledDivId cannot be null");
+        this.puzzleDivId = puzzleDivId;
+        this.IDs.puzzleDiv = "#" + puzzleDivId;
         this._checkPageElementsExist();
         this._setDefaultUIState();
         this._configureUIElements();
+        this._setupEventUIHandlers();
+        this.puzzleInstance = this._getPuzzleInstance( this.getSelectedSize() );
+        this.puzzleInstance.show(puzzleDivId);
+        this._setPageTitle();
     }
 
     setSizeSelector(jsonData, defaultVal) {
         for (let value in jsonData)
-            $(jqSizeSelectorId).append($("<option></option>").val(value).text(jsonData[value]));
-        $(jqSizeSelectorId + " option[value='" + defaultVal + "']").attr("selected","selected");
+            $(this.IDs.sizeSelect).append($("<option></option>").val(value).text(jsonData[value]));
+        //$(this.IDs.sizeSelect + " option[value='" + defaultVal + "']").attr("selected","selected");
+        $(this.IDs.sizeSelect).val(defaultVal);
     }
 
     getSelectedSize() {
-        return parseInt($(jqSizeSelectorId).val());
+        return parseInt($(this.IDs.sizeSelect).val());
     }
+
+    setUnloadHandler() {
+        $(window).on('beforeunload', this._handleUnload);
+    }
+
     /**
      * PRIVATE METHODS
      */
@@ -44,22 +61,33 @@ class PuzzleEditor {
         $(this.IDs.deleteBtn).prop("disabled", "true");
         $(this.IDs.clueForm).hide();
         $(this.IDs.clueWord).css("text-transform", "uppercase");
+        $(this.IDs.shared).prop("disabled", true);
+        this._setClueFormTabIndex();
     }
     _checkPageElementsExist() {
         for (var key in this.IDs)
             if ($(this.IDs[key]).length === 0) throw new Error(this.IDs[key] + " does not exist");
     }
 
-    _setupEventHandlers() {
+    _setupUIEventHandlers() {
         $(this.IDs.sizeSelect).change(this._sizeSelectionChanged);
-        $(this.IDs.modeToggle).change(this._modeSelectionChanged);
-        $(this.IDs.saveBtn).click(this._saveBtnClicked);
-        $(this.IDs.deleteBtn).click(this._deleteBtnClicked);
-        $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
-        $(this.IDs.clueDeleteBtn).click(this._deleteWordDataClicked)
-        $(this.IDs.doneBtn).click(this._doneBtnClicked)
-        $(this.IDs.clueWord).keyup(this._onEnterKey);
-        $(this.IDs.clueText).keyup(this._onEnterKey);
+        // $(this.IDs.modeToggle).change(this._modeSelectionChanged);
+        // $(this.IDs.saveBtn).click(this._saveBtnClicked);
+        // $(this.IDs.deleteBtn).click(this._deleteBtnClicked);
+        // $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
+        // $(this.IDs.clueDeleteBtn).click(this._deleteWordDataClicked)
+        // $(this.IDs.doneBtn).click(this._doneBtnClicked)
+        // $(this.IDs.clueWord).keyup(this._onEnterKey);
+        // $(this.IDs.clueText).keyup(this._onEnterKey);
+    }
+
+    _setupPuzzleEventHandlers() {
+        this.puzzleInstance.setSaveSuccessHandler(this._saveSuccessHandler);
+        this.puzzleInstance.setDeleteSuccessHandler(this._deleteSuccessHandler);
+        this.puzzleInstance.setSaveFailureHandler(this._saveFailureHandler);
+        this.puzzleInstance.setDeleteFailureHandler(this._deleteFailureHandler);
+        this.puzzleInstance.setDataChangedHandler(this._dataChangedHandler);
+        this.puzzleInstance.setClickHandler(this._puzzleClicked);
     }
 
     _onEnterKey = (event) => {
@@ -69,43 +97,81 @@ class PuzzleEditor {
         }
     }
 
-    _setPageTitle() {
+    _setClueFormTabIndex() {
+        $(this.IDs.clueWord).attr('tabindex', 1);
+        $(this.IDs.clueText).attr('tabindex', 2);
+    }
 
+    _setPageTitle() {
+        var prefix = (!this.puzzleInstance.id) ? "New " : "Edit ";
+        var type = (this.puzzleInstance.isXword) ? "Crossword Puzzle" : "Word Puzzle";
+        $(this.IDs.title).text(prefix + type);
     }
 
     /* The following private methods must be implemented by derived classes */
-    _getNewPuzzleInstance() {
-
+    _getPuzzleInstance(arg) {
+        throw new Error("Method PuzzleEditor._getPuzzleInstance must be implemented.");
+        // arg can be size or puzzledata
     }
     _configureUIElements() {
+        throw new Error("Method PuzzleEditor._configureUIElements must be implemented.");
         // setup size selector and element labels
         // call this.setSizeSelector()
     }
 
+    // UI elements Event Handlers
+    //--------------------------------------------------------------------------------------------
     _sizeSelectionChanged = () => {
+        throw new Error("PuzzleEditor._sizeSelectionChanged method must be implemented.");
     }
 
     _modeSelectionChanged = () => {
+        throw new Error("PuzzleEditor._modeSelectionChanged method must be implemented.");
     }
 
     _updateWordDataClicked = () => {
+        throw new Error("PuzzleEditor._updateWordDataClicked method must be implemented.");
     }
 
     _deleteWordDataClicked = () => {
+        throw new Error("PuzzleEditor._deleteWordDataClicked method must be implemented.");
     }
 
     _saveBtnClicked = () => {
+        throw new Error("PuzzleEditor._saveBtnClicked method must be implemented.");
     }
 
     _deleteBtnClicked = () => {
+        throw new Error("PuzzleEditor._deleteBtnClicked method must be implemented.");
+    }
+
+    _doneBtnClicked = () => {
+        window.location.replace("/");
+    }
+
+    // Puzzle instance Event Handlers
+    //--------------------------------------------------------------------------------------------
+    _saveSuccessHandler = (event) => {
+        throw new Error("PuzzleEditor._saveSuccessHandler method must be implemented.");
+    }
+
+    _deleteSuccessHandler = (event) => {
+        throw new Error("PuzzleEditor._deleteSuccessHandler method must be implemented.");
+    }
+
+    _saveFailureHandler = (event) => {
+        throw new Error("PuzzleEditor._saveFailureHandler method must be implemented.");
+    }
+
+    _deleteFailureHandler = (event) => {
+        throw new Error("PuzzleEditor._deleteFailureHandler method must be implemented.");
+    }
+
+    _dataChangedHandler = (event) => {
+        throw new Error("PuzzleEditor._dataChangedHandler method must be implemented.");
     }
 
     _puzzleClicked = (event) => {
-
-    }
-
-    // This is not unit tested
-    _doneBtnClicked = () => {
-        window.location.replace("/");
+        throw new Error("PuzzleEditor._puzzleClicked method must be implemented.");
     }
 }

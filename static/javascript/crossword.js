@@ -3,6 +3,26 @@ class Crossword extends Puzzle {
     cellSize = 30;
     words = {across: {}, down: {}};
 
+    constructor(arg) {
+        super(arg);
+    }
+
+    isReady() {
+        var blockedCells = $(this.divId+">div.xw-blocked").length;
+        var emptyCells = $(this.divId+">div>.xw-letter:empty").length - blockedCells;
+        if ( emptyCells !== 0 ) return false;
+        else {
+            var cells = $(this.divId+">div").has(".xw-number");
+            for (var i = 0; i < cells.length; i++) {
+                if (this._isWordStart(cells[i].id, true) && (this.words.across[cells[i].id] === undefined ||
+                    this.words.across[cells[i].id].clue === "")) return false;
+                if (this._isWordStart(cells[i].id, false) && (this.words.down[cells[i].id] === undefined ||
+                    this.words.down[cells[i].id].clue === "")) return false;
+            }
+            return true;
+        }
+    }
+
     hasBlocks() {
         return ($(".xw-blocked").length !== 0);
     }
@@ -131,19 +151,19 @@ class Crossword extends Puzzle {
         return isAcross;
     }
 
-    getGridData() {
-        var blocks = [], cells = $(this.divId+">div");
-        for (var i = 0; i < cells.length; i++)
-            if ($(cells[i]).hasClass("xw-blocked")) blocks.push(i);
-        blocks = blocks.toString();
-        return {
-            id: this.id, grid_size: this.size, is_ready: this._isReady(),
-            blocks: blocks, across: this.words.across, down: this.words.down
-        };
-    }
+    // getGridData() {
+    //     var blocks = [], cells = $(this.divId+">div");
+    //     for (var i = 0; i < cells.length; i++)
+    //         if ($(cells[i]).hasClass("xw-blocked")) blocks.push(i);
+    //     blocks = blocks.toString();
+    //     return {
+    //         id: this.id, grid_size: this.size, is_ready: this._isReady(),
+    //         blocks: blocks, across: this.words.across, down: this.words.down
+    //     };
+    // }
 
     /**
-     * PRIVATE METHODS
+     * PRIVATE METHODS IMPLEMENTED FROM PARENT CLASS PUZZLE
      */
     _setHtmlOnPuzzleDiv() {
         this._makeGrid();
@@ -168,6 +188,17 @@ class Crossword extends Puzzle {
         }
     }
 
+    _getDataToSave() {
+        var blocks = [], cells = $(this.divId+">div");
+        for (var i = 0; i < cells.length; i++)
+            if ($(cells[i]).hasClass("xw-blocked")) blocks.push(i);
+        blocks = blocks.toString();
+        return {blocks: blocks, across: this.words.across, down: this.words.down};
+    }
+
+    /**
+     * CLASS-SPECIFIC PRIVATE METHODS
+     */
     _makeGrid() {
         for (var row = 0; row < this.size; row++)
             for (var col = 0; col < this.size; col++)
@@ -380,22 +411,6 @@ class Crossword extends Puzzle {
             var tCellId = this._getOffsetCellId(cellId, -1, 0);
             var bCellId = this._getOffsetCellId(cellId, 1, 0);
             return this._isUnblockedCell(tCellId) || this._isUnblockedCell(bCellId);
-        }
-    }
-
-    _isReady() {
-        var blockedCells = $(this.divId+">div.xw-blocked").length;
-        var emptyCells = $(this.divId+">div>.xw-letter:empty").length - blockedCells;
-        if ( emptyCells !== 0 ) return false;
-        else {
-            var cells = $(this.divId+">div").has(".xw-number");
-            for (var i = 0; i < cells.length; i++) {
-                if (this._isWordStart(cells[i].id, true) && (this.words.across[cells[i].id] === undefined ||
-                    this.words.across[cells[i].id].clue === "")) return false;
-                if (this._isWordStart(cells[i].id, false) && (this.words.down[cells[i].id] === undefined ||
-                    this.words.down[cells[i].id].clue === "")) return false;
-            }
-            return true;
         }
     }
 

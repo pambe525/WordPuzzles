@@ -3,6 +3,36 @@
   */
 var gridId = "xw-grid", jqGridId = "#"+gridId;
 
+// HELPER FUNCTIONS
+//------------------------------------------------------------------------------------------------------------------
+function createXWord(arg) {
+  var xword = new Crossword(arg);
+  xword.setClickHandler(function(){});
+  xword.show(gridId);
+  return xword;
+}
+
+function setBlocks(xword, blockIds) {
+  blockIds.forEach( function(item) {
+    xword.toggleCellBlock(item);
+  });
+}
+
+function assertHilitedCells(assert, hilitedCellIds, isAcross) {
+  var hilitedCells = $(jqGridId + "> .xw-hilited");
+  assert.equal(hilitedCells.length, hilitedCellIds.length);
+  var hasClassLabel = (isAcross) ? "xw-across" : "xw-down";
+  var noClassLabel = (isAcross) ? "xw-down" : "xw-across";
+  hilitedCellIds.forEach( function(item, index) {
+    assert.equal(item, hilitedCells[index].id);
+    assert.ok(hilitedCells[index].className.indexOf(hasClassLabel) >= 0);
+    assert.ok(hilitedCells[index].className.indexOf(noClassLabel) < 0);
+  });
+}
+
+// START MODULE TESTS
+//------------------------------------------------------------------------------------------------------------------
+
 QUnit.module('Crossword', {
   beforeEach: function () {
     $("#qunit-fixture").append($(document.createElement('div')).attr('id',gridId));
@@ -11,33 +41,50 @@ QUnit.module('Crossword', {
 
 // Constructor tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test('constructor: Creates grid of correct width, height & border', function(assert) {
-  var gridSize=5, grid = createXWord(gridSize);
-  assert.equal($(jqGridId).width(), (grid.cellSize*gridSize + 2));
-  assert.equal($(jqGridId).height(), (grid.cellSize*gridSize + 2))
+QUnit.test('BASE constructor: No argument throws error', function(assert) {
+    assert.throws( function(){ new Crossword(); }, /No argument specified on Puzzle/, Error)
 });
 
-QUnit.test('constructor: Creates grid of (gridSize x gridSize) div cells', function(assert) {
+QUnit.test('BASE constructor: Sets size if integer is passed as argument', function(assert) {
+    var puzzle = new Crossword(8);
+    assert.equal(puzzle.size, 8);
+});
+
+QUnit.test('BASE constructor: Sets size from puzzleData if passed as argument', function(assert) {
+    var puzzleData = {size: 10};
+    var puzzle = new Crossword(puzzleData);
+    assert.equal(puzzle.size, 10);
+});
+
+QUnit.test("BASE constructor: With puzzleData updates puzzleId", function(assert) {
+  var puzzleData = {id: 23, size: 5, blocks:"", across:{}, down:{}};
+  var puzzle = new Crossword(puzzleData);
+  assert.equal(puzzle.id, 23);
+});
+
+// BASE show() tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('BASE show: Creates grid of correct width & height', function(assert) {
+  var gridSize=5, xword = new Crossword(gridSize);
+  xword.show(gridId);
+  assert.equal($(jqGridId).width(), (xword.cellSize*gridSize + 2));
+  assert.equal($(jqGridId).height(), (xword.cellSize*gridSize + 2))
+});
+
+QUnit.test('BASE show: Creates grid of (gridSize x gridSize) div cells', function(assert) {
   createXWord(10);
   assert.equal($(jqGridId).children('div').length, 100);
   assert.equal($(jqGridId).css("border-top-width"),"1px");
 });
 
-QUnit.test('constructor: Clears current grid area before adding grid', function(assert) {
-  createXWord(10);
+QUnit.test('BASE show: Clears current grid area before adding grid', function(assert) {
+  new Crossword(10).show(gridId);
   assert.equal($(jqGridId).children('div').length, 100);
-  createXWord(5);
+  new Crossword(5).show(gridId);
   assert.equal($(jqGridId).children('div').length, 25);
 });
 
-// QUnit.test("constructor: Grid cells have correct styling", function(assert) {
-//   var grid = createXWord(4);
-//   assert.equal($(jqGridId + " > div").css("float"), "left");
-//   assert.equal($(jqGridId + " > div").width(), 31);   // due to border-box box-sizing
-//   assert.equal($(jqGridId + " > div").height(), 31);  // due to border-box box-sizing
-//   assert.equal($(jqGridId + " > div").css("border-right-width"), "1px");});
-
-QUnit.test('constructor: Grid cells have correct id and click handler', function(assert) {
+QUnit.test('BASE show: Grid cells have correct id and click handler', function(assert) {
   var size = 8, grid = createXWord(size), counter = 0;
   var cells = $(jqGridId).children('div');
   for (var row = 0; row < size; row++)
@@ -48,20 +95,13 @@ QUnit.test('constructor: Grid cells have correct id and click handler', function
     }
 });
 
-QUnit.test('constructor: Grid cells have a span for letter', function(assert) {
+QUnit.test('BASE show: Grid cells have a span for letter', function(assert) {
   var size = 8, grid = createXWord(size), counter = 0;
   var letterSpans = $(jqGridId+" > div > .xw-letter");
   assert.equal($(letterSpans).length, size*size);
 });
 
-// QUnit.test('constructor: Grid cell numbers have correct styling', function(assert) {
-//   createXWord(2);
-//   assert.equal($(jqGridId + " > div > .xw-number").css("font-size"), "9px");
-//   assert.equal($(jqGridId + " > div > .xw-number").position().left, 2);
-//   assert.equal($(jqGridId + " > div > .xw-number").position().top, -1);
-// });
-
-QUnit.test('constructor: Auto-numbers default blank grid', function(assert) {
+QUnit.test('BASE show: Auto-numbers default blank grid', function(assert) {
   var size = 6;
   createXWord(size);
   var cells = $(jqGridId).children('div');
@@ -72,7 +112,7 @@ QUnit.test('constructor: Auto-numbers default blank grid', function(assert) {
   assert.equal($(".xw-number").length, 11);
 });
 
-QUnit.test('constructor: Auto-numbers grid with blocks added', function(assert) {
+QUnit.test('BASE show: Auto-numbers grid with blocks added', function(assert) {
   var xword = createXWord(5);
   var cells = $(jqGridId).children('div');
   setBlocks(xword, ["0-0", "1-4", "2-3"]);
@@ -87,6 +127,214 @@ QUnit.test('constructor: Auto-numbers grid with blocks added', function(assert) 
   assert.equal($(cells[18]).text(), 7);
   assert.equal($(cells[20]).text(), 8);
   assert.equal($(".xw-number").parent().length, 8);
+});
+
+QUnit.test("BASE show: With puzzleData loads blocks into the grid", function(assert) {
+  var puzzleData = {puzzle_id: 10, size: 5, blocks:"0,4,20,24", across:{}, down:{}};
+  var xword = createXWord(puzzleData);
+  var blockedCells = $(jqGridId + ">.xw-blocked");
+  assert.equal(blockedCells.length, 4);
+  assert.equal(blockedCells[0].id, "0-0");
+  assert.equal(blockedCells[1].id, "0-4");
+  assert.equal(blockedCells[2].id, "4-0");
+  assert.equal(blockedCells[3].id, "4-4");
+});
+
+QUnit.test("BASE show: With puzzleData loads words as data", function(assert) {
+  var puzzleData = {
+    puzzle_id: 10, size: 5, blocks:"0,4,20,24", across:{"0-1":{word:"pin",clue:"clue for pin"},
+    "1-0":{word:"trial", clue:""}}, down:{"0-1":{word:"prime", clue:"clue for prime"}}
+  };
+  var xword = createXWord(puzzleData);
+  assert.equal(Object.keys(xword.words.across).length, 2);
+  assert.equal(Object.keys(xword.words.down).length, 1);
+  assert.equal(xword.words.across["0-1"].word, "pin");
+  assert.equal(xword.words.across["0-1"].clue, "clue for pin (3)");
+  assert.equal(xword.words.down["0-1"].word, "prime");
+  assert.equal(xword.words.down["0-1"].clue, "clue for prime (5)");
+  assert.equal(xword.readWord("1-0", true), "TRIAL");
+});
+
+// setSharingOn tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('BASE setSharingOn: Sets current datetime string if true else null', function(assert) {
+    var puzzle = new Crossword(5);
+    puzzle.setSharingOn();
+    assert.equal(puzzle.sharedAt, new Date().toISOString());
+    puzzle.setSharingOn(false);
+    assert.equal(puzzle.sharedAt, null);
+});
+
+// SAVE tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('BASE save: Success invokes saveSuccessHandler', function(assert) {
+    var puzzle = new Crossword(5);
+    var handlerCalled = false, dataArg;
+    var handler = function(data){ handlerCalled=true; dataArg=data};
+    $.ajax = function(obj) { obj.success({status:"OK"}); }  // mock save success
+    puzzle.setSaveSuccessHandler(handler);
+    puzzle.save();
+    assert.true(handlerCalled);
+    assert.equal(dataArg.status, "OK");
+});
+
+QUnit.test('BASE save: Failure invokes saveFailureHandler', function(assert) {
+    var puzzle = new Crossword(5);
+    var handlerCalled = false;
+    var handler = function(){ handlerCalled=true; };
+    $.ajax = function(obj) { obj.error(); };  // mock save failure
+    puzzle.setSaveFailureHandler(handler);
+    puzzle.save();
+    assert.true(handlerCalled);
+});
+
+QUnit.test('BASE save: Success does nothing if saveSuccessHandler is not set', function(assert) {
+    var puzzle = new Crossword(5);
+    $.ajax = function(obj) { obj.success({puzzle_id:2}); };  // mock failure
+    try {
+        puzzle.save();
+        assert.ok(true);
+    } catch(e) { assert.notOk(true, "No exception expected.")}
+});
+
+QUnit.test('BASE save: Failure does nothing if saveFailureHandler is not set', function(assert) {
+    var puzzle = new Crossword(5);
+    $.ajax = function(obj) { obj.error(); };  // mock save failure
+    try {
+        puzzle.save();
+        assert.ok(true);
+    } catch(e) { assert.notOk(true, "No exception expected.")}
+});
+
+QUnit.test('BASE save: Invokes ajax call with correct parameters', function(assert) {
+    var puzzle = new Crossword(5);
+    var ajaxArg = null;
+    $.ajax = function(obj) { ajaxArg = obj };
+    puzzle.save();
+    assert.equal(ajaxArg.method, "POST");
+    assert.equal(ajaxArg.dataType, "json");
+});
+
+QUnit.test('BASE save: Includes proper data parameters in ajax call', function(assert) {
+    var puzzle = new Crossword(5);
+    puzzle.id = 222;
+    puzzle._getDataToSave = function(){ return {somedata:"blah"}; };
+    var ajaxArg = null;
+    $.ajax = function(obj) { ajaxArg = obj };
+    puzzle.save();
+    var ajaxDataObj = JSON.parse(ajaxArg.data['data']);
+    assert.equal(ajaxDataObj['id'], 222);
+    assert.equal(ajaxDataObj['size'], 5);
+    assert.equal(ajaxDataObj['desc'], "");
+    assert.equal(ajaxDataObj['is_xword'], true);
+    assert.equal(ajaxDataObj['shared_at'], null);
+    assert.deepEqual(ajaxDataObj['data'], {somedata:"blah"});
+});
+
+QUnit.test('BASE save: Includes action parameter in ajax call', function(assert) {
+    var puzzle = new Crossword(10);
+    puzzle._getDataToSave = function(){ return {somedata:"blah"}; };
+    var ajaxArg = null;
+    $.ajax = function(obj) { ajaxArg = obj };
+    puzzle.save();
+    assert.equal(ajaxArg.data['action'], 'save');
+});
+
+QUnit.test('BASE save: Updates puzzle_id', function(assert) {
+    var puzzle = new Crossword(10);
+    assert.equal(puzzle.id, null);   // Initial puzzle_id is null
+    var handlerCalled = false, dataArg;
+    var handler = function(data){ handlerCalled=true; dataArg=data};
+    $.ajax = function(obj) { obj.success({id: 2}); }  // mock success
+    puzzle.setSaveSuccessHandler(handler);
+    puzzle.save();
+    assert.equal(puzzle.id, 2);  // Update puzzle_id
+});
+
+// DELETE tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('BASE delete: Success invokes deleteSuccessHandler', function(assert) {
+    var puzzle = new Crossword(5);
+    var handlerCalled = false, dataArg;
+    var handler = function(data){ handlerCalled=true; dataArg=data};
+    $.ajax = function(obj) { obj.success({status:"OK"}); }  // mock success
+    puzzle.setDeleteSuccessHandler(handler);
+    puzzle.delete();
+    assert.true(handlerCalled);
+    assert.equal(dataArg.status, "OK");
+});
+
+QUnit.test('BASE delete: Failure invokes deleteFailureHandler', function(assert) {
+    var puzzle = new Crossword(6);
+    var handlerCalled = false;
+    var handler = function(){ handlerCalled=true; };
+    $.ajax = function(obj) { obj.error(); };  // mock failure
+    puzzle.setDeleteFailureHandler(handler);
+    puzzle.delete();
+    assert.true(handlerCalled);
+});
+
+QUnit.test('BASE delete: Success does nothing if saveSuccessHandler is not set', function(assert) {
+    var puzzle = new Crossword(7);
+    $.ajax = function(obj) { obj.success(); };  // mock failure
+    try {
+        puzzle.delete();
+        assert.ok(true);
+    } catch(e) { assert.notOk(true, "No exception expected.")}
+});
+
+QUnit.test('BASE delete: Failure does nothing if saveFailureHandler is not set', function(assert) {
+    var puzzle = new Crossword(7);
+    $.ajax = function(obj) { obj.error(); };  // mock failure
+    try {
+        puzzle.delete();
+        assert.ok(true);
+    } catch(e) { assert.notOk(true, "No exception expected.")}
+});
+
+QUnit.test('BASE delete: Invokes ajax call with correct parameters', function(assert) {
+    var puzzle = new Crossword(6);
+    var ajaxArg = null;
+    $.ajax = function(obj) { ajaxArg = obj };
+    puzzle.delete();
+    assert.equal(ajaxArg.method, "POST");
+    assert.equal(ajaxArg.dataType, "json");
+});
+
+QUnit.test('BASE delete: Includes puzzle_id in ajax call', function(assert) {
+    var puzzle = new Crossword(5);
+    puzzle.id = 10;
+    var ajaxArg = null;
+    $.ajax = function(obj) { ajaxArg = obj };
+    puzzle.delete();
+    assert.deepEqual(ajaxArg.data['id'], puzzle.id);
+});
+
+QUnit.test('BASE delete: Includes action parameter in ajax call', function(assert) {
+    var puzzle = new Crossword(4);
+    var ajaxArg = null;
+    $.ajax = function(obj) { ajaxArg = obj };
+    puzzle.delete();
+    assert.equal(ajaxArg.data['action'], 'delete');
+});
+
+// DATA CHANGE tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('Data change invokes dataChangedHandler', function(assert) {
+    var puzzle = new Crossword(5);
+    var handlerCalled = false;
+    var handler = function(){ handlerCalled=true; };
+    puzzle.setDataChangedHandler(handler);
+    puzzle._dataChanged();
+    assert.true(handlerCalled);
+});
+
+QUnit.test('Data change does nothing if datChangedHandler is not set', function(assert) {
+    var puzzle = new Crossword(5);
+    try {
+        puzzle._dataChanged();
+        assert.ok(true);
+    } catch(e) { assert.notOk(true, "No exception expected.")}
 });
 
 // toggleCellBlock tests
@@ -735,134 +983,81 @@ QUnit.test("deleteWordData: Deletes tooltip for the word if it exists", function
 
 // getGridData tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test("getGridData: Returns grid data for an empty grid as JSON obj", function(assert) {
-  var xword = createXWord(5);
-  var gridDataObj = xword.getGridData();
-  assert.equal(gridDataObj.puzzle_id, null);
-  assert.equal(gridDataObj.grid_size, 5);
-  assert.equal(gridDataObj.is_ready, false);
-  assert.equal(gridDataObj.blocks, "");
-  assert.deepEqual(gridDataObj.across, {});
-  assert.deepEqual(gridDataObj.down, {});
-});
+// QUnit.test("getGridData: Returns grid data for an empty grid as JSON obj", function(assert) {
+//   var xword = createXWord(5);
+//   var gridDataObj = xword.getGridData();
+//   assert.equal(gridDataObj.puzzle_id, null);
+//   assert.equal(gridDataObj.grid_size, 5);
+//   assert.equal(gridDataObj.is_ready, false);
+//   assert.equal(gridDataObj.blocks, "");
+//   assert.deepEqual(gridDataObj.across, {});
+//   assert.deepEqual(gridDataObj.down, {});
+// });
+//
+// QUnit.test("getGridData: Returns grid data for blocks", function(assert) {
+//   var xword = createXWord(5);
+//   xword.toggleCellBlock("0-1");
+//   xword.toggleCellBlock("1-1");
+//   xword.toggleCellBlock("1-4");
+//   xword.toggleCellBlock("2-2");
+//   var gridDataObj = xword.getGridData();
+//   assert.equal(gridDataObj.blocks, "1,6,9,12,15,18,23");
+//   assert.equal(gridDataObj.is_ready, false);
+// });
+//
+// QUnit.test("getGridData: Returns grid data for words", function(assert) {
+//   var xword = createXWord(5);
+//   xword.toggleCellBlock("0-1");
+//   xword.toggleCellBlock("1-4");
+//   xword.toggleCellBlock("2-2");
+//   xword.setWordData("0-2","NET","clue 2a");
+//   xword.setWordData("1-1","DOWN","clue 4d", false);
+//   xword.setWordData("4-0","ONE", "");
+//   var gridDataObj = xword.getGridData();
+//   assert.equal(gridDataObj.blocks, "1,9,12,15,23");
+//   var expected = {across:{"0-2":{word:"NET",clue:"clue 2a (3)"},"4-0":{word:"ONE",clue:""}},
+//                   down:{"1-1":{word:"DOWN", clue:"clue 4d (4)"}}};
+//   assert.deepEqual(gridDataObj.across, expected.across);
+//   assert.deepEqual(gridDataObj.down, expected.down);
+//   assert.equal(gridDataObj.is_ready, false);
+// });
+//
+// QUnit.test("getGridData: Returns false for is_ready when grid is incomplete", function(assert) {
+//   var xword = createXWord(5);
+//   xword.setWordData("0-0","ABCDE", "clue 1a");
+//   xword.setWordData("1-0","FGHIJ", "clue 6a");
+//   xword.setWordData("2-0","KLMNO", "clue 7a");
+//   xword.setWordData("3-0","PQRST", "clue 8a");
+//   xword.setWordData("4-0","UVWXY", "clue 9a");
+//   var gridDataObj = xword.getGridData();
+//   assert.equal(gridDataObj.is_ready, false);
+// });
+//
+// QUnit.test("getGridData: Returns true for is_ready when grid with no blocks is complete", function(assert) {
+//   var xword = createXWord(5);
+//   xword.setWordData("0-0","ABCDE", "clue 1a");
+//   xword.setWordData("1-0","FGHIJ", "clue 6a");
+//   xword.setWordData("2-0","KLMNO", "clue 7a");
+//   xword.setWordData("3-0","PQRST", "clue 8a");
+//   xword.setWordData("4-0","UVWXY", "clue 9a");
+//   xword.setWordData("0-0", "AFKPU", "clue 1d", false);
+//   xword.setWordData("0-1", "BGLQV", "clue 2d", false);
+//   xword.setWordData("0-2", "CHMRW", "clue 3d", false);
+//   xword.setWordData("0-3", "DINSX", "clue 4d", false);
+//   xword.setWordData("0-4", "EJOTY", "clue 5d", false);
+//   var gridDataObj = xword.getGridData();
+//   assert.equal(gridDataObj.is_ready, true);
+// });
+//
+// QUnit.test("getGridData: Returns true for is_ready when grid with blocks is complete", function(assert) {
+//   var xword = createXWord(3);
+//   xword.toggleCellBlock("1-1");
+//   xword.setWordData("0-0","tin", "clue 1a");
+//   xword.setWordData("2-0","ton", "clue 3a");
+//   xword.setWordData("0-0","tot", "clue 1d", false);
+//   xword.setWordData("0-2","non", "clue 2d", false);
+//   var gridDataObj = xword.getGridData();
+//   assert.equal(gridDataObj.is_ready, true);
+// });
 
-QUnit.test("getGridData: Returns grid data for blocks", function(assert) {
-  var xword = createXWord(5);
-  xword.toggleCellBlock("0-1");
-  xword.toggleCellBlock("1-1");
-  xword.toggleCellBlock("1-4");
-  xword.toggleCellBlock("2-2");
-  var gridDataObj = xword.getGridData();
-  assert.equal(gridDataObj.blocks, "1,6,9,12,15,18,23");
-  assert.equal(gridDataObj.is_ready, false);
-});
 
-QUnit.test("getGridData: Returns grid data for words", function(assert) {
-  var xword = createXWord(5);
-  xword.toggleCellBlock("0-1");
-  xword.toggleCellBlock("1-4");
-  xword.toggleCellBlock("2-2");
-  xword.setWordData("0-2","NET","clue 2a");
-  xword.setWordData("1-1","DOWN","clue 4d", false);
-  xword.setWordData("4-0","ONE", "");
-  var gridDataObj = xword.getGridData();
-  assert.equal(gridDataObj.blocks, "1,9,12,15,23");
-  var expected = {across:{"0-2":{word:"NET",clue:"clue 2a (3)"},"4-0":{word:"ONE",clue:""}},
-                  down:{"1-1":{word:"DOWN", clue:"clue 4d (4)"}}};
-  assert.deepEqual(gridDataObj.across, expected.across);
-  assert.deepEqual(gridDataObj.down, expected.down);
-  assert.equal(gridDataObj.is_ready, false);
-});
-
-QUnit.test("getGridData: Returns false for is_ready when grid is incomplete", function(assert) {
-  var xword = createXWord(5);
-  xword.setWordData("0-0","ABCDE", "clue 1a");
-  xword.setWordData("1-0","FGHIJ", "clue 6a");
-  xword.setWordData("2-0","KLMNO", "clue 7a");
-  xword.setWordData("3-0","PQRST", "clue 8a");
-  xword.setWordData("4-0","UVWXY", "clue 9a");
-  var gridDataObj = xword.getGridData();
-  assert.equal(gridDataObj.is_ready, false);
-});
-
-QUnit.test("getGridData: Returns true for is_ready when grid with no blocks is complete", function(assert) {
-  var xword = createXWord(5);
-  xword.setWordData("0-0","ABCDE", "clue 1a");
-  xword.setWordData("1-0","FGHIJ", "clue 6a");
-  xword.setWordData("2-0","KLMNO", "clue 7a");
-  xword.setWordData("3-0","PQRST", "clue 8a");
-  xword.setWordData("4-0","UVWXY", "clue 9a");
-  xword.setWordData("0-0", "AFKPU", "clue 1d", false);
-  xword.setWordData("0-1", "BGLQV", "clue 2d", false);
-  xword.setWordData("0-2", "CHMRW", "clue 3d", false);
-  xword.setWordData("0-3", "DINSX", "clue 4d", false);
-  xword.setWordData("0-4", "EJOTY", "clue 5d", false);
-  var gridDataObj = xword.getGridData();
-  assert.equal(gridDataObj.is_ready, true);
-});
-
-QUnit.test("getGridData: Returns true for is_ready when grid with blocks is complete", function(assert) {
-  var xword = createXWord(3);
-  xword.toggleCellBlock("1-1");
-  xword.setWordData("0-0","tin", "clue 1a");
-  xword.setWordData("2-0","ton", "clue 3a");
-  xword.setWordData("0-0","tot", "clue 1d", false);
-  xword.setWordData("0-2","non", "clue 2d", false);
-  var gridDataObj = xword.getGridData();
-  assert.equal(gridDataObj.is_ready, true);
-});
-
-// show with PuzzleData tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test("show: With puzzleData loads blocks into the grid", function(assert) {
-  var puzzleData = {puzzle_id: 10, size: 5, blocks:"0,4,20,24", across:{}, down:{}};
-  var xword = createXWord(puzzleData);
-  var blockedCells = $(jqGridId + ">.xw-blocked");
-  assert.equal(blockedCells.length, 4);
-  assert.equal(blockedCells[0].id, "0-0");
-  assert.equal(blockedCells[1].id, "0-4");
-  assert.equal(blockedCells[2].id, "4-0");
-  assert.equal(blockedCells[3].id, "4-4");
-});
-
-QUnit.test("show: With puzzleData loads words as data", function(assert) {
-  var puzzleData = {
-    puzzle_id: 10, size: 5, blocks:"0,4,20,24", across:{"0-1":{word:"pin",clue:"clue for pin"},
-    "1-0":{word:"trial", clue:""}}, down:{"0-1":{word:"prime", clue:"clue for prime"}}
-  };
-  var xword = createXWord(puzzleData);
-  assert.equal(Object.keys(xword.words.across).length, 2);
-  assert.equal(Object.keys(xword.words.down).length, 1);
-  assert.equal(xword.words.across["0-1"].word, "pin");
-  assert.equal(xword.words.across["0-1"].clue, "clue for pin (3)");
-  assert.equal(xword.words.down["0-1"].word, "prime");
-  assert.equal(xword.words.down["0-1"].clue, "clue for prime (5)");
-  assert.equal(xword.readWord("1-0", true), "TRIAL");
-});
-
-/******************************************************************************************
-/* HELPER FUNCTIONS */
-function createXWord(arg) {
-  var xword = new Crossword(arg);
-  xword.setClickHandler(function(){});
-  xword.show(gridId);
-  return xword;
-}
-
-function setBlocks(xword, blockIds) {
-  blockIds.forEach( function(item) {
-    xword.toggleCellBlock(item);
-  });
-}
-
-function assertHilitedCells(assert, hilitedCellIds, isAcross) {
-  var hilitedCells = $(jqGridId + "> .xw-hilited");
-  assert.equal(hilitedCells.length, hilitedCellIds.length);
-  var hasClassLabel = (isAcross) ? "xw-across" : "xw-down";
-  var noClassLabel = (isAcross) ? "xw-down" : "xw-across";
-  hilitedCellIds.forEach( function(item, index) {
-    assert.equal(item, hilitedCells[index].id);
-    assert.ok(hilitedCells[index].className.indexOf(hasClassLabel) >= 0);
-    assert.ok(hilitedCells[index].className.indexOf(noClassLabel) < 0);
-  });
-}

@@ -78,5 +78,5 @@ class EditPuzzleView(LoginRequiredMixin, View):
         if error_msg:
             context['error_message'] = error_msg
         if data_dict is not None:
-            context['data'] = data_dict
+            context['data'] = json.dumps(data_dict)
         return render(request, "edit_puzzle.html", context=context)

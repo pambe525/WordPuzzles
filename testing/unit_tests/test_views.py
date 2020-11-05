@@ -159,14 +159,14 @@ class EditPuzzleViewTests(TestCase):
     def test_GET_new_xword_puzzle_returns_is_word_as_true(self):
         response = self.client.get(reverse("new_xword_puzzle"))
         self.assertEquals(response.templates[0].name, "edit_puzzle.html")
-        data = response.context['data']
+        data = json.loads(response.context['data'])
         self.assertEquals(None, data['id'])
         self.assertTrue(data['is_xword'])
 
     def test_GET_new_word_puzzle_returns_is_word_as_false(self):
         response = self.client.get(reverse("new_word_puzzle"))
         self.assertEquals(response.templates[0].name, "edit_puzzle.html")
-        data = response.context['data']
+        data = json.loads(response.context['data'])
         self.assertEquals(None, data['id'])
         self.assertFalse(data['is_xword'])
 
@@ -192,7 +192,7 @@ class EditPuzzleViewTests(TestCase):
         timestamp = datetime.now(tz=timezone.utc).isoformat()
         record = self.create_new_puzzle_record(size=10, shared_at=timestamp)  # first create a record
         response = self.client.get("/edit_puzzle/" + str(record.id) + "/")
-        puzzle_data = response.context['data']
+        puzzle_data = json.loads(response.context['data'])
         self.assertEqual(record.size, puzzle_data['size'])
         self.assertEqual(record.is_ready, puzzle_data['is_ready'])
         self.assertEqual(record.is_xword, puzzle_data['is_xword'])

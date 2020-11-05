@@ -3,7 +3,7 @@
 <div style="width:500px">
     {% load static %}
     <div class="row m-0">
-        <h4 class="col p-0" id="page-title">Crossword</h4>
+        <h4 class="col p-0" id="page-title"></h4>
         <i id="save-ok" class="mr-2 fa fa-check-circle fa-2x" style="color:green; display:none"></i>
         <div style="height:30px">
             <button id="save" class="btn btn-sm ml-1 btn-primary rounded-lg">Save</button>
@@ -11,7 +11,6 @@
             <button id="done" class="btn btn-sm ml-1 btn-primary rounded-lg">Done</button>
         </div>
     </div>
-
 
     <!-- PUZZLE DESCRIPTION & SHARING -->
     <div class="p-1">
@@ -30,13 +29,13 @@
     </div>
 
     <!-- NAVBAR WITH SIZE SELECTION, RESET AND SAVE -->
-    <div class="bg-light border border-secondary rounded-lg shadow-sm p-2 mt-1" style="width:100%">
-        <label id="size-label" class="h6" for="size">Size:</label>
-        <select id="size" class="col-2 custom-select"></select>
-        <label for="mode-toggle" class="h6 ml-2">Mode:</label>
-        <input id="mode-toggle" class="ml-2" type="checkbox" data-toggle="toggle" data-width=120 data-height=30
-               data-off="Edit Blocks" data-offstyle="secondary" data-onstyle="secondary" data-on="Edit Words">
-        <span id="symm-option" style="display:none">
+    <div class="row bg-light border border-secondary rounded-lg shadow-sm p-2 m-0" style="width:100%">
+        <label id="size-label" class="h6 mt-2" for="size">Size:</label>
+        <select id="size" class="ml-2 col custom-select"></select>
+        <label for="mode-toggle" class="h6 ml-2 mt-2 mr-2">Mode:</label>
+        <input id="mode-toggle" type="checkbox" data-toggle="toggle" data-width=110 data-height=28
+               data-onstyle="dark" data-offstyle="dark" data-off="Edit Blocks" data-on="Edit Clues" />
+        <span class="ml-2 mt-1" id="symm-option">
             <label class="h6 ml-2" for="symm-toggle">Symmetry:</label>
             <label class="switch">
                 <input id="symm-toggle" type="checkbox" checked>
@@ -69,6 +68,7 @@
     </div>
 
     <script src="{% static '/javascript/puzzle.js' %}"></script>
+    <script src="{% static '/javascript/puzzle_editor.js' %}"></script>
     <script src="{% static '/javascript/crossword_editor.js' %}"></script>
     <script src="{% static '/javascript/crossword.js' %}"></script>
 
@@ -78,11 +78,12 @@
 }       );
         $(document).ready(function() {
             try {
-                var puzzleData = {{ data | safe }};
-                var xwordEditor = new CrosswordEditor("xw-grid");
-                if ( puzzleData.id === 0 ) xwordEditor.initialize();
-                else xwordEditor.initialize(puzzleData);
-                xwordEditor.setUnloadHandler();
+                var puzzleData = JSON.parse('{{ data | safe }}');
+                var editor;
+                if (puzzleData.is_xword) editor = new CrosswordEditor();
+                if ( puzzleData.id === null ) editor.initialize("puzzle");
+                else editor.initialize("puzzle", puzzleData);
+                editor.setUnloadHandler();
             } catch(e) {
                 alert(e);
             }

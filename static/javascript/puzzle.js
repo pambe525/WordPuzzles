@@ -1,5 +1,5 @@
 /**
- * BASE CLASS PUZZLE (all puzzle classes are drived from this)
+ * ABSTRACT BASE CLASS PUZZLE (all puzzle classes are derived from this). This class cannot be instantiated
  */
 class Puzzle {
 
@@ -19,6 +19,7 @@ class Puzzle {
     clickHandler = null;
 
     constructor(arg) {
+        if (this.constructor.name === "Puzzle") throw new Error("Abstract Class Puzzle cannot be instantiated");
         if (!arg) throw new Error("No argument specified on Puzzle");
         if (typeof(arg) !== 'object') this.size = arg;
         else {
@@ -40,6 +41,7 @@ class Puzzle {
 
     // Derived class must implement this
     isReady() {
+        throw new Error("Puzzle.isReady method must be implemented by derived class");
     }
 
     setSharingOn(turnOn=true) {
@@ -71,6 +73,7 @@ class Puzzle {
         })
      }
 
+     /* THESE HANDLERS MUST BE SET BY CLIENT EDITORS */
     setDataChangedHandler(handlerFunc) {
         this.dataChangedHandler = handlerFunc;
     }
@@ -117,10 +120,12 @@ class Puzzle {
 
     // Must be implemented by derived classes
     _setHtmlOnPuzzleDiv() {
+        throw new Error("Puzzle._setHtmlOnPuzzleDiv method must be implemented.");
     }
 
     // Must be implemented by derived classes
     _loadPuzzleData(puzzleData) {
+        throw new Error("Puzzle._loadPuzzleData method must be implemented.");
     }
 
     // Must be called by derived classes when data changes
@@ -130,5 +135,6 @@ class Puzzle {
 
     // Must be populated by derived classes to prepare save data object
     _getDataToSave() {
+        throw new Error("Puzzle._getDataToSave method must be implemented.");
     }
 }
