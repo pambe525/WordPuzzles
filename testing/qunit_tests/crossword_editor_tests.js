@@ -1,5 +1,26 @@
 /* MAKE SURE TO INCLUDE mock_edit_puzzle_dom.js in QUnitRunner.html before this test*/
 
+// HELPER FUNCTIONS
+//====================================================================================================================
+function clickOnCellId(cellId) {
+    var coord = cellId.split("-")
+    var index = parseInt(coord[0]) * parseInt($(jqSizeSelectorId).val()) + parseInt(coord[1]);
+    $(jqPuzzleDivId + ">div")[index].click();
+}
+
+// function doClueFormInput(word, clueText) {
+//     $(jqClueWordId).val(word);
+//     $(jqClueTextId).val(clueText);
+//     $(jqClueUpdateId).click();
+// }
+//
+// function assertClueFormFields(clueRef, word, clueText, msg) {
+//     assert.equal($(jqClueNumId).text(), clueRef);
+//     assert.equal($(jqClueMsgId).text(), msg);
+//     assert.equal($(jqClueWordId).val(), word);
+//     assert.equal($(jqClueTextId).val(), clueText);
+// }
+
 /**
  Tests for Class CrosswordEditor
  */
@@ -88,7 +109,7 @@ QUnit.test('initialize: Sets labels specific to Crossword', function (assert) {
 
 // Grid Size Selection change tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test('Grid Size change redraws grid to new size', function (assert) {
+QUnit.test('Event: Grid Size change redraws grid to new size', function (assert) {
     editor.initialize(puzzleDivId);
     assert.equal($(jqPuzzleDivId + " > div").length, 225);
     $(jqSizeSelectorId).val(5).change();
@@ -115,18 +136,18 @@ QUnit.test('Grid Size change prompts for confirmation if grid has data', functio
     assert.equal($(".xw-blocked").length, 4);   // No change to grid
     assert.equal($(jqSizeSelectorId).val(), 15); // Should revert back to previous selection
 });
-//
-// QUnit.test('Grid Size change changes grid if confirmed', function (assert) {
-//     editor.initialize();
-//     clickOnCellId("1-0");
-//     clickOnCellId("0-1");
-//     confirmResponse = true;
-//     $(jqSizeSelectorId).val(3).change();       // Change to 3x3 grid size
-//     assert.equal($(".xw-blocked").length, 0);  // Grid changed
-//     assert.equal($(jqSizeSelectorId).val(), 3);
-//     assert.equal(editor.Xword.size, 3)
-// });
-//
+
+QUnit.test('Event: Grid Size change redraws new grid if confirmed', function (assert) {
+    editor.initialize(puzzleDivId);
+    clickOnCellId("1-0");
+    clickOnCellId("0-1");
+    confirmResponse = true;
+    $(jqSizeSelectorId).val(3).change();       // Change to 3x3 grid size
+    assert.equal($(".xw-blocked").length, 0);  // Grid changed
+    assert.equal(editor.puzzleInstance.size, 3);
+    assert.equal(editor.getSelectedSize(), 3)
+});
+
 // // Blocks Edit Mode tests
 // //--------------------------------------------------------------------------------------------------------------------
 // QUnit.test('Block Edit Mode: Switching back to block selection clears hilites', function (assert) {
@@ -448,25 +469,5 @@ QUnit.test('Grid Size change prompts for confirmation if grid has data', functio
 //     assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
 //     assert.equal($(jqGridId).children().length, 25)
 // });
-//
-//
-// HELPER FUNCTIONS
-//====================================================================================================================
-function clickOnCellId(cellId) {
-    var coord = cellId.split("-")
-    var index = parseInt(coord[0]) * parseInt($(jqSizeSelectorId).val()) + parseInt(coord[1]);
-    $(jqPuzzleDivId + ">div")[index].click();
-}
 
-// function doClueFormInput(word, clueText) {
-//     $(jqClueWordId).val(word);
-//     $(jqClueTextId).val(clueText);
-//     $(jqClueUpdateId).click();
-// }
-//
-// function assertClueFormFields(clueRef, word, clueText, msg) {
-//     assert.equal($(jqClueNumId).text(), clueRef);
-//     assert.equal($(jqClueMsgId).text(), msg);
-//     assert.equal($(jqClueWordId).val(), word);
-//     assert.equal($(jqClueTextId).val(), clueText);
-// }
+

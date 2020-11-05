@@ -68,12 +68,12 @@ class CrosswordEditor extends PuzzleEditor {
         $(this.IDs.deleteBtn).prop("disabled", false);
     }
 
-    _cellClicked = (event) => {
-        if (!$(this.IDs.selectMode).is(":checked")) {
-            this.Xword.toggleCellBlock(event.target.id);
+    _puzzleClicked = (event) => {
+        if (!$(this.IDs.modeToggle).is(":checked")) {
+            this.puzzleInstance.toggleCellBlock(event.target.id);
             this._dataChanged();
         } else {
-            this.Xword.toggleWordHilite(event.target.id);
+            this.puzzleInstance.toggleWordHilite(event.target.id);
             $(this.IDs.clueForm).show();
             this._setupClueForm(event.target.id);
         }

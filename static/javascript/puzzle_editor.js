@@ -32,8 +32,9 @@ class PuzzleEditor {
         this._checkPageElementsExist();
         this._setDefaultUIState();
         this._configureUIElements();
-        this._setupEventUIHandlers();
+        this._setupUIEventHandlers();
         this.puzzleInstance = this._getPuzzleInstance( this.getSelectedSize() );
+        this._setupPuzzleEventHandlers();
         this.puzzleInstance.show(puzzleDivId);
         this._setPageTitle();
     }
