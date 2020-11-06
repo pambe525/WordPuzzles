@@ -34,7 +34,7 @@
         <select id="size" class="h6 ml-2 col custom-select border border-secondary"></select>
         <label for="mode-toggle" class="h6 ml-2 mt-2 mr-2">Mode:</label>
         <input id="mode-toggle" type="checkbox" data-toggle="toggle" data-width=110 data-height=28
-               data-onstyle="dark" data-offstyle="dark" data-off="Edit Blocks" data-on="Edit Clues" />
+               data-onstyle="warning" data-offstyle="dark" data-off="Edit Blocks" data-on="Edit Clues" />
         <span class="ml-2 mt-1" id="symm-option">
             <label class="h6 ml-2" for="symm-toggle">Symmetry:</label>
             <label class="switch">
@@ -54,13 +54,13 @@
             </div>
             <div class="ml-2">
                 <label for="clue-text" class="h6">Enter Clue</label><br />
-                <textarea id="clue-text" cols="32"></textarea>
+                <textarea id="clue-text" cols="25"></textarea>
             </div>
             <div class="ml-2">
                 <button id="clue-update" class="mt-2 p-2 badge badge-dark">Update</button><br />
                 <button id="clue-delete" class="mt-2 p-2 badge badge-danger">Remove</button>
             </div>
-            <div id="clue-msg" class="h6 red-text">This is an error message</div>
+            <div id="clue-msg" class="h6 red-text"></div>
         </div>
 
         <!-- CROSSWORD GRID -->
@@ -81,8 +81,7 @@
                 var puzzleData = JSON.parse('{{ data | safe }}');
                 var editor;
                 if (puzzleData.is_xword) editor = new CrosswordEditor();
-                if ( puzzleData.id === null ) editor.initialize("puzzle");
-                else editor.initialize("puzzle", puzzleData);
+                editor.initialize(puzzleData);
                 editor.setUnloadHandler();
             } catch(e) {
                 alert(e);

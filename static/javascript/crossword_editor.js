@@ -1,30 +1,24 @@
 class CrosswordEditor extends PuzzleEditor {
 
-    // initialize(puzzleData) {
-    //     if (puzzleData && typeof (puzzleData) !== 'object') throw new Error("Invalid puzzle data");
-    //     this._checkPageElementsExist();
-    //     this._createNewCrossword(puzzleData);
-    //     this._setupHandlers();
-    //     this._setModeHelpText();
-    //     this._setWidgetStates();
-    //     (puzzleData) ? $(this.IDs.deleteBtn).prop("disabled", false) : $(this.IDs.deleteBtn).prop("disabled", true);;
-    // }
-
-    /* THESE METHODS ARE IMPLEMENTED FROM PARENT */
+    /* THESE METHODS ARE IMPLEMENTED FROM PARENT PuzzleEditor CLASS*/
     _configureUIElements() {
         var sizeOptions = {5:"5x5", 7:"7x7", 9:"9x9", 11:"11x11", 13:"13x13", 15:"15x15"};
         this.setSizeSelector(sizeOptions, 15);
         $(this.IDs.sizeLable).text("Grid Size");
-        $(this.IDs.modeToggle).bootstrapToggle({on: "Edit Clues", off: "Edit Blocks"});
+        $(this.IDs.symmToggle).prop("disabled", true);
+        //$(this.IDs.modeToggle).bootstrapToggle({on: "Edit Clues", off: "Edit Blocks"});
     }
 
     _getPuzzleInstance(puzzleData) {
-        var gridSize = (typeof(puzzleData) === 'object') ? puzzleData.size : puzzleData;
-        this._checkGridSizeOptionExists(gridSize);
-        $(this.IDs.sizeSelect).val(gridSize);
-        return new Crossword(puzzleData);
-        // this.Xword.setClickHandler(this._cellClicked);
-        // if (puzzleData) this._loadPuzzleData(puzzleData);
+        if (puzzleData === undefined || puzzleData.id == null) {
+            var gridSize = this.getSelectedSize();
+            return new Crossword(gridSize);
+        }
+        else {
+            this._checkGridSizeOptionExists(puzzleData.size);
+            $(this.IDs.sizeSelect).val(puzzleData.size);
+            return new Crossword(puzzleData);
+        }
     }
 
     _sizeSelectionChanged = () => {
@@ -80,13 +74,6 @@ class CrosswordEditor extends PuzzleEditor {
     }
 
     /* EVENT HANDLERS */
-    // _onEnterKey = (event) => {
-    //     if (event.keyCode === 13) {
-    //         event.preventDefault();
-    //         $(this.IDs.clueUpdateBtn).click();
-    //     }
-    // }
-
     // _setModeHelpText() {
     //     var msg;
     //     var editMode = $(this.IDs.selectMode).is(":checked");
@@ -101,10 +88,10 @@ class CrosswordEditor extends PuzzleEditor {
     // }
 
     _setWidgetStates() {
-        var editMode = $(this.IDs.selectMode).is(":checked");
+        var editMode = $(this.IDs.modeToggle).is(":checked");
         if (!editMode) {
             $(this.IDs.clueForm).hide();
-            this.Xword.clearHilites();
+            this.puzzleInstance.clearHilites();
         } else {
             $(this.IDs.clueForm).show();
             this._hiliteNextAndLoadForm();
@@ -113,45 +100,45 @@ class CrosswordEditor extends PuzzleEditor {
 
     _changeGridSize() {
         this.puzzleInstance = this._getPuzzleInstance(this.getSelectedSize());
-        //this.setClickHandler(this._cellClicked);
+        this._setupPuzzleEventHandlers();
         this.puzzleInstance.show(this.puzzleDivId);
-        //$(this.IDs.sizeSelect).prop("checked", false).change();
+        this._setWidgetStates();
         //this._dataChanged();
     }
 
     _modeSelectionChanged = () => {
-        this._setModeHelpText();
+        //this._setModeHelpText();
         this._setWidgetStates();
     }
 
     _updateWordDataClicked = () => {
         var word = $(this.IDs.clueWord).val();
         var clue = $(this.IDs.clueText).val().replace(/\n/g, "");
-        var cellId = this.Xword.getFirstHilitedCellId();
-        var isAcross = this.Xword.isHiliteAcross();
+        var cellId = this.puzzleInstance.getFirstHilitedCellId();
+        var isAcross = this.puzzleInstance.isHiliteAcross();
         try {
             $(this.IDs.clueMsg).text("");
-            this.Xword.setWordData(cellId, word, clue, isAcross);
+            this.puzzleInstance.setWordData(cellId, word, clue, isAcross);
             this._hiliteNextAndLoadForm();
-            this._dataChanged();
+            //this._dataChanged();
         } catch (err) {
             $(this.IDs.clueMsg).text(err.message);
         }
     }
 
     _deleteWordDataClicked = () => {
-        var cellId = this.Xword.getFirstHilitedCellId();
-        var isAcross = this.Xword.isHiliteAcross();
-        this.Xword.deleteWordData(cellId, isAcross);
+        var cellId = this.puzzleInstance.getFirstHilitedCellId();
+        var isAcross = this.puzzleInstance.isHiliteAcross();
+        this.puzzleInstance.deleteWordData(cellId, isAcross);
         $(this.IDs.clueWord).val("");
         $(this.IDs.clueText).val("");
         $(this.IDs.clueMsg).text("");
-        this._dataChanged();
+        //this._dataChanged();
     }
 
     _saveBtnClicked = () => {
-        if (this.Xword.id === 0) $(this.IDs.deleteBtn).prop("disabled", false);
-        var reqData = JSON.stringify(this.Xword.getGridData());
+        if (this.puzzleInstance.id === 0) $(this.IDs.deleteBtn).prop("disabled", false);
+        var reqData = JSON.stringify(this.puzzleInstance.getGridData());
         $.ajax({
             method: "POST",
             data: {'action': 'save', 'data': reqData},
@@ -168,7 +155,7 @@ class CrosswordEditor extends PuzzleEditor {
         if (deleteData) {
             $.ajax({
                 method: "POST",
-                data: {'action': 'delete', 'id': this.Xword.id},
+                data: {'action': 'delete', 'id': this.puzzleInstance.id},
                 dataType: "json",
                 success: this._deleteSuccess,
                 error: this._ajaxResponseError
@@ -190,8 +177,8 @@ class CrosswordEditor extends PuzzleEditor {
     }
 
     _hiliteNextAndLoadForm() {
-        this.Xword.hiliteNextIncomplete();
-        var cellId = this.Xword.getFirstHilitedCellId();
+        this.puzzleInstance.hiliteNextIncomplete();
+        var cellId = this.puzzleInstance.getFirstHilitedCellId();
         if (cellId === null) $(this.IDs.clueForm).hide();
         else this._setupClueForm(cellId);
     }
@@ -202,7 +189,7 @@ class CrosswordEditor extends PuzzleEditor {
     }
 
     _setupClueForm(cellId) {
-        var isAcross = this.Xword.isHiliteAcross();
+        var isAcross = this.puzzleInstance.isHiliteAcross();
         var formFields = this._gatherClueFormData(cellId, isAcross);
         $(this.IDs.clueNum).text(formFields.clueRef);
         $(this.IDs.clueWord).val(formFields.word);
@@ -214,11 +201,11 @@ class CrosswordEditor extends PuzzleEditor {
 
     _gatherClueFormData(cellId, isAcross) {
         var formFields = {clueRef: null, word: "", clue: "", maxLength: null};
-        var gridWord = this.Xword.readWord(cellId, isAcross);
+        var gridWord = this.puzzleInstance.readWord(cellId, isAcross);
         formFields.maxLength = gridWord.length;
-        formFields.clueNum = this.Xword.getClueNum(cellId, isAcross);
+        formFields.clueNum = this.puzzleInstance.getClueNum(cellId, isAcross);
         formFields.clueRef = this._getClueRefText(formFields.clueNum, formFields.maxLength, isAcross);
-        var wordData = this.Xword.getWordData(cellId, isAcross);
+        var wordData = this.puzzleInstance.getWordData(cellId, isAcross);
         if (wordData === null) {
             gridWord = gridWord.replaceAll(" ", "");
             if (gridWord.length === formFields.maxLength) formFields.word = gridWord;
@@ -229,21 +216,24 @@ class CrosswordEditor extends PuzzleEditor {
         return formFields;
     }
 
-    _saveSuccess = (result) => {
+    _saveSuccessHandler = (result) => {
         if (result['error_message']) {
             alert(result['error_message']);
         } else {
-            this.Xword.id = result.id;
+            this.puzzleInstance.id = result.id;
             this._dataSaved();
         }
     }
 
-    _deleteSuccess = (result) => {
+    _deleteSuccessHandler = (result) => {
         this._dataSaved();
         window.location.replace("/");
     }
 
-    _ajaxResponseError = (jqXHR, status, error) => {
+    _saveFailureHandler = (jqXHR, status, error) => {
+        alert(error);
+    }
+    _deleteFailureHandler = (jqXHR, status, error) => {
         alert(error);
     }
 

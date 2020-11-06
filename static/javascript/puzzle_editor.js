@@ -12,7 +12,7 @@ class PuzzleEditor {
     };
     dataSaved = false;
     puzzleInstance = null;
-    puzzleDivId = null;
+    puzzleDivId = "puzzle";
 
     constructor() {
         if (this.constructor.name === "PuzzleEditor")
@@ -25,17 +25,14 @@ class PuzzleEditor {
         this.IDs[elemRef] = elemId;
     }
 
-    initialize(puzzleDivId, data) {
-        if (!puzzleDivId) throw new Error("puzzledDivId cannot be null");
-        this.puzzleDivId = puzzleDivId;
-        this.IDs.puzzleDiv = "#" + puzzleDivId;
+    initialize(puzzleData) {
         this._checkPageElementsExist();
         this._setDefaultUIState();
         this._configureUIElements();
+        this.puzzleInstance = this._getPuzzleInstance(puzzleData);
         this._setupUIEventHandlers();
-        this.puzzleInstance = this._getPuzzleInstance( this.getSelectedSize() );
         this._setupPuzzleEventHandlers();
-        this.puzzleInstance.show(puzzleDivId);
+        this.puzzleInstance.show(this.puzzleDivId);
         this._setPageTitle();
     }
 
@@ -72,14 +69,14 @@ class PuzzleEditor {
 
     _setupUIEventHandlers() {
         $(this.IDs.sizeSelect).change(this._sizeSelectionChanged);
-        // $(this.IDs.modeToggle).change(this._modeSelectionChanged);
+        $(this.IDs.modeToggle).change(this._modeSelectionChanged);
         // $(this.IDs.saveBtn).click(this._saveBtnClicked);
         // $(this.IDs.deleteBtn).click(this._deleteBtnClicked);
-        // $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
-        // $(this.IDs.clueDeleteBtn).click(this._deleteWordDataClicked)
         // $(this.IDs.doneBtn).click(this._doneBtnClicked)
-        // $(this.IDs.clueWord).keyup(this._onEnterKey);
-        // $(this.IDs.clueText).keyup(this._onEnterKey);
+        $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
+        $(this.IDs.clueDeleteBtn).click(this._deleteWordDataClicked)
+        $(this.IDs.clueWord).keyup(this._onEnterKey);
+        $(this.IDs.clueText).keyup(this._onEnterKey);
     }
 
     _setupPuzzleEventHandlers() {
