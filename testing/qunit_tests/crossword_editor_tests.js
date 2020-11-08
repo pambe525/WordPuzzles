@@ -76,11 +76,11 @@ QUnit.test('initialize: Throws error if any predefined element id is not in DOM'
 QUnit.test('initialize: Sets UI elements starting states', function (assert) {
     editor.initialize();
     assert.true($(jqSaveOkId).is(":hidden"));       // Check Icon is hidden
+    assert.false($(jqSaveBtnId).prop("disabled"));  // Save button is enabled
     assert.true($(jqDeleteBtnId).prop("disabled")); // Delete button is disabled
     assert.true($(jqClueFormId).is(":hidden"));     // Clue form is hidden
     assert.equal($(jqClueWordId).css("text-transform"), "uppercase");  // Clue entry UPPERCASED
     assert.equal($(jqShareToggleId).prop("disabled"), true);
-    assert.true($(jqSaveOkId).is(":hidden"));
 });
 
 QUnit.test('initialize: Sets page title for Crossword', function (assert) {
@@ -197,7 +197,7 @@ QUnit.test('Clue Edit Mode: By default first word is hilited and form is initial
 });
 
 QUnit.test('Clue Edit Mode: Hiliting a blank grid word sets maxlength of word input field', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     clickOnCellId("0-0");
     clickOnCellId("0-4");
@@ -210,7 +210,7 @@ QUnit.test('Clue Edit Mode: Hiliting a blank grid word sets maxlength of word in
 // Word/Clue Edit Form - Update Grid Btn tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('Clue Edit Form: Invalid input in clue form shows error message', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     clickOnCellId("0-0");
     clickOnCellId("0-4");
@@ -221,7 +221,7 @@ QUnit.test('Clue Edit Form: Invalid input in clue form shows error message', fun
 });
 
 QUnit.test('Clue Edit Form: Valid input populates grid word and word data', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     clickOnCellId(("0-0"));
     clickOnCellId(("0-4"));
@@ -235,7 +235,7 @@ QUnit.test('Clue Edit Form: Valid input populates grid word and word data', func
 });
 
 QUnit.test('Clue Edit Form: Existing stored word and clue populated in form if full word', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     $(jqModeToggleId).prop("checked", true).change();
     doClueFormInput("abcde", "clue text"); // 1 ACROSS input updated; next across hilited
@@ -245,7 +245,7 @@ QUnit.test('Clue Edit Form: Existing stored word and clue populated in form if f
 });
 
 QUnit.test('Clue Edit Form: Word is populated in form if full word is formed by letters in grid', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     $(jqModeToggleId).prop("checked", true).change();
     doClueFormInput("abcde", "clue text"); // 1 ACROSS input updated; next across hilited
@@ -257,7 +257,7 @@ QUnit.test('Clue Edit Form: Word is populated in form if full word is formed by 
 });
 
 QUnit.test('Clue Edit Form: Previous message is cleared when input is valid', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     var cells = $(jqGridId + " > div");
     $(jqModeToggleId).prop("checked", true).change();
@@ -268,7 +268,7 @@ QUnit.test('Clue Edit Form: Previous message is cleared when input is valid', fu
 });
 
 QUnit.test('Clue Edit Form: Loading new word in form clears previous message', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     $(jqModeToggleId).prop("checked", true).change();
     doClueFormInput("abc", ""); // short word - error msg
@@ -278,7 +278,7 @@ QUnit.test('Clue Edit Form: Loading new word in form clears previous message', f
 });
 
 QUnit.test('Clue Edit Form: Form is hidden when all words and clues are complete', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     $(jqModeToggleId).prop("checked", true).change();
     doClueFormInput("abcde", "clue text"); // 1 ACROSS input updated; next across hilited
@@ -297,7 +297,7 @@ QUnit.test('Clue Edit Form: Form is hidden when all words and clues are complete
 // Word/Clue Edit Form - Remove Btn tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('Clue Edit Form: Delete Btn removes word from grid', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     $(jqModeToggleId).prop("checked", true).change(); // By default hilites 1A
     clickOnCellId("0-0");                // Hilite 1D
@@ -313,7 +313,7 @@ QUnit.test('Clue Edit Form: Delete Btn removes word from grid', function (assert
 });
 
 QUnit.test('Clue Edit Form: Delete Btn clears form', function (assert) {
-    editor.initialize();  // NOTE: Grid is 5x5 by default
+    editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();
     $(jqModeToggleId).prop("checked", true).change();
     doClueFormInput("abcde", "clue 1A");
@@ -324,91 +324,94 @@ QUnit.test('Clue Edit Form: Delete Btn clears form', function (assert) {
 
 // Save Btn and state tests
 //--------------------------------------------------------------------------------------------------------------------
-// QUnit.test('Save Btn: Is enabled by default and dataSaved is false', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     assert.false($(jqSaveBtnId).prop("disabled"));
-//     assert.false(editor.dataSaved)
-// });
-//
-// QUnit.test('Save Btn: Is disabled and dataSaved is true on successful save', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     $.ajax = function(dataObj) { dataObj.success({id:1}) };
-//     $(jqSaveBtnId).click();
-//     assert.true($(jqSaveBtnId).prop("disabled"));
-//     assert.true(editor.dataSaved);
-// });
-//
-// QUnit.test('Save Btn: On first save, delete btn is enabled', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     $.ajax = function(dataObj) { dataObj.success({id:1}) };
-//     $(jqSaveBtnId).click();
-//     assert.false($(jqDeleteBtnId).prop("disabled"));
-// });
-//
-// QUnit.test('Save Btn: On successful save saved puzzle id is assigned to xword', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     assert.equal(editor.Xword.id, null);
-//     $.ajax = function(dataObj) { dataObj.success({id: 5}) };
-//     $(jqSaveBtnId).click();
-//     assert.equal(editor.Xword.id, 5);
-// });
-//
-// QUnit.test('Save Btn: Is re-enabled when a cell is blocked or unblocked', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
-//     $(jqSaveBtnId).click();   // First save the grid to disable Save btn
-//     clickOnCellId("0-0");     // Block cell
-//     assert.false($(jqSaveBtnId).prop("disabled"));
-//     assert.false(editor.dataSaved);
-//     $(jqSaveBtnId).click(); // Save again to disable Save btn
-//     assert.true($(jqSaveBtnId).prop("disabled"));
-//     assert.true(editor.dataSaved);
-//     clickOnCellId("0-0");   // Unblock cell
-//     assert.false($(jqSaveBtnId).prop("disabled"));
-//     assert.false(editor.dataSaved);
-// });
-//
-// QUnit.test('Save Btn: Is re-enabled when a word or clue is added', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
-//     $(jqSaveBtnId).click();   // First save the grid to disable Save btn
-//     $(jqModeToggleId).prop("checked", true).change();
-//     $(jqClueWordId).val("ABCDE");
-//     $(jqClueUpdateId).click();
-//     assert.false($(jqSaveBtnId).prop("disabled"));
-//     assert.false(editor.dataSaved);
-// });
-//
-// QUnit.test('Save Btn: Is re-enabled when a word is deleted', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
-//     $(jqSaveBtnId).click();   // First save the grid to disable Save btn
-//     $(jqModeToggleId).prop("checked", true).change();
-//     $(jqClueWordId).val("ABCDE");
-//     $(jqClueUpdateId).click();
-//     $(jqSaveBtnId).click();
-//     clickOnCellId("0-0");
-//     $(jqClueDeleteId).click();
-//     assert.false($(jqSaveBtnId).prop("disabled"));
-//     assert.false(editor.dataSaved);
-// });
-//
-// QUnit.test('Save Btn: Is re-enabled when grid size is changed', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
-//     $(jqSaveBtnId).click();   // First save the grid to disable Save btn
-//     $(jqSizeSelectorId).val(3).change();
-//     assert.false($(jqSaveBtnId).prop("disabled"));
-//     assert.false(editor.dataSaved);
-// });
-//
-// QUnit.test('Save Btn: After ajax returns with error message', function (assert) {
-//     editor.initialize();  // NOTE: Grid is 5x5 by default
-//     $.ajax = function(dataObj) { dataObj.success({error_message: "Error occurred"}) }; // Mock Ajax call
-//     $(jqSaveBtnId).click();   // First save the grid to disable Save btn
-//     assert.equal(alertMessage, "Error occurred");
-// });
-//
+QUnit.test('Save Btn: Is enabled by default and dataSaved is false', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    assert.false($(jqSaveBtnId).prop("disabled"));
+    assert.true($(jqSaveOkId).is(":hidden"));
+    assert.false(editor.dataSaved);
+});
+
+QUnit.test('Save Btn: Is disabled and dataSaved is true on successful save', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    $.ajax = function(dataObj) { dataObj.success({id:1}) };
+    $(jqSaveBtnId).click();
+    assert.true($(jqSaveBtnId).prop("disabled"));
+    assert.false($(jqSaveOkId).is(":hidden"));
+    assert.true(editor.dataSaved);
+});
+
+QUnit.test('Save Btn: On first save, delete btn is enabled', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    $.ajax = function(dataObj) { dataObj.success({id:1}) };
+    $(jqSaveBtnId).click();
+    assert.false($(jqDeleteBtnId).prop("disabled"));
+});
+
+QUnit.test('Save Btn: On successful save saved puzzle id is assigned to xword', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    assert.equal(editor.puzzleInstance.id, null);
+    $.ajax = function(dataObj) { dataObj.success({id: 5}) };
+    $(jqSaveBtnId).click();
+    assert.equal(editor.puzzleInstance.id, 5);
+});
+
+QUnit.test('Save Btn: Is re-enabled when a cell is blocked or unblocked', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    $.ajax = function(dataObj) { dataObj.success({id: 5}) };
+    $(jqSaveBtnId).click();   // First save the grid to disable Save btn
+    clickOnCellId("0-0");     // Block cell
+    assert.false($(jqSaveBtnId).prop("disabled"));
+    assert.false(editor.dataSaved);
+    $(jqSaveBtnId).click(); // Save again to disable Save btn
+    assert.true($(jqSaveBtnId).prop("disabled"));
+    assert.true(editor.dataSaved);
+    clickOnCellId("0-0");   // Unblock cell
+    assert.false($(jqSaveBtnId).prop("disabled"));
+    assert.true($(jqSaveOkId).is(":hidden"));
+    assert.false(editor.dataSaved);
+});
+
+QUnit.test('Save Btn: Is re-enabled when a word or clue is added', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    $.ajax = function(dataObj) { dataObj.success({id: 5}) };
+    $(jqSaveBtnId).click();   // First save the grid to disable Save btn
+    $(jqModeToggleId).prop("checked", true).change();
+    $(jqClueWordId).val("ABCDEFGHIJKLMNO");
+    $(jqClueUpdateId).click();
+    assert.false($(jqSaveBtnId).prop("disabled"));
+    assert.false(editor.dataSaved);
+});
+
+QUnit.test('Save Btn: Is re-enabled when a word is deleted', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    $.ajax = function(dataObj) { dataObj.success({id: 5}) };
+    $(jqSaveBtnId).click();   // First save the grid to disable Save btn
+    $(jqModeToggleId).prop("checked", true).change();
+    $(jqClueWordId).val("ABCDEFGHIJKLMNO");
+    $(jqClueUpdateId).click();
+    $(jqSaveBtnId).click();
+    clickOnCellId("0-0");
+    $(jqClueDeleteId).click();
+    assert.false($(jqSaveBtnId).prop("disabled"));
+    assert.false(editor.dataSaved);
+});
+
+QUnit.test('Save Btn: Is re-enabled when grid size is changed', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    $.ajax = function(dataObj) { dataObj.success({id: 5}) };
+    $(jqSaveBtnId).click();   // First save the grid to disable Save btn
+    $(jqSizeSelectorId).val(5).change();
+    assert.false($(jqSaveBtnId).prop("disabled"));
+    assert.false(editor.dataSaved);
+});
+
+QUnit.test('Save Btn: After ajax returns with error message', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    $.ajax = function(dataObj) { dataObj.success({error_message: "Error occurred"}) }; // Mock Ajax call
+    $(jqSaveBtnId).click();   // First save the grid to disable Save btn
+    assert.equal(alertMessage, "Error occurred");
+});
+
 // InitializeFromData tests
 //--------------------------------------------------------------------------------------------------------------------
 // QUnit.test('initialize(with data): Throws exception if puzzle data is not an object', function (assert) {
@@ -459,26 +462,26 @@ QUnit.test('Clue Edit Form: Delete Btn clears form', function (assert) {
 //     assert.false($(jqDeleteBtnId).prop("disabled"));
 // });
 //
-// // Delete btn tests
-// //--------------------------------------------------------------------------------------------------------------------
-// QUnit.test('Delete Btn: Show confirmation box', function (assert) {
-//     editor.initialize();
-//     $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
-//     $(jqSaveBtnId).click();   // First save the grid to enable Delete btn
-//     confirmResponse = false;                // Cancel confirmation box
-//     $(jqDeleteBtnId).click();    // Change to 3x3 grid size
-//     assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
-//     assert.equal($(jqGridId).children().length, 25)
-// });
-//
-// QUnit.test('Delete Btn: Show confirmation box (cancel)', function (assert) {
-//     editor.initialize();
-//     $.ajax = function(dataObj) { dataObj.success({puzzle_id: 5}) };
-//     $(jqSaveBtnId).click();      // First save the grid to enable Delete btn
-//     confirmResponse = false;     // Cancel confirmation box
-//     $(jqDeleteBtnId).click();
-//     assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
-//     assert.equal($(jqGridId).children().length, 25)
-// });
+// Delete btn tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test('Delete Btn: Shows confirmation box (confirm)', function (assert) {
+    editor.initialize();
+    $.ajax = function(dataObj) { dataObj.success({id: 5}) };
+    $(jqSaveBtnId).click();   // First save the grid to enable Delete btn
+    confirmResponse = true;   // Cancel confirmation box
+    $(jqDeleteBtnId).click();
+    assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
+    assert.equal($(jqPuzzleDivId).children().length, 0)
+});
+
+QUnit.test('Delete Btn: Show confirmation box (cancel)', function (assert) {
+    editor.initialize();
+    $.ajax = function(dataObj) { dataObj.success({id: 5}) };
+    $(jqSaveBtnId).click();      // First save the grid to enable Delete btn
+    confirmResponse = false;     // Cancel confirmation box
+    $(jqDeleteBtnId).click();
+    assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
+    assert.equal($(jqGridId).children().length, 225)
+});
 
 

@@ -69,6 +69,7 @@ class Crossword extends Puzzle {
         this._setGridWord(word, wordCells);
         this._setToolTip(startCellId, isAcross);
         this._setWordColor(startCellId, isAcross);
+        this._dataChanged();
     }
 
     readWord(cellId, isAcross = true) {
@@ -99,6 +100,7 @@ class Crossword extends Puzzle {
             else $(wordCells[i]).children(".xw-letter").removeClass(xyColorClass);
         }
         this._setToolTip(startCellId, isAcross);
+        this._dataChanged();
         return true;
     }
 
@@ -131,6 +133,7 @@ class Crossword extends Puzzle {
         this._toggleBlock(cellId);
         if (cellId !== symmCellId) this._toggleBlock(symmCellId);
         this._autoNumberCells();
+        this._dataChanged();
         return true;
     }
 
@@ -151,17 +154,6 @@ class Crossword extends Puzzle {
         return isAcross;
     }
 
-    // getGridData() {
-    //     var blocks = [], cells = $(this.divId+">div");
-    //     for (var i = 0; i < cells.length; i++)
-    //         if ($(cells[i]).hasClass("xw-blocked")) blocks.push(i);
-    //     blocks = blocks.toString();
-    //     return {
-    //         id: this.id, grid_size: this.size, is_ready: this._isReady(),
-    //         blocks: blocks, across: this.words.across, down: this.words.down
-    //     };
-    // }
-
     /**
      * PRIVATE METHODS IMPLEMENTED FROM PARENT CLASS PUZZLE
      */
@@ -171,10 +163,10 @@ class Crossword extends Puzzle {
 
     _loadPuzzleData() {
         var indices = this.puzzleData['blocks'].split(","), index, cellId, word, clue;
-        for (var i = 0; i < Math.ceil(indices.length / 2); i++) {
+        for (var i = 0; i < indices.length; i++) {
             index = parseInt(indices[i]);
             cellId = Math.floor(index / this.size) + "-" + (index % this.size);
-            this.toggleCellBlock(cellId);
+            this._blockCell(cellId);
         }
         for (cellId in this.puzzleData.across) {
             word = this.puzzleData.across[cellId].word;
@@ -271,7 +263,7 @@ class Crossword extends Puzzle {
             $(wordCells[i]).children(".xw-letter").text(gridWord[i]);
     }
 
-    // *** CELL METHODS
+    // *** CELL METHODS ***
     _setCellNumber(id, number) {
         var cellNumber = $("<span></span>").text(number);
         cellNumber.addClass("xw-number");
@@ -461,6 +453,11 @@ class Crossword extends Puzzle {
             $(jqCellId).addClass("xw-blocked");
             $(jqCellId + " > .xw-number").remove();
         }
+    }
+
+    _blockCell(cellId) {
+        var jqCellId = "#" + cellId;
+        $(jqCellId).addClass("xw-blocked");
     }
 
     // NOT CURRENTLY USED - MAY NEED WORK TO HANDLE TAB & SHIFT-TAB **/

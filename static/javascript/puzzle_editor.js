@@ -29,8 +29,8 @@ class PuzzleEditor {
         this._checkPageElementsExist();
         this._setDefaultUIState();
         this._configureUIElements();
-        this.puzzleInstance = this._getPuzzleInstance(puzzleData);
         this._setupUIEventHandlers();
+        this.puzzleInstance = this._getPuzzleInstance(puzzleData);
         this._setupPuzzleEventHandlers();
         this.puzzleInstance.show(this.puzzleDivId);
         this._setPageTitle();
@@ -70,8 +70,8 @@ class PuzzleEditor {
     _setupUIEventHandlers() {
         $(this.IDs.sizeSelect).change(this._sizeSelectionChanged);
         $(this.IDs.modeToggle).change(this._modeSelectionChanged);
-        // $(this.IDs.saveBtn).click(this._saveBtnClicked);
-        // $(this.IDs.deleteBtn).click(this._deleteBtnClicked);
+        $(this.IDs.saveBtn).click(this._saveBtnClicked);
+        $(this.IDs.deleteBtn).click(this._deleteBtnClicked);
         // $(this.IDs.doneBtn).click(this._doneBtnClicked)
         $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
         $(this.IDs.clueDeleteBtn).click(this._deleteWordDataClicked)
@@ -147,10 +147,30 @@ class PuzzleEditor {
         window.location.replace("/");
     }
 
+    _dataSaved() {
+        $(this.IDs.saveBtn).prop("disabled", true);
+        $(this.IDs.saveOk).prop("hidden", true);
+        this.dataSaved = true;
+    }
+
+    // This is not unit tested
+    _handleUnload = (e) => {
+        if (this.dataSaved) return;
+        var msg = "Do you really want to leave this page?"
+        if (e) e.returnValue = msg;
+        return msg;
+    }
+
     // Puzzle instance Event Handlers
     //--------------------------------------------------------------------------------------------
-    _saveSuccessHandler = (event) => {
-        throw new Error("PuzzleEditor._saveSuccessHandler method must be implemented.");
+    _saveSuccessHandler = (result) => {
+        if (result['error_message']) {
+            alert(result['error_message']);
+        } else {
+            this.puzzleInstance.id = result.id;
+            this._dataSaved();
+        }
+        this._dataSaved();
     }
 
     _deleteSuccessHandler = (event) => {
@@ -165,7 +185,7 @@ class PuzzleEditor {
         throw new Error("PuzzleEditor._deleteFailureHandler method must be implemented.");
     }
 
-    _dataChangedHandler = (event) => {
+    _dataChangedHandler = () => {
         throw new Error("PuzzleEditor._dataChangedHandler method must be implemented.");
     }
 

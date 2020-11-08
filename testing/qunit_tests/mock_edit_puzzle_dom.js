@@ -55,7 +55,7 @@ window.confirm = function (message) {
     return confirmResponse;
 }
 
-// var alertMessage = "";
-// window.alert = function (message) {
-//     alertMessage = message;
-// }
+var alertMessage = "";
+window.alert = function (message) {
+    alertMessage = message;
+}
