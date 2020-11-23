@@ -68,79 +68,12 @@ class CrosswordEditor extends PuzzleEditor {
         $(this.IDs.clueMsg).text("");
     }
 
-    _saveBtnClicked = () => {
-        if (this.puzzleInstance.id === null) $(this.IDs.deleteBtn).prop("disabled", false);
-        this.puzzleInstance.save();
-    }
-
-    _deleteBtnClicked = () => {
-        var deleteData = true;
-        var msg = "All saved data will be permanently deleted.";
-        deleteData = confirm(msg);
-        if (deleteData) this.puzzleInstance.delete();
-    }
-
-    _dataChangedHandler = () => {
-        $(this.IDs.saveBtn).prop("disabled", false);
-        this.dataSaved = false;
-    }
-
-    _deleteSuccessHandler = (result) => {
-        this._dataSaved();
-        //window.location.replace("/");
-    }
-
-    _saveFailureHandler = (jqXHR, status, error) => {
-        alert(error);
-    }
-    _deleteFailureHandler = (jqXHR, status, error) => {
-        alert(error);
-    }
-
     // PRIVATE METHODS
     //--------------------------------------------------------------------------------------------------------------------
     _checkGridSizeOptionExists(gridSize) {
         if ($(this.IDs.sizeSelect + " option[value='" + gridSize + "']").length === 0)
             throw new Error("Invalid grid size in puzzle data");
     }
-
-    // _loadPuzzleData(puzzleData) {
-    //     this.Xword.id = puzzleData.id;
-    //     var indices = puzzleData.grid_blocks.split(","), index, cellId;
-    //     for (var i = 0; i < Math.ceil(indices.length / 2); i++) {
-    //         index = parseInt(indices[i]);
-    //         cellId = Math.floor(index / puzzleData.grid_size) + "-" + (index % puzzleData.grid_size);
-    //         this.Xword.toggleCellBlock(cellId);
-    //     }
-    //     var word, clue;
-    //     for (cellId in puzzleData.across_words) {
-    //         word = puzzleData.across_words[cellId].word;
-    //         clue = puzzleData.across_words[cellId].clue;
-    //         this.Xword.setWordData(cellId, word, clue, true);
-    //     }
-    //     for (cellId in puzzleData.down_words) {
-    //         word = puzzleData.down_words[cellId].word;
-    //         clue = puzzleData.down_words[cellId].clue;
-    //         this.Xword.setWordData(cellId, word, clue, false);
-    //     }
-    //     this._dataSaved();
-    //     $(this.IDs.deleteBtn).prop("disabled", false);
-    // }
-
-
-    /* EVENT HANDLERS */
-    // _setModeHelpText() {
-    //     var msg;
-    //     var editMode = $(this.IDs.selectMode).is(":checked");
-    //     if (!editMode)
-    //         msg = "Click on a grid square to block it. Re-select to unblock. Diametrically opposite square " +
-    //             "will also be blocked or unblocked using 180 deg. rotational symmetry.";
-    //     else
-    //         msg = "Click on a square to toggle editing ACROSS or DOWN word and its clue. Clicking ENTER in " +
-    //             "the clue form updates the word & clue in grid.  Valid clue is shown as a tooltip in the grid " +
-    //             "square. RED letters indicare missing clues.  BLUE letters indicate clue is complete.";
-    //     $(this.IDs.modeTip).text(msg);
-    // }
 
     _setWidgetStates() {
         var editMode = $(this.IDs.modeToggle).is(":checked");
@@ -200,4 +133,18 @@ class CrosswordEditor extends PuzzleEditor {
         }
         return formFields;
     }
+
+    /* EVENT HANDLERS */
+    // _setModeHelpText() {
+    //     var msg;
+    //     var editMode = $(this.IDs.selectMode).is(":checked");
+    //     if (!editMode)
+    //         msg = "Click on a grid square to block it. Re-select to unblock. Diametrically opposite square " +
+    //             "will also be blocked or unblocked using 180 deg. rotational symmetry.";
+    //     else
+    //         msg = "Click on a square to toggle editing ACROSS or DOWN word and its clue. Clicking ENTER in " +
+    //             "the clue form updates the word & clue in grid.  Valid clue is shown as a tooltip in the grid " +
+    //             "square. RED letters indicare missing clues.  BLUE letters indicate clue is complete.";
+    //     $(this.IDs.modeTip).text(msg);
+    // }
 }

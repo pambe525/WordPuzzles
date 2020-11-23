@@ -82,7 +82,6 @@
                 var editor;
                 if (puzzleData.is_xword) editor = new CrosswordEditor();
                 editor.initialize(puzzleData);
-                alert(editor.puzzleInstance.dataChangedHandler)
                 editor.setUnloadHandler();
             } catch(e) {
                 alert(e);
