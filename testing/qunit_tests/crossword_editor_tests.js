@@ -420,31 +420,31 @@ QUnit.test('Save Btn: After ajax returns with error message', function (assert) 
 
 // InitializeFromData tests
 //--------------------------------------------------------------------------------------------------------------------
-// QUnit.test('initialize(with data): Throws exception if puzzle data is not an object', function (assert) {
-//     assert.throws(function () {
-//             editor.initialize(5);
-//         }, /Invalid puzzle data/, Error);
-// });
-//
-// QUnit.test('initialize(with data): Throws exception if grid size is not a valid option', function (assert) {
-//     var puzzleData = {id: 1, size: 7}
-//     assert.throws(function () {
-//             editor.initialize(puzzleData);
-//         }, /Invalid grid size in puzzle data/, Error);
-// });
-//
-// QUnit.test('initialize(with data): Creates grid using size in puzzle data', function (assert) {
-//     var puzzleData = {id: 1, size: 3, data:{blocks:""}}
-//     editor.initialize(puzzleData);
-//     assert.equal($(jqGridId).children().length, 9)
-// });
-//
-// QUnit.test('initialize(with data): Sets puzzle_id in crossword object', function (assert) {
-//     var puzzleData = {id: 28, size: 5, data:{blocks:""}};
-//     editor.initialize(puzzleData);
-//     assert.equal(editor.Xword.id, 28)
-// });
-//
+QUnit.test('initialize(with data): Throws exception if puzzle data is not an object', function (assert) {
+    assert.throws(function () {
+            editor.initialize(5);
+        }, /Invalid puzzle data/, Error);
+});
+
+QUnit.test('initialize(with data): Throws exception if grid size is not a valid option', function (assert) {
+    var puzzleData = {id: 1, size: 4}
+    assert.throws(function () {
+            editor.initialize(puzzleData);
+        }, /Invalid grid size in puzzle data/, Error);
+});
+
+QUnit.test('initialize(with data): Creates grid using size in puzzle data', function (assert) {
+    var puzzleData = {id: 1, size: 3, data:{blocks:""}}
+    editor.initialize(puzzleData);
+    assert.equal($(jqPuzzleDivId).children().length, 9)
+});
+
+QUnit.test('initialize(with data): Sets puzzle_id in crossword object', function (assert) {
+    var puzzleData = {id: 28, size: 5, data:{blocks:""}};
+    editor.initialize(puzzleData);
+    assert.equal(editor.Xword.id, 28)
+});
+
 // QUnit.test('initialize(with data): Sets blocks in grid using puzzle_data', function (assert) {
 //     var puzzleData = {id: 1, size: 5, data:{blocks: "0,2,11,12,13,22,24"}}
 //     editor.initialize(puzzleData);

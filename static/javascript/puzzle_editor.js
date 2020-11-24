@@ -26,6 +26,7 @@ class PuzzleEditor {
     }
 
     initialize(puzzleData) {
+        if (puzzleData && typeof(puzzleData) !== 'object') throw new Error("Invalid puzzle data");
         this._checkPageElementsExist();
         this._setDefaultUIState();
         this._configureUIElements();
