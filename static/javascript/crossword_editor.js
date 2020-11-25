@@ -4,7 +4,7 @@ class CrosswordEditor extends PuzzleEditor {
     _configureUIElements() {
         var sizeOptions = {5: "5x5", 7: "7x7", 9: "9x9", 11: "11x11", 13: "13x13", 15: "15x15"};
         this.setSizeSelector(sizeOptions, 15);
-        $(this.IDs.sizeLable).text("Grid Size");
+        $(this.IDs.sizeLabel).text("Grid Size");
         $(this.IDs.symmToggle).prop("disabled", true);
         //$(this.IDs.modeToggle).bootstrapToggle({on: "Edit Clues", off: "Edit Blocks"});
     }

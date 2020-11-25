@@ -16,7 +16,7 @@ class HomeView(LoginRequiredMixin, View):
         for i in range(len(puzzles)):
             last_edited = puzzles[i].modified_at.isoformat()
             share_date = None if puzzles[i].shared_at is None else puzzles[i].shared_at.isoformat()
-            dict_obj = {'puzzle_id': puzzles[i].id, 'is_xword': puzzles[i].is_xword, 'modified_at': last_edited,
+            dict_obj = {'id': puzzles[i].id, 'is_xword': puzzles[i].is_xword, 'modified_at': last_edited,
                         'is_ready': puzzles[i].is_ready, 'desc': puzzles[i].desc, 'shared_at': share_date,
                         'name': str(puzzles[i]), 'editor': str(puzzles[i].editor)}
             puzzles_list.append(dict_obj)
@@ -50,9 +50,9 @@ class EditPuzzleView(LoginRequiredMixin, View):
                 error_msg = "Puzzle id " + str(id) + " does not exist"
         return self.render_get_response(request, data_dict, error_msg)
 
-    def post(self, request):
+    def post(self, request, id=None):
         try:
-            id = None
+            # id = None
             if request.POST.get('action') == 'save':
                 data_dict = json.loads(request.POST.get('data'))
                 data_dict['data'] = json.dumps(data_dict['data'])

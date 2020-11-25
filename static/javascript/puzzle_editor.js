@@ -5,7 +5,7 @@ class PuzzleEditor {
 
     IDs = {
         title: '#page-title', saveOk: '#save-ok', saveBtn: '#save', deleteBtn: "#delete", doneBtn: "#done",
-        desc: '#desc', shared: '#share-toggle', sizeLable: '#size-label', sizeSelect: '#size',
+        desc: '#desc', shared: '#share-toggle', sizeLabel: '#size-label', sizeSelect: '#size',
         modeToggle: '#mode-toggle', symmOption: '#symm-option', symmToggle: '#symm-toggle',
         clueForm: '#clue-form', clueNum: '#clue-num', clueWord: '#clue-word', clueText: '#clue-text',
         clueMsg: '#clue-msg', clueUpdateBtn: '#clue-update', clueDeleteBtn: "#clue-delete", puzzleDiv: '#puzzle'
@@ -28,7 +28,7 @@ class PuzzleEditor {
     initialize(puzzleData) {
         if (puzzleData && typeof(puzzleData) !== 'object') throw new Error("Invalid puzzle data");
         this._checkPageElementsExist();
-        this._setDefaultUIState();
+        this._setDefaultUIState(puzzleData);
         this._configureUIElements();
         this._setupUIEventHandlers();
         this.puzzleInstance = this._getPuzzleInstance(puzzleData);
@@ -40,7 +40,6 @@ class PuzzleEditor {
     setSizeSelector(jsonData, defaultVal) {
         for (let value in jsonData)
             $(this.IDs.sizeSelect).append($("<option></option>").val(value).text(jsonData[value]));
-        //$(this.IDs.sizeSelect + " option[value='" + defaultVal + "']").attr("selected","selected");
         $(this.IDs.sizeSelect).val(defaultVal);
     }
 
@@ -55,14 +54,22 @@ class PuzzleEditor {
     /**
      * PRIVATE METHODS
      */
-    _setDefaultUIState() {
-        $(this.IDs.saveOk).hide();
-        $(this.IDs.deleteBtn).prop("disabled", "true");
+    _setDefaultUIState(puzzleData) {
+        if (puzzleData && puzzleData.id > 0) {
+            $(this.IDs.saveOk).hide();
+            $(this.IDs.saveBtn).prop("disabled", true);
+            $(this.IDs.deleteBtn).prop("disabled", false);
+        } else {
+            $(this.IDs.saveOk).hide();
+            $(this.IDs.saveBtn).prop("disabled", false);
+            $(this.IDs.deleteBtn).prop("disabled", true);
+        }
         $(this.IDs.clueForm).hide();
         $(this.IDs.clueWord).css("text-transform", "uppercase");
         $(this.IDs.shared).prop("disabled", true);
         this._setClueFormTabIndex();
     }
+
     _checkPageElementsExist() {
         for (var key in this.IDs)
             if ($(this.IDs[key]).length === 0) throw new Error(this.IDs[key] + " does not exist");
@@ -104,7 +111,8 @@ class PuzzleEditor {
     _setPageTitle() {
         var prefix = (!this.puzzleInstance.id) ? "New " : "Edit ";
         var type = (this.puzzleInstance.isXword) ? "Crossword Puzzle" : "Word Puzzle";
-        $(this.IDs.title).text(prefix + type);
+        var suffix = (!this.puzzleInstance.id) ? "" : " #"+this.puzzleInstance.id;
+        $(this.IDs.title).text(prefix + type + suffix);
     }
 
     /* The following private methods must be implemented by derived classes */
@@ -177,7 +185,7 @@ class PuzzleEditor {
     }
 
     _deleteSuccessHandler = (event) => {
-        this._dataSaved();
+        //this._dataSaved();
         window.location.replace("/");
     }
 
@@ -186,7 +194,7 @@ class PuzzleEditor {
     }
 
     _deleteFailureHandler = (jqXHR, status, error) => {
-        alert(error);
+        alert(status);
     }
 
     _dataChangedHandler = () => {

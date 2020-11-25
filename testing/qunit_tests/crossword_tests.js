@@ -57,7 +57,7 @@ QUnit.test('BASE constructor: Sets size from puzzleData if passed as argument', 
 });
 
 QUnit.test("BASE constructor: With puzzleData updates puzzleId", function(assert) {
-  var puzzleData = {id: 23, size: 5, blocks:"", across:{}, down:{}};
+  var puzzleData = {id: 23, size: 5, data:{blocks:"", across:{}, down:{}}};
   var puzzle = new Crossword(puzzleData);
   assert.equal(puzzle.id, 23);
 });
@@ -130,7 +130,7 @@ QUnit.test('BASE show: Auto-numbers grid with blocks added', function(assert) {
 });
 
 QUnit.test("BASE show: With puzzleData loads blocks into the grid", function(assert) {
-  var puzzleData = {puzzle_id: 10, size: 5, blocks:"0,4,20,24", across:{}, down:{}};
+  var puzzleData = {puzzle_id: 10, size: 5, data:{blocks:"0,4,20,24", across:{}, down:{}}};
   var xword = createXWord(puzzleData);
   var blockedCells = $(jqGridId + ">.xw-blocked");
   assert.equal(blockedCells.length, 4);
@@ -142,8 +142,8 @@ QUnit.test("BASE show: With puzzleData loads blocks into the grid", function(ass
 
 QUnit.test("BASE show: With puzzleData loads words as data", function(assert) {
   var puzzleData = {
-    puzzle_id: 10, size: 5, blocks:"0,4,20,24", across:{"0-1":{word:"pin",clue:"clue for pin"},
-    "1-0":{word:"trial", clue:""}}, down:{"0-1":{word:"prime", clue:"clue for prime"}}
+    puzzle_id: 10, size: 5, data:{blocks:"0,4,20,24", across:{"0-1":{word:"pin",clue:"clue for pin"},
+    "1-0":{word:"trial", clue:""}}, down:{"0-1":{word:"prime", clue:"clue for prime"}}}
   };
   var xword = createXWord(puzzleData);
   assert.equal(Object.keys(xword.words.across).length, 2);

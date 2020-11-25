@@ -193,6 +193,7 @@ class EditPuzzleViewTests(TestCase):
         record = self.create_new_puzzle_record(size=10, shared_at=timestamp)  # first create a record
         response = self.client.get("/edit_puzzle/" + str(record.id) + "/")
         puzzle_data = json.loads(response.context['data'])
+        self.assertEqual(record.id, puzzle_data['id'])
         self.assertEqual(record.size, puzzle_data['size'])
         self.assertEqual(record.is_ready, puzzle_data['is_ready'])
         self.assertEqual(record.is_xword, puzzle_data['is_xword'])
@@ -236,13 +237,13 @@ class EditPuzzleViewTests(TestCase):
         self.assertEqual(json.loads(records[0].data)['down'], expected_data['data']['down'])
 
     def test_POST_delete_action_raises_error_if_record_does_not_exist(self):
-        data={'action':'delete', 'id': 2}
+        data={'action':'delete', 'id': '2'}
         response = self.client.post(reverse('new_xword_puzzle'), data=data)
         self.assertIn("does not exist", response.json()["error_message"])
 
     def test_POST_delete_action_deletes_record(self):
         record = self.create_new_puzzle_record()
-        data = {'action': 'delete', 'id': record.id}
+        data = {'action': 'delete', 'id': str(record.id)}
         self.client.post(reverse('new_xword_puzzle'), data=data)
         records = Puzzle.objects.get_queryset()
         self.assertEqual(len(records), 0)

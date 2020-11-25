@@ -26,7 +26,7 @@ SECRET_KEY = 'r@xeq$3-#$55t-ohlk+lp&p+u2t(a5gu39c=9(%valjyla^x0e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["pambe.pythonanywhere.com", "localhost"]
+ALLOWED_HOSTS = ["pambe.pythonanywhere.com", "localhost", "127.0.0.1"]
 
 
 # Application definition

@@ -418,6 +418,13 @@ QUnit.test('Save Btn: After ajax returns with error message', function (assert) 
     assert.equal(alertMessage, "Error occurred");
 });
 
+QUnit.test('Save Btn: Saves description and share setting', function (assert) {
+    editor.initialize();  // NOTE: Grid is 15x15 by default
+    mockAjaxMethod(1, "Error occurred");
+    $(jqSaveBtnId).click();   // First save the grid to disable Save btn
+    assert.equal(alertMessage, "Error occurred");
+});
+
 // InitializeFromData tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('initialize(with data): Throws exception if puzzle data is not an object', function (assert) {
@@ -434,40 +441,40 @@ QUnit.test('initialize(with data): Throws exception if grid size is not a valid 
 });
 
 QUnit.test('initialize(with data): Creates grid using size in puzzle data', function (assert) {
-    var puzzleData = {id: 1, size: 3, data:{blocks:""}}
+    var puzzleData = {id: 1, size: 5, data:{blocks:""}}
     editor.initialize(puzzleData);
-    assert.equal($(jqPuzzleDivId).children().length, 9)
+    assert.equal($(jqPuzzleDivId).children().length, 25)
 });
 
 QUnit.test('initialize(with data): Sets puzzle_id in crossword object', function (assert) {
     var puzzleData = {id: 28, size: 5, data:{blocks:""}};
     editor.initialize(puzzleData);
-    assert.equal(editor.Xword.id, 28)
+    assert.equal(editor.puzzleInstance.id, 28)
 });
 
-// QUnit.test('initialize(with data): Sets blocks in grid using puzzle_data', function (assert) {
-//     var puzzleData = {id: 1, size: 5, data:{blocks: "0,2,11,12,13,22,24"}}
-//     editor.initialize(puzzleData);
-//     var blocked_cells = $(jqGridId).children(".xw-blocked");
-//     assert.equal(blocked_cells.length, 7);
-//     var blocked_ids = ["0-0", "0-2", "2-1", "2-2", "2-3", "4-2", "4-4"];
-//     for (var i = 0; i < blocked_cells.length; i++)
-//         assert.true(blocked_ids.includes(blocked_cells[i].id));
-// });
-//
-// QUnit.test('initialize(with data): Sets words in grid using puzzle_data', function (assert) {
-//     var puzzleData = {id: 1, size: 5, data:{blocks: "", across:{}, down:{}}}
-//     editor.initialize(puzzleData);
-//     assert.true(true);
-// });
-//
-// QUnit.test('initialize(with data): Disables Save btn and enables Delete btn on load', function (assert) {
-//     var puzzleData = {id: 1, size: 5, data:{blocks: "", across:{}, down:{}}}
-//     editor.initialize(puzzleData);
-//     assert.true($(jqSaveBtnId).prop("disabled"));
-//     assert.false($(jqDeleteBtnId).prop("disabled"));
-// });
-//
+QUnit.test('initialize(with data): Sets blocks in grid using puzzle_data', function (assert) {
+    var puzzleData = {id: 1, size: 5, data:{blocks: "0,2,11,12,13,22,24"}}
+    editor.initialize(puzzleData);
+    var blocked_cells = $(jqPuzzleDivId).children(".xw-blocked");
+    assert.equal(blocked_cells.length, 7);
+    var blocked_ids = ["0-0", "0-2", "2-1", "2-2", "2-3", "4-2", "4-4"];
+    for (var i = 0; i < blocked_cells.length; i++)
+        assert.true(blocked_ids.includes(blocked_cells[i].id));
+});
+
+QUnit.test('initialize(with data): Disables Save btn and enables Delete btn on load', function (assert) {
+    var puzzleData = {id: 1, size: 5, data:{blocks: "", across:{}, down:{}}}
+    editor.initialize(puzzleData);
+    assert.true($(jqSaveBtnId).prop("disabled"));
+    assert.false($(jqDeleteBtnId).prop("disabled"));
+});
+
+QUnit.test('initialize(with data): Sets correct page title using puzzle id', function (assert) {
+    var puzzleData = {id: 3, size: 5, data:{blocks: "", across:{}, down:{}}}
+    editor.initialize(puzzleData);
+    assert.equal($(jqPageTitleId).text(), "Edit Crossword Puzzle #3");
+});
+
 // Delete btn tests
 //--------------------------------------------------------------------------------------------------------------------
 // QUnit.test('Delete Btn: Shows confirmation box (confirm)', function (assert) {

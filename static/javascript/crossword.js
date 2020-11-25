@@ -162,20 +162,20 @@ class Crossword extends Puzzle {
     }
 
     _loadPuzzleData() {
-        var indices = this.puzzleData['blocks'].split(","), index, cellId, word, clue;
+        var indices = this.puzzleData.data.blocks.split(","), index, cellId, word, clue;
         for (var i = 0; i < indices.length; i++) {
             index = parseInt(indices[i]);
             cellId = Math.floor(index / this.size) + "-" + (index % this.size);
             this._blockCell(cellId);
         }
-        for (cellId in this.puzzleData.across) {
-            word = this.puzzleData.across[cellId].word;
-            clue = this.puzzleData.across[cellId].clue;
+        for (cellId in this.puzzleData.data.across) {
+            word = this.puzzleData.data.across[cellId].word;
+            clue = this.puzzleData.data.across[cellId].clue;
             this.setWordData(cellId, word, clue, true);
         }
-        for (cellId in this.puzzleData.down) {
-            word = this.puzzleData.down[cellId].word;
-            clue = this.puzzleData.down[cellId].clue;
+        for (cellId in this.puzzleData.data.down) {
+            word = this.puzzleData.data.down[cellId].word;
+            clue = this.puzzleData.data.down[cellId].clue;
             this.setWordData(cellId, word, clue, false);
         }
     }
