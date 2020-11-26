@@ -16,6 +16,8 @@
     <div class="p-1">
         <label class="h6" for="desc">Description: </label><br />
         <input class="mb-2" id="desc" type="text" style="width:100%" />
+    </div>
+    <div id="share-form" class="p-1">
         <span class="h6">Share Puzzle: </span>
         <label class="switch">
             <input id="share-toggle" type="checkbox">
@@ -25,17 +27,22 @@
               title="Enabled only after clues are complete. Save your setting to activate it.">
             <i class="fa fa-question-circle fa-lg"></i>
         </span>
-        <small class="text-muted">Makes puzzle immediately accessible to all registered users</small>
+        <small class="text-muted">Makes puzzle accessible to users</small>
     </div>
 
     <!-- NAVBAR WITH SIZE SELECTION, RESET AND SAVE -->
     <div class="row bg-light border border-secondary rounded-lg shadow-sm p-2 m-0" style="width:100%">
-        <label id="size-label" class="h6 mt-2" for="size">Size:</label>
+        <label id="size-label" class="h6 mt-2" for="size"></label>
         <select id="size" class="h6 ml-2 col custom-select border border-secondary"></select>
         <label for="mode-toggle" class="h6 ml-2 mt-2 mr-2">Mode:</label>
-        <input id="mode-toggle" type="checkbox" data-toggle="toggle" data-width=110 data-height=28
+        <input id="mode-toggle" type="checkbox" data-toggle="toggle" data-width=110 data-height=26
                data-onstyle="warning" data-offstyle="dark" data-off="Edit Blocks" data-on="Edit Clues" />
-        <span class="ml-2 mt-1" id="symm-option">
+        <span class="h6 mt-2 ml-2">Share Puzzle: </span>
+        <label class="switch mt-1 ml-2">
+            <input id="share-toggle" type="checkbox">
+            <span class="slider round"></span>
+        </label>
+        <span class="ml-2 mt-1" id="symm-option" style="display:none">
             <label class="h6 ml-2" for="symm-toggle">Symmetry:</label>
             <label class="switch">
                 <input id="symm-toggle" type="checkbox" checked>

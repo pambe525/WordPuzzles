@@ -6,6 +6,7 @@ const jqFixtureId = "#qunit-fixture";
 const pageTitleId = "page-title", jqPageTitleId = "#" + pageTitleId;
 const saveOkId = "save-ok", jqSaveOkId = "#" + saveOkId;
 const descId = "desc", jqDescId = "#" + descId;
+const shareFormId = "share-form", jqShareFormId = "#" + shareFormId;
 const shareToggleId = "share-toggle", jqShareToggleId = "#" + shareToggleId;
 const saveBtnId = "save", jqSaveBtnId = "#" + saveBtnId;
 const deleteBtnId = "delete", jqDeleteBtnId = "#" + deleteBtnId;
@@ -32,20 +33,22 @@ function setupDOM() {
     $(jqFixtureId).append($("<button></button>").attr('id', deleteBtnId));
     $(jqFixtureId).append($("<button></button>").attr('id', doneBtnId));
     $(jqFixtureId).append($("<input type='text'>").attr('id', descId));
-    $(jqFixtureId).append($("<input type='checkbox'>").attr('id', shareToggleId));
+    var form1 = $("<div></div>").attr('id', shareFormId);
+    $(jqFixtureId).append(form1);
+    form1.append($("<input type='checkbox'>").attr('id', shareToggleId));
     $(jqFixtureId).append($("<label></label>").attr('id', sizeLabelId));
     $(jqFixtureId).append($("<select></select>").attr('id', sizeSelectorId));
     $(jqFixtureId).append($("<input type='checkbox'>").attr('id', modeToggleId));
     $(jqFixtureId).append($("<div></div>").attr('id', symmOptionId));
     $(jqFixtureId).append($("<input type='checkbox'>").attr('id', symmToggleId));
-    var form = $("<div></div>").attr("id", clueFormId);
-    $(jqFixtureId).append(form);
-    form.append($("<span></span>").attr("id", clueNumId));
-    form.append($("<input type='text'>").attr("id", clueWordId));
-    form.append($("<textarea></textarea>").attr("id", clueTextId));
-    form.append($("<span></span>").attr("id", clueMsgId));
-    form.append($("<button></button>").attr("id", clueUpdateId));
-    form.append($("<button></button>").attr("id", clueDeleteId));
+    var form2 = $("<div></div>").attr("id", clueFormId);
+    $(jqFixtureId).append(form2);
+    form2.append($("<span></span>").attr("id", clueNumId));
+    form2.append($("<input type='text'>").attr("id", clueWordId));
+    form2.append($("<textarea></textarea>").attr("id", clueTextId));
+    form2.append($("<span></span>").attr("id", clueMsgId));
+    form2.append($("<button></button>").attr("id", clueUpdateId));
+    form2.append($("<button></button>").attr("id", clueDeleteId));
 }
 
 // MOCK FUNCTIONS TO REPLACE WINDOWS FUNCTIONS

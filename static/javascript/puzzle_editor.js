@@ -5,8 +5,8 @@ class PuzzleEditor {
 
     IDs = {
         title: '#page-title', saveOk: '#save-ok', saveBtn: '#save', deleteBtn: "#delete", doneBtn: "#done",
-        desc: '#desc', shared: '#share-toggle', sizeLabel: '#size-label', sizeSelect: '#size',
-        modeToggle: '#mode-toggle', symmOption: '#symm-option', symmToggle: '#symm-toggle',
+        desc: '#desc', shareForm: '#share-form', shared: '#share-toggle', sizeLabel: '#size-label',
+        sizeSelect: '#size', modeToggle: '#mode-toggle', symmOption: '#symm-option', symmToggle: '#symm-toggle',
         clueForm: '#clue-form', clueNum: '#clue-num', clueWord: '#clue-word', clueText: '#clue-text',
         clueMsg: '#clue-msg', clueUpdateBtn: '#clue-update', clueDeleteBtn: "#clue-delete", puzzleDiv: '#puzzle'
     };
@@ -162,7 +162,6 @@ class PuzzleEditor {
     }
 
     _dataSaved() {
-        // $(this.IDs.saveBtn).prop("disabled", true);
         $(this.IDs.saveOk).show(400, this._hideIcon);
         this.dataSaved = true;
     }
