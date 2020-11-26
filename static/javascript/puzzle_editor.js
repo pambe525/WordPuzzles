@@ -146,6 +146,8 @@ class PuzzleEditor {
 
     _saveBtnClicked = () => {
         if (this.puzzleInstance.id === null) $(this.IDs.deleteBtn).prop("disabled", false);
+        this.puzzleInstance.desc = $(this.IDs.desc).text();
+        this.puzzleInstance.setShared( $(this.IDs.shared).prop("checked") );
         this.puzzleInstance.save();
     }
 
@@ -160,9 +162,13 @@ class PuzzleEditor {
     }
 
     _dataSaved() {
-        $(this.IDs.saveBtn).prop("disabled", true);
-        $(this.IDs.saveOk).prop("hidden", false);
+        // $(this.IDs.saveBtn).prop("disabled", true);
+        $(this.IDs.saveOk).show(400, this._hideIcon);
         this.dataSaved = true;
+    }
+
+    _hideIcon = () => {
+        $(this.IDs.saveOk).fadeOut(3000);
     }
 
     // This is not unit tested

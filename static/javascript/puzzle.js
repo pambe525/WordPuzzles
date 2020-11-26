@@ -73,7 +73,12 @@ class Puzzle {
         })
      }
 
-     /* THESE HANDLERS MUST BE SET BY CLIENT EDITORS */
+    setShared(isShared) {
+        if ( isShared ) this.sharedAt = new Date().toUTCString();
+        else this.sharedAt = null;
+    }
+
+    /* THESE HANDLERS MUST BE SET BY CLIENT EDITORS */
     setDataChangedHandler(handlerFunc) {
         this.dataChangedHandler = handlerFunc;
     }

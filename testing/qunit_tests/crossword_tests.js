@@ -1063,3 +1063,12 @@ QUnit.test("isReady: Returns true when grid with blocks is complete", function(a
   assert.equal(xword.isReady(), true);
 });
 
+// setShared tests
+//--------------------------------------------------------------------------------------------------------------------
+QUnit.test("setShared: When true sets sharedAt attribute to current time stamp", function(assert) {
+  var xword = createXWord(3);
+  xword.setShared(true);
+  assert.equal(xword.sharedAt, new Date().toUTCString());
+  xword.setShared(false);
+  assert.equal(xword.sharedAt, null);
+});
