@@ -4,11 +4,11 @@
 class PuzzleEditor {
 
     IDs = {
-        title: '#page-title', saveOk: '#save-ok', saveBtn: '#save', deleteBtn: "#delete", doneBtn: "#done",
-        desc: '#desc', shareForm: '#share-form', shared: '#share-toggle', sizeLabel: '#size-label',
-        sizeSelect: '#size', modeToggle: '#mode-toggle', symmOption: '#symm-option', symmToggle: '#symm-toggle',
-        clueForm: '#clue-form', clueNum: '#clue-num', clueWord: '#clue-word', clueText: '#clue-text',
-        clueMsg: '#clue-msg', clueUpdateBtn: '#clue-update', clueDeleteBtn: "#clue-delete", puzzleDiv: '#puzzle'
+        title: '#page-title', saveOk: '#save-ok', saveBtn: '#save', deleteBtn: "#delete", homeBtn: "#home",
+        desc: '#desc', shareBtn: '#share', sizeLabel: '#size-label', sizeSelect: '#size', modeToggle: '#mode-toggle',
+        symmOption: '#symm-option', symmToggle: '#symm-toggle', clueForm: '#clue-form', clueNum: '#clue-num',
+        clueWord: '#clue-word', clueText: '#clue-text', clueMsg: '#clue-msg', clueUpdateBtn: '#clue-update',
+        clueDeleteBtn: "#clue-delete", puzzleDiv: '#puzzle'
     };
     dataSaved = false;
     puzzleInstance = null;
@@ -66,7 +66,7 @@ class PuzzleEditor {
         }
         $(this.IDs.clueForm).hide();
         $(this.IDs.clueWord).css("text-transform", "uppercase");
-        $(this.IDs.shared).prop("disabled", true);
+        $(this.IDs.shareBtn).prop("disabled", true);
         this._setClueFormTabIndex();
     }
 
@@ -80,7 +80,7 @@ class PuzzleEditor {
         $(this.IDs.modeToggle).change(this._modeSelectionChanged);
         $(this.IDs.saveBtn).click(this._saveBtnClicked);
         $(this.IDs.deleteBtn).click(this._deleteBtnClicked);
-        $(this.IDs.doneBtn).click(this._doneBtnClicked)
+        $(this.IDs.homeBtn).click(this._homeBtnClicked)
         $(this.IDs.clueUpdateBtn).click(this._updateWordDataClicked);
         $(this.IDs.clueDeleteBtn).click(this._deleteWordDataClicked)
         $(this.IDs.clueWord).keyup(this._onEnterKey);
@@ -157,7 +157,7 @@ class PuzzleEditor {
         if (deleteData) this.puzzleInstance.delete();
     }
 
-    _doneBtnClicked = () => {
+    _homeBtnClicked = () => {
         window.location.replace("/");
     }
 

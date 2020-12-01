@@ -86,7 +86,7 @@ QUnit.test('initialize: Sets UI elements starting states', function (assert) {
     assert.true($(jqDeleteBtnId).prop("disabled")); // Delete button is disabled
     assert.true($(jqClueFormId).is(":hidden"));     // Clue form is hidden
     assert.equal($(jqClueWordId).css("text-transform"), "uppercase");  // Clue entry UPPERCASED
-    assert.equal($(jqShareToggleId).prop("disabled"), true);
+    assert.equal($(jqShareBtnId).prop("disabled"), true);
 });
 
 QUnit.test('initialize: Sets page title for Crossword', function (assert) {
@@ -421,10 +421,10 @@ QUnit.test('Save Btn: Saves description of puzzle', function (assert) {
 QUnit.test('Save Btn: Saves share setting when true', function (assert) {
     editor.initialize();  // NOTE: Grid is 15x15 by default
     mockAjaxMethod(1);
-    $(jqShareToggleId).prop("checked", true);
+    $(jqShareBtnId).prop("checked", true);
     $(jqSaveBtnId).click();   // First save the grid
     assert.equal(editor.puzzleInstance.sharedAt, new Date().toUTCString());
-    $(jqShareToggleId).prop("checked", false);
+    $(jqShareBtnId).prop("checked", false);
     $(jqSaveBtnId).click();   // Save the grid
     assert.equal(editor.puzzleInstance.sharedAt, null);
 });

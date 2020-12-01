@@ -6,11 +6,10 @@ const jqFixtureId = "#qunit-fixture";
 const pageTitleId = "page-title", jqPageTitleId = "#" + pageTitleId;
 const saveOkId = "save-ok", jqSaveOkId = "#" + saveOkId;
 const descId = "desc", jqDescId = "#" + descId;
-const shareFormId = "share-form", jqShareFormId = "#" + shareFormId;
-const shareToggleId = "share-toggle", jqShareToggleId = "#" + shareToggleId;
+const shareBtnId = "share", jqShareBtnId = "#" + shareBtnId;
 const saveBtnId = "save", jqSaveBtnId = "#" + saveBtnId;
 const deleteBtnId = "delete", jqDeleteBtnId = "#" + deleteBtnId;
-const doneBtnId = "done", jqDoneBtnId = "#" + doneBtnId;
+const homeBtnId = "home", jqHomeBtnId = "#" + homeBtnId;
 const sizeLabelId = "size-label", jqSizeLabelId = "#" + sizeLabelId;
 const sizeSelectorId = "size", jqSizeSelectorId = "#" + sizeSelectorId;
 const modeToggleId = "mode-toggle", jqModeToggleId = "#" + modeToggleId;
@@ -26,16 +25,14 @@ const clueDeleteId = "clue-delete", jqClueDeleteId = "#" + clueDeleteId;
 const puzzleDivId = "puzzle", jqPuzzleDivId = "#" + puzzleDivId
 
 function setupDOM() {
+    $(jqFixtureId).append($("<button></button>").attr('id', homeBtnId));
     $(jqFixtureId).append($("<div></div>").attr('id', puzzleDivId));
     $(jqFixtureId).append($("<h3></h3>").attr('id', pageTitleId));
     $(jqFixtureId).append($("<span></span>").attr('id', saveOkId));
     $(jqFixtureId).append($("<button></button>").attr('id', saveBtnId));
     $(jqFixtureId).append($("<button></button>").attr('id', deleteBtnId));
-    $(jqFixtureId).append($("<button></button>").attr('id', doneBtnId));
+    $(jqFixtureId).append($("<button></button>").attr('id', shareBtnId));
     $(jqFixtureId).append($("<input type='text'>").attr('id', descId));
-    var form1 = $("<div></div>").attr('id', shareFormId);
-    $(jqFixtureId).append(form1);
-    form1.append($("<input type='checkbox'>").attr('id', shareToggleId));
     $(jqFixtureId).append($("<label></label>").attr('id', sizeLabelId));
     $(jqFixtureId).append($("<select></select>").attr('id', sizeSelectorId));
     $(jqFixtureId).append($("<input type='checkbox'>").attr('id', modeToggleId));
