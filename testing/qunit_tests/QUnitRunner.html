@@ -9,20 +9,48 @@
   <body>
     <div id="qunit"></div>
     <div id="qunit-fixture"></div>
+
     <script src="https://code.jquery.com/qunit/qunit-2.11.2.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sinon.js/9.0.3/sinon.min.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
-    <!-- CODE UNDER TEST -->
+    <script>
+        const { test } = QUnit;
+        QUnit.config.autostart = false;
+        QUnit.config.collapse = true;
+
+        QUnit.config.hidepassed = true;
+
+        $(document).ready(function(){
+            loadFixtureHtml("edit_puzzle.html");
+        });
+
+        function loadFixtureHtml(templateFileName) {
+            var url = "../../templates/" + templateFileName;
+            $.ajax({
+                url: url,
+                dataType: "html",
+                success: function (data) {
+                    var html = $.parseHTML(data);
+                    var elemsWithId = $(html).find("*[id]");
+                    $("#qunit-fixture").append(elemsWithId);
+                    QUnit.start();
+                }
+            });
+        }
+    </script>
+
+    <script src="test.js"></script>
+<!--
     <script src="../../static/javascript/puzzle.js"></script>
     <script src="../../static/javascript/crossword.js"></script>
     <script src="../../static/javascript/puzzle_editor.js"></script>
     <script src="../../static/javascript/crossword_editor.js"></script>
 
-    <!-- UNIT TESTS -->
     <script src="mock_edit_puzzle_dom.js"></script>
     <script src="crossword_tests.js"></script>
     <script src="crossword_editor_tests.js"></script>
+-->
   </body>
 </html>

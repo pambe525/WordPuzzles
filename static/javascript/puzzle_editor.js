@@ -5,14 +5,18 @@ class PuzzleEditor {
 
     IDs = {
         title: '#page-title', saveOk: '#save-ok', saveBtn: '#save', deleteBtn: "#delete", homeBtn: "#home",
-        desc: '#desc', shareBtn: '#share', sizeLabel: '#size-label', sizeSelect: '#size', modeToggle: '#mode-toggle',
-        symmOption: '#symm-option', symmToggle: '#symm-toggle', clueForm: '#clue-form', clueNum: '#clue-num',
-        clueWord: '#clue-word', clueText: '#clue-text', clueMsg: '#clue-msg', clueUpdateBtn: '#clue-update',
+        desc: '#desc', shareBtn: '#share', sizeLabel: '#size-label', sizeSelect: '#size', toggle1: '#toggle-1',
+        toggle2: '#toggle-2', clueForm: '#clue-form', clueNum: '#clue-num', clueWord: '#clue-word',
+        clueText: '#clue-text', clueMsg: '#clue-msg', clueUpdateBtn: '#clue-update',
         clueDeleteBtn: "#clue-delete", puzzleDiv: '#puzzle'
     };
     dataSaved = false;
     puzzleInstance = null;
     puzzleDivId = "puzzle";
+
+    static getPuzzleEditorInstance(puzzleData) {
+
+    }
 
     constructor() {
         if (this.constructor.name === "PuzzleEditor")
