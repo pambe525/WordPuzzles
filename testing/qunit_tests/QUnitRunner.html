@@ -17,27 +17,31 @@
 
     <script>
         const { test } = QUnit;
-        QUnit.config.autostart = false;
+        QUnit.config.autostart = true;
         QUnit.config.collapse = true;
-
         QUnit.config.hidepassed = true;
+        QUnit.config.fixture = null;
 
-        $(document).ready(function(){
-            loadFixtureHtml("edit_puzzle.html");
-        });
+   //     $(document).ready(function(){
+   //         var elemsWithIds = getElementsWithIdsFrom("edit_puzzle.html");
+   //         $("#qunit-fixture").append(elemsWithIds);
+   //         QUnit.start();
+   //     });
 
-        function loadFixtureHtml(templateFileName) {
-            var url = "../../templates/" + templateFileName;
+        function getElementsWithIdsFrom(templateFileName) {
+            var elemsWithIds = null;
+            var path = "../../templates/" + templateFileName;
             $.ajax({
-                url: url,
-                dataType: "html",
+                url: path,
+                type: 'get',
+                dataType: 'html',
+                async: false,
                 success: function (data) {
                     var html = $.parseHTML(data);
-                    var elemsWithId = $(html).find("*[id]");
-                    $("#qunit-fixture").append(elemsWithId);
-                    QUnit.start();
+                    elemsWithIds = $(html).find("*[id]");
                 }
             });
+            return elemsWithIds;
         }
     </script>
 
