@@ -15,38 +15,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sinon.js/9.0.3/sinon.min.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
-    <script>
-        const { test } = QUnit;
-        QUnit.config.autostart = true;
-        QUnit.config.collapse = true;
-        QUnit.config.hidepassed = true;
-        QUnit.config.fixture = null;
+    <script src="QUnitSetup.js"></script>
 
-   //     $(document).ready(function(){
-   //         var elemsWithIds = getElementsWithIdsFrom("edit_puzzle.html");
-   //         $("#qunit-fixture").append(elemsWithIds);
-   //         QUnit.start();
-   //     });
+    <!-- SUT FILES -->
+    <script src="../../static/javascript/puzzle_edit_view.js"></script>
+    <script src="../../static/javascript/crossword_controller.js"></script>
 
-        function getElementsWithIdsFrom(templateFileName) {
-            var elemsWithIds = null;
-            var path = "../../templates/" + templateFileName;
-            $.ajax({
-                url: path,
-                type: 'get',
-                dataType: 'html',
-                async: false,
-                success: function (data) {
-                    var html = $.parseHTML(data);
-                    elemsWithIds = $(html).find("*[id]");
-                }
-            });
-            return elemsWithIds;
-        }
-    </script>
+    <!-- TESTS -->
+    <script src="crossword_controller_tests.js"></script>
 
-    <script src="test.js"></script>
-<!--
+    <!--
     <script src="../../static/javascript/puzzle.js"></script>
     <script src="../../static/javascript/crossword.js"></script>
     <script src="../../static/javascript/puzzle_editor.js"></script>
@@ -55,6 +33,6 @@
     <script src="mock_edit_puzzle_dom.js"></script>
     <script src="crossword_tests.js"></script>
     <script src="crossword_editor_tests.js"></script>
--->
+    -->
   </body>
 </html>

@@ -14,21 +14,6 @@ class PuzzleEditor {
     puzzleInstance = null;
     puzzleDivId = "puzzle";
 
-    static getPuzzleEditorInstance(puzzleData) {
-
-    }
-
-    constructor() {
-        if (this.constructor.name === "PuzzleEditor")
-            throw new Error("Abstract Class PuzzleEditor cannot be instantiated");
-    }
-
-    setElementId(elemRef, elemId) {
-        if (this.IDs[elemRef] === undefined) throw new Error("Invalid element reference " + elemRef);
-        if ($("#" + elemId).length === 0) throw new Error("Element id " + elemId + " not found");
-        this.IDs[elemRef] = elemId;
-    }
-
     initialize(puzzleData) {
         if (puzzleData && typeof(puzzleData) !== 'object') throw new Error("Invalid puzzle data");
         this._checkPageElementsExist();

@@ -40,92 +40,8 @@ QUnit.module('CrosswordEditor', {
     },
 });
 
-// setElementId tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test('setElementId: Throws exception if element reference key is incorrect', function (assert) {
-    assert.throws(function () {
-            editor.setElementId("wrongkey", "selectorId");
-        },
-        /Invalid element reference wrongkey/, Error);
-});
 
-QUnit.test('setElementId: Throws exception if given id does not exist in DOM', function (assert) {
-    assert.throws(function () {
-            editor.setElementId("sizeSelect", "selectorId");
-        },
-        /Element id selectorId not found/, Error);
-});
 
-QUnit.test('setElementId: Sets element id correctly if it exists', function (assert) {
-    editor.setElementId("sizeSelect", "mode-toggle");
-    assert.equal(editor.IDs.sizeSelect, "mode-toggle");
-});
-
-// setSizeSelector and getSelectedSize tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test('setSizeSelector: Sets select options for size', function (assert) {
-    var jsonData = {1: "Option1", 2: "Option2", 3: "Option 3"};
-    editor.setSizeSelector(jsonData, 2);
-    assert.equal($(editor.IDs.sizeSelect + ">option").length, 3);
-    assert.equal(editor.getSelectedSize(), 2);
-});
-
-// initialize tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test('initialize: Throws error if any predefined element id is not in DOM', function (assert) {
-    editor.IDs.sizeSelect = "noElemId";
-    assert.throws(function () {
-        editor.initialize();
-    }, /noElemId does not exist/, Error);
-});
-
-QUnit.test('initialize: Sets UI elements starting states', function (assert) {
-    editor.initialize();
-    assert.true($(jqSaveOkId).is(":hidden"));       // Check Icon is hidden
-    assert.false($(jqSaveBtnId).prop("disabled"));  // Save button is enabled
-    assert.true($(jqDeleteBtnId).prop("disabled")); // Delete button is disabled
-    assert.true($(jqClueFormId).is(":hidden"));     // Clue form is hidden
-    assert.equal($(jqClueWordId).css("text-transform"), "uppercase");  // Clue entry UPPERCASED
-    assert.equal($(jqShareBtnId).prop("disabled"), true);
-});
-
-QUnit.test('initialize: Sets page title for Crossword', function (assert) {
-    editor.initialize();
-    assert.equal($(jqPageTitleId).text(), "New Crossword Puzzle");
-});
-
-QUnit.test('initialize: Sets labels & state specific to Crossword', function (assert) {
-    editor.initialize();
-    assert.equal($(jqSizeLabelId).text(), "Grid Size");
-    assert.equal($(jqSymmToggleId).prop("disabled"), true);
-    //assert.equal($(jqModeToggleId).attr("data-off"), "Edit Blocks");
-    //assert.equal($(jqModeToggleId).attr("data-on"), "Edit Clues");
-});
-
-QUnit.test('initialize: Creates grid using default size of 15', function (assert) {
-    assert.equal($(jqPuzzleDivId).children().length, 0);
-    editor.initialize();
-    assert.equal($(jqPuzzleDivId).children().length, 225)
-});
-
-// Grid Size Selection change tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test('Grid Size change redraws grid to new size', function (assert) {
-    editor.initialize();
-    assert.equal($(jqPuzzleDivId + " > div").length, 225);
-    $(jqSizeSelectorId).val(5).change();
-    assert.equal($(jqPuzzleDivId + " > div").length, 25);
-});
-
-QUnit.test('Grid Size change switches to Block edit mode', function (assert) {
-    editor.initialize();
-    assert.equal($(jqPuzzleDivId + " > div").length, 225);
-    assert.false($(jqModeToggleId).is(":checked"));
-    $(jqModeToggleId).prop("checked", true).change();  // Toggle edit mode
-    assert.true($(jqModeToggleId).is(":checked"));
-    $(jqSizeSelectorId).val(5).change();  // 5x5 grid size
-    assert.false($(jqModeToggleId).is(":checked"));
-});
 
 QUnit.test('Grid Size change prompts for confirmation if grid has data', function (assert) {
     editor.initialize();
@@ -151,12 +67,7 @@ QUnit.test('Event: Grid Size change redraws new grid if confirmed', function (as
 
 // Blocks Edit Mode tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test('Block Edit Mode: Switching to block edit shows clue edit form', function (assert) {
-    editor.initialize();
-    $(jqModeToggleId).prop("checked", true).change();
-    assert.false($(jqClueFormId).is(":hidden"));
-    assert.true($(jqPuzzleDivId + "> div").hasClass("xw-hilited"));
-});
+
 
 QUnit.test('Block Edit Mode: Switching back to block edit clears hilites', function (assert) {
     editor.initialize();

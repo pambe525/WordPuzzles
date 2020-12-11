@@ -32,6 +32,7 @@ class Puzzle {
     /**
      * PUBLIC METHODS
      */
+
     show(divId) {
         this.divId = "#"+divId;
         $(this.divId).empty();

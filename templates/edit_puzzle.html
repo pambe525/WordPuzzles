@@ -5,11 +5,11 @@
     <button id="home" class="btn btn-sm mb-2 btn-primary rounded-lg"><< Back to Home Page</button>
     <div class="row m-0">
         <h4 class="col p-0" id="page-title"></h4>
-        <i id="save-ok" class="mr-2 fa fa-check-circle fa-2x" style="color:green; display:none"></i>
+        <i id="save-ok" class="m-1 fa fa-check-circle fa-lg" style="color:green"></i>
         <div style="height:30px">
             <button id="save" class="btn btn-sm ml-1 btn-primary rounded-lg">SAVE</button>
             <button id="delete" class="btn btn-sm ml-1 btn-danger rounded-lg">DELETE</button>
-            <button id="share" class="btn btn-sm ml-1 btn-primary rounded-lg">PUBLISH</button>
+            <button id="publish" class="btn btn-sm ml-1 btn-primary rounded-lg">PUBLISH</button>
         </div>
     </div>
 
@@ -22,31 +22,29 @@
     <!-- NAVBAR WITH SIZE SELECTION, RESET AND SAVE -->
     <div class="row bg-light border border-secondary rounded-lg m-0 pt-2 pl-2" style="width:100%">
         <label id="size-label" class="h6 pt-2" for="size"></label>
-        <select id="size" class="h6 ml-2 col-2 border border-secondary"></select>
+        <select id="size" class="h6 ml-2 col-* text-secondary"></select>
         <label for="mode-toggle" class="h6 ml-3 mt-2 mr-2">Edit</label>
        	<div class="switch-field">
-		    <input type="radio" id="toggle-1" value="blocks" checked/>
-		    <label for="radio-one">Blocks</label>
-		    <input type="radio" id="toggle-2" value="clues" />
-		    <label for="radio-two">Clues</label>
+		    <input type="radio" id="radio-1" value="radio-1" name="switch" checked />
+            <label id="radio1-label" for="radio-1"></label>
+		    <input type="radio" id="radio-2" value="radio-2" name="switch" />
+            <label id="radio2-label" for="radio-2"></label>
 	    </div>
     </div>
 
     <div class="m-0 mt-2" style="width:100%">
         <!-- WORD & CLUE INPUT FORM -->
-        <div id="clue-form" class="row m-0 p-2 pb-1" style="width:100%; border:1px solid darkgray;
-            border-radius:5px; background-color: lightyellow; display: none">
-            <div style="width:150px">
-                <label for="clue-word" id="clue-num" class="h6">TEXT</label><br />
-                <input id="clue-word" class="form-control" type="text"/><br />
-            </div>
-            <div class="ml-2">
-                <label for="clue-text" class="h6">Enter Clue</label><br />
-                <textarea id="clue-text" cols="25"></textarea>
-            </div>
-            <div class="ml-2">
-                <button id="clue-update" class="mt-2 p-2 badge badge-dark">Update</button><br />
-                <button id="clue-delete" class="mt-2 p-2 badge badge-danger">Remove</button>
+        <div id="clue-form" class="p-2" style="width:100%; border:1px solid darkgray;
+            border-radius:5px; background-color: lightyellow;">
+            <div class="m-0 row">
+                <label for="clue-word" id="clue-num" class="col-* h6 mt-2"></label>
+                <input id="clue-word" class="col ml-2 pl-2" type="text" style="text-transform:uppercase;" />
+                <button id="clue-update" class="col-* ml-2 pl-2 pr-2 badge badge-dark">Update</button>
+                <button id="clue-delete" class="col-* ml-2 pl-2 pr-2 badge badge-danger">Remove</button>
+           </div>
+            <div class="row m-0 mt-2">
+                <label for="clue-text" class="h6">Enter Clue:</label><br />
+                <textarea id="clue-text" class="col ml-2 pl-2" cols="25"></textarea>
             </div>
             <div id="clue-msg" class="h6 red-text"></div>
         </div>
@@ -55,10 +53,14 @@
         <div class="m-1 mt-3" id="puzzle"></div>
     </div>
 
+    <script src="{% static '/javascript/puzzle_edit_view.js' %}"></script>
+    <script src="{% static '/javascript/crossword_controller.js' %}"></script>
+    <!--
     <script src="{% static '/javascript/puzzle.js' %}"></script>
     <script src="{% static '/javascript/puzzle_editor.js' %}"></script>
     <script src="{% static '/javascript/crossword_editor.js' %}"></script>
     <script src="{% static '/javascript/crossword.js' %}"></script>
+    -->
 
     <script>
         $.ajaxSetup({
@@ -67,10 +69,11 @@
         $(document).ready(function() {
             try {
                 var puzzleData = JSON.parse('{{ data | safe }}');
-                var editor;
-                if (puzzleData.is_xword) editor = new CrosswordEditor();
-                editor.initialize(puzzleData);
-                editor.setUnloadHandler();
+                puzzleData.size =15;
+                var editor = new CrosswordController().initialize(puzzleData);
+                //if (puzzleData.is_xword) editor = new CrosswordEditor();
+                //editor.initialize(puzzleData);
+                //editor.setUnloadHandler();
             } catch(e) {
                 alert(e);
             }
