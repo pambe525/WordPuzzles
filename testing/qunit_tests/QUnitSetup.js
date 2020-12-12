@@ -48,8 +48,8 @@ function mockAlert(alertMessage) {
     window.alert = function(message) { alertMessage = message; }
 }
 
-function mockAjax(ajaxSettings) {
-    $.ajax = function(settings) { ajaxSettings = settings; }
-}
+var ajaxSettings = null;
+$.ajax = function(settings) { ajaxSettings = settings; }
+
 
 

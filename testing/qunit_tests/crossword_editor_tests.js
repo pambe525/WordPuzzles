@@ -40,9 +40,6 @@ QUnit.module('CrosswordEditor', {
     },
 });
 
-
-
-
 QUnit.test('Grid Size change prompts for confirmation if grid has data', function (assert) {
     editor.initialize();
     clickOnCellId("1-0");   // Set a block
@@ -67,7 +64,6 @@ QUnit.test('Event: Grid Size change redraws new grid if confirmed', function (as
 
 // Blocks Edit Mode tests
 //--------------------------------------------------------------------------------------------------------------------
-
 
 QUnit.test('Block Edit Mode: Switching back to block edit clears hilites', function (assert) {
     editor.initialize();
