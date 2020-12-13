@@ -18,10 +18,9 @@ class CrosswordController {
         if (puzzleData == null) throw new Error("Puzzle data is required for initialization");
         this.id = puzzleData.id;
         this.size = puzzleData.size;
-        this.#setAsNew(puzzleData.size);
+        this.#view.initialize();
         this.#view.setSize(puzzleData.size);
         this.#setXWordGrid(puzzleData.size);
-        this.#view.bindHandlers(this);
     }
 
     #setXWordGrid(size) {
@@ -39,20 +38,63 @@ class CrosswordController {
     onSizeChange = () => {
         this.#setXWordGrid(this.#view.getSize());
         this.#view.setRadio1();
+        this.#view.hideClueForm();
     }
 
     onSwitchChange = () => {
         (this.#view.getRadioChecked() === "radio-2") ?
-            this.#view.showClueForm() : this.#view.hideClueForm();
+            this.#view.hideClueForm(false) : this.#view.hideClueForm();
     }
 
     onSaveClick = () => {
+        this.desc = this.#view.getDesc();
         let data = {is_xword: true, id: this.id, size: this.size, desc: this.desc, shared_at: this.sharedAt};
         $.ajax({
             method: "POST",
             dataType: "json",
             data: {'action':'save', 'data': JSON.stringify(data)},
+            success: this.onSaveSuccess,
+            error: this.onSaveError,
         });
-     }
+    }
+
+    onSaveSuccess = (result) => {
+        if (result['error_message'] !== undefined && result['error_message'] !== "") {
+            alert(result['error_message']);
+        } else {
+            this.id = result.id;
+            this.#view.showSaveOKIcon();
+            this.#view.disableDelete(false);
+        }
+    }
+
+    onSaveError = (xhr, status, error) => {
+        alert(error);
+    }
+
+    onDeleteClick = () =>{
+        var msg = "All saved data will be permanently deleted.";
+        var response = confirm(msg);
+        if ( !response ) return;
+        $.ajax({
+            method: "POST",
+            dataType: "json",
+            data: {action: 'delete', id: this.id},
+            success: this.onDeleteSuccess,
+            error: this.onDeleteError,
+        });
+    }
+
+    onDeleteSuccess = (result) => {
+        window.location.replace("/");
+    }
+
+    onDeleteError = (xhr, status, error) => {
+        alert(error);
+    }
+
+    onBeforeUnload = (e) => {
+
+    }
 }
 

@@ -18,22 +18,28 @@ class PuzzleEditView {
         $(this.#ID.jqSaveOkIcon).prop("hidden", true);
     }
 
+    initialize() {
+        $(this.#ID.jqTitle).text("New Crossword Puzzle");
+        this.disableDelete();
+        this.disablePublish();
+        this.hideClueForm();
+        this.bindHandlers();
+    }
+
     bindHandlers() {
         $("input[type=radio][name='switch']").change(this.#controller.onSwitchChange);
         $(this.#ID.jqSizeSelect).change(this.#controller.onSizeChange);
         $(this.#ID.jqSaveBtn).click(this.#controller.onSaveClick);
+        $(this.#ID.jqDeleteBtn).click(this.#controller.onDeleteClick);
+        $(window).on('beforeunload', this.#controller.onBeforeUnload);
     }
 
-    setTitle() {
-        $(this.#ID.jqTitle).text("New Crossword Puzzle");
+    disableDelete(disable=true) {
+        (disable) ? $(this.#ID.jqDeleteBtn).prop("disabled", true) : $(this.#ID.jqDeleteBtn).prop("disabled", false);
     }
 
-    disableDelete() {
-        $(this.#ID.jqDeleteBtn).prop("disabled", true);
-    }
-
-    disablePublish() {
-        $(this.#ID.jqPublishBtn).prop("disabled", true);
+    disablePublish(disable=true) {
+        (disable) ? $(this.#ID.jqPublishBtn).prop("disabled", true) : $(this.#ID.jqPublishBtn).prop("disabled", false);
     }
 
     setRadio1() {
@@ -48,12 +54,8 @@ class PuzzleEditView {
         return $("input[name='switch']:checked").val();
     }
 
-    hideClueForm() {
-        $(this.#ID.jqClueForm).prop("hidden", true);
-    }
-
-    showClueForm() {
-        $(this.#ID.jqClueForm).prop("hidden", false);
+    hideClueForm(hide=true) {
+        (hide) ? $(this.#ID.jqClueForm).hide() : $(this.#ID.jqClueForm).show();
     }
 
     setSizeSelector(sizeOptions) {
@@ -72,5 +74,17 @@ class PuzzleEditView {
     setPuzzle(puzzleObj) {
         $(this.#ID.jqPuzzleDiv).empty();
         $(this.#ID.jqPuzzleDiv).append(puzzleObj);
+    }
+
+    getDesc() {
+        return $(this.#ID.jqDesc).text();
+    }
+
+    showSaveOKIcon() {
+        $(this.#ID.jqSaveOkIcon).show(0, this.hideSaveOKIcon);
+    }
+
+    hideSaveOKIcon = () => {
+        $(this.#ID.jqSaveOkIcon).fadeOut(3000);
     }
 }
