@@ -3,20 +3,16 @@
     font-size: 14px;
     font-weight: bold;
 }
-
 html {
     font-size: 14px;
 }
-
 .red-text {
     font-size: 12px;
     color: red;
 }
-
 textarea {
     resize: none;
 }
-
 button, .btn {
     padding-left: 12px; !important;
     padding-right: 12px; !important;
@@ -90,13 +86,14 @@ button, .btn {
 
 .switch-field label {
 	background-color: #e4e4e4;
+    box-sizing: border-box;
 	color: rgba(0, 0, 0, 0.6);
 	font-size: 14px;
     font-weight: bold;
 	line-height: 1;
 	text-align: center;
 	padding: 8px 16px;
-	margin-right: -0.5px;
+	margin-right: 0;
 	border: 1px solid rgba(0, 0, 0, 0.5);
 	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5), 0 2px rgba(255, 255, 255, 0.1);
 	transition: all 0.1s ease-in-out;

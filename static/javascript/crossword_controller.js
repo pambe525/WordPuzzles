@@ -1,53 +1,35 @@
 class CrosswordController {
 
-    #view = new PuzzleEditView(this);
+    view = new PuzzleEditView(this);
     sizeOptions = {5: "5x5", 7: "7x7", 9: "9x9", 11: "11x11", 13: "13x13", 15: "15x15", 17: "17x17"};
     xwordGrid = null;
     id = 0;
-    size = 0;
+    size = 15;
     sharedAt = null;
     desc = "";
-    acrossWords = {};
-    downWords = {};
+    across = {};
+    down = {};
+    dataSaved = false;
 
     constructor() {
-        this.#view.setSizeSelector(this.sizeOptions);
+        this.view.setSizeSelector(this.sizeOptions);
     }
 
     initialize(puzzleData) {
         if (puzzleData == null) throw new Error("Puzzle data is required for initialization");
         this.id = puzzleData.id;
-        this.size = puzzleData.size;
-        this.#view.initialize();
-        this.#view.setSize(puzzleData.size);
-        this.#setXWordGrid(puzzleData.size);
+        if (puzzleData.size !== undefined) this.size = puzzleData.size;
+        this.desc = puzzleData.desc;
+        this.view.initialize();
     }
 
-    #setXWordGrid(size) {
+    getPuzzle(size) {
         this.xwordGrid = new XWordGrid(size);
-        this.#view.setPuzzle(this.xwordGrid.getGridObj());
-    }
-
-    #setAsNew() {
-        this.#view.setTitle("New Crossword Puzzle");
-        this.#view.disableDelete();
-        this.#view.disablePublish();
-        this.#view.hideClueForm();
-    }
-
-    onSizeChange = () => {
-        this.#setXWordGrid(this.#view.getSize());
-        this.#view.setRadio1();
-        this.#view.hideClueForm();
-    }
-
-    onSwitchChange = () => {
-        (this.#view.getRadioChecked() === "radio-2") ?
-            this.#view.hideClueForm(false) : this.#view.hideClueForm();
+        return this.xwordGrid;
     }
 
     onSaveClick = () => {
-        this.desc = this.#view.getDesc();
+        this.desc = this.view.getDesc();
         let data = {is_xword: true, id: this.id, size: this.size, desc: this.desc, shared_at: this.sharedAt};
         $.ajax({
             method: "POST",
@@ -63,8 +45,9 @@ class CrosswordController {
             alert(result['error_message']);
         } else {
             this.id = result.id;
-            this.#view.showSaveOKIcon();
-            this.#view.disableDelete(false);
+            this.view.showSaveOKIcon();
+            this.view.disableDelete(false);
+            this.dataSaved = true;
         }
     }
 
@@ -93,8 +76,5 @@ class CrosswordController {
         alert(error);
     }
 
-    onBeforeUnload = (e) => {
-
-    }
 }
 

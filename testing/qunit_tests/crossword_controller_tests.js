@@ -5,10 +5,16 @@ function getGridCells() {
     return $("#puzzle > div").children("div");
 }
 
+function saveData(responseData) {
+    ajaxSettings = null;
+    $("#save").click();
+    ajaxSettings.success(responseData);
+}
+
 var controller = null;
 
 /* ----------------------------------------------------------------------------------------------------------*/
-QUnit.module("New Crossword", {
+QUnit.module("Crossword CRUD", {
     beforeEach: function () {
         setupFixture(EditPuzzlePageHtml);
         controller = new CrosswordController();
@@ -37,26 +43,37 @@ test("Initialization without puzzleData throws error", function (assert) {
     )
 });
 
-test("initialize sets title and initial state of widgets", function (assert) {
-    let puzzleData = {id: 0, size: 5}
-    controller.initialize(puzzleData);
-    assert.equal($("#page-title").text(), "New Crossword Puzzle");
-    assert.equal($("#delete").prop("disabled"), true);
-    assert.equal($("#publish").prop("disabled"), true);
-    assert.true($("#clue-form").is(":hidden"));
-    assert.equal($("#radio-1").prop("checked"), true);
-});
-
-test("Initialize sets grid size dropdown and given size", function (assert) {
+test("Initialization sets specified grid size in dropdown", function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
     assert.equal($("#size").val(), puzzleData.size);
 });
 
-test('Initialize creates grid using specified size in data', function (assert) {
+test('Initialization creates grid using specified size in data', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
     assert.equal(getGridCells().length, 25);
+});
+
+test("New puzzle initialization sets correct title and state of widgets", function (assert) {
+    let puzzleData = {id: 0, size: 5};
+    controller.initialize(puzzleData);
+    assert.equal($("#page-title").text(), "New Crossword");
+    assert.true($("#delete").prop("disabled"));
+    assert.true($("#publish").prop("disabled"));
+    assert.true($("#clue-form").is(":hidden"));
+    assert.true($("#radio-1").prop("checked"));
+});
+
+test("Existing puzzle initialization sets correct title and state of widgets", function (assert) {
+    let puzzleData = {id: 10, size: 5, desc:"xword 10"};     // ID=10 indicates exisiting puzzle edit
+    controller.initialize(puzzleData);
+    assert.equal($("#page-title").text(), "Edit Crossword #10");
+    assert.false($("#delete").prop("disabled"));
+    assert.true($("#publish").prop("disabled"));
+    assert.equal($("#desc").text(), "xword 10");
+    assert.true($("#clue-form").is(":hidden"));
+    assert.true($("#radio-1").prop("checked"));
 });
 
 test('Grid Size change redraws grid to new size', function (assert) {
@@ -66,7 +83,7 @@ test('Grid Size change redraws grid to new size', function (assert) {
     assert.equal(getGridCells().length, 49);
 });
 
-test('Grid Size change in Clues edit mode switches to Block edit and hides form', function (assert) {
+test('Grid Size change in Clues mode switches to Block mode and hides form', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
     let radio2 = $("#radio-2");
@@ -92,7 +109,7 @@ test('Switching back to Block edit mode hides clue edit form', function (assert)
     assert.true($("#clue-form").is(":hidden"));
 });
 
-test('Saving data includes basic data in ajax call', function (assert) {
+test('Saving data includes basic data in ajax call for new xword', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
     $("#save").click();
@@ -102,6 +119,21 @@ test('Saving data includes basic data in ajax call', function (assert) {
     assert.equal(ajaxSettings.data.action, "save");
     assert.equal(ajaxData.id, puzzleData.id);
     assert.equal(ajaxData.size, puzzleData.size);
+    assert.equal(ajaxData.is_xword, true);
+    assert.equal(ajaxData.shared_at, null);
+});
+
+test('Saving data includes basic data in ajax call for existing xword', function (assert) {
+    let puzzleData = {id: 10, size: 5, desc: "xword #10"}
+    controller.initialize(puzzleData);
+    $("#save").click();
+    let ajaxData = JSON.parse(ajaxSettings.data.data);
+    assert.equal(ajaxSettings.method, "POST");
+    assert.equal(ajaxSettings.dataType, "json");
+    assert.equal(ajaxSettings.data.action, "save");
+    assert.equal(ajaxData.id, puzzleData.id);
+    assert.equal(ajaxData.size, puzzleData.size);
+    assert.equal(ajaxData.desc, puzzleData.desc);
     assert.equal(ajaxData.is_xword, true);
     assert.equal(ajaxData.shared_at, null);
 });
@@ -119,8 +151,7 @@ test('Saving data includes desc in ajax call', function (assert) {
 test('Saving data successfully enables delete button', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
-    $("#save").click();
-    ajaxSettings.success({});
+    saveData({});
     assert.equal($("#delete").prop("disabled"), false);
     assert.false($("#save-ok").is(":hidden"));
 });
@@ -129,9 +160,8 @@ test('Saving data a second time includes puzzle id', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
     let saveBtn = $("#save");
-    saveBtn.click();   // First save (id=0) as new puzzle
-    ajaxSettings.success({id: 10, error_message:""});
-    saveBtn.click();   // Second save - id should be updated from first save
+    saveData({id: 10, error_message:""});  // First save with id=0, as new puzzle
+    saveData({});                          // Second save - id should be updated from first save
     let ajaxData = JSON.parse(ajaxSettings.data.data);
     assert.equal(ajaxData.id, 10);
 });
@@ -139,10 +169,8 @@ test('Saving data a second time includes puzzle id', function (assert) {
 test('Saving data with a trapped error message displays error', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
-    $("#save").click();
     let msg = "Trapped error";
-    alertMessage = null;
-    ajaxSettings.success({error_message:msg});
+    saveData({error_message:msg});
     assert.equal(alertMessage, msg);
     assert.equal($("#save-ok").is(":hidden"), true);
     assert.equal($("#delete").prop("disabled"), true);
@@ -171,8 +199,7 @@ test('Delete shows confirmation box before deleting. Cancel takes no action.', f
 test('Delete confirmation makes ajax call to delete puzzle', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
-    $("#save").click();          // First save the grid to enable Delete btn
-    ajaxSettings.success({id:15});
+    saveData({id:15});           // First save the grid to enable Delete btn
     confirmResponse = true;      // Confirm delete
     $("#delete").click();
     assert.equal(ajaxSettings.method, "POST");
@@ -192,4 +219,33 @@ test('Delete with system error displays alert message', function (assert) {
     ajaxSettings.error(null, null, msg);
     assert.equal(alertMessage, msg);
 });
+
+test('dataSaved is true after saving data', function (assert) {
+    let puzzleData = {id: 0, size: 5}
+    controller.initialize(puzzleData);
+    assert.false(controller.dataSaved);
+    saveData({});
+    assert.true(controller.dataSaved);
+});
+
+test('dataSaved is false after description is changed', function (assert) {
+    let puzzleData = {id: 0, size: 5}
+    controller.initialize(puzzleData);
+    saveData({});
+    $("#desc").text("Some text").change();
+    assert.false(controller.dataSaved);
+});
+
+test('dataSaved is false after grid is reset', function (assert) {
+    let puzzleData = {id: 0, size: 5}
+    controller.initialize(puzzleData);
+    saveData({});
+    $("#size").val(7).change();
+    assert.false(controller.dataSaved);
+});
+
+// TEST: existing puzzle initialization sets clues edit mode if words/clues exist
+// TEST: existing puzzle initialization loads data, blocks and words into grid
+
+
 

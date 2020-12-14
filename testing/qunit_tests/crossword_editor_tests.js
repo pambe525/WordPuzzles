@@ -225,19 +225,6 @@ QUnit.test('Clue Edit Form: Delete Btn clears form', function (assert) {
 
 // Save Btn and state tests
 //--------------------------------------------------------------------------------------------------------------------
-QUnit.test('Save Btn: dataSaved is false by default', function (assert) {
-    editor.initialize();  // NOTE: Grid is 15x15 by default
-    assert.true($(jqSaveOkId).is(":hidden"));
-    assert.false(editor.dataSaved);
-});
-
-QUnit.test('Save Btn: dataSaved is true on successful save', function (assert) {
-    editor.initialize();  // NOTE: Grid is 15x15 by default
-    mockAjaxMethod(1);
-    $(jqSaveBtnId).click();
-    assert.false($(jqSaveOkId).prop("hidden"));
-    assert.true(editor.dataSaved);
-});
 
 QUnit.test('Save Btn: dataSaved is false when a cell is blocked or unblocked', function (assert) {
     editor.initialize();  // NOTE: Grid is 15x15 by default
@@ -272,14 +259,6 @@ QUnit.test('Save Btn: dataSaved is false when a word is deleted', function (asse
     $(jqSaveBtnId).click();
     clickOnCellId("0-0");
     $(jqClueDeleteId).click();
-    assert.false(editor.dataSaved);
-});
-
-QUnit.test('Save Btn: dataSaved is false when grid size is changed', function (assert) {
-    editor.initialize();  // NOTE: Grid is 15x15 by default
-    mockAjaxMethod(5);
-    $(jqSaveBtnId).click();   // First save the grid
-    $(jqSizeSelectorId).val(5).change();
     assert.false(editor.dataSaved);
 });
 

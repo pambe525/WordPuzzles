@@ -2,8 +2,8 @@
 {% block content %}
 <div style="width:500px">
     {% load static %}
-    <button id="home" class="btn btn-sm mb-2 btn-primary rounded-lg"><< Back to Home Page</button>
-    <div class="row m-0">
+    <a id="home" href="/"><< Back to Home Page</a>
+    <div class="row m-0 mt-2">
         <h4 class="col p-0" id="page-title"></h4>
         <i id="save-ok" class="m-1 fa fa-check-circle fa-lg" style="color:green"></i>
         <div style="height:30px">
@@ -22,9 +22,9 @@
     <!-- NAVBAR WITH SIZE SELECTION, RESET AND SAVE -->
     <div class="row bg-light border border-secondary rounded-lg m-0 pt-2 pl-2" style="width:100%">
         <label id="size-label" class="h6 pt-2" for="size"></label>
-        <select id="size" class="h6 ml-2 col-* text-secondary"></select>
+        <select id="size" class="h6 ml-2 col text-secondary form-control"></select>
         <label for="mode-toggle" class="h6 ml-3 mt-2 mr-2">Edit</label>
-       	<div class="switch-field">
+       	<div class="switch-field mr-3">
 		    <input type="radio" id="radio-1" value="radio-1" name="switch" checked />
             <label id="radio1-label" for="radio-1"></label>
 		    <input type="radio" id="radio-2" value="radio-2" name="switch" />
@@ -71,11 +71,7 @@
         $(document).ready(function() {
             try {
                 var puzzleData = JSON.parse('{{ data | safe }}');
-                puzzleData.size =15;
-                var editor = new CrosswordController().initialize(puzzleData);
-                //if (puzzleData.is_xword) editor = new CrosswordEditor();
-                //editor.initialize(puzzleData);
-                //editor.setUnloadHandler();
+                new CrosswordController().initialize(puzzleData);
             } catch(e) {
                 alert(e);
             }

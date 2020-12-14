@@ -1,5 +1,5 @@
 class PuzzleEditView {
-    #ID = {
+    ID = {
         jqHomeBtn: "#home", jqTitle: '#page-title', jqSaveOkIcon: '#save-ok', jqSaveBtn: '#save',
         jqDeleteBtn: "#delete", jqPublishBtn: '#publish', jqDesc: '#desc', jqSizeLabel: '#size-label',
         jqSizeSelect: '#size', jqRadio1: '#radio-1', jqRadio1Label: "#radio1-label",
@@ -8,83 +8,97 @@ class PuzzleEditView {
         jqClueMsg: '#clue-msg', jqClueUpdateBtn: '#clue-update', jqClueDeleteBtn: "#clue-delete",
         jqPuzzleDiv: '#puzzle'
     };
-    #controller = null;
+    controller = null;
 
     constructor(controller) {
-        this.#controller = controller;
-        $(this.#ID.jqSizeLabel).text("Grid Size");
-        $(this.#ID.jqRadio1Label).text("Blocks");
-        $(this.#ID.jqRadio2Label).text("Clues");
-        $(this.#ID.jqSaveOkIcon).prop("hidden", true);
+        this.controller = controller;
+        $(this.ID.jqSizeLabel).text("Grid Size");
+        $(this.ID.jqRadio1Label).text("Blocks");
+        $(this.ID.jqRadio2Label).text("Clues");
+        $(this.ID.jqSaveOkIcon).prop("hidden", true);
     }
 
     initialize() {
-        $(this.#ID.jqTitle).text("New Crossword Puzzle");
-        this.disableDelete();
+        let title = (this.controller.id === 0) ?
+            "New Crossword" : "Edit Crossword #" + this.controller.id;
+        $(this.ID.jqTitle).text(title);
+        (this.controller.id === 0) ? this.disableDelete() : this.disableDelete(false);
         this.disablePublish();
         this.hideClueForm();
+        if (this.controller.id > 0) $(this.ID.jqDesc).text(this.controller.desc);
+        let size = this.controller.size;
+        $(this.ID.jqSizeSelect).val(size);
+        this.setPuzzle(this.controller.getPuzzle(size));
         this.bindHandlers();
     }
 
     bindHandlers() {
-        $("input[type=radio][name='switch']").change(this.#controller.onSwitchChange);
-        $(this.#ID.jqSizeSelect).change(this.#controller.onSizeChange);
-        $(this.#ID.jqSaveBtn).click(this.#controller.onSaveClick);
-        $(this.#ID.jqDeleteBtn).click(this.#controller.onDeleteClick);
-        $(window).on('beforeunload', this.#controller.onBeforeUnload);
+        $("input[type=radio][name='switch']").change(this.onSwitchChange);
+        $(this.ID.jqSizeSelect).change(this.onSizeChange);
+        $(this.ID.jqSaveBtn).click(this.controller.onSaveClick);
+        $(this.ID.jqDeleteBtn).click(this.controller.onDeleteClick);
+        $(this.ID.jqDesc).change(this.onDescChange);
+        $(window).on('beforeunload', this.onBeforeUnload);
     }
 
     disableDelete(disable=true) {
-        (disable) ? $(this.#ID.jqDeleteBtn).prop("disabled", true) : $(this.#ID.jqDeleteBtn).prop("disabled", false);
+        if (disable) $(this.ID.jqDeleteBtn).prop("disabled", true);
+        else $(this.ID.jqDeleteBtn).prop("disabled", false);
     }
 
     disablePublish(disable=true) {
-        (disable) ? $(this.#ID.jqPublishBtn).prop("disabled", true) : $(this.#ID.jqPublishBtn).prop("disabled", false);
-    }
-
-    setRadio1() {
-        $(this.#ID.jqRadio1).prop("checked", true);
-    }
-
-    setRadio2() {
-        $(this.#ID.jqRadio2).prop("checked", true);
-    }
-
-    getRadioChecked() {
-        return $("input[name='switch']:checked").val();
+        if (disable) $(this.ID.jqPublishBtn).prop("disabled", true);
+        else $(this.ID.jqPublishBtn).prop("disabled", false);
     }
 
     hideClueForm(hide=true) {
-        (hide) ? $(this.#ID.jqClueForm).hide() : $(this.#ID.jqClueForm).show();
+        if (hide) $(this.ID.jqClueForm).hide();
+        else $(this.ID.jqClueForm).show();
     }
 
     setSizeSelector(sizeOptions) {
-        for (var key in sizeOptions)
-            $(this.#ID.jqSizeSelect).append($("<option></option>").val(key).text(sizeOptions[key]));
-    }
-
-    setSize(size) {
-        $(this.#ID.jqSizeSelect).val(size);
-    }
-
-    getSize() {
-        return parseInt($(this.#ID.jqSizeSelect).val());
+        Object.keys(sizeOptions).forEach (key => {
+            $(this.ID.jqSizeSelect).append($("<option></option>").val(key).text(sizeOptions[key]));
+        });
     }
 
     setPuzzle(puzzleObj) {
-        $(this.#ID.jqPuzzleDiv).empty();
-        $(this.#ID.jqPuzzleDiv).append(puzzleObj);
+        $(this.ID.jqPuzzleDiv).empty();
+        $(this.ID.jqPuzzleDiv).append(puzzleObj);
     }
 
     getDesc() {
-        return $(this.#ID.jqDesc).text();
+        return $(this.ID.jqDesc).text();
     }
 
     showSaveOKIcon() {
-        $(this.#ID.jqSaveOkIcon).show(0, this.hideSaveOKIcon);
+        $(this.ID.jqSaveOkIcon).show(0, this.hideSaveOKIcon);
     }
 
     hideSaveOKIcon = () => {
-        $(this.#ID.jqSaveOkIcon).fadeOut(3000);
+        $(this.ID.jqSaveOkIcon).fadeOut(3000);
+    }
+
+    onSizeChange = () => {
+        var size = parseInt($(this.ID.jqSizeSelect).val());
+        $(this.ID.jqPuzzleDiv).empty().append( this.controller.getPuzzle(size) );
+        $(this.ID.jqRadio1).prop("checked", true);
+        $(this.ID.jqClueForm).hide();
+        this.controller.dataSaved = false;
+    }
+
+    onSwitchChange = () => {
+        if ($("input[name='switch']:checked").val() === "radio-2") $(this.ID.jqClueForm).show();
+        else $(this.ID.jqClueForm).hide();
+    }
+
+    onDescChange = () => {
+        this.controller.desc = $(this.ID.jqDesc).text();
+        this.controller.dataSaved = false;
+    }
+
+    onBeforeUnload = (e) => {
+        if (this.controller.dataSaved) return;
+        return "";
     }
 }
