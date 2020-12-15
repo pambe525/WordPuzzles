@@ -25,7 +25,7 @@ class CrosswordController {
 
     getPuzzle(size) {
         this.xwordGrid = new XWordGrid(size);
-        return this.xwordGrid;
+        return this.xwordGrid.getGridObj();
     }
 
     onSaveClick = () => {
