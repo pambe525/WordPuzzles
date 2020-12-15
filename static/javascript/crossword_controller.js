@@ -3,13 +3,8 @@ class CrosswordController {
     view = new PuzzleEditView(this);
     sizeOptions = {5: "5x5", 7: "7x7", 9: "9x9", 11: "11x11", 13: "13x13", 15: "15x15", 17: "17x17"};
     xwordGrid = null;
-    id = 0;
-    size = 15;
-    sharedAt = null;
-    desc = "";
     across = {};
     down = {};
-    dataSaved = false;
 
     constructor() {
         this.view.setSizeSelector(this.sizeOptions);
@@ -17,9 +12,9 @@ class CrosswordController {
 
     initialize(puzzleData) {
         if (puzzleData == null) throw new Error("Puzzle data is required for initialization");
-        this.id = puzzleData.id;
-        if (puzzleData.size !== undefined) this.size = puzzleData.size;
-        this.desc = puzzleData.desc;
+        this.view.id = puzzleData.id;
+        if (puzzleData.size !== undefined) this.view.size = puzzleData.size;
+        this.view.desc = puzzleData.desc;
         this.view.initialize();
     }
 
@@ -27,54 +22,5 @@ class CrosswordController {
         this.xwordGrid = new XWordGrid(size);
         return this.xwordGrid.getGridObj();
     }
-
-    onSaveClick = () => {
-        this.desc = this.view.getDesc();
-        let data = {is_xword: true, id: this.id, size: this.size, desc: this.desc, shared_at: this.sharedAt};
-        $.ajax({
-            method: "POST",
-            dataType: "json",
-            data: {'action':'save', 'data': JSON.stringify(data)},
-            success: this.onSaveSuccess,
-            error: this.onSaveError,
-        });
-    }
-
-    onSaveSuccess = (result) => {
-        if (result['error_message'] !== undefined && result['error_message'] !== "") {
-            alert(result['error_message']);
-        } else {
-            this.id = result.id;
-            this.view.showSaveOKIcon();
-            this.view.disableDelete(false);
-            this.dataSaved = true;
-        }
-    }
-
-    onSaveError = (xhr, status, error) => {
-        alert(error);
-    }
-
-    onDeleteClick = () =>{
-        var msg = "All saved data will be permanently deleted.";
-        var response = confirm(msg);
-        if ( !response ) return;
-        $.ajax({
-            method: "POST",
-            dataType: "json",
-            data: {action: 'delete', id: this.id},
-            success: this.onDeleteSuccess,
-            error: this.onDeleteError,
-        });
-    }
-
-    onDeleteSuccess = (result) => {
-        window.location.replace("/");
-    }
-
-    onDeleteError = (xhr, status, error) => {
-        alert(error);
-    }
-
 }
 

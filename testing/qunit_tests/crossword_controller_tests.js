@@ -223,9 +223,9 @@ test('Delete with system error displays alert message', function (assert) {
 test('dataSaved is true after saving data', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller.initialize(puzzleData);
-    assert.false(controller.dataSaved);
+    assert.false(controller.view.dataSaved);
     saveData({});
-    assert.true(controller.dataSaved);
+    assert.true(controller.view.dataSaved);
 });
 
 test('dataSaved is false after description is changed', function (assert) {
@@ -233,7 +233,7 @@ test('dataSaved is false after description is changed', function (assert) {
     controller.initialize(puzzleData);
     saveData({});
     $("#desc").text("Some text").change();
-    assert.false(controller.dataSaved);
+    assert.false(controller.view.dataSaved);
 });
 
 test('dataSaved is false after grid is reset', function (assert) {
@@ -241,7 +241,7 @@ test('dataSaved is false after grid is reset', function (assert) {
     controller.initialize(puzzleData);
     saveData({});
     $("#size").val(7).change();
-    assert.false(controller.dataSaved);
+    assert.false(controller.view.dataSaved);
 });
 
 // TEST: existing puzzle initialization sets clues edit mode if words/clues exist

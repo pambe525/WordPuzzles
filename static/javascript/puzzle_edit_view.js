@@ -9,6 +9,11 @@ class PuzzleEditView {
         jqPuzzleDiv: '#puzzle'
     };
     controller = null;
+    id = 0;
+    desc = "";
+    size = 15;
+    sharedAt = null;
+    dataSaved = false;
 
     constructor(controller) {
         this.controller = controller;
@@ -19,24 +24,24 @@ class PuzzleEditView {
     }
 
     initialize() {
-        let title = (this.controller.id === 0) ?
-            "New Crossword" : "Edit Crossword #" + this.controller.id;
+        let title = (this.id === 0) ?
+            "New Crossword" : "Edit Crossword #" + this.id;
         $(this.ID.jqTitle).text(title);
-        (this.controller.id === 0) ? this.disableDelete() : this.disableDelete(false);
+        (this.id === 0) ? this.disableDelete() : this.disableDelete(false);
         this.disablePublish();
         this.hideClueForm();
-        if (this.controller.id > 0) $(this.ID.jqDesc).text(this.controller.desc);
-        let size = this.controller.size;
+        if (this.id > 0) $(this.ID.jqDesc).text(this.desc);
+        let size = this.size;
         $(this.ID.jqSizeSelect).val(size);
         this.setPuzzle(this.controller.getPuzzle(size));
         this.bindHandlers();
     }
 
     bindHandlers() {
-        $("input[type=radio][name='switch']").change(this.onSwitchChange);
+        $("input[name='switch']").change(this.onSwitchChange);
         $(this.ID.jqSizeSelect).change(this.onSizeChange);
-        $(this.ID.jqSaveBtn).click(this.controller.onSaveClick);
-        $(this.ID.jqDeleteBtn).click(this.controller.onDeleteClick);
+        $(this.ID.jqSaveBtn).click(this.onSaveClick);
+        $(this.ID.jqDeleteBtn).click(this.onDeleteClick);
         $(this.ID.jqDesc).change(this.onDescChange);
         $(window).on('beforeunload', this.onBeforeUnload);
     }
@@ -67,10 +72,6 @@ class PuzzleEditView {
         $(this.ID.jqPuzzleDiv).append(puzzleObj);
     }
 
-    getDesc() {
-        return $(this.ID.jqDesc).text();
-    }
-
     showSaveOKIcon() {
         $(this.ID.jqSaveOkIcon).show(0, this.hideSaveOKIcon);
     }
@@ -84,7 +85,7 @@ class PuzzleEditView {
         $(this.ID.jqPuzzleDiv).empty().append( this.controller.getPuzzle(size) );
         $(this.ID.jqRadio1).prop("checked", true);
         $(this.ID.jqClueForm).hide();
-        this.controller.dataSaved = false;
+        this.dataSaved = false;
     }
 
     onSwitchChange = () => {
@@ -93,12 +94,57 @@ class PuzzleEditView {
     }
 
     onDescChange = () => {
-        this.controller.desc = $(this.ID.jqDesc).text();
-        this.controller.dataSaved = false;
+        this.desc = $(this.ID.jqDesc).text();
+        this.dataSaved = false;
     }
 
     onBeforeUnload = (e) => {
-        if (this.controller.dataSaved) return;
+        if (this.dataSaved) return;
         return "";
+    }
+
+    onDeleteClick = () =>{
+        var msg = "All saved data will be permanently deleted.";
+        var response = confirm(msg);
+        if ( !response ) return;
+        $.ajax({
+            method: "POST",
+            dataType: "json",
+            data: {action: 'delete', id: this.id},
+            success: this.onDeleteSuccess,
+            error: this.onServerError,
+        });
+    }
+
+    onDeleteSuccess = (result) => {
+        window.location.replace("/");
+    }
+
+    onSaveClick = () => {
+        this.desc = $(this.ID.jqDesc).text();
+        let data = {is_xword: true, id: this.id, size: this.size, desc: this.desc,
+            shared_at: this.sharedAt};
+        $.ajax({
+            method: "POST",
+            dataType: "json",
+            data: {'action':'save', 'data': JSON.stringify(data)},
+            success: this.onSaveSuccess,
+            error: this.onServerError,
+        });
+    }
+
+    onSaveSuccess = (result) => {
+        if (result['error_message'] !== undefined && result['error_message'] !== "") {
+            alert(result['error_message']);
+        } else {
+            this.id = result.id;
+            this.showSaveOKIcon();
+            this.disableDelete(false);
+            this.dataSaved = true;
+        }
+    }
+
+    onServerError = (xhr, status, error) => {
+        alert(error);
     }
 }
