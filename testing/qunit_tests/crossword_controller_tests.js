@@ -14,10 +14,10 @@ function saveData(responseData) {
 var controller = null;
 
 /* ----------------------------------------------------------------------------------------------------------*/
-QUnit.module("Crossword CRUD", {
+QUnit.module("Puzzle Editing", {
     beforeEach: function () {
         setupFixture(EditPuzzlePageHtml);
-        controller = new CrosswordController();
+        controller = new XWordPuzzle();
     }
 });
 
@@ -28,7 +28,9 @@ test("Constructor customizes labels on page", function (assert) {
     assert.equal($("#save-ok").prop("hidden"), true);
 });
 
-test("Constructor sets size selector dropdown", function (assert) {
+test("Initialization sets size selector dropdown", function (assert) {
+    let puzzleData = {id: 0, size: 5}
+    controller.initialize(puzzleData);
     let options = $("#size > option");
     let textVals = $.map(options, function (option) { return option.text; });
     let values = $.map(options, function (option) { return parseInt(option.value); });
