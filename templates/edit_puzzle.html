@@ -23,7 +23,7 @@
     <div class="row bg-light border border-secondary rounded-lg m-0 pt-2 pl-2" style="width:100%">
         <label id="size-label" class="h6 pt-2" for="size"></label>
         <select id="size" class="h6 ml-2 col text-secondary form-control"></select>
-        <label for="mode-toggle" class="h6 ml-3 mt-2 mr-2">Edit</label>
+        <label for="mode-toggle" class="h6 ml-3 mt-2 mr-2">Edit Mode</label>
        	<div class="switch-field mr-3">
 		    <input type="radio" id="radio-1" value="radio-1" name="switch" checked />
             <label id="radio1-label" for="radio-1"></label>
@@ -53,9 +53,9 @@
         <div class="m-1 mt-3" id="puzzle"></div>
     </div>
 
-    <script src="{% static '/javascript/puzzle_editor.js' %}"></script>
-    <script src="{% static '/javascript/xword_puzzle.js' %}"></script>
-    <script src="{% static '/javascript/crossword_controller.js' %}"></script>
+    <script src="{% static '/javascript/edit_puzzle_view.js' %}"></script>
+    <script src="{% static '/javascript/xword_grid.js' %}"></script>
+    <script src="{% static '/javascript/xword_editor.js' %}"></script>
 
     <!--
     <script src="{% static '/javascript/puzzle.js' %}"></script>
@@ -71,7 +71,7 @@
         $(document).ready(function() {
             try {
                 var puzzleData = JSON.parse('{{ data | safe }}');
-                new CrosswordController().initialize(puzzleData);
+                new XWordEditor(puzzleData);
             } catch(e) {
                 alert(e);
             }

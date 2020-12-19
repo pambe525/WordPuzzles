@@ -1,40 +1,26 @@
-class XWordPuzzle {
-
-    view = null;
-    sizeOptions = {5: "5x5", 7: "7x7", 9: "9x9", 11: "11x11", 13: "13x13", 15: "15x15", 17: "17x17"};
-    labels = {size:"Grid Size", radio1:"Blocks", radio2:"Clues"};
+class XWordGrid {
 
     cellSize = 29;
     jqGridObj = null;
-    id = 0;
-    size = 0;
-    desc = "";
-    sharedAt = null;
+    size = 15;    /* default size */
 
-    constructor() {
-        this.view = new PuzzleEditor(this);
-        this.view.setSizeSelector(this.sizeOptions);
-        this.view.setUILabels(this.labels);
+    constructor(size) {
+        this.size = size;
+        this._createGrid();
     }
 
-    initialize(puzzleData) {
-        if (puzzleData == null) throw new Error("Puzzle data is required for initialization");
-        this.size = puzzleData.size;
+    getPuzzleHtml() {
+        return this.jqGridObj;
+    }
+
+    //** PRIVATE METHODS **//
+    _createGrid() {
         this.jqGridObj = $("<div></div>");
         for (var i = 0; i < this.size * this.size; i++)
             $(this.jqGridObj).append(this._createGridCell());
         this._setGridBoxStyling(this.size);
     }
 
-
-    getPuzzleContents() {
-        return this.jqGridObj;
-    }
-
-    getData() {
-        return {is_xword: true, id: this.id, size: this.size, desc: this.desc,
-            shared_at: this.sharedAt};
-    }
     _createGridCell() {
         var cell = $("<div></div>");
         cell.width(this.cellSize).height(this.cellSize);
