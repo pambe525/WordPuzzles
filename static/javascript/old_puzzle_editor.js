@@ -1,7 +1,7 @@
 /**
  * ABSTRACT BASE CLASS PuzzleEditor. This class cannot be instantiated.
  */
-class XWordEditor {
+class PuzzleEditor {
 
     IDs = {
         title: '#page-title', saveOk: '#save-ok', saveBtn: '#save', deleteBtn: "#delete", homeBtn: "#home",

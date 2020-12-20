@@ -33,7 +33,7 @@ test("Constructor customizes labels on page", function (assert) {
     assert.equal($("#save-ok").prop("hidden"), true);
 });
 
-test("Initialization sets size selector dropdown", function (assert) {
+test("Constructor sets size selector dropdown with correct options", function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller = new XWordEditor(puzzleData);
     let options = $("#size > option");
@@ -44,20 +44,26 @@ test("Initialization sets size selector dropdown", function (assert) {
     assert.deepEqual(values, [5, 7, 9, 11, 13, 15, 17]);
 });
 
-test("Initialization sets specified grid size in dropdown", function (assert) {
+test("Constructor sets default size on selector dropdown", function (assert) {
+    let puzzleData = {id: 0}
+    controller = new XWordEditor(puzzleData);
+    assert.equal($("#size").val(), 15);
+});
+
+test("Constructor sets specified grid size in dropdown", function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller = new XWordEditor(puzzleData);
     assert.equal($("#size").val(), puzzleData.size);
 });
 
-test('Initialization creates grid using specified size in data', function (assert) {
+test('Constructor creates grid using specified size in data', function (assert) {
     let puzzleData = {id: 0, size: 5}
     controller = new XWordEditor(puzzleData);
     assert.equal(getGridCells().length, 25);
 });
 
-test("New puzzle initialization sets correct title and state of widgets", function (assert) {
-    let puzzleData = {id: 0, size: 5};
+test("New puzzle sets correct title and state of widgets", function (assert) {
+    let puzzleData = {size: 5};
     controller = new XWordEditor(puzzleData);
     assert.equal($("#page-title").text(), "New Crossword");
     assert.true($("#delete").prop("disabled"));
@@ -247,6 +253,43 @@ test('dataSaved is false after grid is reset', function (assert) {
 
 // TEST: existing puzzle initialization sets clues edit mode if words/clues exist
 // TEST: existing puzzle initialization loads data, blocks and words into grid
+
+/* ----------------------------------------------------------------------------------------------------------*/
+QUnit.module("XWord Grid", {
+    beforeEach: function () {
+        setupFixture(EditPuzzlePageHtml);
+    }
+});
+
+test('Grid has default size (15) if not specified', function(assert) {
+    let puzzleData = {};
+    new XWordEditor(puzzleData);
+    assert.equal( getGridCells().length, 225 );
+});
+
+test('Grid bounding box has correct width & height', function(assert) {
+  var gridSize=5;
+  new XWordEditor({size:gridSize});
+  assert.equal( getGridCells().length, 25 );
+  let gridBox = $("#puzzle>div");
+  assert.equal( gridBox.width(), (29*gridSize + 1) );
+  assert.equal( gridBox.height(), (29*gridSize + 1) );
+});
+
+test('Grid initially autonumbers itself', function(assert) {
+  var gridSize=5;
+  new XWordEditor({size:gridSize});
+  let gridCells = getGridCells();
+  for (let clueNum = 1; clueNum <= gridSize; clueNum++)
+      assert.equal( $(gridCells[clueNum-1]).children("span.xw-number").text(), clueNum );
+  for (let clueNum = gridSize+1; clueNum <= gridSize*2-1; clueNum++)
+      assert.equal( $(gridCells[(clueNum-gridSize)*gridSize]).children("span.xw-number").text(), clueNum );
+});
+
+
+
+
+
 
 
 

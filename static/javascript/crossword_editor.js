@@ -1,4 +1,4 @@
-class CrosswordEditor extends XWordEditor {
+class CrosswordEditor extends PuzzleEditor {
 
     /* THESE METHODS ARE IMPLEMENTED FROM PARENT PuzzleEditor CLASS*/
     _configureUIElements() {

@@ -16,7 +16,7 @@ class EditPuzzleView {
 
     /* CONSTRUCTOR */
     constructor(puzzleData) {
-        this.id = puzzleData.id;
+        if ( puzzleData.id ) this.id = puzzleData.id;
         if (this.id > 0) $(this.ID.jqDesc).text(puzzleData.desc);
         $(this.ID.jqSaveOkIcon).prop("hidden", true);
         $(this.ID.jqTitle).text( this._buildTitle() );

@@ -2,6 +2,7 @@ class XWordEditor {
 
     _sizeOptions = {5: "5x5", 7: "7x7", 9: "9x9", 11: "11x11", 13: "13x13", 15: "15x15", 17: "17x17"};
     _labels = {size:"Grid Size", radio1:"Blocks", radio2:"Clues"};
+    _defaultSize = 15;
 
     view = null;
     xwordGrid = null;
@@ -11,7 +12,7 @@ class XWordEditor {
         this.view = new EditPuzzleView(puzzleData);
         this.xwordGrid = new XWordGrid(puzzleData.size);
         this.view.setUILabels(this._labels);
-        this.view.setSizeSelector(this._sizeOptions, puzzleData.size);
+        this.view.setSizeSelector(this._sizeOptions, this.xwordGrid.size);
         this.view.setPuzzleContent(this.xwordGrid.getPuzzleHtml());
         this.view.hideClueForm();
         this.view.bindHandlers(this);
