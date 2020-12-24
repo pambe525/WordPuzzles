@@ -40,28 +40,6 @@ QUnit.module('CrosswordEditor', {
     },
 });
 
-QUnit.test('Grid Size change prompts for confirmation if grid has data', function (assert) {
-    editor.initialize();
-    clickOnCellId("1-0");   // Set a block
-    clickOnCellId("0-1");   // Set a block
-    confirmResponse = false;                // Cancel confirmation box
-    $(jqSizeSelectorId).val(7).change();    // Change to 7x7 grid size
-    assert.true(confirmMessage.indexOf("All changes to grid will be cleared") === 0);
-    assert.equal($(".xw-blocked").length, 4);   // No change to grid
-    assert.equal($(jqSizeSelectorId).val(), 15); // Should revert back to previous selection
-});
-
-QUnit.test('Event: Grid Size change redraws new grid if confirmed', function (assert) {
-    editor.initialize();
-    clickOnCellId("1-0");
-    clickOnCellId("0-1");
-    confirmResponse = true;
-    $(jqSizeSelectorId).val(5).change();       // Change to 3x3 grid size
-    assert.equal($(".xw-blocked").length, 0);  // Grid changed
-    assert.equal(editor.puzzleInstance.size, 5);
-    assert.equal(editor.getSelectedSize(), 5)
-});
-
 // Blocks Edit Mode tests
 //--------------------------------------------------------------------------------------------------------------------
 
@@ -225,20 +203,6 @@ QUnit.test('Clue Edit Form: Delete Btn clears form', function (assert) {
 
 // Save Btn and state tests
 //--------------------------------------------------------------------------------------------------------------------
-
-QUnit.test('Save Btn: dataSaved is false when a cell is blocked or unblocked', function (assert) {
-    editor.initialize();  // NOTE: Grid is 15x15 by default
-    mockAjaxMethod(5);
-    $(jqSaveBtnId).click();   // First save the grid
-    clickOnCellId("0-0");     // Block cell
-    assert.false(editor.dataSaved);
-    $(jqSaveBtnId).click(); // Save again
-    assert.true(editor.dataSaved);
-    clickOnCellId("0-0");   // Unblock cell
-    assert.equal($(jqSaveOkId).css("display"), "inline");
-    assert.false(editor.dataSaved);
-});
-
 QUnit.test('Save Btn: dataSaved is false when a word or clue is added', function (assert) {
     editor.initialize();  // NOTE: Grid is 15x15 by default
     mockAjaxMethod(5);

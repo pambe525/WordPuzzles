@@ -2,7 +2,6 @@ class XWordEditor {
 
     _sizeOptions = {5: "5x5", 7: "7x7", 9: "9x9", 11: "11x11", 13: "13x13", 15: "15x15", 17: "17x17"};
     _labels = {size:"Grid Size", radio1:"Blocks", radio2:"Clues"};
-    _defaultSize = 15;
 
     view = null;
     xwordGrid = null;
@@ -10,11 +9,9 @@ class XWordEditor {
     constructor(puzzleData) {
         if ( !puzzleData ) throw new Error("Puzzle data is required");
         this.view = new EditPuzzleView(puzzleData);
-        this.xwordGrid = new XWordGrid(puzzleData.size);
         this.view.setUILabels(this._labels);
+        this._setupNewGrid(puzzleData.size);
         this.view.setSizeSelector(this._sizeOptions, this.xwordGrid.size);
-        this.view.setPuzzleContent(this.xwordGrid.getPuzzleHtml());
-        this.view.hideClueForm();
         this.view.bindHandlers(this);
     }
 
@@ -25,15 +22,28 @@ class XWordEditor {
     }
 
     onSizeChange = () => {
-        this.xwordGrid = new XWordGrid( this.view.getSizeSelection() );
-        this.view.setPuzzleContent(this.xwordGrid.getPuzzleHtml());
-        this.view.setSwitchLabel("Blocks");
-        this.view.hideClueForm();
-        this.view.dataChanged();
+        let response = true;
+        if (this.xwordGrid.hasBlocks()) response = confirm("All changes to grid will be cleared");
+        if (response) this._setupNewGrid(this.view.getSizeSelection());
+        else this.view.setSize(this.xwordGrid.size);
     }
 
     onSaveClick = () => {
         this.view.save();
+    }
+
+    onGridCellClick = (event) => {
+        this.xwordGrid.toggleBlock(event.target);
+    }
+
+    /* PRIVATE METHODS */
+    _setupNewGrid(size) {
+        this.xwordGrid = new XWordGrid(size, this.onGridCellClick);
+        this.xwordGrid.setDataChangeListener(this.view);
+        this.view.setPuzzleContent(this.xwordGrid.getPuzzleHtml());
+        this.view.setSwitchLabel("Blocks");
+        this.view.hideClueForm();
+        this.view.dataChanged();
     }
 }
 

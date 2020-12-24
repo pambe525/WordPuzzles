@@ -154,9 +154,14 @@ i {
 }
 .xw-number {
     position: absolute;
-    font-size:8px;
+    font-size: 8px;
+    font-weight: bold;
+    color: black;
     top: -1px;
     left: 1px;
+}
+.xw-block {
+    background-color: black;
 }
 
 /*!*** TOGGLE SWITCH *!*/

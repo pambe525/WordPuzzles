@@ -32,6 +32,10 @@ class EditPuzzleView {
         $(this.ID.jqSizeSelect).val(defaultVal);
     }
 
+    setSize(value) {
+        $(this.ID.jqSizeSelect).val(value);
+    }
+
     setUILabels(labels) {
         $(this.ID.jqSizeLabel).text(labels.size);
         $(this.ID.jqRadio1Label).text(labels.radio1);
@@ -81,7 +85,7 @@ class EditPuzzleView {
         });
     }
 
-    dataChanged() {
+    dataChanged = () => {
         this.dataSaved = false;
     }
 
