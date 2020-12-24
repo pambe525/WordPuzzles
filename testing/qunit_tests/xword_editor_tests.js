@@ -145,6 +145,53 @@ function verifyClueNums(clueNums) {
         $("#radio-1").prop("checked", true).change();
         assert.true($("#clue-form").is(":hidden"));
     });
+    test('Grid has default size (15) if not specified', function (assert) {
+        let puzzleData = {};
+        new XWordEditor(puzzleData);
+        assert.equal(getGridCells().length, 225);
+    });
+    test('Grid bounding box has correct width & height', function (assert) {
+        var gridSize = 5;
+        new XWordEditor({size: gridSize});
+        assert.equal(getGridCells().length, 25);
+        let gridBox = $("#puzzle>div");
+        assert.equal(gridBox.width(), (29 * gridSize + 1));
+        assert.equal(gridBox.height(), (29 * gridSize + 1));
+    });
+    test('Grid autonumbers itself', function (assert) {
+        var gridSize = 5;
+        new XWordEditor({size: gridSize});
+        let clueNums = {0:"1",1:"2",2:"3",3:"4",4:"5",5:"6",10:"7",15:"8",20:"9"};
+        verifyClueNums(clueNums);
+     });
+    test('dataSaved is false after description is changed', function (assert) {
+        let puzzleData = {id: 0, size: 5}
+        let controller = new XWordEditor(puzzleData);
+        saveData({});
+        $("#desc").text("Some text").change();
+        assert.false(controller.view.dataSaved);
+    });
+    test('Grid is initialized with blocked cells from existing data', function (assert) {
+        var gridSize = 5, blockStr = "1,2,7,17,22,23";
+        new XWordEditor({size: gridSize, data:{blocks: blockStr}});
+        let gridCells = getGridCells();
+        let blockedCells = gridCells.filter(".xw-block");
+        let blockedIndices = blockStr.split(",");
+        assert.equal(blockedCells.length, blockedIndices.length);
+        for (var i = 0; i < blockedIndices.length; i++)
+            assert.true($(gridCells[parseInt(blockedIndices[i])]).hasClass("xw-block"));
+    });
+})();
+
+/**
+ * XWordEditor Save/Delete
+ */
+(function() {
+    QUnit.module("XWordEditor Save/Delete", {
+        beforeEach: function () {
+            setupFixture(EditPuzzlePageHtml);
+        }
+    });
     test('Saving data includes basic data in ajax call for new xword', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
@@ -252,37 +299,6 @@ function verifyClueNums(clueNums) {
         let msg = "System error occurred";
         ajaxSettings.error(null, null, msg);
         assert.equal(alertMessage, msg);
-    });
-    test('Grid has default size (15) if not specified', function (assert) {
-        let puzzleData = {};
-        new XWordEditor(puzzleData);
-        assert.equal(getGridCells().length, 225);
-    });
-    test('Grid bounding box has correct width & height', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
-        assert.equal(getGridCells().length, 25);
-        let gridBox = $("#puzzle>div");
-        assert.equal(gridBox.width(), (29 * gridSize + 1));
-        assert.equal(gridBox.height(), (29 * gridSize + 1));
-    });
-    test('Grid autonumbers itself', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
-        let clueNums = {0:"1",1:"2",2:"3",3:"4",4:"5",5:"6",10:"7",15:"8",20:"9"};
-        verifyClueNums(clueNums);
-     });
-    test('dataSaved is false after description is changed', function (assert) {
-        let puzzleData = {id: 0, size: 5}
-        let controller = new XWordEditor(puzzleData);
-        saveData({});
-        $("#desc").text("Some text").change();
-        assert.false(controller.view.dataSaved);
-    });
-    test('Grid is initialized with blocked cells from existing data', function (assert) {
-        var gridSize = 5;
-        let controller = new XWordEditor({size: gridSize, blocks:"1,2,7,17,22,23"});
-
     });
 })();
 

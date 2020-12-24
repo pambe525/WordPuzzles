@@ -5,9 +5,10 @@ class XWordGrid {
     size = 15;    /* default size */
     _dataChangeListener = null;
 
-    constructor(size, clickHandler) {
-        if ( size ) this.size = size;
+    constructor(puzzleData, clickHandler) {
+        if ( puzzleData.size !== undefined ) this.size = puzzleData.size;
         this._createGrid(clickHandler);
+        if ( puzzleData.data !== undefined ) this._loadBlocks(puzzleData.data.blocks);
         this._autonumberGrid();
     }
 
@@ -123,5 +124,12 @@ class XWordGrid {
         let cellIndex = this._cellIndex(cell);
         if ( isAcross && (cellIndex % this.size) === 0 ) return true;
         if ( !isAcross && (cellIndex < this.size ) ) return true;
+    }
+
+    _loadBlocks(blocks) {
+        let blockedIndices = blocks.split(",");
+        let gridCells = this.jqGridObj.children("div");
+        for (var i = 0; i < blockedIndices.length; i++)
+            $(gridCells[parseInt(blockedIndices[i])]).addClass("xw-block");
     }
 }
