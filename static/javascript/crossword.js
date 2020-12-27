@@ -6,9 +6,6 @@ class Crossword extends Puzzle {
     constructor(arg) {
         super(arg);
     }
-    getGrid() {
-
-    }
 
     isReady() {
         var blockedCells = $(this.divId+">div.xw-blocked").length;

@@ -10,66 +10,6 @@ QUnit.module('XWord Grid', {
 
 // Constructor tests
 //--------------------------------------------------------------------------------------------------------------------
-test('Constructor uses default size (15) if not specified', function(assert) {
-    let puzzle = new XWordGrid();
-    assert.equal( puzzle.getPuzzleHtml().children("div").length, 225 );
-});
-test('Constructor creates grid of correct width & height', function(assert) {
-  var gridSize=5, xword = new XWordGrid(gridSize);
-  assert.equal(xword.getPuzzleHtml().width(), (xword.cellSize*gridSize + 1));
-  assert.equal(xword.getPuzzleHtml().height(), (xword.cellSize*gridSize + 1))
-});
-test('BASE show: Grid cells have correct id and click handler', function(assert) {
-  var size = 8, grid = createXWord(size), counter = 0;
-  var cells = $(jqGridId).children('div');
-  for (var row = 0; row < size; row++)
-    for (var col = 0; col < size; col++ ) {
-      assert.equal(cells[counter].id, row + "-" + col);
-      assert.equal(typeof(cells[counter].click), 'function');
-      counter++;
-    }
-});
-test('BASE show: Grid cells have a span for letter', function(assert) {
-  var size = 8, grid = createXWord(size), counter = 0;
-  var letterSpans = $(jqGridId+" > div > .xw-letter");
-  assert.equal($(letterSpans).length, size*size);
-});
-test('BASE show: Auto-numbers default blank grid', function(assert) {
-  var size = 6;
-  createXWord(size);
-  var cells = $(jqGridId).children('div');
-  for (var col = 0; col < size; col++)
-    assert.equal($(cells[col]).text(), col + 1);
-  for (var row = 1; row < size; row++)
-    assert.equal($(cells[row * size]).text(), row + size);
-  assert.equal($(".xw-number").length, 11);
-});
-test('BASE show: Auto-numbers grid with blocks added', function(assert) {
-  var xword = createXWord(5);
-  var cells = $(jqGridId).children('div');
-  setBlocks(xword, ["0-0", "1-4", "2-3"]);
-  assert.equal($(".xw-blocked").length, 6);
-  assert.equal($(".xw-number").length, 8);
-  assert.equal($(cells[1]).text(), 1);
-  assert.equal($(cells[2]).text(), 2);
-  assert.equal($(cells[3]).text(), 3);
-  assert.equal($(cells[5]).text(), 4);
-  assert.equal($(cells[14]).text(), 5);
-  assert.equal($(cells[16]).text(), 6);
-  assert.equal($(cells[18]).text(), 7);
-  assert.equal($(cells[20]).text(), 8);
-  assert.equal($(".xw-number").parent().length, 8);
-});
-test("BASE show: With puzzleData loads blocks into the grid", function(assert) {
-  var puzzleData = {puzzle_id: 10, size: 5, data:{blocks:"0,4,20,24", across:{}, down:{}}};
-  var xword = createXWord(puzzleData);
-  var blockedCells = $(jqGridId + ">.xw-blocked");
-  assert.equal(blockedCells.length, 4);
-  assert.equal(blockedCells[0].id, "0-0");
-  assert.equal(blockedCells[1].id, "0-4");
-  assert.equal(blockedCells[2].id, "4-0");
-  assert.equal(blockedCells[3].id, "4-4");
-});
 test("BASE show: With puzzleData loads words as data", function(assert) {
   var puzzleData = {
     puzzle_id: 10, size: 5, data:{blocks:"0,4,20,24", across:{"0-1":{word:"pin",clue:"clue for pin"},
@@ -97,49 +37,6 @@ test('BASE setSharingOn: Sets current datetime string if true else null', functi
 
 // SAVE tests
 //--------------------------------------------------------------------------------------------------------------------
-test('BASE save: Success invokes saveSuccessHandler', function(assert) {
-    var puzzle = new XWordGrid(5);
-    var handlerCalled = false, dataArg;
-    var handler = function(data){ handlerCalled=true; dataArg=data};
-    $.ajax = function(obj) { obj.success({status:"OK"}); }  // mock save success
-    puzzle.setSaveSuccessHandler(handler);
-    puzzle.save();
-    assert.true(handlerCalled);
-    assert.equal(dataArg.status, "OK");
-});
-test('BASE save: Failure invokes saveFailureHandler', function(assert) {
-    var puzzle = new XWordGrid(5);
-    var handlerCalled = false;
-    var handler = function(){ handlerCalled=true; };
-    $.ajax = function(obj) { obj.error(); };  // mock save failure
-    puzzle.setSaveFailureHandler(handler);
-    puzzle.save();
-    assert.true(handlerCalled);
-});
-test('BASE save: Success does nothing if saveSuccessHandler is not set', function(assert) {
-    var puzzle = new XWordGrid(5);
-    $.ajax = function(obj) { obj.success({puzzle_id:2}); };  // mock failure
-    try {
-        puzzle.save();
-        assert.ok(true);
-    } catch(e) { assert.notOk(true, "No exception expected.")}
-});
-test('BASE save: Failure does nothing if saveFailureHandler is not set', function(assert) {
-    var puzzle = new XWordGrid(5);
-    $.ajax = function(obj) { obj.error(); };  // mock save failure
-    try {
-        puzzle.save();
-        assert.ok(true);
-    } catch(e) { assert.notOk(true, "No exception expected.")}
-});
-test('BASE save: Invokes ajax call with correct parameters', function(assert) {
-    var puzzle = new XWordGrid(5);
-    var ajaxArg = null;
-    $.ajax = function(obj) { ajaxArg = obj };
-    puzzle.save();
-    assert.equal(ajaxArg.method, "POST");
-    assert.equal(ajaxArg.dataType, "json");
-});
 test('BASE save: Includes proper data parameters in ajax call', function(assert) {
     var puzzle = new XWordGrid(5);
     puzzle.id = 222;
@@ -155,95 +52,9 @@ test('BASE save: Includes proper data parameters in ajax call', function(assert)
     assert.equal(ajaxDataObj['shared_at'], null);
     assert.deepEqual(ajaxDataObj['data'], {somedata:"blah"});
 });
-test('BASE save: Includes action parameter in ajax call', function(assert) {
-    var puzzle = new XWordGrid(10);
-    puzzle._getDataToSave = function(){ return {somedata:"blah"}; };
-    var ajaxArg = null;
-    $.ajax = function(obj) { ajaxArg = obj };
-    puzzle.save();
-    assert.equal(ajaxArg.data['action'], 'save');
-});
-test('BASE save: Updates puzzle_id', function(assert) {
-    var puzzle = new XWordGrid(10);
-    assert.equal(puzzle.id, null);   // Initial puzzle_id is null
-    var handlerCalled = false, dataArg;
-    var handler = function(data){ handlerCalled=true; dataArg=data};
-    $.ajax = function(obj) { obj.success({id: 2}); }  // mock success
-    puzzle.setSaveSuccessHandler(handler);
-    puzzle.save();
-    assert.equal(puzzle.id, 2);  // Update puzzle_id
-});
-
-// DELETE tests
-//--------------------------------------------------------------------------------------------------------------------
-test('BASE delete: Success invokes deleteSuccessHandler', function(assert) {
-    var puzzle = new XWordGrid(5);
-    var handlerCalled = false, dataArg;
-    var handler = function(data){ handlerCalled=true; dataArg=data};
-    $.ajax = function(obj) { obj.success({status:"OK"}); }  // mock success
-    puzzle.setDeleteSuccessHandler(handler);
-    puzzle.delete();
-    assert.true(handlerCalled);
-    assert.equal(dataArg.status, "OK");
-});
-test('BASE delete: Failure invokes deleteFailureHandler', function(assert) {
-    var puzzle = new XWordGrid(6);
-    var handlerCalled = false;
-    var handler = function(){ handlerCalled=true; };
-    $.ajax = function(obj) { obj.error(); };  // mock failure
-    puzzle.setDeleteFailureHandler(handler);
-    puzzle.delete();
-    assert.true(handlerCalled);
-});
-test('BASE delete: Success does nothing if saveSuccessHandler is not set', function(assert) {
-    var puzzle = new XWordGrid(7);
-    $.ajax = function(obj) { obj.success(); };  // mock failure
-    try {
-        puzzle.delete();
-        assert.ok(true);
-    } catch(e) { assert.notOk(true, "No exception expected.")}
-});
-test('BASE delete: Failure does nothing if saveFailureHandler is not set', function(assert) {
-    var puzzle = new XWordGrid(7);
-    $.ajax = function(obj) { obj.error(); };  // mock failure
-    try {
-        puzzle.delete();
-        assert.ok(true);
-    } catch(e) { assert.notOk(true, "No exception expected.")}
-});
-test('BASE delete: Invokes ajax call with correct parameters', function(assert) {
-    var puzzle = new XWordGrid(6);
-    var ajaxArg = null;
-    $.ajax = function(obj) { ajaxArg = obj };
-    puzzle.delete();
-    assert.equal(ajaxArg.method, "POST");
-    assert.equal(ajaxArg.dataType, "json");
-});
-test('BASE delete: Includes puzzle_id in ajax call', function(assert) {
-    var puzzle = new XWordGrid(5);
-    puzzle.id = 10;
-    var ajaxArg = null;
-    $.ajax = function(obj) { ajaxArg = obj };
-    puzzle.delete();
-    assert.deepEqual(ajaxArg.data['id'], puzzle.id);
-});
-test('BASE delete: Includes action parameter in ajax call', function(assert) {
-    var puzzle = new XWordGrid(4);
-    var ajaxArg = null;
-    $.ajax = function(obj) { ajaxArg = obj };
-    puzzle.delete();
-    assert.equal(ajaxArg.data['action'], 'delete');
-});
 
 // _dataChanged tests
 //--------------------------------------------------------------------------------------------------------------------
-test("_dataChanged: Called when cell is blocked or unblocked", function(assert) {
-  var xword = createXWord(3);
-  var called = false;
-  xword.setDataChangedHandler(function(){ called = true; })
-  xword.toggleCellBlock("1-1");
-  assert.true(called);
-});
 test("_dataChanged: Called when word data is set", function(assert) {
   var xword = createXWord(5);
   var called = false;
@@ -263,63 +74,6 @@ test("_dataChanged: Called when word data is deleted", function(assert) {
 
 // toggleCellBlock tests
 //--------------------------------------------------------------------------------------------------------------------
-test("toggleCellBlock: Returns false if cellId is not valid", function(assert) {
-  var xword = createXWord(3);
-  assert.false(xword.toggleCellBlock("0-3"));
-});
-test("toggleCellBlock: Blocks a cell and returns true", function(assert) {
-  var xword = createXWord(4);
-  assert.true(xword.toggleCellBlock("0-1"));
-  var cells = $(jqGridId).children('div');
-  assert.true($(cells[1]).hasClass('xw-blocked'));
-});
-test("toggleCellBlock: Automatically blocks symmetric cell", function(assert) {
-  var xword = createXWord(4);
-  assert.true(xword.toggleCellBlock("0-1"));
-  var cells = $(jqGridId).children('div');
-  assert.true($(cells[14]).hasClass('xw-blocked'));
-  assert.equal($(".xw-blocked").length, 2);
-});
-test("toggleCellBlock: Unblocks cells if cells are already blocked", function(assert) {
-  var xword = createXWord(5);
-  var cells = $(jqGridId).children('div');
-  xword.toggleCellBlock("0-3");  //BLOCK
-  xword.toggleCellBlock("0-3");  // UNBLOCK
-  assert.false($(cells[3]).hasClass('xw-blocked'));
-  assert.false($(cells[21]).hasClass('xw-blocked'));
-  assert.equal($(".xw-blocked").length, 0);
-});
-test("toggleCellBlock: Blocks grid's center cell (no symmetric cell)", function(assert) {
-  var xword = createXWord(5);
-  var cells = $(jqGridId).children('div');
-  xword.toggleCellBlock("2-2");  // BLOCK
-  assert.true($(cells[12]).hasClass('xw-blocked'));
-  assert.equal($(".xw-blocked").length, 1);
-  xword.toggleCellBlock("2-2");  // UNBLOCK
-  assert.false($(cells[12]).hasClass('xw-blocked'));
-  assert.equal($(".xw-blocked").length, 0);
-});
-test("toggleCellBlock: Does not block cell that contains a letter", function(assert) {
-    var xword = createXWord(5);
-    $("#0-0>.xw-letter").text("A");
-    xword.toggleCellBlock("0-0");
-    assert.false($("#0-0").hasClass('xw-blocked'));
-});
-test("toggleCellBlock: Clears existing blocked cell number", function(assert) {
-  var xword = createXWord(5);
-  var cells = $(jqGridId).children('div');
-  assert.equal($(cells[4]).text(), 5);
-  assert.equal($(cells[20]).text(), 9);
-  xword.toggleCellBlock("0-4");  // BLOCK CELL WITH A NUMBER
-  assert.equal($(cells[4]).text(), "");
-  assert.equal($(cells[20]).text(), "");
-});
-test("toggleCellBlock: Clears existing class names on numbered blocks", function(assert) {
-  var xword = createXWord(5);
-  assert.equal($(".xw-number").length, 9);
-  xword.toggleCellBlock("0-4");  // BLOCK CELL WITH A NUMBER
-  assert.equal($(".xw-number").length, 9);
-});
 test("toggleCellBlock: Does not unblock if a neighbor letter is in an in-line ACROSS word", function(assert) {
   var xword = createXWord(5);
   xword.toggleCellBlock("1-4");
@@ -345,28 +99,7 @@ test("toggleCellBlock: Unblocks cell if neighbor letter is not in in-line word",
   xword.toggleCellBlock("0-1");  // UNBLOCK CELL
   assert.false($("#0-1").hasClass('xw-blocked'));
 });
-test("toggleCellBlock: Does not block cell if symmetric cell has a letter", function(assert) {
-  var xword = createXWord(4);
-  xword.setWordData("0-0", "down", "", false);
-  xword.toggleCellBlock("3-3");  // BLOCK SYMMETRIC CELL
-  assert.false($("#0-0").hasClass('xw-blocked'));
-});
 
-// hasBlocks tests
-//--------------------------------------------------------------------------------------------------------------------
-test("hasBlock: Returns false when no blocks are present", function(assert) {
-  var xword =   createXWord(6);
-  assert.false(xword.hasBlocks());
-  xword.toggleCellBlock("0-0");
-  xword.toggleCellBlock("0-0");
-  assert.false(xword.hasBlocks());
-});
-test("hasBlock: Returns true when blocks are present", function(assert) {
-  var xword = createXWord(5);
-  assert.false(xword.hasBlocks());
-  xword.toggleCellBlock("2-2");
-  assert.true(xword.hasBlocks());
-});
 
 // getClueNum tests
 //--------------------------------------------------------------------------------------------------------------------
@@ -524,19 +257,6 @@ test("hiliteNextIncomplete: If no incomplete Across words finds first down word"
   assert.false(xword.isHiliteAcross());
 });
 
-// setEditable tests
-//--------------------------------------------------------------------------------------------------------------------
-test("setEditable: TRUE Makes all cells editable", function(assert) {
-  var xword = createXWord(7);
-  xword.setEditable(true);
-  assert.equal($(jqGridId + "> div").attr("contenteditable"), "true");
-});
-test("setEditable: FALSE Makes all cells uneditable", function(assert) {
-  var xword = createXWord(7);
-  xword.setEditable(false);
-  assert.equal($(jqGridId + "> div").attr("contenteditable"),"false");
-});
-
 // readWord tests
 //--------------------------------------------------------------------------------------------------------------------
 test("readWord: Returns null if current cell is blocked", function(assert) {
@@ -592,34 +312,7 @@ test("getWordData: Returns DOWN word data if word is set", function(assert) {
 
 // setWordData tests
 //--------------------------------------------------------------------------------------------------------------------
-test("setWordData: Throws error if cellId is blocked or not in grid", function(assert) {
-  var xword = createXWord(7);
-  xword.toggleCellBlock("0-3");
-  assert.throws(function(){ xword.setWordData("0-3","Text","") }, /Invalid cell id/, Error);
-  assert.throws(function(){ xword.setWordData("0-7","Text","") }, /Invalid cell id/, Error);
-});
-test("setWordData: Throws error if cellId is not in word (across or down)", function(assert) {
-  var xword = createXWord(7);
-  xword.toggleCellBlock("0-1");
-  xword.toggleCellBlock("1-2");
-  assert.throws(function(){ xword.setWordData("0-0","Text","", true) }, /Invalid cell id/, Error);
-  assert.throws(function(){ xword.setWordData("0-2","Text","", false) }, /Invalid cell id/, Error);
-});
-test("setWordData: Throws error if across or down word does not fit", function(assert) {
-  var xword = createXWord(7);
-  xword.toggleCellBlock("0-1");
-  xword.toggleCellBlock("0-6");
-  assert.throws(function(){ xword.setWordData("0-5","tex","", true) }, /Word must be 4 chars/, Error);
-  assert.throws(function(){ xword.setWordData("1-2","text","", true) }, /Word must be 7 chars/, Error);
-  assert.throws(function(){ xword.setWordData("1-2","longword","", true) }, /Word must be 7 chars/, Error);
-  assert.throws(function(){ xword.setWordData("0-0","longword","", false) }, /Word must be 6 chars/, Error);
-});
-test("setWordData: Throws error if word does not contain alphabets", function(assert) {
-  var xword = createXWord(7);
-  assert.throws(function(){ xword.setWordData("0-0","","", true) }, /Word must contain all letters/, Error);
-  assert.throws(function(){ xword.setWordData("0-0","a1de5gh","", true) }, /Word must contain all letters/, Error);
-  assert.throws(function(){ xword.setWordData("0-0","ab e gh","", true) }, /Word must contain all letters/, Error);
-});
+
 test("setWordData: Stores the word and clue as across or down in json obj", function(assert) {
   var xword = createXWord(7);
   xword.toggleCellBlock("0-1");

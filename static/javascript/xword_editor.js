@@ -18,7 +18,14 @@ class XWordEditor {
     /* PUBLIC EVENTS HANDLERS */
     onSwitchChange = () => {
         let switchLabel = this.view.getActiveSwitchLabel();
-        (switchLabel === "Blocks") ? this.view.hideClueForm() : this.view.hideClueForm(false);
+        if (switchLabel === "Blocks") {
+            this.view.hideClueForm();
+            this.xwordGrid.clearHilite();
+        } else {
+            this.view.hideClueForm(false);
+            this.xwordGrid.hiliteNextIncomplete();
+            this.view.setClueForm( this._getClueFormFieldsData() );
+        }
     }
 
     onSizeChange = () => {
@@ -33,7 +40,16 @@ class XWordEditor {
     }
 
     onGridCellClick = (event) => {
-        this.xwordGrid.toggleBlock(event.target);
+        if (this.view.getActiveSwitchLabel() === "Blocks")
+            this.xwordGrid.toggleBlock(event.target);
+    }
+
+    onClueUpdateClick = () => {
+        let wordData = this.view.getClueFormInput();
+        try {
+            this.xwordGrid.setHilitedWordData(wordData);
+        }
+        catch(e) { this.view.setClueMsg(e.message); }
     }
 
     /* PRIVATE METHODS */
@@ -44,6 +60,17 @@ class XWordEditor {
         this.view.setSwitchLabel("Blocks");
         this.view.hideClueForm();
         this.view.dataChanged();
+    }
+    _getClueFormFieldsData() {
+        let formFields = {};
+        let clueNum = this.xwordGrid.getHilitedClueNum();
+        let isAcross = this.xwordGrid.isHiliteAcross();
+        let clueType = (isAcross) ? "Across" : "Down";
+        formFields.maxLength = this.xwordGrid.getHilitedCells().length;
+        formFields.clueWord = this.xwordGrid.getHilitedClueWord();
+        formFields.clueText = this.xwordGrid.getHilitedClueText();
+        formFields.clueRef = "#" + clueNum + " " + clueType + " (" + formFields.maxLength + ")";
+        return formFields;
     }
 }
 

@@ -15,6 +15,17 @@ function verifyClueNums(clueNums) {
     for (const i in keys)
         assert.equal($(gridCells[keys[i]]).children("span.xw-number").text(), clueNums[keys[i]]);
 }
+function clickOnCell(index) {
+    getGridCells()[index].click();
+}
+function gridCell(index) {
+    return $(getGridCells()[index]);
+}
+function doClueFormInput(clueWord, clueText) {
+        $("#clue-word").val(clueWord);
+        $("#clue-text").val(clueText);
+        $("#clue-update").click();
+    }
 
 /**
  * XWordEditor Initialization
@@ -131,19 +142,6 @@ function verifyClueNums(clueNums) {
         saveData({});
         $("#size").val(7).change();
         assert.false(controller.view.dataSaved);
-    });
-    test('Switching to Clues edit mode shows clue edit form', function (assert) {
-        let puzzleData = {id: 0, size: 5}
-        new XWordEditor(puzzleData);
-        $("#radio-2").prop("checked", true).change();
-        assert.equal($("#clue-form").prop("hidden"), false);
-    });
-    test('Switching back to Block edit mode hides clue edit form', function (assert) {
-        let puzzleData = {id: 0, size: 5}
-        new XWordEditor(puzzleData);
-        $("#radio-2").prop("checked", true).change();
-        $("#radio-1").prop("checked", true).change();
-        assert.true($("#clue-form").is(":hidden"));
     });
     test('Grid has default size (15) if not specified', function (assert) {
         let puzzleData = {};
@@ -302,85 +300,168 @@ function verifyClueNums(clueNums) {
     });
 })();
 
-// TEST: existing puzzle initialization sets clues edit mode if words/clues exist
-// TEST: existing puzzle initialization loads data, blocks and words into grid
-
 /**
  * XWordEditor Block Editing
  */
 (function() {
+    var controller = null;
     QUnit.module("XWordEditor Block Editing", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
-        }
+            controller = new XWordEditor({id: 0, size: 5});       }
     });
     test('Block Edit mode enables cell blocking', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
-        let gridCells = getGridCells();
-        gridCells[0].click();
-        assert.true($(gridCells[0]).hasClass("xw-block"));
+        clickOnCell(0);
+        assert.true($(gridCell(0)).hasClass("xw-block"));
     });
     test('Numbering in cell is cleared when blocked', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
-        let gridCells = getGridCells();
-        gridCells[0].click();
-        assert.equal($(gridCells[0]).children("span.xw-number").length, 0);
+        clickOnCell(0);
+        assert.equal(gridCell(0).children("span.xw-number").length, 0);
     });
     test('Reseting grid size retains block editing', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
         $("#size").val(7).change();
-        let gridCells = getGridCells();
-        gridCells[0].click();
-        assert.true($(gridCells[0]).hasClass("xw-block"));
+        clickOnCell(0);
+        assert.true(gridCell(0).hasClass("xw-block"));
     });
     test('Re-clicking cell toggles block', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
-        let gridCells = getGridCells();
-        gridCells[1].click();
-        gridCells[1].click();   // Second click
-        assert.false($(gridCells[1]).hasClass("xw-block"));
+        clickOnCell(1);
+        clickOnCell(1);   // Second click
+        assert.false(gridCell(1).hasClass("xw-block"));
     });
     test('Symmetric cell is also blocked', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
-        let gridCells = getGridCells();
-        gridCells[6].click();
-        assert.true($(gridCells[18]).hasClass("xw-block"));
-        gridCells[23].click();
-        assert.true($(gridCells[1]).hasClass("xw-block"));
+        clickOnCell(6);
+        assert.true(gridCell(18).hasClass("xw-block"));
+        clickOnCell(23);
+        assert.true(gridCell(1).hasClass("xw-block"));
     });
     test('Center cell in grid is properly blocked', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
-        let gridCells = getGridCells();
-        gridCells[12].click();   // Center cell
-        assert.true($(gridCells[12]).hasClass("xw-block"));
+        clickOnCell(12);   // Center cell
+        assert.true(gridCell(12).hasClass("xw-block"));
     });
-    test('Grid is autonumbered after cell block/unblock', function (assert) {
-        var gridSize = 5;
-        new XWordEditor({size: gridSize});
-        let gridCells = getGridCells();
-        gridCells[0].click();   // corner cells
-        gridCells[4].click();   // corner cells
-        gridCells[12].click();  // center cell
+    test('Grid is auto-numbered after cell block/unblock', function (assert) {
+        clickOnCell(0);   // corner cells
+        clickOnCell(4);   // corner cells
+        clickOnCell(12);  // center cell
         let clueNums = {1:"1",2:"2",3:"3",5:"4",9:"5",10:"6",13:"7",15:"8",17:"9",21:"10"};
         verifyClueNums(clueNums);
     });
     test('Blocking/unblocking a grid cell sets dataSaved to false', function (assert) {
-        var gridSize = 5;
-        let controller = new XWordEditor({size: gridSize});
         saveData({});
-        getGridCells()[8].click();   // block a cell
+        clickOnCell(8);   // block a cell
         assert.false(controller.view.dataSaved);
         saveData({});
-        getGridCells()[8].click();   // unblock cell
+        clickOnCell(8);   // unblock cell
         assert.false(controller.view.dataSaved);
     });
+    test("Does not block cell if it or symm cell contains a letter", function(assert) {
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("trial", "");
+        $("#radio-1").prop("checked", true).change();
+        clickOnCell(0);
+        assert.false($(gridCell(0)).hasClass("xw-block"));
+        clickOnCell(23);
+        assert.false($(gridCell(1)).hasClass("xw-block"));
+    });
 })();
+
+/**
+ * XWordEditor Clue Editing
+ */
+(function() {
+    function assertClueFormFields(clueRef, word, clueText, msg) {
+    assert.equal($("#clue-ref").text(), clueRef);
+    assert.equal($("#clue-word").val(), word);
+    assert.equal($("#clue-text").val(), clueText);
+    assert.equal($("#clue-msg").text(), msg);
+}
+    function readLetterInCell(cell) {
+        return $(cell).children(".xw-letter").text();
+    }
+    QUnit.module("XWordEditor Clue Edit Mode", {
+        beforeEach: function () {
+            setupFixture(EditPuzzlePageHtml);
+            new XWordEditor({id: 0, size: 5});
+            $("#radio-2").prop("checked", true).change();
+        }
+    });
+    test('Shows clue edit form', function (assert) {
+        assert.equal($("#clue-form").prop("hidden"), false);
+    });
+    test('Switching back to Block edit mode hides clue edit form', function (assert) {
+        $("#radio-1").prop("checked", true).change();  // Switch back to Block edit mode
+        assert.true($("#clue-form").is(":hidden"));
+    });
+    test('Disables blocking selected cells', function (assert) {
+        getGridCells()[0].click();
+        assert.false($(getGridCells()[0]).hasClass("xw-block"));
+    });
+    test('Highlights first incomplete across clue in an unblocked grid', function (assert) {
+        let hilitedCells = getGridCells().slice(0,5);
+        assert.true($(hilitedCells).hasClass("xw-hilite"));
+    });
+    test('Initializes clue form with hilited word data', function (assert) {
+        assertClueFormFields("#1 Across (5)", "", "", "")
+    });
+    test('Sets maxlength of word input field', function (assert) {
+        assert.equal($("#clue-word").attr("maxlength"), "5");
+    });
+    test('Switching back to block edit mode clears hilite', function (assert) {
+        $("#radio-1").prop("checked", true).change();
+        assert.equal(getGridCells().filter(".xw-hilite").length, 0);
+    });
+    test('Throws error if word input does not fit grid', function (assert) {
+        let word = "abcd ";
+        let gridCells = getGridCells();
+        let msgField = $("#clue-msg");
+        doClueFormInput(word, "");
+        assert.equal(msgField.text(), "Word must be 5 chars");
+        word = "abcdef";
+        doClueFormInput(word, "");
+        assert.equal(msgField.text(), "Word must be 5 chars");
+        for (let i = 0; i < word.length; i++)
+            assert.equal(readLetterInCell(gridCells[i]), "");
+    });
+    test('Throws error if word input does not contain alphabets', function (assert) {
+        let word = "ab5cd";
+        let gridCells = getGridCells();
+        let msgField = $("#clue-msg");
+        doClueFormInput(word, "");
+        assert.equal(msgField.text(), "Word must contain all letters");
+        word = "ab cd";
+        doClueFormInput(word, "");
+        assert.equal(msgField.text(), "Word must contain all letters");
+        for (var i = 0; i < word.length; i++)
+            assert.equal(readLetterInCell(gridCells[i]), "");
+    });
+    test('Valid word input is trimmed, capitalized and added to grid', function (assert) {
+        let word ="trial";
+        doClueFormInput(" "+word+" ", "");
+        assert.equal($("#clue-msg").text(), "");
+        let gridCells = getGridCells();
+        for (let i = 0; i < word.length; i++)
+            assert.equal(readLetterInCell(gridCells[i]), word[i].toUpperCase());
+    });
+    test('Updating word replaces existing chars in grid', function (assert) {
+        let word = "chnge";
+        doClueFormInput("trial", "");
+        doClueFormInput(word, "");  // Update the word
+        assert.equal($("#clue-msg").text(), "");
+        let gridCells = getGridCells();
+        for (var i = 0; i < word.length; i++)
+            assert.equal(readLetterInCell(gridCells[i]), word[i].toUpperCase() );
+    });
+
+    // Clueform is updated with saved clue and error is cleared
+    // Clue is shown as tool tip
+    // Clue is checked for no of letters in parenthesis
+    // No. of letters added to clue if missing
+    // Check if word conflicts with other letters
+    // Check letter colors
+    // Replaces tool tip if clue is updated
+})();
+
+// TEST: existing puzzle initialization sets clues edit mode if words/clues exist
+// TEST: existing puzzle initialization loads data, blocks and words into grid
 
 
 

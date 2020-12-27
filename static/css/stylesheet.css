@@ -151,17 +151,25 @@ i {
 /** XWORD GRID STYLING **/
 .xw-grid > div {
     position: relative;
+    text-align: center;
+    line-height: 30px;
 }
 .xw-number {
     position: absolute;
     font-size: 8px;
     font-weight: bold;
     color: black;
-    top: -1px;
-    left: 1px;
+    top: -10px;
+    left: 2px;
 }
 .xw-block {
     background-color: black;
+}
+.xw-hilite {
+    background-color: yellow;
+}
+.xw-letter {
+    font-size: 16px;
 }
 
 /*!*** TOGGLE SWITCH *!*/

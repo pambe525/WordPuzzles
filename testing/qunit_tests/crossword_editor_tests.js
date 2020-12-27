@@ -40,40 +40,6 @@ QUnit.module('CrosswordEditor', {
     },
 });
 
-// Blocks Edit Mode tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test('Block Edit Mode: Switching back to block edit clears hilites', function (assert) {
-    editor.initialize();
-    $(jqModeToggleId).prop("checked", true).change();
-    clickOnCellId("0-4");
-    assert.true($(jqPuzzleDivId + "> div").hasClass("xw-hilited"));
-    $(jqModeToggleId).prop("checked", false).change();
-    assert.false($(jqPuzzleDivId + ">div").hasClass("xw-hilited"));
-});
-
-// Word/Clue Edit Mode tests
-//--------------------------------------------------------------------------------------------------------------------
-QUnit.test('Clue Edit Mode: Switching to this mode disables blocking selected cells', function (assert) {
-    editor.initialize();
-    $(jqModeToggleId).prop("checked", true).change();
-    clickOnCellId("1-0");
-    assert.equal($(".xw-blocked").length, 0);
-});
-QUnit.test('Clue Edit Mode: By default first word is hilited and form is initialized', function (assert) {
-    editor.initialize();
-    $(jqModeToggleId).prop("checked", true).change();
-    assertClueFormFields("#1 Across (15)", "", "", "")
-});
-QUnit.test('Clue Edit Mode: Hiliting a blank grid word sets maxlength of word input field', function (assert) {
-    editor.initialize();  // NOTE: Grid is 15x15 by default
-    $(jqSizeSelectorId).val(5).change();
-    clickOnCellId("0-0");
-    clickOnCellId("0-4");
-    $(jqModeToggleId).prop("checked", true).change();  // Hilites first across word by default
-    assert.equal($(jqClueWordId).attr("maxlength"), "3");
-    clickOnCellId("1-1");
-    assert.equal($(jqClueWordId).attr("maxlength"), "5");
-});
 
 // Word/Clue Edit Form - Update Grid Btn tests
 //--------------------------------------------------------------------------------------------------------------------

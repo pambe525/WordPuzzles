@@ -4,7 +4,7 @@ class EditPuzzleView {
         jqDeleteBtn: "#delete", jqPublishBtn: '#publish', jqDesc: '#desc', jqSizeLabel: '#size-label',
         jqSizeSelect: '#size', jqRadio1: '#radio-1', jqRadio1Label: "#radio1-label",
         jqRadio2: '#radio-2', jqRadio2Label: '#radio2-label', jqClueForm: '#clue-form',
-        jqClueNum: '#clue-num', jqClueWord: '#clue-word', jqClueText: '#clue-text',
+        jqClueRef: '#clue-ref', jqClueWord: '#clue-word', jqClueText: '#clue-text',
         jqClueMsg: '#clue-msg', jqClueUpdateBtn: '#clue-update', jqClueDeleteBtn: "#clue-delete",
         jqPuzzleDiv: '#puzzle'
     };
@@ -51,6 +51,7 @@ class EditPuzzleView {
         $("input[name='switch']").change(controller.onSwitchChange);
         $(this.ID.jqSizeSelect).change(controller.onSizeChange);
         $(this.ID.jqSaveBtn).click(controller.onSaveClick);
+        $(this.ID.jqClueUpdateBtn).click(controller.onClueUpdateClick)
         $(this.ID.jqDeleteBtn).click(this._onDeleteClick);
         $(this.ID.jqDesc).change(this._onDescChange);
         $(window).on('beforeunload', this._onBeforeUnload);
@@ -73,6 +74,26 @@ class EditPuzzleView {
     setSwitchLabel(label) {
         if ( $(this.ID.jqRadio1Label).text() === label ) $(this.ID.jqRadio1).prop("checked", true);
         else $(this.ID.jqRadio2).prop("checked", true);
+    }
+
+    setClueForm(formFields) {
+        $(this.ID.jqClueRef).text(formFields.clueRef);
+        $(this.ID.jqClueWord).val(formFields.clueWord);
+        $(this.ID.jqClueText).val(formFields.clueText);
+        $(this.ID.jqClueWord).attr("maxlength", formFields.maxLength);
+        $(this.ID.jqClueMsg).text("");
+        //(formFields.word === "") ? $(this.IDs.clueWord).focus() : $(this.IDs.clueText).focus()
+    }
+
+    getClueFormInput() {
+        let formData = {}
+        formData.word = $(this.ID.jqClueWord).val();
+        formData.clue = $(this.ID.jqClueText).val();
+        return formData;
+    }
+
+    setClueMsg(message) {
+        $(this.ID.jqClueMsg).text(message);
     }
 
     save() {
