@@ -3,8 +3,8 @@ class XWordEditor {
     _sizeOptions = {5: "5x5", 7: "7x7", 9: "9x9", 11: "11x11", 13: "13x13", 15: "15x15", 17: "17x17"};
     _labels = {size:"Grid Size", radio1:"Blocks", radio2:"Clues"};
 
-    view = null;
-    xwordGrid = null;
+    view = null;        // type: EditPuzzleView
+    xwordGrid = null;   // type: XWordGrid
 
     constructor(puzzleData) {
         if ( !puzzleData ) throw new Error("Puzzle data is required");
@@ -46,9 +46,14 @@ class XWordEditor {
             this.view.hideClueForm();
             this.xwordGrid.clearHilite();
         } else {
-            this.view.hideClueForm(false);
-            this.xwordGrid.hiliteNextIncomplete();
-            this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
+            if ( !this.xwordGrid.isComplete() ) {
+                this.view.hideClueForm(false);
+                this.xwordGrid.hiliteNextIncomplete();
+                this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
+            } else {
+                this.view.hideClueForm();
+                this.view.disablePublish(false);
+            }
         }
     }
 

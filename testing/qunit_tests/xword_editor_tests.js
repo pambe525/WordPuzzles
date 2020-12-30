@@ -1,6 +1,6 @@
 (function() {
     //==> TESTCASE HELPERS
-    var controller = null;
+    let controller = null;
     function getGridCells() {
         return $("#puzzle > div").children("div");
     }
@@ -501,8 +501,8 @@
     // Check letter colors
     // Replaces tool tip if clue is updated
 
-    //==> XWordEditor::Completed Clues
-    QUnit.module("XWordEditor::Completion Status", {
+    //==> XWordEditor::Clues Status
+    QUnit.module("XWordEditor::Clues Status", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
         }
@@ -519,6 +519,23 @@
         clickOnCell(6);
         clickOnCell(11);
         assert.equal($("#status").text(), "ACROSS: 0 of 4, DOWN: 0 of 3");
+    });
+    test('Enables Publish button and hides clue form when all clues are done', function (assert) {
+        let gridData = {
+            blocks:"0,1,23,24",
+            across:{2: {word: "PUP", clue: "clue for 1a"}, 5: {word: "SIENA", clue: "clue for 4a"},
+                    10: {word: "ADDUP", clue: "clue for 6a"}, 15: {word: "LLAMA", clue:"clue for 7a"},
+                    20: {word: "EEL", clue: "clue for 8a"}},
+            down:  {2: {word: "PEDAL", clue: "clue for 1d"}, 3: {word: "UNUM", clue: "clue for 2d"},
+                    4: {word: "PAPA", clue: "clue for 3d"}, 5: {word: "SALE", clue: "clue for 4d"},
+                    6: {word: "IDLE", clue: "clue for 5d"}}
+        }
+        let puzzleData = {id: 10, size: 5, desc: "", data: gridData};
+        new XWordEditor(puzzleData);
+        assert.equal($("#status").text(), "ACROSS: 5 of 5, DOWN: 5 of 5");
+        assert.false($("#publish").prop("disabled"));
+        assert.true($("#clue-form").is(":hidden"));
+        assert.equal($(getGridCells()).filter(".xw-hilite").length, 0);
     });
     // Update status on adding word
     // Update status on deleting word

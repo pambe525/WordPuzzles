@@ -21,7 +21,7 @@ class EditPuzzleView {
         $(this.ID.jqSaveOkIcon).prop("hidden", true);
         $(this.ID.jqTitle).text( this._buildTitle() );
         (this.id === 0) ? this._disableDelete() : this._disableDelete(false);
-        this._disablePublish();
+        this.disablePublish();
         this._setClueFormTabIndex();
     }
 
@@ -39,6 +39,9 @@ class EditPuzzleView {
     }
     dataChanged = () => {
         this.dataSaved = false;
+    }
+    disablePublish(disable=true) {
+        $(this.ID.jqPublishBtn).prop("disabled", disable);
     }
     getActiveSwitchLabel() {
         if ( $("input[name='switch']:checked").val() === "radio-1" ) return $(this.ID.jqRadio1Label).text();
@@ -112,9 +115,6 @@ class EditPuzzleView {
     }
     _disableDelete(disable=true) {
         $(this.ID.jqDeleteBtn).prop("disabled", disable);
-    }
-    _disablePublish(disable=true) {
-        $(this.ID.jqPublishBtn).prop("disabled", disable);
     }
     _getData() {
         return {is_xword: this.isXWord, id: this.id, size: parseInt($(this.ID.jqSizeSelect).val()),

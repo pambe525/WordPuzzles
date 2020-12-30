@@ -5,7 +5,6 @@ class XWordGrid {
     size = 15;    /* default size */
     across = {};
     down = {};
-    _dataChangeListener = null;
 
     constructor(puzzleData, clickHandler) {
         if ( puzzleData.size !== undefined ) this.size = puzzleData.size;
@@ -61,6 +60,10 @@ class XWordGrid {
     }
     hasClues() {
         return ( Object.keys(this.across).length > 0 || Object.keys(this.down).length > 0 );
+    }
+    isComplete() {
+        return this._countDoneClues() === this._countTotalClues() &&
+               this._countDoneClues(false) === this._countTotalClues(false);
     }
     hiliteNextIncomplete() {
         let hiliteCells = this._getGridCells().slice(0, this.size);
