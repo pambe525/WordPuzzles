@@ -56,6 +56,9 @@ class XWordEditor {
             }
         }
     }
+    onPublishClick = () => {
+        this.view.publishPuzzle(this.xwordGrid.getGridData());
+    }
 
     /* PRIVATE METHODS */
     _setupNewGrid(puzzleData) {

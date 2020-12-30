@@ -1,12 +1,12 @@
 class EditPuzzleView {
     ID = {
         jqHomeBtn: "#home", jqTitle: '#page-title', jqSaveOkIcon: '#save-ok', jqSaveBtn: '#save',
-        jqDeleteBtn: "#delete", jqPublishBtn: '#publish', jqDesc: '#desc', jqSizeLabel: '#size-label',
-        jqSizeSelect: '#size', jqRadio1: '#radio-1', jqRadio1Label: "#radio1-label",
+        jqDeleteBtn: "#delete", jqPublishBtn: '#publish', jqUnpublishBtn: "#unpublish", jqDesc: '#desc',
+        jqSizeLabel: '#size-label', jqSizeSelect: '#size', jqRadio1: '#radio-1', jqRadio1Label: "#radio1-label",
         jqRadio2: '#radio-2', jqRadio2Label: '#radio2-label', jqClueForm: '#clue-form',
         jqClueRef: '#clue-ref', jqClueWord: '#clue-word', jqClueText: '#clue-text',
         jqClueMsg: '#clue-msg', jqClueUpdateBtn: '#clue-update', jqClueDeleteBtn: "#clue-delete",
-        jqPuzzleDiv: '#puzzle', jqStatus: '#status'
+        jqPuzzleDiv: '#puzzle', jqStatus: '#status', jqNavbar: '#navbar'
     };
 
     dataSaved = true;
@@ -19,6 +19,7 @@ class EditPuzzleView {
         if ( puzzleData.id ) this.id = puzzleData.id;
         if (this.id > 0) $(this.ID.jqDesc).text(puzzleData.desc);
         $(this.ID.jqSaveOkIcon).prop("hidden", true);
+        this._hideUnpublish();
         $(this.ID.jqTitle).text( this._buildTitle() );
         (this.id === 0) ? this._disableDelete() : this._disableDelete(false);
         this.disablePublish();
@@ -30,12 +31,24 @@ class EditPuzzleView {
         $("input[name='switch']").change(controller.onSwitchChange);
         $(this.ID.jqSizeSelect).change(controller.onSizeChange);
         $(this.ID.jqSaveBtn).click(controller.onSaveClick);
-        $(this.ID.jqClueUpdateBtn).click(controller.onClueUpdateClick)
+        $(this.ID.jqClueUpdateBtn).click(controller.onClueUpdateClick);
+        $(this.ID.jqPublishBtn).click(controller.onPublishClick);
         $(this.ID.jqDeleteBtn).click(this._onDeleteClick);
         $(this.ID.jqDesc).change(this._onDescChange);
         $(this.ID.jqClueWord).keypress(this._onEnterKey);
         $(this.ID.jqClueText).keypress(this._onEnterKey);
         $(window).on('beforeunload', this._onBeforeUnload);
+    }
+    publishPuzzle(puzzleData) {
+        let message = "Puzzle will be accessible to all users. Editing will be disabled. Please confirm.";
+        let confirmed = confirm(message);
+        if (confirmed) {
+            this._hideUnpublish(false);
+            this.hideClueForm();
+            $(this.ID.jqNavbar).hide();
+            this.sharedAt = new Date().toISOString();
+            this.save(puzzleData);
+        }
     }
     dataChanged = () => {
         this.dataSaved = false;
@@ -122,6 +135,15 @@ class EditPuzzleView {
     }
     _hideSaveOKIcon = () => {
         $(this.ID.jqSaveOkIcon).fadeOut(3000);
+    }
+    _hideUnpublish(hide=true) {
+        if (hide) {
+            $(this.ID.jqUnpublishBtn).hide();
+            $(this.ID.jqPublishBtn).show();
+        } else {
+             $(this.ID.jqUnpublishBtn).show();
+            $(this.ID.jqPublishBtn).hide();
+        }
     }
     _setClueFormTabIndex() {
         $(this.ID.jqClueWord).attr('tabindex', 1);

@@ -1,6 +1,7 @@
 (function() {
     //==> TESTCASE HELPERS
     let controller = null;
+    let puzzleData = null;
     function getGridCells() {
         return $("#puzzle > div").children("div");
     }
@@ -91,6 +92,7 @@
         assert.equal($("#page-title").text(), "New Crossword");
         assert.true($("#delete").prop("disabled"));
         assert.true($("#publish").prop("disabled"));
+        assert.true($("#unpublish").is(":hidden"));
         assert.true($("#clue-form").is(":hidden"));
         assert.true($("#radio-1").prop("checked"));
     });
@@ -245,18 +247,13 @@
         assert.deepEqual(ajaxData.data, {blocks:"",across:{}, down:{}});
     });
     test('Includes correct data in ajax call for existing xword on save', function (assert) {
-        let puzzleData = {id: 10, size: 5, desc: "xword #10"}
+        let puzzleData = {id: 10, size: 7, desc: "xword #10"}
         new XWordEditor(puzzleData);
         $("#save").click();
         let ajaxData = JSON.parse(ajaxSettings.data.data);
-        assert.equal(ajaxSettings.method, "POST");
-        assert.equal(ajaxSettings.dataType, "json");
-        assert.equal(ajaxSettings.data.action, "save");
         assert.equal(ajaxData.id, puzzleData.id);
         assert.equal(ajaxData.size, puzzleData.size);
         assert.equal(ajaxData.desc, puzzleData.desc);
-        assert.equal(ajaxData.is_xword, true);
-        assert.equal(ajaxData.shared_at, null);
         assert.deepEqual(ajaxData.data, {blocks:"",across:{}, down:{}});
     });
     test('Includes changes to desc in ajax call on save', function (assert) {
@@ -493,6 +490,7 @@
             assert.equal(readLetterInCell(gridCells[i]), word[i].toUpperCase() );
     });
 
+
     // Clueform is updated with saved clue and error is cleared
     // Clue is shown as tool tip
     // Clue is checked for no of letters in parenthesis
@@ -520,25 +518,63 @@
         clickOnCell(11);
         assert.equal($("#status").text(), "ACROSS: 0 of 4, DOWN: 0 of 3");
     });
-    test('Enables Publish button and hides clue form when all clues are done', function (assert) {
-        let gridData = {
-            blocks:"0,1,23,24",
-            across:{2: {word: "PUP", clue: "clue for 1a"}, 5: {word: "SIENA", clue: "clue for 4a"},
+    // Update status on adding word
+    // Update status on deleting word
+
+    //==> XWordEditor::Publish/Unpublish
+    QUnit.module("XWordEditor::Publish/Unpublish", {
+        beforeEach: function () {
+            setupFixture(EditPuzzlePageHtml);
+            let gridData = {
+                blocks:"0,1,23,24",
+                across:{2: {word: "PUP", clue: "clue for 1a"}, 5: {word: "SIENA", clue: "clue for 4a"},
                     10: {word: "ADDUP", clue: "clue for 6a"}, 15: {word: "LLAMA", clue:"clue for 7a"},
                     20: {word: "EEL", clue: "clue for 8a"}},
-            down:  {2: {word: "PEDAL", clue: "clue for 1d"}, 3: {word: "UNUM", clue: "clue for 2d"},
+                down:  {2: {word: "PEDAL", clue: "clue for 1d"}, 3: {word: "UNUM", clue: "clue for 2d"},
                     4: {word: "PAPA", clue: "clue for 3d"}, 5: {word: "SALE", clue: "clue for 4d"},
                     6: {word: "IDLE", clue: "clue for 5d"}}
+            }
+            puzzleData = {id: 10, size: 5, is_xword: true, desc: "Crosword", data: gridData};
+            new XWordEditor(puzzleData);
         }
-        let puzzleData = {id: 10, size: 5, desc: "", data: gridData};
-        new XWordEditor(puzzleData);
+    });
+    test('Enables Publish button and hides clue form when all clues are done', function (assert) {
         assert.equal($("#status").text(), "ACROSS: 5 of 5, DOWN: 5 of 5");
         assert.false($("#publish").prop("disabled"));
         assert.true($("#clue-form").is(":hidden"));
         assert.equal($(getGridCells()).filter(".xw-hilite").length, 0);
     });
-    // Update status on adding word
-    // Update status on deleting word
+    test('Displays confirmation box when publish button is clicked', function (assert) {
+        confirmResponse = false;     // Cancel confirmation box
+        $("#publish").click();
+        assert.true(confirmMessage.indexOf("Puzzle will be accessible to all users.") === 0);
+        assert.true(confirmMessage.indexOf("Editing will be disabled. Please confirm.") > 0);
+    });
+    test('Hides Publish btn and shows Unpublish btn when publish is confirmed', function (assert) {
+        confirmResponse = true;     // Cancel confirmation box
+        let publishBtn = $("#publish");
+        publishBtn.click();
+        assert.true(publishBtn.is(":hidden"));
+        assert.false($("#unpublish").is(":hidden"));
+    });
+    test('Disables editing and hides clueform when publish is confirmed', function (assert) {
+        confirmResponse = true;     // Cancel confirmation box
+        $("#publish").click();
+        assert.true($("#clue-form").is(":hidden"));
+        assert.true($("#navbar").is(":hidden"));
+    });
+    test('Saves data after setting timestamp when publish is confirmed', function (assert) {
+        confirmResponse = true;     // Cancel confirmation box
+        ajaxSettings = null;
+        $("#publish").click();
+        let ajaxData = JSON.parse(ajaxSettings.data.data);
+        assert.deepEqual(ajaxData.data, puzzleData.data);
+        assert.equal(ajaxData.id, puzzleData.id);
+        assert.equal(ajaxData.size, puzzleData.size);
+        assert.equal(ajaxData.desc, puzzleData.desc);
+        assert.true(ajaxData.shared_at !== null);
+    });
+
 })();
 
 
