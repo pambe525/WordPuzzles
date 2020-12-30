@@ -40,7 +40,6 @@ QUnit.module('CrosswordEditor', {
     },
 });
 
-
 // Word/Clue Edit Form - Update Grid Btn tests
 //--------------------------------------------------------------------------------------------------------------------
 QUnit.test('Clue Edit Form: Invalid input in clue form shows error message', function (assert) {
@@ -121,9 +120,6 @@ QUnit.test('Clue Edit Form: Form is hidden when all words and clues are complete
     doClueFormInput("ejoty", "clue text"); // 5 DOWN input updated; DONE - FORM IS HIDDEN
     assert.false($(jqClueFormId).is(":visible"));
 });
-
-// Word/Clue Edit Form - Remove Btn tests
-//--------------------------------------------------------------------------------------------------------------------
 QUnit.test('Clue Edit Form: Delete Btn removes word from grid', function (assert) {
     editor.initialize();  // NOTE: Grid is 15x15 by default
     $(jqSizeSelectorId).val(5).change();

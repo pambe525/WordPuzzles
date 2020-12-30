@@ -6,15 +6,15 @@ class EditPuzzleView {
         jqRadio2: '#radio-2', jqRadio2Label: '#radio2-label', jqClueForm: '#clue-form',
         jqClueRef: '#clue-ref', jqClueWord: '#clue-word', jqClueText: '#clue-text',
         jqClueMsg: '#clue-msg', jqClueUpdateBtn: '#clue-update', jqClueDeleteBtn: "#clue-delete",
-        jqPuzzleDiv: '#puzzle'
+        jqPuzzleDiv: '#puzzle', jqStatus: '#status'
     };
 
-    dataSaved = false;
+    dataSaved = true;
     isXWord = true;
     id = 0;
     sharedAt = null;
 
-    /* CONSTRUCTOR */
+    //==> CONSTRUCTOR
     constructor(puzzleData) {
         if ( puzzleData.id ) this.id = puzzleData.id;
         if (this.id > 0) $(this.ID.jqDesc).text(puzzleData.desc);
@@ -22,31 +22,10 @@ class EditPuzzleView {
         $(this.ID.jqTitle).text( this._buildTitle() );
         (this.id === 0) ? this._disableDelete() : this._disableDelete(false);
         this._disablePublish();
+        this._setClueFormTabIndex();
     }
 
-    /* PUBLIC METHODS */
-    setSizeSelector(sizeOptions, defaultVal) {
-        Object.keys(sizeOptions).forEach (key => {
-            $(this.ID.jqSizeSelect).append($("<option></option>").val(key).text(sizeOptions[key]));
-        });
-        $(this.ID.jqSizeSelect).val(defaultVal);
-    }
-
-    setSize(value) {
-        $(this.ID.jqSizeSelect).val(value);
-    }
-
-    setUILabels(labels) {
-        $(this.ID.jqSizeLabel).text(labels.size);
-        $(this.ID.jqRadio1Label).text(labels.radio1);
-        $(this.ID.jqRadio2Label).text(labels.radio2);
-    }
-
-    setPuzzleContent(puzzleHtml) {
-        $(this.ID.jqPuzzleDiv).empty();
-        $(this.ID.jqPuzzleDiv).append(puzzleHtml);
-    }
-
+    //==> PUBLIC METHODS
     bindHandlers(controller) {
         $("input[name='switch']").change(controller.onSwitchChange);
         $(this.ID.jqSizeSelect).change(controller.onSizeChange);
@@ -54,98 +33,109 @@ class EditPuzzleView {
         $(this.ID.jqClueUpdateBtn).click(controller.onClueUpdateClick)
         $(this.ID.jqDeleteBtn).click(this._onDeleteClick);
         $(this.ID.jqDesc).change(this._onDescChange);
+        $(this.ID.jqClueWord).keypress(this._onEnterKey);
+        $(this.ID.jqClueText).keypress(this._onEnterKey);
         $(window).on('beforeunload', this._onBeforeUnload);
     }
-
-    hideClueForm(hide=true) {
-        if (hide) $(this.ID.jqClueForm).hide();
-        else $(this.ID.jqClueForm).show();
+    dataChanged = () => {
+        this.dataSaved = false;
     }
-
     getActiveSwitchLabel() {
         if ( $("input[name='switch']:checked").val() === "radio-1" ) return $(this.ID.jqRadio1Label).text();
         else return $(this.ID.jqRadio2Label).text();
     }
-
-    getSizeSelection() {
-        return parseInt($(this.ID.jqSizeSelect).val());
-    }
-
-    setSwitchLabel(label) {
-        if ( $(this.ID.jqRadio1Label).text() === label ) $(this.ID.jqRadio1).prop("checked", true);
-        else $(this.ID.jqRadio2).prop("checked", true);
-    }
-
-    setClueForm(formFields) {
-        $(this.ID.jqClueRef).text(formFields.clueRef);
-        $(this.ID.jqClueWord).val(formFields.clueWord);
-        $(this.ID.jqClueText).val(formFields.clueText);
-        $(this.ID.jqClueWord).attr("maxlength", formFields.maxLength);
-        $(this.ID.jqClueMsg).text("");
-        //(formFields.word === "") ? $(this.IDs.clueWord).focus() : $(this.IDs.clueText).focus()
-    }
-
     getClueFormInput() {
         let formData = {}
         formData.word = $(this.ID.jqClueWord).val();
         formData.clue = $(this.ID.jqClueText).val();
         return formData;
     }
-
-    setClueMsg(message) {
-        $(this.ID.jqClueMsg).text(message);
+    getSizeSelection() {
+        return parseInt($(this.ID.jqSizeSelect).val());
     }
-
-    save() {
+    hideClueForm(hide=true) {
+        if (hide) $(this.ID.jqClueForm).hide();
+        else $(this.ID.jqClueForm).show();
+    }
+    save(puzzleData) {
+        let fullDataObj = this._getData();
+        fullDataObj["data"] = puzzleData;
         $.ajax({
             method: "POST",
             dataType: "json",
-            data: {'action':'save', 'data': JSON.stringify(this._getData())},
+            data: { 'action':'save', 'data': JSON.stringify(fullDataObj) },
             success: this._onSaveSuccess,
             error: this._onServerError,
         });
     }
-
-    dataChanged = () => {
-        this.dataSaved = false;
+    selectSwitchLabel(label) {
+        if ( $(this.ID.jqRadio1Label).text() === label ) $(this.ID.jqRadio1).prop("checked", true).change();
+        else $(this.ID.jqRadio2).prop("checked", true).change();
+    }
+    setClueForm(formFields) {
+        $(this.ID.jqClueRef).text(formFields.clueRef);
+        $(this.ID.jqClueWord).val(formFields.clueWord);
+        $(this.ID.jqClueText).val(formFields.clueText);
+        $(this.ID.jqClueWord).attr("maxlength", formFields.maxLength);
+        $(this.ID.jqClueMsg).text("");
+        $(this.ID.jqClueWord).focus();
+        //(formFields.word === "") ? $(this.IDs.clueWord).focus() : $(this.IDs.clueText).focus()
+    }
+    setClueMsg(message) {
+        $(this.ID.jqClueMsg).text(message);
+    }
+    setPuzzleContent(puzzleHtml) {
+        $(this.ID.jqPuzzleDiv).empty();
+        $(this.ID.jqPuzzleDiv).append(puzzleHtml);
+    }
+    setSize(value) {
+        $(this.ID.jqSizeSelect).val(value);
+    }
+    setSizeSelector(sizeOptions, defaultVal) {
+        Object.keys(sizeOptions).forEach (key => {
+            $(this.ID.jqSizeSelect).append($("<option></option>").val(key).text(sizeOptions[key]));
+        });
+        $(this.ID.jqSizeSelect).val(defaultVal);
+    }
+    setStatus(statusText) {
+        $(this.ID.jqStatus).text(statusText);
+    }
+    setUILabels(labels) {
+        $(this.ID.jqSizeLabel).text(labels.size);
+        $(this.ID.jqRadio1Label).text(labels.radio1);
+        $(this.ID.jqRadio2Label).text(labels.radio2);
     }
 
-    /* PRIVATE METHODS */
+    //==> PRIVATE METHODS
     _buildTitle(){
         return (this.id === 0) ? "New Crossword" : "Edit Crossword #" + this.id;
     }
-
+    _disableDelete(disable=true) {
+        $(this.ID.jqDeleteBtn).prop("disabled", disable);
+    }
+    _disablePublish(disable=true) {
+        $(this.ID.jqPublishBtn).prop("disabled", disable);
+    }
+    _getData() {
+        return {is_xword: this.isXWord, id: this.id, size: parseInt($(this.ID.jqSizeSelect).val()),
+                desc: $(this.ID.jqDesc).text(), shared_at: this.sharedAt, data:{}};
+    }
+    _hideSaveOKIcon = () => {
+        $(this.ID.jqSaveOkIcon).fadeOut(3000);
+    }
+    _setClueFormTabIndex() {
+        $(this.ID.jqClueWord).attr('tabindex', 1);
+        $(this.ID.jqClueText).attr('tabindex', 2);
+    }
     _showSaveOKIcon() {
         $(this.ID.jqSaveOkIcon).show(0, this._hideSaveOKIcon);
     }
 
-    _hideSaveOKIcon = () => {
-        $(this.ID.jqSaveOkIcon).fadeOut(3000);
-    }
-
-    _getData() {
-        return {is_xword: this.isXWord, id: this.id, size: parseInt($(this.ID.jqSizeSelect).val()),
-                desc: $(this.ID.jqDesc).text(), shared_at: this.sharedAt};
-    }
-
-    _disableDelete(disable=true) {
-        $(this.ID.jqDeleteBtn).prop("disabled", disable);
-    }
-
-    _disablePublish(disable=true) {
-        $(this.ID.jqPublishBtn).prop("disabled", disable);
-    }
-
-    /* PRIVATE EVENT HANDLERS */
-    _onDescChange = () => {
-        this.dataChanged();
-    }
-
-    _onBeforeUnload = (e) => {
+    //==> PRIVATE EVENT HANDLERS
+    _onBeforeUnload = () => {
         if (this.dataSaved) return;
         return "";
     }
-
     _onDeleteClick = () =>{
         var msg = "All saved data will be permanently deleted.";
         var response = confirm(msg);
@@ -158,11 +148,15 @@ class EditPuzzleView {
             error: this._onServerError,
         });
     }
-
     _onDeleteSuccess = (result) => {
         window.location.replace("/");
     }
-
+    _onDescChange = () => {
+        this.dataChanged();
+    }
+    _onEnterKey = (event) => {
+        if (event.keyCode === 13) $(this.ID.jqClueUpdateBtn).click();
+    }
     _onSaveSuccess = (result) => {
         if (result['error_message'] !== undefined && result['error_message'] !== "") {
             alert(result['error_message']);
@@ -173,7 +167,6 @@ class EditPuzzleView {
             this.dataSaved = true;
         }
     }
-
     _onServerError = (xhr, status, error) => {
         alert(error);
     }

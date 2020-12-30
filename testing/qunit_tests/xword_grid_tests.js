@@ -8,22 +8,6 @@ QUnit.module('XWord Grid', {
   },
 });
 
-// Constructor tests
-//--------------------------------------------------------------------------------------------------------------------
-test("BASE show: With puzzleData loads words as data", function(assert) {
-  var puzzleData = {
-    puzzle_id: 10, size: 5, data:{blocks:"0,4,20,24", across:{"0-1":{word:"pin",clue:"clue for pin"},
-    "1-0":{word:"trial", clue:""}}, down:{"0-1":{word:"prime", clue:"clue for prime"}}}
-  };
-  var xword = createXWord(puzzleData);
-  assert.equal(Object.keys(xword.words.across).length, 2);
-  assert.equal(Object.keys(xword.words.down).length, 1);
-  assert.equal(xword.words.across["0-1"].word, "pin");
-  assert.equal(xword.words.across["0-1"].clue, "clue for pin (3)");
-  assert.equal(xword.words.down["0-1"].word, "prime");
-  assert.equal(xword.words.down["0-1"].clue, "clue for prime (5)");
-  assert.equal(xword.readWord("1-0", true), "TRIAL");
-});
 
 // setSharingOn tests
 //--------------------------------------------------------------------------------------------------------------------
@@ -33,24 +17,6 @@ test('BASE setSharingOn: Sets current datetime string if true else null', functi
     assert.equal(puzzle.sharedAt, new Date().toISOString());
     puzzle.setSharingOn(false);
     assert.equal(puzzle.sharedAt, null);
-});
-
-// SAVE tests
-//--------------------------------------------------------------------------------------------------------------------
-test('BASE save: Includes proper data parameters in ajax call', function(assert) {
-    var puzzle = new XWordGrid(5);
-    puzzle.id = 222;
-    puzzle._getDataToSave = function(){ return {somedata:"blah"}; };
-    var ajaxArg = null;
-    $.ajax = function(obj) { ajaxArg = obj };
-    puzzle.save();
-    var ajaxDataObj = JSON.parse(ajaxArg.data['data']);
-    assert.equal(ajaxDataObj['id'], 222);
-    assert.equal(ajaxDataObj['size'], 5);
-    assert.equal(ajaxDataObj['desc'], "");
-    assert.equal(ajaxDataObj['is_xword'], true);
-    assert.equal(ajaxDataObj['shared_at'], null);
-    assert.deepEqual(ajaxDataObj['data'], {somedata:"blah"});
 });
 
 // _dataChanged tests
@@ -531,40 +497,6 @@ test("deleteWordData: Deletes tooltip for the word if it exists", function(asser
   xword.setWordData("0-0", "ACROS", "clue 1A", true);   // ACROSS WORD
   xword.deleteWordData("0-0", true);
   assert.equal($("#0-0").attr("title"), "1 Down: clue 1D (5)");
-});
-
-// _getDataToSave tests
-//--------------------------------------------------------------------------------------------------------------------
-test("_getDataToSave: Returns grid data for an empty grid as JSON obj", function(assert) {
-  var xword = createXWord(5);
-  var gridDataObj = xword._getDataToSave();
-  assert.equal(gridDataObj.blocks, "");
-  assert.deepEqual(gridDataObj.across, {});
-  assert.deepEqual(gridDataObj.down, {});
-});
-test("_getDataToSave: Returns grid data for blocks", function(assert) {
-  var xword = createXWord(5);
-  xword.toggleCellBlock("0-1");
-  xword.toggleCellBlock("1-1");
-  xword.toggleCellBlock("1-4");
-  xword.toggleCellBlock("2-2");
-  var gridDataObj = xword._getDataToSave();
-  assert.equal(gridDataObj.blocks, "1,6,9,12,15,18,23");
-});
-test("_getDataToSave: Returns grid data for words", function(assert) {
-  var xword = createXWord(5);
-  xword.toggleCellBlock("0-1");
-  xword.toggleCellBlock("1-4");
-  xword.toggleCellBlock("2-2");
-  xword.setWordData("0-2","NET","clue 2a");
-  xword.setWordData("1-1","DOWN","clue 4d", false);
-  xword.setWordData("4-0","ONE", "");
-  var gridDataObj = xword._getDataToSave();
-  assert.equal(gridDataObj.blocks, "1,9,12,15,23");
-  var expected = {across:{"0-2":{word:"NET",clue:"clue 2a (3)"},"4-0":{word:"ONE",clue:""}},
-                  down:{"1-1":{word:"DOWN", clue:"clue 4d (4)"}}};
-  assert.deepEqual(gridDataObj.across, expected.across);
-  assert.deepEqual(gridDataObj.down, expected.down);
 });
 
 // isReady tests

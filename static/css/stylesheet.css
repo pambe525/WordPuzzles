@@ -149,7 +149,17 @@ i {
 }
 
 /** XWORD GRID STYLING **/
+.xw-grid {
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+}
 .xw-grid > div {
+    float: left;
+    box-sizing: border-box;
+    width: 29px;
+    height: 29px;
+    border-left: 1px solid black;
+    border-top: 1px solid black;
     position: relative;
     text-align: center;
     line-height: 30px;

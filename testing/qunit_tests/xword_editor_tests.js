@@ -1,47 +1,59 @@
-/**
- * TEST HELPERS
- */
-function getGridCells() {
-    return $("#puzzle > div").children("div");
-}
-function saveData(responseData) {
-    ajaxSettings = null;
-    $("#save").click();
-    ajaxSettings.success(responseData);
-}
-function verifyClueNums(clueNums) {
-    let gridCells = getGridCells();
-    let keys = Object.keys(clueNums);
-    for (const i in keys)
-        assert.equal($(gridCells[keys[i]]).children("span.xw-number").text(), clueNums[keys[i]]);
-}
-function clickOnCell(index) {
-    getGridCells()[index].click();
-}
-function gridCell(index) {
-    return $(getGridCells()[index]);
-}
-function doClueFormInput(clueWord, clueText) {
-        $("#clue-word").val(clueWord);
-        $("#clue-text").val(clueText);
-        $("#clue-update").click();
-    }
-
-/**
- * XWordEditor Initialization
- */
 (function() {
-    QUnit.module("XWordEditor Instantiation", {
+    //==> TESTCASE HELPERS
+    var controller = null;
+    function getGridCells() {
+        return $("#puzzle > div").children("div");
+    }
+    function saveData(responseData) {
+        ajaxSettings = null;
+        $("#save").click();
+        ajaxSettings.success(responseData);
+    }
+    function verifyClueNums(clueNums) {
+        let gridCells = getGridCells();
+        let keys = Object.keys(clueNums);
+        for (const i in keys)
+            assert.equal($(gridCells[keys[i]]).children("span.xw-number").text(), clueNums[keys[i]]);
+    }
+    function clickOnCell(index) {
+        getGridCells()[index].click();
+    }
+    function gridCell(index) {
+        return $(getGridCells()[index]);
+    }
+    function doClueFormInput(clueWord, clueText) {
+            $("#clue-word").val(clueWord);
+            $("#clue-text").val(clueText);
+            $("#clue-update").click();
+        }
+    function assertClueFormFields(clueRef, word, clueText, msg) {
+        assert.equal($("#clue-ref").text(), clueRef);
+        assert.equal($("#clue-word").val(), word);
+        assert.equal($("#clue-text").val(), clueText);
+        assert.equal($("#clue-msg").text(), msg);
+    }
+    function readLetterInCell(cell) {
+            return $(cell).children(".xw-letter").text();
+        }
+    function assertGridWord(startCellIndex, word, isAcross=true) {
+            let gridCells = getGridCells(), wordCells = null;
+            if (isAcross) wordCells = gridCells.slice(startCellIndex,startCellIndex+word.length);
+            for (let i = 0; i < word.length; i++)
+                assert.equal(readLetterInCell(gridCells[i]), word[i].toUpperCase());
+        }
+
+    //==> XWordEditor Initialization
+    QUnit.module("XWordEditor::Instantiation", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
         }
     });
-    test("Throws error if puzzleData is null", function (assert) {
+    test('Throws error if puzzleData is null', function (assert) {
         assert.throws(function () {
             new XWordEditor();
         }, /Puzzle data is required/);
     });
-    test("Customizes labels on page", function (assert) {
+    test('Customizes labels on page', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         assert.equal($("#size-label").text(), "Grid Size");
@@ -49,7 +61,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.equal($("#radio2-label").text(), "Clues");
         assert.equal($("#save-ok").prop("hidden"), true);
     });
-    test("Sets size selector dropdown with correct options", function (assert) {
+    test('Sets size selector dropdown with correct options', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         let options = $("#size > option");
@@ -63,12 +75,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.deepEqual(textVals, ["5x5", "7x7", "9x9", "11x11", "13x13", "15x15", "17x17"])
         assert.deepEqual(values, [5, 7, 9, 11, 13, 15, 17]);
     });
-    test("Sets default size on selector dropdown", function (assert) {
-        let puzzleData = {id: 0}
-        new XWordEditor(puzzleData);
-        assert.equal($("#size").val(), 15);
-    });
-    test("Sets specified grid size in dropdown", function (assert) {
+    test('Sets specified grid size in dropdown', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         assert.equal($("#size").val(), puzzleData.size);
@@ -78,8 +85,8 @@ function doClueFormInput(clueWord, clueText) {
         new XWordEditor(puzzleData);
         assert.equal(getGridCells().length, 25);
     });
-    test("Sets correct title and state of widgets on new puzzle", function (assert) {
-        let puzzleData = {size: 5};
+    test('Sets correct title and state of widgets on new puzzle', function (assert) {
+        let puzzleData = {id:0, size: 5};
         new XWordEditor(puzzleData);
         assert.equal($("#page-title").text(), "New Crossword");
         assert.true($("#delete").prop("disabled"));
@@ -87,7 +94,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.true($("#clue-form").is(":hidden"));
         assert.true($("#radio-1").prop("checked"));
     });
-    test("Sets correct title and state of widgets on existing puzzle", function (assert) {
+    test('Sets correct title and state of widgets on existing puzzle', function (assert) {
         let puzzleData = {id: 10, size: 5, desc: "xword 10"};     // ID=10 indicates exisiting puzzle edit
         new XWordEditor(puzzleData);
         assert.equal($("#page-title").text(), "Edit Crossword #10");
@@ -97,13 +104,13 @@ function doClueFormInput(clueWord, clueText) {
         assert.true($("#clue-form").is(":hidden"));
         assert.true($("#radio-1").prop("checked"));
     });
-    test('Grid Size change redraws grid to new size', function (assert) {
+    test('Redraws grid to new size when grid size changes', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         $("#size").val(7).change();
         assert.equal(getGridCells().length, 49);
     });
-    test('Grid Size change in Clues mode switches to Block mode, hides form', function (assert) {
+    test('Switches to block edit and hides form when grid size changes in clues mode', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         let radio2 = $("#radio-2");
@@ -113,7 +120,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.false(radio2.is(":checked"));
         assert.true($("#clue-form").is(":hidden"));
     });
-    test('Grid Size change after adding blocks shows confirmation box', function (assert) {
+    test('Shows confirmation box when grid size changes after adding blocks', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         let gridCells = getGridCells();
@@ -126,7 +133,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.equal(gridCells.length, 25);    // No change to grid
         assert.equal(selector.val(), 5);       // Should revert back to previous selection
     });
-    test('Grid Size change after adding blocks resizes after confirmation', function (assert) {
+    test('Changes grid size change on confirmation after adding blocks', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         getGridCells()[0].click();  // Create a block
@@ -136,19 +143,20 @@ function doClueFormInput(clueWord, clueText) {
         assert.equal(getGridCells().length, 49);    // Grid changed
         assert.equal(selector.val(), 7);       // New selection
     });
-    test('Grid size change sets dataSaved to false', function (assert) {
+    test('Sets dataSaved to false after grid size is changed', function (assert) {
         let puzzleData = {id: 0, size: 5}
         let controller = new XWordEditor(puzzleData);
         saveData({});
         $("#size").val(7).change();
         assert.false(controller.view.dataSaved);
     });
-    test('Grid has default size (15) if not specified', function (assert) {
-        let puzzleData = {};
+    test('Sets grid to default size (15) if not specified', function (assert) {
+        let puzzleData = {id:0};
         new XWordEditor(puzzleData);
         assert.equal(getGridCells().length, 225);
+        assert.equal($("#size").val(), 15);
     });
-    test('Grid bounding box has correct width & height', function (assert) {
+    test('Sets grid bounding box to correct width & height', function (assert) {
         var gridSize = 5;
         new XWordEditor({size: gridSize});
         assert.equal(getGridCells().length, 25);
@@ -156,20 +164,20 @@ function doClueFormInput(clueWord, clueText) {
         assert.equal(gridBox.width(), (29 * gridSize + 1));
         assert.equal(gridBox.height(), (29 * gridSize + 1));
     });
-    test('Grid autonumbers itself', function (assert) {
+    test('Autonumbers grids with no blocks', function (assert) {
         var gridSize = 5;
         new XWordEditor({size: gridSize});
         let clueNums = {0:"1",1:"2",2:"3",3:"4",4:"5",5:"6",10:"7",15:"8",20:"9"};
         verifyClueNums(clueNums);
      });
-    test('dataSaved is false after description is changed', function (assert) {
+    test('Sets dataSaved to false after description is changed', function (assert) {
         let puzzleData = {id: 0, size: 5}
         let controller = new XWordEditor(puzzleData);
         saveData({});
         $("#desc").text("Some text").change();
         assert.false(controller.view.dataSaved);
     });
-    test('Grid is initialized with blocked cells from existing data', function (assert) {
+    test('Restores blocked cells in grid from existing data', function (assert) {
         var gridSize = 5, blockStr = "1,2,7,17,22,23";
         new XWordEditor({size: gridSize, data:{blocks: blockStr}});
         let gridCells = getGridCells();
@@ -179,18 +187,50 @@ function doClueFormInput(clueWord, clueText) {
         for (var i = 0; i < blockedIndices.length; i++)
             assert.true($(gridCells[parseInt(blockedIndices[i])]).hasClass("xw-block"));
     });
-})();
 
-/**
- * XWordEditor Save/Delete
- */
-(function() {
-    QUnit.module("XWordEditor Save/Delete", {
+    QUnit.module("XWordEditor::Restore Data", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
         }
     });
-    test('Saving data includes basic data in ajax call for new xword', function (assert) {
+    test('Switches to clues edit mode when existing word data is restored', function (assert) {
+        var gridSize = 5, blockStr = "1,2,7,17,22,23";
+        var puzzleData = {id: 10, size: gridSize, data:{
+            blocks: blockStr, across:{"0-0":{word:"ABCDE", clue:"1 across (5)"}}, down:{}}
+        }
+        new XWordEditor(puzzleData);
+        assert.true($("#radio-2").prop("checked"));
+        assert.false($("#clue-form").prop("hidden"));
+     });
+    test('Hilites word in grid and loads clue form when data is restored', function (assert) {
+        var gridSize = 5, blockStr = "";
+        var puzzleData = {
+            id: 10, size: gridSize, data:{blocks: blockStr, across:{0:{word:"ABCDE", clue:""}}, down:{}}
+        }
+        new XWordEditor(puzzleData);
+        let hilitedCells = getGridCells().slice(0,5);
+        assert.true($(hilitedCells).hasClass("xw-hilite"));
+        assertGridWord(0, "ABCDE");
+        assertClueFormFields("#1 Across (5)", "ABCDE", "", "");
+     });
+    test('Sets dataSaved to true after data is restored', function (assert) {
+        var gridSize = 5, blockStr = "";
+        var puzzleData = {
+            id: 10, size: gridSize, data:{blocks: blockStr, across:{0:{word:"ABCDE", clue:""}}, down:{}}
+        }
+        controller = new XWordEditor(puzzleData);
+        assert.true(controller.view.dataSaved);
+     });
+    // Existing puzzle - Hilites the first incomplete clue across or down
+    // Existing puzzle - Hides form if all clues are complete and enables publish
+
+    //==> XWordEditor::Save/Delete
+    QUnit.module("XWordEditor::Save/Delete", {
+        beforeEach: function () {
+            setupFixture(EditPuzzlePageHtml);
+        }
+    });
+    test('Includes correct data in ajax call for new xword on save', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         $("#save").click();
@@ -202,8 +242,9 @@ function doClueFormInput(clueWord, clueText) {
         assert.equal(ajaxData.size, puzzleData.size);
         assert.equal(ajaxData.is_xword, true);
         assert.equal(ajaxData.shared_at, null);
+        assert.deepEqual(ajaxData.data, {blocks:"",across:{}, down:{}});
     });
-    test('Saving data includes basic data in ajax call for existing xword', function (assert) {
+    test('Includes correct data in ajax call for existing xword on save', function (assert) {
         let puzzleData = {id: 10, size: 5, desc: "xword #10"}
         new XWordEditor(puzzleData);
         $("#save").click();
@@ -216,8 +257,9 @@ function doClueFormInput(clueWord, clueText) {
         assert.equal(ajaxData.desc, puzzleData.desc);
         assert.equal(ajaxData.is_xword, true);
         assert.equal(ajaxData.shared_at, null);
+        assert.deepEqual(ajaxData.data, {blocks:"",across:{}, down:{}});
     });
-    test('Saving data includes desc in ajax call', function (assert) {
+    test('Includes changes to desc in ajax call on save', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         let descField = $("#desc");
@@ -226,14 +268,26 @@ function doClueFormInput(clueWord, clueText) {
         let ajaxData = JSON.parse(ajaxSettings.data.data);
         assert.equal(ajaxData.desc, descField.text());
     });
-    test('Saving data successfully enables delete button', function (assert) {
+    test('Includes full data in ajax call for xword on save', function (assert) {
+        let gridData = {
+            blocks:"0,4,12,20,24",
+            across:{1: {word: "abcd", clue: "clue for 1a"}, 5: {word: "efghi", clue: "clue for 4a"}},
+            down:{1: {word: "jklmn", clue:""}, 2:{word:"op", clue:"clue for 2d"}}
+        }
+        let puzzleData = {id: 10, size: 5, desc: "xword #10", data: gridData};
+        new XWordEditor(puzzleData);
+        $("#save").click();
+        let ajaxData = JSON.parse(ajaxSettings.data.data);
+        assert.deepEqual(ajaxData.data, gridData);
+    });
+    test('Enables delete button after successful save', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         saveData({});
         assert.equal($("#delete").prop("disabled"), false);
         assert.false($("#save-ok").is(":hidden"));
     });
-    test('Saving data a second time includes puzzle id', function (assert) {
+    test('Includes puzzle id when saving data a second time ', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         let saveBtn = $("#save");
@@ -242,7 +296,7 @@ function doClueFormInput(clueWord, clueText) {
         let ajaxData = JSON.parse(ajaxSettings.data.data);
         assert.equal(ajaxData.id, 10);
     });
-    test('Saving data with a trapped error message displays error', function (assert) {
+    test('Displays alert message when trapped error occurs on save', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         let msg = "Trapped error";
@@ -251,7 +305,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.equal($("#save-ok").is(":hidden"), true);
         assert.equal($("#delete").prop("disabled"), true);
     });
-    test('Saving data with a system error shows alert with error message', function (assert) {
+    test('Displays alert message when system error occurs on save', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         ajaxSettings = null;
@@ -260,14 +314,14 @@ function doClueFormInput(clueWord, clueText) {
         ajaxSettings.error(null, null, msg);
         assert.equal(alertMessage, msg);
     });
-    test('Saving data sets dataSaved to true', function (assert) {
+    test('Sets dataSaved to true on successful save', function (assert) {
         let puzzleData = {id: 0, size: 5}
         let controller = new XWordEditor(puzzleData);
         assert.false(controller.view.dataSaved);
         saveData({});
         assert.true(controller.view.dataSaved);
     });
-    test('Delete shows confirm box before deleting. Cancel takes no action.', function (assert) {
+    test('Shows confirm box before deleting - cancel takes no action', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         $("#save").click();          // First save the grid to enable Delete btn
@@ -276,7 +330,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.true(confirmMessage.indexOf("All saved data will be permanently deleted.") === 0);
         assert.equal(getGridCells().length, 25)
     });
-    test('Delete confirmation makes ajax call to delete puzzle', function (assert) {
+    test('Makes ajax call to delete puzzle on confirmation', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         saveData({id: 15});           // First save the grid to enable Delete btn
@@ -287,7 +341,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.equal(ajaxSettings.data.action, "delete");
         assert.equal(ajaxSettings.data.id, 15);
     });
-    test('Delete with system error displays alert message', function (assert) {
+    test('Displays alert message when system error occurs on delete', function (assert) {
         let puzzleData = {id: 0, size: 5}
         new XWordEditor(puzzleData);
         $("#save").click();          // First save the grid to enable Delete btn
@@ -298,54 +352,49 @@ function doClueFormInput(clueWord, clueText) {
         ajaxSettings.error(null, null, msg);
         assert.equal(alertMessage, msg);
     });
-})();
 
-/**
- * XWordEditor Block Editing
- */
-(function() {
-    var controller = null;
-    QUnit.module("XWordEditor Block Editing", {
+    //==> XWordEditor::Block Editing
+    QUnit.module("XWordEditor::Block Editing", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
             controller = new XWordEditor({id: 0, size: 5});       }
     });
-    test('Block Edit mode enables cell blocking', function (assert) {
+    test('Enables cell blocking in block edit mode ', function (assert) {
         clickOnCell(0);
         assert.true($(gridCell(0)).hasClass("xw-block"));
     });
-    test('Numbering in cell is cleared when blocked', function (assert) {
+    test('Clears numbering in cell when it is blocked', function (assert) {
         clickOnCell(0);
         assert.equal(gridCell(0).children("span.xw-number").length, 0);
     });
-    test('Reseting grid size retains block editing', function (assert) {
+    test('Retains block editing when grid size is reset', function (assert) {
         $("#size").val(7).change();
         clickOnCell(0);
         assert.true(gridCell(0).hasClass("xw-block"));
     });
-    test('Re-clicking cell toggles block', function (assert) {
+    test('Unlocks cell when cell is re-clicked', function (assert) {
         clickOnCell(1);
         clickOnCell(1);   // Second click
         assert.false(gridCell(1).hasClass("xw-block"));
     });
-    test('Symmetric cell is also blocked', function (assert) {
+    test('Blocks symmetric cell with rotational symmetry', function (assert) {
         clickOnCell(6);
         assert.true(gridCell(18).hasClass("xw-block"));
         clickOnCell(23);
         assert.true(gridCell(1).hasClass("xw-block"));
     });
-    test('Center cell in grid is properly blocked', function (assert) {
+    test('Blocks center cell in grid without symmetry', function (assert) {
         clickOnCell(12);   // Center cell
         assert.true(gridCell(12).hasClass("xw-block"));
     });
-    test('Grid is auto-numbered after cell block/unblock', function (assert) {
+    test('Auto-numbers grid after cell block/unblock', function (assert) {
         clickOnCell(0);   // corner cells
         clickOnCell(4);   // corner cells
         clickOnCell(12);  // center cell
         let clueNums = {1:"1",2:"2",3:"3",5:"4",9:"5",10:"6",13:"7",15:"8",17:"9",21:"10"};
         verifyClueNums(clueNums);
     });
-    test('Blocking/unblocking a grid cell sets dataSaved to false', function (assert) {
+    test('Sets dataSaved to false after blocking/unblocking a grid cell', function (assert) {
         saveData({});
         clickOnCell(8);   // block a cell
         assert.false(controller.view.dataSaved);
@@ -362,36 +411,24 @@ function doClueFormInput(clueWord, clueText) {
         clickOnCell(23);
         assert.false($(gridCell(1)).hasClass("xw-block"));
     });
-})();
 
-/**
- * XWordEditor Clue Editing
- */
-(function() {
-    function assertClueFormFields(clueRef, word, clueText, msg) {
-    assert.equal($("#clue-ref").text(), clueRef);
-    assert.equal($("#clue-word").val(), word);
-    assert.equal($("#clue-text").val(), clueText);
-    assert.equal($("#clue-msg").text(), msg);
-}
-    function readLetterInCell(cell) {
-        return $(cell).children(".xw-letter").text();
-    }
-    QUnit.module("XWordEditor Clue Edit Mode", {
+    //==> XWordEditor::Clue Editing
+    QUnit.module("XWordEditor::Clue Edit Mode", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
             new XWordEditor({id: 0, size: 5});
             $("#radio-2").prop("checked", true).change();
         }
     });
-    test('Shows clue edit form', function (assert) {
-        assert.equal($("#clue-form").prop("hidden"), false);
+    test('Shows clue edit form and sets focus on word input', function (assert) {
+        assert.false($("#clue-form").prop("hidden"));
+        assert.true($("#clue-word").is(":focus"));
     });
-    test('Switching back to Block edit mode hides clue edit form', function (assert) {
+    test('Hides clue edit form after switching back to block edit mode', function (assert) {
         $("#radio-1").prop("checked", true).change();  // Switch back to Block edit mode
         assert.true($("#clue-form").is(":hidden"));
     });
-    test('Disables blocking selected cells', function (assert) {
+    test('Disables blocking selected cells when in clue edit mode', function (assert) {
         getGridCells()[0].click();
         assert.false($(getGridCells()[0]).hasClass("xw-block"));
     });
@@ -400,7 +437,7 @@ function doClueFormInput(clueWord, clueText) {
         assert.true($(hilitedCells).hasClass("xw-hilite"));
     });
     test('Initializes clue form with hilited word data', function (assert) {
-        assertClueFormFields("#1 Across (5)", "", "", "")
+        assertClueFormFields("#1 Across (5)", "", "", "");
     });
     test('Sets maxlength of word input field', function (assert) {
         assert.equal($("#clue-word").attr("maxlength"), "5");
@@ -433,17 +470,22 @@ function doClueFormInput(clueWord, clueText) {
         for (var i = 0; i < word.length; i++)
             assert.equal(readLetterInCell(gridCells[i]), "");
     });
-    test('Valid word input is trimmed, capitalized and added to grid', function (assert) {
+    test('Trims, capitalizes and adds word input to grid if valid', function (assert) {
         let word ="trial";
         doClueFormInput(" "+word+" ", "");
         assert.equal($("#clue-msg").text(), "");
-        let gridCells = getGridCells();
-        for (let i = 0; i < word.length; i++)
-            assert.equal(readLetterInCell(gridCells[i]), word[i].toUpperCase());
+        assertGridWord(0, word, true);
     });
-    test('Updating word replaces existing chars in grid', function (assert) {
+    test('Replaces existing chars in grid when updating word', function (assert) {
         let word = "chnge";
         doClueFormInput("trial", "");
+        doClueFormInput(word, "");  // Update the word
+        assert.equal($("#clue-msg").text(), "");
+        assertGridWord(0, word);
+    });
+    test('Shows error message if no. in paren in clue mismatches word length', function (assert) {
+        let word = "chnge";
+        doClueFormInput("trial", "clue for trial (8)");
         doClueFormInput(word, "");  // Update the word
         assert.equal($("#clue-msg").text(), "");
         let gridCells = getGridCells();
@@ -458,10 +500,30 @@ function doClueFormInput(clueWord, clueText) {
     // Check if word conflicts with other letters
     // Check letter colors
     // Replaces tool tip if clue is updated
+
+    //==> XWordEditor::Completed Clues
+    QUnit.module("XWordEditor::Completion Status", {
+        beforeEach: function () {
+            setupFixture(EditPuzzlePageHtml);
+        }
+    });
+    test('Shows status of ACROSS & DOWN clues in status line for new grid', function (assert) {
+        let puzzleData = {id: 0, size: 7};
+        new XWordEditor(puzzleData);
+        assert.equal($("#status").text(), "ACROSS: 0 of 7, DOWN: 0 of 7");
+    });
+    test('Updates status of ACROSS & DOWN clues after adding blocks', function (assert) {
+        let puzzleData = {id: 0, size: 5};
+        new XWordEditor(puzzleData);
+        clickOnCell(3);
+        clickOnCell(6);
+        clickOnCell(11);
+        assert.equal($("#status").text(), "ACROSS: 0 of 4, DOWN: 0 of 3");
+    });
+    // Update status on adding word
+    // Update status on deleting word
 })();
 
-// TEST: existing puzzle initialization sets clues edit mode if words/clues exist
-// TEST: existing puzzle initialization loads data, blocks and words into grid
 
 
 

@@ -10,12 +10,36 @@ class XWordEditor {
         if ( !puzzleData ) throw new Error("Puzzle data is required");
         this.view = new EditPuzzleView(puzzleData);
         this.view.setUILabels(this._labels);
+        this.view.bindHandlers(this);
         this._setupNewGrid(puzzleData);
         this.view.setSizeSelector(this._sizeOptions, this.xwordGrid.size);
-        this.view.bindHandlers(this);
     }
 
-    /* PUBLIC EVENTS HANDLERS */
+    /* PUBLIC EVENT HANDLERS */
+    onClueUpdateClick = () => {
+        let wordData = this.view.getClueFormInput();
+        try {
+            this.xwordGrid.setHilitedWordData(wordData);
+        }
+        catch(e) { this.view.setClueMsg(e.message); }
+    }
+    onGridCellClick = (event) => {
+        if (this.view.getActiveSwitchLabel() === "Blocks")
+            if ( this.xwordGrid.toggleBlock(event.target) ) {
+                this.view.dataChanged();
+                this.view.setStatus( this.xwordGrid.getStatus() );
+            }
+    }
+    onSaveClick = () => {
+        let gridData = this.xwordGrid.getGridData();
+        this.view.save(gridData);
+    }
+    onSizeChange = () => {
+        let response = true;
+        if (this.xwordGrid.hasBlocks()) response = confirm("All changes to grid will be cleared");
+        if (response) this._setupNewGrid({size:this.view.getSizeSelection()});
+        else this.view.setSize(this.xwordGrid.size);
+    }
     onSwitchChange = () => {
         let switchLabel = this.view.getActiveSwitchLabel();
         if (switchLabel === "Blocks") {
@@ -24,53 +48,21 @@ class XWordEditor {
         } else {
             this.view.hideClueForm(false);
             this.xwordGrid.hiliteNextIncomplete();
-            this.view.setClueForm( this._getClueFormFieldsData() );
+            this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
         }
-    }
-
-    onSizeChange = () => {
-        let response = true;
-        if (this.xwordGrid.hasBlocks()) response = confirm("All changes to grid will be cleared");
-        if (response) this._setupNewGrid({size:this.view.getSizeSelection()});
-        else this.view.setSize(this.xwordGrid.size);
-    }
-
-    onSaveClick = () => {
-        this.view.save();
-    }
-
-    onGridCellClick = (event) => {
-        if (this.view.getActiveSwitchLabel() === "Blocks")
-            this.xwordGrid.toggleBlock(event.target);
-    }
-
-    onClueUpdateClick = () => {
-        let wordData = this.view.getClueFormInput();
-        try {
-            this.xwordGrid.setHilitedWordData(wordData);
-        }
-        catch(e) { this.view.setClueMsg(e.message); }
     }
 
     /* PRIVATE METHODS */
     _setupNewGrid(puzzleData) {
         this.xwordGrid = new XWordGrid(puzzleData, this.onGridCellClick);
-        this.xwordGrid.setDataChangeListener(this.view);
         this.view.setPuzzleContent(this.xwordGrid.getPuzzleHtml());
-        this.view.setSwitchLabel("Blocks");
-        this.view.hideClueForm();
-        this.view.dataChanged();
-    }
-    _getClueFormFieldsData() {
-        let formFields = {};
-        let clueNum = this.xwordGrid.getHilitedClueNum();
-        let isAcross = this.xwordGrid.isHiliteAcross();
-        let clueType = (isAcross) ? "Across" : "Down";
-        formFields.maxLength = this.xwordGrid.getHilitedCells().length;
-        formFields.clueWord = this.xwordGrid.getHilitedClueWord();
-        formFields.clueText = this.xwordGrid.getHilitedClueText();
-        formFields.clueRef = "#" + clueNum + " " + clueType + " (" + formFields.maxLength + ")";
-        return formFields;
+        if ( this.xwordGrid.hasClues() ) {
+            this.xwordGrid.displayWordsInGrid();
+            this.view.selectSwitchLabel("Clues");
+        }
+        else this.view.selectSwitchLabel("Blocks");
+        if (puzzleData.data === undefined) this.view.dataChanged();
+        this.view.setStatus( this.xwordGrid.getStatus() );
     }
 }
 
