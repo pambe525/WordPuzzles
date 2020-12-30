@@ -15,7 +15,7 @@ class XWordEditor {
         this.view.setSizeSelector(this._sizeOptions, this.xwordGrid.size);
     }
 
-    /* PUBLIC EVENT HANDLERS */
+    //==> PUBLIC EVENT HANDLERS
     onClueUpdateClick = () => {
         let wordData = this.view.getClueFormInput();
         try {
@@ -56,11 +56,8 @@ class XWordEditor {
             }
         }
     }
-    onPublishClick = () => {
-        this.view.publishPuzzle(this.xwordGrid.getGridData());
-    }
 
-    /* PRIVATE METHODS */
+    //==> PRIVATE METHODS
     _setupNewGrid(puzzleData) {
         this.xwordGrid = new XWordGrid(puzzleData, this.onGridCellClick);
         this.view.setPuzzleContent(this.xwordGrid.getPuzzleHtml());

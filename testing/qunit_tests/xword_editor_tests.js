@@ -544,7 +544,7 @@
         assert.true($("#clue-form").is(":hidden"));
         assert.equal($(getGridCells()).filter(".xw-hilite").length, 0);
     });
-    test('Displays confirmation box when publish button is clicked', function (assert) {
+    test('Displays confirmation box when publish btn is clicked', function (assert) {
         confirmResponse = false;     // Cancel confirmation box
         $("#publish").click();
         assert.true(confirmMessage.indexOf("Puzzle will be accessible to all users.") === 0);
@@ -562,6 +562,8 @@
         $("#publish").click();
         assert.true($("#clue-form").is(":hidden"));
         assert.true($("#navbar").is(":hidden"));
+        clickOnCell(3);   // Hiliting should be disabled
+        assert.equal($(getGridCells()).filter(".xw-hilite").length, 0);
     });
     test('Saves data after setting timestamp when publish is confirmed', function (assert) {
         confirmResponse = true;     // Cancel confirmation box
@@ -574,7 +576,52 @@
         assert.equal(ajaxData.desc, puzzleData.desc);
         assert.true(ajaxData.shared_at !== null);
     });
-
+    test('Displays confirmation box when unpublish btn is clicked', function (assert) {
+        confirmResponse = true;
+        let publishBtn = $("#publish");
+        let unpublishBtn = $("#unpublish");
+        publishBtn.click();       // Publish first to show Unpublish button
+        confirmResponse = false;
+        unpublishBtn.click();
+        assert.true(confirmMessage.indexOf("Puzzle will not be accessible to users.") === 0);
+        assert.true(confirmMessage.indexOf("Editing will be re-enabled. Please confirm.") > 0);
+        assert.true(publishBtn.is(":hidden"));     // Publish btn still hidden
+        assert.false(unpublishBtn.is(":hidden"));   // Unpublish btn still shown
+    });
+    test('Shows Publish btn and hides Unpublish btn when unpublish is confirmed', function (assert) {
+        confirmResponse = true;
+        let publishBtn = $("#publish");
+        let unpublishBtn = $("#unpublish");
+        publishBtn.click();       // Publish first to show Unpublish button
+        confirmResponse = true;
+        unpublishBtn.click();
+        assert.false(publishBtn.is(":hidden"));
+        assert.true(unpublishBtn.is(":hidden"));
+    });
+    test('Re-enables editing and shows clueform when unpublish is confirmed', function (assert) {
+        confirmResponse = true;
+        $("#publish").click();       // Publish first to show Unpublish button
+        confirmResponse = true;
+        $("#unpublish").click();
+        assert.false($("#navbar").is(":hidden"));
+        let clueForm = $("#clue-form");
+        assert.true(clueForm.is(":hidden"));
+        clickOnCell(3);   // Hilite a word so clueform is visible
+        assert.false(clueForm.is(":hidden"));
+        assert.equal($(getGridCells()).filter(".xw-hilite").length, 3);
+    });
+    test('Saves data after deleting timestamp when unpublish is confirmed', function (assert) {
+        confirmResponse = true;
+        $("#publish").click();       // Publish first to show Unpublish button
+        confirmResponse = true;
+        $("#unpublish").click();
+        let ajaxData = JSON.parse(ajaxSettings.data.data);
+        assert.deepEqual(ajaxData.data, puzzleData.data);
+        assert.equal(ajaxData.id, puzzleData.id);
+        assert.equal(ajaxData.size, puzzleData.size);
+        assert.equal(ajaxData.desc, puzzleData.desc);
+        assert.true(ajaxData.shared_at === null);
+    });
 })();
 
 

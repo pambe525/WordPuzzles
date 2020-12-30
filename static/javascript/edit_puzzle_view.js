@@ -32,23 +32,13 @@ class EditPuzzleView {
         $(this.ID.jqSizeSelect).change(controller.onSizeChange);
         $(this.ID.jqSaveBtn).click(controller.onSaveClick);
         $(this.ID.jqClueUpdateBtn).click(controller.onClueUpdateClick);
-        $(this.ID.jqPublishBtn).click(controller.onPublishClick);
+        $(this.ID.jqPublishBtn).click(this._onPublishClick);
+        $(this.ID.jqUnpublishBtn).click(this._onUnpublishClick);
         $(this.ID.jqDeleteBtn).click(this._onDeleteClick);
         $(this.ID.jqDesc).change(this._onDescChange);
         $(this.ID.jqClueWord).keypress(this._onEnterKey);
         $(this.ID.jqClueText).keypress(this._onEnterKey);
         $(window).on('beforeunload', this._onBeforeUnload);
-    }
-    publishPuzzle(puzzleData) {
-        let message = "Puzzle will be accessible to all users. Editing will be disabled. Please confirm.";
-        let confirmed = confirm(message);
-        if (confirmed) {
-            this._hideUnpublish(false);
-            this.hideClueForm();
-            $(this.ID.jqNavbar).hide();
-            this.sharedAt = new Date().toISOString();
-            this.save(puzzleData);
-        }
     }
     dataChanged = () => {
         this.dataSaved = false;
@@ -179,6 +169,17 @@ class EditPuzzleView {
     _onEnterKey = (event) => {
         if (event.keyCode === 13) $(this.ID.jqClueUpdateBtn).click();
     }
+    _onPublishClick = () => {
+        let message = "Puzzle will be accessible to all users. Editing will be disabled. Please confirm.";
+        let confirmed = confirm(message);
+        if (confirmed) {
+            this._hideUnpublish(false);
+            this.hideClueForm();
+            $(this.ID.jqNavbar).hide();
+            this.sharedAt = new Date().toISOString();
+            $(this.ID.jqSaveBtn).click();
+        }
+    }
     _onSaveSuccess = (result) => {
         if (result['error_message'] !== undefined && result['error_message'] !== "") {
             alert(result['error_message']);
@@ -191,5 +192,15 @@ class EditPuzzleView {
     }
     _onServerError = (xhr, status, error) => {
         alert(error);
+    }
+    _onUnpublishClick = () => {
+        let message = "Puzzle will not be accessible to users. Editing will be re-enabled. Please confirm.";
+        let confirmed = confirm(message);
+        if (confirmed) {
+            this._hideUnpublish();
+            $(this.ID.jqNavbar).show();
+            this.sharedAt = null;
+            $(this.ID.jqSaveBtn).click();
+        }
     }
 }
