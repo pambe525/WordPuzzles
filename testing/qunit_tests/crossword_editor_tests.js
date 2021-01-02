@@ -168,16 +168,7 @@ QUnit.test('Save Btn: dataSaved is false when a word is deleted', function (asse
     $(jqClueDeleteId).click();
     assert.false(editor.dataSaved);
 });
-QUnit.test('Save Btn: Saves share setting when true', function (assert) {
-    editor.initialize();  // NOTE: Grid is 15x15 by default
-    mockAjaxMethod(1);
-    $(jqShareBtnId).prop("checked", true);
-    $(jqSaveBtnId).click();   // First save the grid
-    assert.equal(editor.puzzleInstance.sharedAt, new Date().toUTCString());
-    $(jqShareBtnId).prop("checked", false);
-    $(jqSaveBtnId).click();   // Save the grid
-    assert.equal(editor.puzzleInstance.sharedAt, null);
-});
+
 
 
 

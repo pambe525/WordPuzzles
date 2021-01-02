@@ -1,4 +1,3 @@
-
 // _dataChanged tests
 //--------------------------------------------------------------------------------------------------------------------
 test("_dataChanged: Called when word data is set", function(assert) {
@@ -46,14 +45,9 @@ test("toggleCellBlock: Unblocks cell if neighbor letter is not in in-line word",
   assert.false($("#0-1").hasClass('xw-blocked'));
 });
 
+
 // Hilites tests
 //--------------------------------------------------------------------------------------------------------------------
-test("hiliteNextIncomplete: Hilites 1 Across on new grid", function(assert) {
-  var xword = createXWord(7);
-  xword.hiliteNextIncomplete();
-  assert.equal(xword.getFirstHilitedCellId(), "0-0")
-  assert.true(xword.isHiliteAcross());
-});
 test("hiliteNextIncomplete: The first across incomplete word is hilited", function(assert) {
   var xword = createXWord(5);
   xword.setWordData("0-0", "first", "clue text (5)");
@@ -358,3 +352,49 @@ test("deleteWordData: Deletes tooltip for the word if it exists", function(asser
   xword.deleteWordData("0-0", true);
   assert.equal($("#0-0").attr("title"), "1 Down: clue 1D (5)");
 });
+
+// isReady tests
+//--------------------------------------------------------------------------------------------------------------------
+test("isReady: Returns false when grid is incomplete", function(assert) {
+  var xword = createXWord(5);
+  xword.setWordData("0-0","ABCDE", "clue 1a");
+  xword.setWordData("1-0","FGHIJ", "clue 6a");
+  xword.setWordData("2-0","KLMNO", "clue 7a");
+  xword.setWordData("3-0","PQRST", "clue 8a");
+  xword.setWordData("4-0","UVWXY", "clue 9a");
+  assert.equal(xword.isReady(), false);
+});
+test("isReady: Returns true when grid with no blocks is complete", function(assert) {
+  var xword = createXWord(5);
+  xword.setWordData("0-0","ABCDE", "clue 1a");
+  xword.setWordData("1-0","FGHIJ", "clue 6a");
+  xword.setWordData("2-0","KLMNO", "clue 7a");
+  xword.setWordData("3-0","PQRST", "clue 8a");
+  xword.setWordData("4-0","UVWXY", "clue 9a");
+  xword.setWordData("0-0", "AFKPU", "clue 1d", false);
+  xword.setWordData("0-1", "BGLQV", "clue 2d", false);
+  xword.setWordData("0-2", "CHMRW", "clue 3d", false);
+  xword.setWordData("0-3", "DINSX", "clue 4d", false);
+  xword.setWordData("0-4", "EJOTY", "clue 5d", false);
+  assert.equal(xword.isReady(), true);
+});
+test("isReady: Returns true when grid with blocks is complete", function(assert) {
+  var xword = createXWord(3);
+  xword.toggleCellBlock("1-1");
+  xword.setWordData("0-0","tin", "clue 1a");
+  xword.setWordData("2-0","ton", "clue 3a");
+  xword.setWordData("0-0","tot", "clue 1d", false);
+  xword.setWordData("0-2","non", "clue 2d", false);
+  assert.equal(xword.isReady(), true);
+});
+
+// setShared tests
+//--------------------------------------------------------------------------------------------------------------------
+test("setShared: When true sets sharedAt attribute to current time stamp", function(assert) {
+  var xword = createXWord(3);
+  xword.setShared(true);
+  assert.equal(xword.sharedAt, new Date().toUTCString());
+  xword.setShared(false);
+  assert.equal(xword.sharedAt, null);
+});
+

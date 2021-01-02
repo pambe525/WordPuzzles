@@ -18,6 +18,7 @@ class EditPuzzleView {
     constructor(puzzleData) {
         if ( puzzleData.id ) this.id = puzzleData.id;
         if (this.id > 0) $(this.ID.jqDesc).text(puzzleData.desc);
+        if (puzzleData.shared_at) this.sharedAt = puzzleData.shared_at;
         $(this.ID.jqSaveOkIcon).prop("hidden", true);
         this._hideUnpublish();
         $(this.ID.jqTitle).text( this._buildTitle() );
@@ -92,6 +93,11 @@ class EditPuzzleView {
     }
     setClueMsg(message) {
         $(this.ID.jqClueMsg).text(message);
+    }
+    setPublishedState() {
+        this._hideUnpublish(false);
+        this.hideClueForm();
+        $(this.ID.jqNavbar).hide();
     }
     setPuzzleContent(puzzleHtml) {
         $(this.ID.jqPuzzleDiv).empty();
@@ -176,9 +182,7 @@ class EditPuzzleView {
         let message = "Puzzle will be accessible to all users. Editing will be disabled. Please confirm.";
         let confirmed = confirm(message);
         if (confirmed) {
-            this._hideUnpublish(false);
-            this.hideClueForm();
-            $(this.ID.jqNavbar).hide();
+            this.setPublishedState();
             this.sharedAt = new Date().toISOString();
             $(this.ID.jqSaveBtn).click();
         }

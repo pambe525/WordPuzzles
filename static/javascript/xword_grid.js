@@ -27,11 +27,14 @@ class XWordGrid {
         let isAcross = this._isHiliteAcross();
         let clueType = ( isAcross ) ? "Across" : "Down";
         let index = this._cellIndex(wordCells[0]);
+        wordData.maxLength = wordCells.length;
+        wordData.clueRef = "#" + clueNum + " " + clueType + " (" + wordData.maxLength + ")";
         if ( isAcross ) {
-            wordData.maxLength = wordCells.length;
             wordData.clueWord = (this.across[index]) ? this.across[index].word : "";
             wordData.clueText = (this.across[index]) ? this.across[index].clue : "";
-            wordData.clueRef = "#" + clueNum + " " + clueType + " (" + wordData.maxLength + ")";
+        } else {
+            wordData.clueWord = (this.down[index]) ? this.down[index].word : "";
+            wordData.clueText = (this.down[index]) ? this.down[index].clue : "";
         }
         return wordData;
     }
@@ -67,15 +70,26 @@ class XWordGrid {
     }
     hiliteNextIncomplete() {
         let numberedCells = $(this._getGridCells()).has(".xw-number");
-        let hiliteCells = this._getWordCells(numberedCells[0]);
-        $(hiliteCells).addClass("xw-hilite");
+        let hiliteCells;
+        for (let i = 0; i < numberedCells.length; i++) {
+            if (this._isNextOpen(numberedCells[i])) {
+                hiliteCells = this._getWordCells(numberedCells[i]);
+                $(hiliteCells).addClass("xw-hilite");
+                break;
+            }
+        }
     }
     setHilitedWordData(wordData) {
         let word = wordData.word.toUpperCase().trim();
+        let clue = wordData.clue.trim();
         let hilitedCells = this._getHilitedCells();
         this._checkWordFit(word, hilitedCells);
+        clue = this._checkAndFixClue(word, clue);
         for (let i = 0; i < hilitedCells.length; i++)
             $(hilitedCells[i]).children(".xw-letter").text(word[i]);
+        let cellIndex = this._cellIndex(hilitedCells[0]);
+        if (this._isHiliteAcross()) this.across[cellIndex] = {word: word, clue: clue};
+        else this.down[cellIndex] = {word: word, clue: clue};
     }
     displayWordsInGrid() {
         let acrossKeys = Object.keys(this.across), word, index;
@@ -124,6 +138,18 @@ class XWordGrid {
         if (hilitedCells.length !== word.length)
             throw new Error("Word must be " + hilitedCells.length + " chars");
         if (!/^[A-Za-z]+$/.test(word)) throw new Error("Word must contain all letters");
+    }
+    _checkAndFixClue(word, clue) {
+        clue.trim();
+        var numbers = clue.match(/\(([^)]*)\)[^(]*$/);  // extracts numbers in parenthesis
+        if (numbers === null) {
+            if (clue !== "") clue += " (" + word.length + ")";
+        } else {
+            numbers = numbers[1].split(/,| |-/);
+            var parenSum = numbers.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+            if (parenSum !== word.length) throw new Error("Incorrect number(s) in parentheses at end of clue");
+        }
+        return clue;
     }
     _createGrid(clickHandler) {
         this.jqGridObj = $("<div></div>").addClass("xw-grid");

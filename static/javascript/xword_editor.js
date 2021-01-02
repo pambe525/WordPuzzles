@@ -31,8 +31,10 @@ class XWordEditor {
                 this.view.setStatus( this.xwordGrid.getStatus() );
             }
         } else {
-            this.xwordGrid.toggleHilite(event.target);
+            let cell = ($(event.target).prop("tagName") === "SPAN") ? $(event.target).parent() : $(event.target);
+            this.xwordGrid.toggleHilite(cell);
             this.view.hideClueForm(false);
+            this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
         }
     }
     onSaveClick = () => {
@@ -68,7 +70,8 @@ class XWordEditor {
         this.view.setPuzzleContent(this.xwordGrid.getPuzzleHtml());
         if ( this.xwordGrid.hasClues() ) {
             this.xwordGrid.displayWordsInGrid();
-            this.view.selectSwitchLabel("Clues");
+            if (this.view.isPublished()) this.view.setPublishedState();
+            else this.view.selectSwitchLabel("Clues");
         }
         else this.view.selectSwitchLabel("Blocks");
         if (puzzleData.data === undefined) this.view.dataChanged();
