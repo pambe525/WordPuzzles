@@ -66,7 +66,8 @@ class XWordGrid {
                this._countDoneClues(false) === this._countTotalClues(false);
     }
     hiliteNextIncomplete() {
-        let hiliteCells = this._getGridCells().slice(0, this.size);
+        let numberedCells = $(this._getGridCells()).has(".xw-number");
+        let hiliteCells = this._getWordCells(numberedCells[0]);
         $(hiliteCells).addClass("xw-hilite");
     }
     setHilitedWordData(wordData) {
@@ -93,6 +94,16 @@ class XWordGrid {
         this._toggleCellBlock(cell);
         if (cell !== symmCell) this._toggleCellBlock(symmCell);
         this._autonumberGrid();
+        return true;
+    }
+    toggleHilite(cell) {
+        if (this._isBlocked(cell)) return false;
+        let isAcross = true;
+        if ($(cell).hasClass("xw-hilite")) isAcross = !(this._isHiliteAcross());
+        if ( !this._isNextOpen(cell, isAcross) && !this._isPrevOpen(cell, isAcross)) isAcross = !isAcross;
+        let wordCells = this._getWordCells(cell, isAcross);
+        this.clearHilite();
+        $(wordCells).addClass("xw-hilite");
         return true;
     }
 
@@ -153,7 +164,7 @@ class XWordGrid {
         return this.jqGridObj.children("div");
     }
     _getHilitedCells() {
-        return this._getGridCells().filter(".xw-hilite");
+        return $(this._getGridCells()).filter(".xw-hilite");
     }
     _getHilitedClueNum() {
         return parseInt($(this._getHilitedCells()[0]).children(".xw-number").text());
@@ -162,6 +173,40 @@ class XWordGrid {
         let index = this._cellIndex(cell);
         let symmIndex = this.size * this.size - index - 1;
         return this._gridCell(symmIndex);
+    }
+    _getWordCells(cell, isAcross=true) {
+        let isLoneCell = !this._isNextOpen(cell, isAcross) && !this._isPrevOpen(cell, isAcross);
+        if (this._isBlocked(cell) || isLoneCell) return null;
+        let gridCells = this._getGridCells();
+        let wordStartIndex = this._getWordStartCellIndex(cell, isAcross);
+        let wordEndIndex = this._getWordEndCellIndex(cell, isAcross);
+        let incr = (isAcross) ? 1: this.size;
+        let wordCells = $();
+        for (let i = wordStartIndex; i <= wordEndIndex; i += incr)
+            wordCells = wordCells.add(gridCells[i]);
+        return wordCells;
+    }
+    _getWordEndCellIndex(cell, isAcross=true) {
+        let gridCells = this._getGridCells();
+        let cellIndex = this._cellIndex(cell);
+        let incr = (isAcross) ? 1 : this.size;
+        let currentCell = cell;
+        while ( this._isNextOpen(currentCell, isAcross) ) {
+            currentCell = gridCells[cellIndex + incr];
+            cellIndex = this._cellIndex(currentCell);
+        }
+        return cellIndex;
+    }
+    _getWordStartCellIndex(cell, isAcross=true) {
+        let gridCells = this._getGridCells();
+        let cellIndex = this._cellIndex(cell);
+        let incr = (isAcross) ? 1 : this.size;
+        let currentCell = cell;
+        while ( this._isPrevOpen(currentCell, isAcross) ) {
+            currentCell = gridCells[cellIndex - incr];
+            cellIndex = this._cellIndex(currentCell);
+        }
+        return cellIndex;
     }
     _gridCell(index) {
         return this._getGridCells()[index];
@@ -172,32 +217,29 @@ class XWordGrid {
     _isBlocked(cell) {
         return !!($(cell).hasClass("xw-block"));
     }
-    _isFirst(cell, isAcross=true) {
-        let cellIndex = this._cellIndex(cell);
+    _isFirst(cellIndex, isAcross=true) {
         if ( isAcross && (cellIndex % this.size) === 0 ) return true;
-        if ( !isAcross && (cellIndex < this.size ) ) return true;
+        return !isAcross && (cellIndex < this.size);
     }
     _isHiliteAcross() {
         let hilitedCells = this._getHilitedCells();
         if (hilitedCells.length === 0) return null;
         let indexDiff = this._cellIndex(hilitedCells[1]) - this._cellIndex(hilitedCells[0]);
-        return ( indexDiff === 1 ) ? "Across" : "Down";
+        return (indexDiff === 1);
     }
-    _isLast(cell, isAcross=true) {
-        let cellIndex = this._cellIndex(cell);
+    _isLast(cellIndex, isAcross=true) {
         if ( isAcross && (cellIndex + 1) % this.size === 0 ) return true;
-        return !isAcross && (cellIndex + this.size) > this.size * this.size;
-
+        return !isAcross && (cellIndex + this.size) >= this.size * this.size;
     }
     _isNextOpen(cell, isAcross=true) {
         let cellIndex = this._cellIndex(cell) ;
-        if ( this._isLast(cell, isAcross) ) return false;
+        if ( this._isLast(cellIndex, isAcross) ) return false;
         let nextCellIndex = (isAcross) ? cellIndex + 1 : cellIndex + this.size;
         return !this._isBlocked(this._gridCell(nextCellIndex));
     }
     _isPrevOpen(cell, isAcross=true) {
         let cellIndex = this._cellIndex(cell) ;
-        if ( this._isFirst(cell, isAcross) ) return false;
+        if ( this._isFirst(cellIndex, isAcross) ) return false;
         let prevCellIndex = (isAcross) ? cellIndex - 1 : cellIndex - this.size;
         return !this._isBlocked(this._gridCell(prevCellIndex));
     }

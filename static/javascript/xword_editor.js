@@ -24,11 +24,16 @@ class XWordEditor {
         catch(e) { this.view.setClueMsg(e.message); }
     }
     onGridCellClick = (event) => {
-        if (this.view.getActiveSwitchLabel() === "Blocks")
+        if ( this.view.isPublished() ) return;
+        if ( this.view.getActiveSwitchLabel() === "Blocks" ) {
             if ( this.xwordGrid.toggleBlock(event.target) ) {
                 this.view.dataChanged();
                 this.view.setStatus( this.xwordGrid.getStatus() );
             }
+        } else {
+            this.xwordGrid.toggleHilite(event.target);
+            this.view.hideClueForm(false);
+        }
     }
     onSaveClick = () => {
         let gridData = this.xwordGrid.getGridData();

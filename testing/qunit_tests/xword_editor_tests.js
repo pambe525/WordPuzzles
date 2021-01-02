@@ -42,6 +42,17 @@
             for (let i = 0; i < word.length; i++)
                 assert.equal(readLetterInCell(gridCells[i]), word[i].toUpperCase());
         }
+    function setBlocks(cellIndices) {
+        for (let i = 0; i < cellIndices.length; i++)
+            clickOnCell(cellIndices[i]);
+    }
+    function assertHilitedCells(cellIndex, hiliteCellIndices) {
+        clickOnCell(cellIndex);
+        let gridCells = getGridCells();
+        assert.equal($(gridCells).filter(".xw-hilite").length, hiliteCellIndices.length);
+        for (let i = 0; i < hiliteCellIndices.length; i++)
+           assert.true($(gridCells[hiliteCellIndices[i]]).hasClass("xw-hilite"));
+    }
 
     //==> XWordEditor Initialization
     QUnit.module("XWordEditor::Instantiation", {
@@ -621,6 +632,54 @@
         assert.equal(ajaxData.size, puzzleData.size);
         assert.equal(ajaxData.desc, puzzleData.desc);
         assert.true(ajaxData.shared_at === null);
+    });
+
+    //=> XWordEditor::Hiliting
+    QUnit.module("XWordEditor::Hiliting", {
+        beforeEach: function () {
+            setupFixture(EditPuzzlePageHtml);
+            puzzleData = {id: 0, size: 5};
+            new XWordEditor(puzzleData);
+        }
+    });
+    test("Hilites ACROSS word first when a cell is clicked", function(assert) {
+      setBlocks([0, 10]);
+      $("#radio-2").prop("checked", true).change();
+      assertHilitedCells(8, [5,6,7,8,9]);
+      assertHilitedCells(12, [11,12,13]);
+      assertHilitedCells(15, [15,16,17,18,19]);
+      assertHilitedCells(23, [20,21,22,23]);
+    });
+    test("Hilites DOWN word if clicked cell is not part of ACROSS word", function(assert) {
+      setBlocks([1, 2, 4, 11]);
+      $("#radio-2").prop("checked", true).change();
+      assertHilitedCells(0, [0,5,10,15]);
+      assertHilitedCells(12, [7,12,17]);
+      assertHilitedCells(14, [9,14,19,24]);
+      assertHilitedCells(15, [15,16,17,18,19]);
+      assertHilitedCells(21, [16,21]);
+    });
+    test("Toggles hilite from across to down if applicable when same cell is clicked", function(assert) {
+      setBlocks([2, 6, 8]);
+      $("#radio-2").prop("checked", true).change();
+      assertHilitedCells(4, [3,4]);
+      assertHilitedCells(4, [4,9,14,19,24]);
+      assertHilitedCells(12, [10,11,12,13,14]);
+      assertHilitedCells(12, [7,12,17]);
+    });
+    test("Does not change hilite if blocked cell is clicked", function(assert) {
+      setBlocks([0, 4]);
+      $("#radio-2").prop("checked", true).change();
+      assertHilitedCells(5, [5,6,7,8,9]);
+      assertHilitedCells(0, [5,6,7,8,9]);
+    });
+    test("Retains ACROSS or DOWN hilite if no DOWN or ACROSS alternative", function(assert) {
+      setBlocks([1,11]);
+      $("#radio-2").prop("checked", true).change();
+      assertHilitedCells(6, [5,6,7,8,9]);     // ACROSS hilite
+      assertHilitedCells(6, [5,6,7,8,9]);     // Re-click cell with no DOWN word (should retain ACROSS hilite)
+      assertHilitedCells(0, [0,5,10,15,20]);  // DOWN hilite
+      assertHilitedCells(0, [0,5,10,15,20]);  // Re-click cell with no ACROSS word (should retain DOWN hilite)
     });
 })();
 

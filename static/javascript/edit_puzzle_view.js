@@ -63,6 +63,9 @@ class EditPuzzleView {
         if (hide) $(this.ID.jqClueForm).hide();
         else $(this.ID.jqClueForm).show();
     }
+    isPublished() {
+        return (this.sharedAt !== null);
+    }
     save(puzzleData) {
         let fullDataObj = this._getData();
         fullDataObj["data"] = puzzleData;
