@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 
 class Puzzle(models.Model):
     is_xword = models.BooleanField(default=True)
-    is_ready = models.BooleanField(default=False)
     editor = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     size = models.IntegerField(default=0)
     desc = models.TextField(default="")

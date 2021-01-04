@@ -25,13 +25,13 @@ class XWordEditor {
     }
     onGridCellClick = (event) => {
         if ( this.view.isPublished() ) return;
+        let cell = event.target;
         if ( this.view.getActiveSwitchLabel() === "Blocks" ) {
-            if ( this.xwordGrid.toggleBlock(event.target) ) {
+            if ( this.xwordGrid.toggleBlock(cell) ) {
                 this.view.dataChanged();
                 this.view.setStatus( this.xwordGrid.getStatus() );
             }
         } else {
-            let cell = ($(event.target).prop("tagName") === "SPAN") ? $(event.target).parent() : $(event.target);
             this.xwordGrid.toggleHilite(cell);
             this.view.hideClueForm(false);
             this.view.setClueForm( this.xwordGrid.getHilitedWordData() );

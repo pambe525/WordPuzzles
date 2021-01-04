@@ -83,13 +83,15 @@ class XWordGrid {
         let word = wordData.word.toUpperCase().trim();
         let clue = wordData.clue.trim();
         let hilitedCells = this._getHilitedCells();
-        this._checkWordFit(word, hilitedCells);
+        let isAcross = this._isHiliteAcross();
+        this._checkWordFit(word, hilitedCells, isAcross);
         clue = this._checkAndFixClue(word, clue);
         for (let i = 0; i < hilitedCells.length; i++)
             $(hilitedCells[i]).children(".xw-letter").text(word[i]);
         let cellIndex = this._cellIndex(hilitedCells[0]);
         if (this._isHiliteAcross()) this.across[cellIndex] = {word: word, clue: clue};
         else this.down[cellIndex] = {word: word, clue: clue};
+        this._setToolTip(hilitedCells[0]);
     }
     displayWordsInGrid() {
         let acrossKeys = Object.keys(this.across), word, index;
@@ -134,10 +136,17 @@ class XWordGrid {
     _cellIndex(cell) {
         return this.jqGridObj.children("div").index(cell);
     }
-    _checkWordFit(word, hilitedCells) {
+    _checkWordFit(word, hilitedCells, isAcross) {
         if (hilitedCells.length !== word.length)
             throw new Error("Word must be " + hilitedCells.length + " chars");
         if (!/^[A-Za-z]+$/.test(word)) throw new Error("Word must contain all letters");
+        let gridLetter, wordStartCell;
+        for (let i = 0; i < hilitedCells.length; i++) {
+            gridLetter = $(hilitedCells[i]).children(".xw-letter").text();
+            wordStartCell = this._getWordStartCell(hilitedCells[i], !isAcross);
+            if (this._getWordData(wordStartCell, !isAcross) !== null && word[i] !== gridLetter)
+                throw new Error("Word conflicts with existing letters");
+        }
     }
     _checkAndFixClue(word, clue) {
         clue.trim();
@@ -200,19 +209,31 @@ class XWordGrid {
         let symmIndex = this.size * this.size - index - 1;
         return this._gridCell(symmIndex);
     }
+    _getToolTipText(wordStartCell, isAcross=true) {
+        let label = (isAcross) ? "Across" : "Down";
+        let clueNum = parseInt($(wordStartCell).children(".xw-number").text());
+        let wordData = this._getWordData(wordStartCell, isAcross);
+        return (wordData === null || wordData.clue === "") ? "" : (clueNum + " " + label + ": " + wordData.clue);
+    }
     _getWordCells(cell, isAcross=true) {
         let isLoneCell = !this._isNextOpen(cell, isAcross) && !this._isPrevOpen(cell, isAcross);
         if (this._isBlocked(cell) || isLoneCell) return null;
         let gridCells = this._getGridCells();
-        let wordStartIndex = this._getWordStartCellIndex(cell, isAcross);
-        let wordEndIndex = this._getWordEndCellIndex(cell, isAcross);
+        let wordStartIndex = this._cellIndex(this._getWordStartCell(cell, isAcross));
+        let wordEndIndex = this._cellIndex(this._getWordEndCell(cell, isAcross));
         let incr = (isAcross) ? 1: this.size;
         let wordCells = $();
         for (let i = wordStartIndex; i <= wordEndIndex; i += incr)
             wordCells = wordCells.add(gridCells[i]);
         return wordCells;
     }
-    _getWordEndCellIndex(cell, isAcross=true) {
+    _getWordData(wordStartCell, isAcross) {
+        let cellIndex = this._cellIndex(wordStartCell), wordData;
+        if (isAcross) wordData = (this.across[cellIndex] === undefined) ?  null : this.across[cellIndex];
+        else wordData = (this.down[cellIndex] === undefined) ? null : this.down[cellIndex];
+        return wordData;
+    }
+    _getWordEndCell(cell, isAcross=true) {
         let gridCells = this._getGridCells();
         let cellIndex = this._cellIndex(cell);
         let incr = (isAcross) ? 1 : this.size;
@@ -221,9 +242,9 @@ class XWordGrid {
             currentCell = gridCells[cellIndex + incr];
             cellIndex = this._cellIndex(currentCell);
         }
-        return cellIndex;
+        return currentCell;
     }
-    _getWordStartCellIndex(cell, isAcross=true) {
+    _getWordStartCell(cell, isAcross=true) {
         let gridCells = this._getGridCells();
         let cellIndex = this._cellIndex(cell);
         let incr = (isAcross) ? 1 : this.size;
@@ -232,7 +253,7 @@ class XWordGrid {
             currentCell = gridCells[cellIndex - incr];
             cellIndex = this._cellIndex(currentCell);
         }
-        return cellIndex;
+        return currentCell;
     }
     _gridCell(index) {
         return this._getGridCells()[index];
@@ -282,6 +303,12 @@ class XWordGrid {
     _setClueNum(cell, clueNum) {
         let span = $("<span></span>").addClass("xw-number").text(clueNum);
         $(cell).append(span);
+    }
+    _setToolTip(wordStartCell) {
+        let acrossToolTip = this._getToolTipText(wordStartCell);
+        let downToolTip = this._getToolTipText(wordStartCell, false);
+        let wordBreak = (acrossToolTip !== "" && downToolTip !== "") ? "\n" : "";
+        $(wordStartCell).prop("title", acrossToolTip + wordBreak + downToolTip);
     }
     _storeWordData(data) {
         let acrossKeys = (data.across) ? Object.keys(data.across) : [];

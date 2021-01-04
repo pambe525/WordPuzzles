@@ -17,7 +17,7 @@ class HomeView(LoginRequiredMixin, View):
             last_edited = puzzles[i].modified_at.isoformat()
             share_date = None if puzzles[i].shared_at is None else puzzles[i].shared_at.isoformat()
             dict_obj = {'id': puzzles[i].id, 'is_xword': puzzles[i].is_xword, 'modified_at': last_edited,
-                        'is_ready': puzzles[i].is_ready, 'desc': puzzles[i].desc, 'shared_at': share_date,
+                        'desc': puzzles[i].desc, 'shared_at': share_date,
                         'name': str(puzzles[i]), 'editor': str(puzzles[i].editor)}
             puzzles_list.append(dict_obj)
         return render(request, "home.html", context={'data': json.dumps(puzzles_list)})

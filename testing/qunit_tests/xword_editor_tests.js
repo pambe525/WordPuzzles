@@ -39,8 +39,11 @@
     function assertHilitedWord(word) {
         let hilitedCells = $(getGridCells()).filter(".xw-hilite");
         assert.equal(hilitedCells.length, word.length);
-        for (let i = 0; i < hilitedCells.length; i++)
-            assert.equal(readLetterInCell(hilitedCells[i]), word[i].toUpperCase());
+        let letter;
+        for (let i = 0; i < hilitedCells.length; i++) {
+            letter = (word[i] === " ") ? "" : word[i].toUpperCase();
+            assert.equal(readLetterInCell(hilitedCells[i]), letter);
+        }
     }
     function setBlocks(cellIndices) {
         for (let i = 0; i < cellIndices.length; i++)
@@ -71,7 +74,7 @@
         assert.equal($("#size-label").text(), "Grid Size");
         assert.equal($("#radio1-label").text(), "Blocks");
         assert.equal($("#radio2-label").text(), "Clues");
-        assert.equal($("#save-ok").prop("hidden"), true);
+        assert.equal($("#save-ok").is(":hidden"), true);
     });
     test('Sets size selector dropdown with correct options', function (assert) {
         let puzzleData = {id: 0, size: 5}
@@ -266,7 +269,7 @@
         }
     });
     test('Includes correct data in ajax call for new xword on save', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         $("#save").click();
         let ajaxData = JSON.parse(ajaxSettings.data.data);
@@ -290,7 +293,7 @@
         assert.deepEqual(ajaxData.data, {blocks:"",across:{}, down:{}});
     });
     test('Includes changes to desc in ajax call on save', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         let descField = $("#desc");
         descField.text("This is a crossword");
@@ -311,14 +314,14 @@
         assert.deepEqual(ajaxData.data, gridData);
     });
     test('Enables delete button after successful save', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         saveData({});
         assert.equal($("#delete").prop("disabled"), false);
         assert.false($("#save-ok").is(":hidden"));
     });
     test('Includes puzzle id when saving data a second time ', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         let saveBtn = $("#save");
         saveData({id: 10, error_message: ""});  // First save with id=0, as new puzzle
@@ -327,7 +330,7 @@
         assert.equal(ajaxData.id, 10);
     });
     test('Displays alert message when trapped error occurs on save', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         let msg = "Trapped error";
         saveData({error_message: msg});
@@ -336,7 +339,7 @@
         assert.equal($("#delete").prop("disabled"), true);
     });
     test('Displays alert message when system error occurs on save', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         ajaxSettings = null;
         $("#save").click();
@@ -345,14 +348,14 @@
         assert.equal(alertMessage, msg);
     });
     test('Sets dataSaved to true on successful save', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         let controller = new XWordEditor(puzzleData);
         assert.false(controller.view.dataSaved);
         saveData({});
         assert.true(controller.view.dataSaved);
     });
     test('Shows confirm box before deleting - cancel takes no action', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         $("#save").click();          // First save the grid to enable Delete btn
         confirmResponse = false;     // Cancel confirmation box
@@ -361,7 +364,7 @@
         assert.equal(getGridCells().length, 25)
     });
     test('Makes ajax call to delete puzzle on confirmation', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         saveData({id: 15});           // First save the grid to enable Delete btn
         confirmResponse = true;      // Confirm delete
@@ -372,7 +375,7 @@
         assert.equal(ajaxSettings.data.id, 15);
     });
     test('Displays alert message when system error occurs on delete', function (assert) {
-        let puzzleData = {id: 0, size: 5}
+        let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
         $("#save").click();          // First save the grid to enable Delete btn
         confirmResponse = true;      // Confirm delete
@@ -387,7 +390,7 @@
     QUnit.module("XWordEditor::Block Editing", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
-            controller = new XWordEditor({id: 0, size: 5});       }
+            controller = new XWordEditor({id: null, size: 5});       }
     });
     test('Enables cell blocking in block edit mode ', function (assert) {
         clickOnCell(0);
@@ -446,7 +449,7 @@
     QUnit.module("XWordEditor::Clue Edit Mode", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
-            new XWordEditor({id: 0, size: 5});
+            new XWordEditor({id: null, size: 5});
             $("#radio-2").prop("checked", true).change();
         }
     });
@@ -510,29 +513,127 @@
         assertHilitedWord(word);
     });
     test('Shows error message if no. in parenthesis in clue mismatches word length', function (assert) {
-        let word = "chnge";
+        let msg = "Incorrect number(s) in parentheses at end of clue";
         doClueFormInput("trial", "clue for trial (8)");
-        assert.equal($("#clue-msg").text(), "Incorrect number(s) in parentheses at end of clue");
-        let gridCells = getGridCells();
-        for (var i = 0; i < word.length; i++)
-            assert.equal(readLetterInCell(gridCells[i]), "" );
+        assertHilitedWord("     ");
+        assertClueFormFields("#1 Across (5)", "trial", "clue for trial (8)", msg);
+        doClueFormInput("trial", "clue for trial (3,2,1)");
+        assertClueFormFields("#1 Across (5)", "trial", "clue for trial (3,2,1)", msg);
+        doClueFormInput("trial", "clue for trial (1,2-2,1)");
+        assertClueFormFields("#1 Across (5)", "trial", "clue for trial (1,2-2,1)", msg);
     });
     test('Initializes clue form with saved word data after adding word length to clue', function (assert) {
-        let word ="trial";
         clickOnCell(0);   // Hilite 1 Down
         assertClueFormFields("#1 Down (5)", "", "", "");
-        doClueFormInput(word, "clue 1 down");
-        assertHilitedWord(word);
+        doClueFormInput("TRIAL", "clue 1 down (1,2,2)");
+        assertHilitedWord("TRIAL");
         clickOnCell(0);   // Toggle Hilite to 1 Across
-        assertClueFormFields("#1 Across (5)", "", "", "");
+        doClueFormInput("TESTS", "clue 1 across");
+        clickOnCell(0);   // Toggle back to 1 Down
+        assertClueFormFields("#1 Down (5)", "TRIAL", "clue 1 down (1,2,2)", "");
+        clickOnCell(6);
+        doClueFormInput("RIVER", "clue 6 across (1-2,2)");
         clickOnCell(0);
-        assertClueFormFields("#1 Down (5)", "TRIAL", "clue 1 down (5)", "");
+        assertHilitedWord("TESTS");
+        assertClueFormFields("#1 Across (5)", "TESTS", "clue 1 across (5)", "");
+        clickOnCell(6);
+        assertHilitedWord("RIVER");
+        assertClueFormFields("#6 Across (5)", "RIVER", "clue 6 across (1-2,2)", "");
     });
+    test("Shows error msg if word conflicts with existing letters", function(assert) {
+        $("#radio-1").prop("checked", true).change();
+        setBlocks([0,2,4]);
+        $("#radio-2").prop("checked", true).change();
+        clickOnCell(1);
+        doClueFormInput("SNAKE", "clue 1 down");
+        clickOnCell(3);
+        doClueFormInput("TENET", "clue 2 down");
+        clickOnCell(5);
+        doClueFormInput("PAPER","");
+        assertHilitedWord(" N E ");
+        assertClueFormFields("#3 Across (5)", "PAPER", "", "Word conflicts with existing letters");
+    });
+    test("No tooltip set if clue text is empty", function(assert) {
+        doClueFormInput("ACROS", "");
+        assert.equal($(getGridCells()[0]).prop("title"), "");
+    });
+    test("Sets tooltip if clue text is not empty", function(assert) {
+        doClueFormInput("acros", "clue text for 1a");
+        assert.equal($(getGridCells()[0]).prop("title"), "1 Across: clue text for 1a (5)");
+    });
+    test("Replaces tooltip if clue text is changed", function(assert) {
+        doClueFormInput("acros", "clue text for 1a");
+        //clickOnCell(0);
+        doClueFormInput("acros", "");
+        assert.equal($(getGridCells()[0]).prop("title"), "");
+        //clickOnCell(0);
+        doClueFormInput("acros", "clue text");
+        assert.equal($(getGridCells()[0]).prop("title"), "1 Across: clue text (5)");
+    });
+    test("Adds to ACROSS tooltip if DOWN clue text is added", function(assert) {
+        doClueFormInput("acros", "clue for 1a");
+        //clickOnCell(0);
+        clickOnCell(0);
+        doClueFormInput("adown", "clue for 1d");
+        assert.equal($(getGridCells()[0]).prop("title"), "1 Across: clue for 1a (5)\n1 Down: clue for 1d (5)");
+    });
+    test("Keeps DOWN tooltip if blank ACROSS clue text is added", function(assert) {
+        clickOnCell(0);
+        doClueFormInput("adown", "clue for 1d");
+        clickOnCell(0);
+        doClueFormInput("acros", "");
+        assert.equal($(getGridCells()[0]).prop("title"), "1 Down: clue for 1d (5)");
+    });
+    test("Does not add ACROSS tooltip to DOWN only clue", function(assert) {
+        doClueFormInput("acros", "clue for 1a");
+        clickOnCell(1);
+        doClueFormInput("crown", "clue for 2d");
+        let gridCells = getGridCells();
+        assert.equal($(gridCells[0]).prop("title"), "1 Across: clue for 1a (5)");
+        assert.equal($(gridCells[1]).prop("title"), "2 Down: clue for 2d (5)");
+    });
+    /**
+    test("setWordData: By default word letters are red without clue", function(assert) {
+      var xword = createXWord(6);
+      xword.setWordData("0-0", "across", "", true);
+      var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
+      assert.equal(wordLetters.css("color"), "rgb(255, 0, 0)");
+    });
+    test("setWordData: With clue set, word letters in single cells are blue", function(assert) {
+      var xword = createXWord(5);
+      xword.toggleCellBlock("1-0");
+      xword.toggleCellBlock("1-2");
+      xword.toggleCellBlock("1-4");
+      xword.setWordData("0-0", "WORDS", "Clue text", true);
+      var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
+      assert.equal(wordLetters.even().css("color"), "rgb(0, 0, 255)");
+      assert.equal(wordLetters.odd().css("color"), "rgb(255, 0, 0)");
+    });
+    test("setWordData: Letters in cross-cells are blue only if both words have clues", function(assert) {
+      var xword = createXWord(5);
+      xword.toggleCellBlock("1-0");
+      xword.toggleCellBlock("1-2");
+      xword.toggleCellBlock("1-4");
+      xword.setWordData("0-0", "WORDS", "Clue text", true);
+      xword.setWordData("0-1", "OVERT", "", false);  // DOWN word but no clue
+      xword.setWordData("0-3", "DIVER", "Clue text", false); // DOWN word with clue
+      xword.setWordData("2-0", "SERVE", "", true);     //ACROSS word with no clue
+      var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
+      assert.equal($(wordLetters[0]).css("color"), "rgb(0, 0, 255)");
+      assert.equal($(wordLetters[1]).css("color"), "rgb(255, 0, 0)");
+      assert.equal($(wordLetters[2]).css("color"), "rgb(0, 0, 255)");
+      assert.equal($(wordLetters[3]).css("color"), "rgb(0, 0, 255)");
+      assert.equal($(wordLetters[4]).css("color"), "rgb(0, 0, 255)");
+      wordLetters = $(xword._getCellsInWord("2-0").children(".xw-letter"));
+      assert.equal(wordLetters.css("color"), "rgb(255, 0, 0)");
+    });
+    **/
 
     // Clue is shown as tool tip
     // Check if word conflicts with other letters
     // Check letter colors
     // Replaces tool tip if clue is updated
+    // dataChanged triggered
 
     //==> XWordEditor::Clues Status
     QUnit.module("XWordEditor::Clues Status", {
@@ -541,19 +642,19 @@
         }
     });
     test('Shows status of ACROSS & DOWN clues in status line for new grid', function (assert) {
-        let puzzleData = {id: 0, size: 7};
+        let puzzleData = {id: null, size: 7};
         new XWordEditor(puzzleData);
         assert.equal($("#status").text(), "ACROSS: 0 of 7, DOWN: 0 of 7");
     });
     test('Updates status of ACROSS & DOWN clues after adding blocks', function (assert) {
-        let puzzleData = {id: 0, size: 5};
+        let puzzleData = {id: null, size: 5};
         new XWordEditor(puzzleData);
         clickOnCell(3);
         clickOnCell(6);
         clickOnCell(11);
         assert.equal($("#status").text(), "ACROSS: 0 of 4, DOWN: 0 of 3");
     });
-    // Update status on adding word
+    // Update status on adding completed clues
     // Update status on deleting word
 
     //==> XWordEditor::Publish/Unpublish
@@ -662,7 +763,7 @@
     QUnit.module("XWordEditor::Hiliting", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
-            puzzleData = {id: 0, size: 5};
+            puzzleData = {id: null, size: 5};
             new XWordEditor(puzzleData);
         }
     });
@@ -706,19 +807,19 @@
       assertHilitedCells(0, [0,5,10,15,20]);  // Re-click cell with no ACROSS word (should retain DOWN hilite)
     });
     test('Hilites 1st ACROSS clue in an unblocked grid on switch to clue edit mode', function (assert) {
-        new XWordEditor({id: 0, size: 5});
+        new XWordEditor({id: null, size: 5});
         $("#radio-2").prop("checked", true).change();
         let hilitedCells = getGridCells().slice(0,5);
         assert.true($(hilitedCells).hasClass("xw-hilite"));
     });
     test("Hilites 1st ACROSS word in a new blocked grid on switch to clue edit mode", function(assert) {
-        new XWordEditor({id: 0, size: 5});
+        new XWordEditor({id: null, size: 5});
         setBlocks([0,2,4,5]);
         $("#radio-2").prop("checked", true).change();
         assertHilitedCells(null, [6,7,8,9]);
     });
     test("Hiliting a blank ACROSS & DOWN word initializes clue-form with clue ref", function(assert) {
-        new XWordEditor({id: 0, size: 5});
+        new XWordEditor({id: null, size: 5});
         setBlocks([0,2,4,5]);
         $("#radio-2").prop("checked", true).change();
         assertHilitedCells(15, [15,16,17,18]);

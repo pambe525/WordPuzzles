@@ -11,7 +11,7 @@ class EditPuzzleView {
 
     dataSaved = true;
     isXWord = true;
-    id = 0;
+    id = null;
     sharedAt = null;
 
     //==> CONSTRUCTOR
@@ -19,10 +19,10 @@ class EditPuzzleView {
         if ( puzzleData.id ) this.id = puzzleData.id;
         if (this.id > 0) $(this.ID.jqDesc).text(puzzleData.desc);
         if (puzzleData.shared_at) this.sharedAt = puzzleData.shared_at;
-        $(this.ID.jqSaveOkIcon).prop("hidden", true);
+        $(this.ID.jqSaveOkIcon).hide();
         this._hideUnpublish();
         $(this.ID.jqTitle).text( this._buildTitle() );
-        (this.id === 0) ? this._disableDelete() : this._disableDelete(false);
+        (!this.id) ? this._disableDelete() : this._disableDelete(false);
         this.disablePublish();
         this._setClueFormTabIndex();
     }
@@ -88,8 +88,7 @@ class EditPuzzleView {
         $(this.ID.jqClueText).val(formFields.clueText);
         $(this.ID.jqClueWord).attr("maxlength", formFields.maxLength);
         $(this.ID.jqClueMsg).text("");
-        $(this.ID.jqClueWord).focus();
-        //(formFields.word === "") ? $(this.IDs.clueWord).focus() : $(this.IDs.clueText).focus()
+        (formFields.clueWord === "") ? $(this.ID.jqClueWord).focus() : $(this.ID.jqClueText).focus()
     }
     setClueMsg(message) {
         $(this.ID.jqClueMsg).text(message);
@@ -123,7 +122,7 @@ class EditPuzzleView {
 
     //==> PRIVATE METHODS
     _buildTitle(){
-        return (this.id === 0) ? "New Crossword" : "Edit Crossword #" + this.id;
+        return (!this.id) ? "New Crossword" : "Edit Crossword #" + this.id;
     }
     _disableDelete(disable=true) {
         $(this.ID.jqDeleteBtn).prop("disabled", disable);
@@ -149,7 +148,7 @@ class EditPuzzleView {
         $(this.ID.jqClueText).attr('tabindex', 2);
     }
     _showSaveOKIcon() {
-        $(this.ID.jqSaveOkIcon).show(0, this._hideSaveOKIcon);
+        $(this.ID.jqSaveOkIcon).show(400, this._hideSaveOKIcon);
     }
 
     //==> PRIVATE EVENT HANDLERS

@@ -23,7 +23,6 @@ class PuzzleModelTest(TestCase):
         puzzle = Puzzle.objects.create()
         puzzle = Puzzle.objects.get(id=puzzle.id)
         self.assertTrue(puzzle.is_xword)
-        self.assertFalse(puzzle.is_ready)
         self.assertIsNone(puzzle.editor)
         self.assertEqual(0, puzzle.size)
         self.assertEqual("", puzzle.desc)

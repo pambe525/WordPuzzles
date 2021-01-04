@@ -163,6 +163,7 @@ i {
     position: relative;
     text-align: center;
     line-height: 30px;
+    cursor: pointer;
 }
 .xw-number {
     position: absolute;
@@ -171,6 +172,8 @@ i {
     color: black;
     top: -10px;
     left: 2px;
+    cursor: pointer;
+    pointer-events: none;
 }
 .xw-block {
     background-color: black;
@@ -179,7 +182,9 @@ i {
     background-color: yellow;
 }
 .xw-letter {
-    font-size: 16px;
+    font-size: 17px;
+    cursor: pointer;
+    pointer-events: none;
 }
 
 /*!*** TOGGLE SWITCH *!*/

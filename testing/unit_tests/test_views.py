@@ -195,7 +195,6 @@ class EditPuzzleViewTests(TestCase):
         puzzle_data = json.loads(response.context['data'])
         self.assertEqual(record.id, puzzle_data['id'])
         self.assertEqual(record.size, puzzle_data['size'])
-        self.assertEqual(record.is_ready, puzzle_data['is_ready'])
         self.assertEqual(record.is_xword, puzzle_data['is_xword'])
         self.assertEqual(record.desc, puzzle_data['desc'])
         self.assertEqual(record.shared_at, puzzle_data['shared_at'])
@@ -230,7 +229,6 @@ class EditPuzzleViewTests(TestCase):
         self.assertEqual(records[0].id, id)
         expected_data = json.loads(ajax_data_dict['data'])
         self.assertEqual(records[0].size, expected_data['size'])
-        self.assertEqual(records[0].is_ready, expected_data['is_ready'])
         self.assertEqual(records[0].is_xword, expected_data['is_xword'])
         self.assertEqual(json.loads(records[0].data)['blocks'], expected_data['data']['blocks'])
         self.assertEqual(json.loads(records[0].data)['across'], expected_data['data']['across'])
@@ -251,7 +249,7 @@ class EditPuzzleViewTests(TestCase):
     ### HELPER METHODS --------------------------------------------------------------------------
     def get_puzzle_data_dict(self, **fields):
         puzzle_data = {'id': None, 'size': 0, 'is_xword': True, 'desc': "", 'shared_at': None,
-                       'is_ready': False, 'data': {'blocks': "", 'across': {}, 'down': {}}
+                       'data': {'blocks': "", 'across': {}, 'down': {}}
                        }
         puzzle_data.update(locals()['fields'])
         return puzzle_data
