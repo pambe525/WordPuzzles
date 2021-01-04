@@ -175,7 +175,11 @@ class EditPuzzleView {
         this.dataChanged();
     }
     _onEnterKey = (event) => {
-        if (event.keyCode === 13) $(this.ID.jqClueUpdateBtn).click();
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            $(this.ID.jqClueMsg).empty();
+            $(this.ID.jqClueUpdateBtn).click();
+        }
     }
     _onPublishClick = () => {
         let message = "Puzzle will be accessible to all users. Editing will be disabled. Please confirm.";

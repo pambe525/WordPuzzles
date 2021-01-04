@@ -186,6 +186,9 @@ i {
     cursor: pointer;
     pointer-events: none;
 }
+.xw-letter.xw-red {
+    color: red;
+}
 
 /*!*** TOGGLE SWITCH *!*/
 /*!* The switch - the box around the slider *!*/

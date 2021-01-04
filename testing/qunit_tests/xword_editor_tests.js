@@ -56,6 +56,13 @@
         for (let i = 0; i < hiliteCellIndices.length; i++)
            assert.true($(gridCells[hiliteCellIndices[i]]).hasClass("xw-hilite"));
     }
+    function assertHasRedLetters(flagsArray){
+        var letterCells = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
+        for (let i = 0; i < letterCells.length; i++) {
+            if (flagsArray[i]) assert.true($(letterCells[i]).hasClass("xw-red"));
+            else assert.false($(letterCells[i]).hasClass("xw-red"));
+        }
+    }
 
     //==> XWordEditor Initialization
     QUnit.module("XWordEditor::Instantiation", {
@@ -258,9 +265,9 @@
         clickOnCell(3);   // Hiliting should be disabled
         assert.equal($(getGridCells()).filter(".xw-hilite").length, 0);
     })
-
     // Existing puzzle - Hilites the first incomplete clue across or down
     // Existing puzzle - Hides form if all clues are complete and enables publish
+    // Loads words and colors them
 
     //==> XWordEditor::Save/Delete
     QUnit.module("XWordEditor::Save/Delete", {
@@ -444,6 +451,7 @@
         clickOnCell(23);
         assert.false($(gridCell(1)).hasClass("xw-block"));
     });
+    //==> Unblocking cells that are word start or end
 
     //==> XWordEditor::Clue Editing
     QUnit.module("XWordEditor::Clue Edit Mode", {
@@ -592,47 +600,56 @@
         assert.equal($(gridCells[0]).prop("title"), "1 Across: clue for 1a (5)");
         assert.equal($(gridCells[1]).prop("title"), "2 Down: clue for 2d (5)");
     });
-    /**
-    test("setWordData: By default word letters are red without clue", function(assert) {
-      var xword = createXWord(6);
-      xword.setWordData("0-0", "across", "", true);
-      var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
-      assert.equal(wordLetters.css("color"), "rgb(255, 0, 0)");
+    test("Sets word letters with no clue to class 'xw-red'", function(assert) {
+        doClueFormInput("crown", "");  // 1 ACROSS
+        let wordLetters = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
+        assert.equal(wordLetters.length, 5);
+        assert.true(wordLetters.hasClass("xw-red"));
+        clickOnCell(1);
+        doClueFormInput("river", "");  // 2 DOWN
+        wordLetters = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
+        assert.equal(wordLetters.length, 5);
+        assert.true(wordLetters.hasClass("xw-red"));
     });
-    test("setWordData: With clue set, word letters in single cells are blue", function(assert) {
-      var xword = createXWord(5);
-      xword.toggleCellBlock("1-0");
-      xword.toggleCellBlock("1-2");
-      xword.toggleCellBlock("1-4");
-      xword.setWordData("0-0", "WORDS", "Clue text", true);
-      var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
-      assert.equal(wordLetters.even().css("color"), "rgb(0, 0, 255)");
-      assert.equal(wordLetters.odd().css("color"), "rgb(255, 0, 0)");
+    test("Skips setting word letters with clue in single cells to red", function(assert) {
+        $("#radio-1").prop("checked", true).change();
+        setBlocks([5,7,9]);
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("WORDS", "Clue text");
+        let wordLetters = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
+        assert.false(wordLetters.even().hasClass("xw-red"));
+        assert.true(wordLetters.odd().hasClass("xw-red"));
     });
-    test("setWordData: Letters in cross-cells are blue only if both words have clues", function(assert) {
-      var xword = createXWord(5);
-      xword.toggleCellBlock("1-0");
-      xword.toggleCellBlock("1-2");
-      xword.toggleCellBlock("1-4");
-      xword.setWordData("0-0", "WORDS", "Clue text", true);
-      xword.setWordData("0-1", "OVERT", "", false);  // DOWN word but no clue
-      xword.setWordData("0-3", "DIVER", "Clue text", false); // DOWN word with clue
-      xword.setWordData("2-0", "SERVE", "", true);     //ACROSS word with no clue
-      var wordLetters = $(xword._getCellsInWord("0-0").children(".xw-letter"));
-      assert.equal($(wordLetters[0]).css("color"), "rgb(0, 0, 255)");
-      assert.equal($(wordLetters[1]).css("color"), "rgb(255, 0, 0)");
-      assert.equal($(wordLetters[2]).css("color"), "rgb(0, 0, 255)");
-      assert.equal($(wordLetters[3]).css("color"), "rgb(0, 0, 255)");
-      assert.equal($(wordLetters[4]).css("color"), "rgb(0, 0, 255)");
-      wordLetters = $(xword._getCellsInWord("2-0").children(".xw-letter"));
-      assert.equal(wordLetters.css("color"), "rgb(255, 0, 0)");
+    test("Updates word letter color when clue is set in single", function(assert) {
+        $("#radio-1").prop("checked", true).change();
+        setBlocks([5,7,9]);
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("WORDS", "");  // All Red
+        doClueFormInput("WORDS", "clue added");
+        let wordLetters = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
+        assert.false(wordLetters.even().hasClass("xw-red"));
+        assert.true(wordLetters.odd().hasClass("xw-red"));
     });
-    **/
-
-    // Clue is shown as tool tip
-    // Check if word conflicts with other letters
-    // Check letter colors
-    // Replaces tool tip if clue is updated
+    test("Skips setting cross-letters to red if both cross-words have clues", function(assert) {
+        $("#radio-1").prop("checked", true).change();
+        setBlocks([5,7,9]);
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("WORDS", "Clue text");   // 1 ACROSS with clue
+        clickOnCell(1);
+        doClueFormInput("OVERT", "");  //  2 DOWN no clue
+        clickOnCell(8);
+        doClueFormInput("DIVER", "Clue text"); // DOWN word with clue
+        clickOnCell(10);
+        doClueFormInput("SERVE", "");   //ACROSS word with no clue
+        clickOnCell(0);
+        assertHasRedLetters([0,1,0,0,0]);
+        clickOnCell(6);
+        assertHasRedLetters([1,1,1,1,1]);
+        clickOnCell(8);
+        assertHasRedLetters([0,0,1,0,1]);
+        clickOnCell(10);
+        assertHasRedLetters([1,1,1,1,1]);
+    });
     // dataChanged triggered
 
     //==> XWordEditor::Clues Status

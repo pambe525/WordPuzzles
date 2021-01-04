@@ -92,6 +92,7 @@ class XWordGrid {
         if (this._isHiliteAcross()) this.across[cellIndex] = {word: word, clue: clue};
         else this.down[cellIndex] = {word: word, clue: clue};
         this._setToolTip(hilitedCells[0]);
+        this._setLetterColors(hilitedCells, isAcross);
     }
     displayWordsInGrid() {
         let acrossKeys = Object.keys(this.across), word, index;
@@ -116,7 +117,7 @@ class XWordGrid {
         if (this._isBlocked(cell)) return false;
         let isAcross = true;
         if ($(cell).hasClass("xw-hilite")) isAcross = !(this._isHiliteAcross());
-        if ( !this._isNextOpen(cell, isAcross) && !this._isPrevOpen(cell, isAcross)) isAcross = !isAcross;
+        if ( !this._isInWord(cell, isAcross) ) isAcross = !isAcross;
         let wordCells = this._getWordCells(cell, isAcross);
         this.clearHilite();
         $(wordCells).addClass("xw-hilite");
@@ -261,6 +262,13 @@ class XWordGrid {
     _hasLetter(cell) {
         return ($(cell).children(".xw-letter").text() !== "");
     }
+    _hasClue(wordStartCell, isAcross=true) {
+        let hasClue;
+        let cellIndex = this._cellIndex(wordStartCell);
+        if (isAcross) hasClue = (this.across[cellIndex] !== undefined && this.across[cellIndex].clue !== "");
+        else hasClue = (this.down[cellIndex] !== undefined && this.down[cellIndex].clue !== "");
+        return hasClue;
+    }
     _isBlocked(cell) {
         return !!($(cell).hasClass("xw-block"));
     }
@@ -273,6 +281,9 @@ class XWordGrid {
         if (hilitedCells.length === 0) return null;
         let indexDiff = this._cellIndex(hilitedCells[1]) - this._cellIndex(hilitedCells[0]);
         return (indexDiff === 1);
+    }
+    _isInWord(cell, isAcross=true) {
+       return ( this._isNextOpen(cell, isAcross) || this._isPrevOpen(cell, isAcross) );
     }
     _isLast(cellIndex, isAcross=true) {
         if ( isAcross && (cellIndex + 1) % this.size === 0 ) return true;
@@ -309,6 +320,23 @@ class XWordGrid {
         let downToolTip = this._getToolTipText(wordStartCell, false);
         let wordBreak = (acrossToolTip !== "" && downToolTip !== "") ? "\n" : "";
         $(wordStartCell).prop("title", acrossToolTip + wordBreak + downToolTip);
+    }
+    _setLetterColors(wordCells, isAcross=true){
+        let wordHasClue = this._hasClue(wordCells[0], isAcross);
+        let letterIsInXWord, xwordStartCell, letter, isRed;
+        if (!wordHasClue) $(wordCells).children(".xw-letter").addClass("xw-red");
+        else {
+            for (let i = 0; i < wordCells.length; i++) {
+                isRed = false;
+                letter = $(wordCells[i]).children(".xw-letter");
+                letterIsInXWord = this._isInWord(wordCells[i], !isAcross);
+                if ( letterIsInXWord ) {
+                    xwordStartCell = this._getWordStartCell(wordCells[i], !isAcross);
+                    if ( !this._hasClue(xwordStartCell, !isAcross) ) isRed = true;
+                }
+                (isRed) ? letter.addClass("xw-red") : letter.removeClass("xw-red");
+            }
+        }
     }
     _storeWordData(data) {
         let acrossKeys = (data.across) ? Object.keys(data.across) : [];
