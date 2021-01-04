@@ -33,6 +33,7 @@ class EditPuzzleView {
         $(this.ID.jqSizeSelect).change(controller.onSizeChange);
         $(this.ID.jqSaveBtn).click(controller.onSaveClick);
         $(this.ID.jqClueUpdateBtn).click(controller.onClueUpdateClick);
+        $(this.ID.jqClueDeleteBtn).click(controller.onClueDeleteClick);
         $(this.ID.jqPublishBtn).click(this._onPublishClick);
         $(this.ID.jqUnpublishBtn).click(this._onUnpublishClick);
         $(this.ID.jqDeleteBtn).click(this._onDeleteClick);

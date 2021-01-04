@@ -20,8 +20,15 @@ class XWordEditor {
         let wordData = this.view.getClueFormInput();
         try {
             this.xwordGrid.setHilitedWordData(wordData);
+            this.view.setStatus( this.xwordGrid.getStatus() );
+            this.view.dataChanged();
         }
         catch(e) { this.view.setClueMsg(e.message); }
+    }
+    onClueDeleteClick = () => {
+        this.xwordGrid.removeHilitedWordData();
+        this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
+        this.view.setStatus( this.xwordGrid.getStatus() );
     }
     onGridCellClick = (event) => {
         if ( this.view.isPublished() ) return;

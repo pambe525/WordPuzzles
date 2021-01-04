@@ -79,6 +79,15 @@ class XWordGrid {
             }
         }
     }
+    removeHilitedWordData() {
+        let hilitedCells = this._getHilitedCells();
+        let isAcross = this._isHiliteAcross();
+        for (let i = 0; i < hilitedCells.length; i++)
+            $(hilitedCells[i]).children(".xw-letter").empty();
+        let cellIndex = this._cellIndex(hilitedCells[0]);
+        if (isAcross) delete this.across[cellIndex];
+        else delete this.down[cellIndex];
+    }
     setHilitedWordData(wordData) {
         let word = wordData.word.toUpperCase().trim();
         let clue = wordData.clue.trim();
@@ -89,7 +98,7 @@ class XWordGrid {
         for (let i = 0; i < hilitedCells.length; i++)
             $(hilitedCells[i]).children(".xw-letter").text(word[i]);
         let cellIndex = this._cellIndex(hilitedCells[0]);
-        if (this._isHiliteAcross()) this.across[cellIndex] = {word: word, clue: clue};
+        if (isAcross) this.across[cellIndex] = {word: word, clue: clue};
         else this.down[cellIndex] = {word: word, clue: clue};
         this._setToolTip(hilitedCells[0]);
         this._setLetterColors(hilitedCells, isAcross);

@@ -453,11 +453,11 @@
     });
     //==> Unblocking cells that are word start or end
 
-    //==> XWordEditor::Clue Editing
-    QUnit.module("XWordEditor::Clue Edit Mode", {
+    //==> XWordEditor::Add Clues
+    QUnit.module("XWordEditor::Add Clue", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
-            new XWordEditor({id: null, size: 5});
+            controller = new XWordEditor({id: null, size: 5});
             $("#radio-2").prop("checked", true).change();
         }
     });
@@ -650,7 +650,82 @@
         clickOnCell(10);
         assertHasRedLetters([1,1,1,1,1]);
     });
-    // dataChanged triggered
+    test('Sets dataSaved to true on successfully adding word/clue', function (assert) {
+        saveData({});
+        assert.true(controller.view.dataSaved);
+        doClueFormInput("TOO", "Clue text");    // 1 ACROSS
+        assert.true(controller.view.dataSaved);     // dataSaved is still true
+        doClueFormInput("WORDS", "");               // Adds word successfully
+        assert.false(controller.view.dataSaved);
+    });
+
+    //==> XWordEditor::Delete Clues
+    QUnit.module("XWordEditor::Delete Clue", {
+        beforeEach: function () {
+            setupFixture(EditPuzzlePageHtml);
+            controller = new XWordEditor({id: null, size: 5});
+            $("#radio-2").prop("checked", true).change();
+        }
+    });
+    test("Deletes word data and letters in grid", function(assert) {
+        $("#radio-1").prop("checked", true).change();
+        setBlocks([1, 3]);
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("ACROS", "");
+        clickOnCell(0);
+        doClueFormInput("ADOWN", "");
+        clickOnCell(5);
+        let clueDeleteBtn = $("#clue-delete");
+        clueDeleteBtn.click();
+        assertClueFormFields("#4 Across (5)", "", "", "");
+        assertHilitedWord("     ");
+        clickOnCell(0);
+        clueDeleteBtn.click();
+        assertClueFormFields("#1 Down (5)", "", "", "");
+        assertHilitedWord("     ");
+    });
+    /**
+    test("deleteWordData: Preserves ACROSS letters in grid shared by cross-words", function(assert) {
+      var xword = createXWord(5);
+      xword.setWordData("1-0", "ACROS", "", true);  // ACROSS WORD 1
+      xword.setWordData("3-0", "WIDER", "", true);  // ACROSS WORD 2
+      xword.setWordData("0-1", "ACRID", "", false); // DOWN WORD 1
+      xword.setWordData("0-3", "COVER", "", false); // DOWN WORD 2
+      xword.deleteWordData("1-0", true);
+      assert.true(xword._getCellsInWord("1-0", true).children(".xw-letter:even").is(":empty"));
+      assert.false(xword._getCellsInWord("1-0", true).children(".xw-letter:odd").is(":empty"));
+    });
+    test("deleteWordData: Preserves DOWN letters in grid shared by cross-words", function(assert) {
+      var xword = createXWord(5);
+      xword.setWordData("1-0", "ACROS", "", true);  // ACROSS WORD 1
+      xword.setWordData("3-0", "WIDER", "", true);  // ACROSS WORD 2
+      xword.setWordData("0-1", "ACRID", "", false); // DOWN WORD 1
+      xword.setWordData("0-3", "COVER", "", false); // DOWN WORD 2
+      xword.deleteWordData("0-1", false);
+      assert.true(xword._getCellsInWord("0-1", false).children(".xw-letter:even").is(":empty"));
+      assert.false(xword._getCellsInWord("0-1", false).children(".xw-letter:odd").is(":empty"));
+    });
+    test("deleteWordData: Deletes letter color classes", function(assert) {
+      var xword = createXWord(5);
+      xword.toggleCellBlock("1-0");
+      xword.toggleCellBlock("1-2");
+      xword.toggleCellBlock("1-4");
+      xword.setWordData("0-0", "ACROS", "clue 1A", true);   // ACROSS WORD
+      xword.setWordData("0-1", "COVER", "clue 2D", false);  // DOWN WORD 1
+      xword.setWordData("0-3", "OVERT", "clue 3D", false);  // DOWN WORD 2
+      xword.deleteWordData("0-0", true);
+      var wordCells = xword._getCellsInWord("0-0", true).children(".xw-letter");
+      assert.false(wordCells.hasClass("xw-blue"));
+      assert.false(wordCells.hasClass("xw-xblue"));
+    });
+    test("deleteWordData: Deletes tooltip for the word if it exists", function(assert) {
+      var xword = createXWord(5);
+      xword.setWordData("0-0", "AVERT", "clue 1D", false);  // DOWN WORD 1
+      xword.setWordData("0-0", "ACROS", "clue 1A", true);   // ACROSS WORD
+      xword.deleteWordData("0-0", true);
+      assert.equal($("#0-0").attr("title"), "1 Down: clue 1D (5)");
+    });
+    */
 
     //==> XWordEditor::Clues Status
     QUnit.module("XWordEditor::Clues Status", {
@@ -671,8 +746,41 @@
         clickOnCell(11);
         assert.equal($("#status").text(), "ACROSS: 0 of 4, DOWN: 0 of 3");
     });
-    // Update status on adding completed clues
-    // Update status on deleting word
+    test('Updates status of ACROSS & DOWN clues after adding clues', function (assert) {
+        let puzzleData = {id: null, size: 5};
+        new XWordEditor(puzzleData);
+        setBlocks([1,3,11])
+        $("#radio-2").prop("checked", true).change();
+        clickOnCell(0);
+        doClueFormInput("PEACH", "Clue 1d");
+        clickOnCell(5);
+        doClueFormInput("EAGER", "Clue 4a");
+        clickOnCell(2);
+        doClueFormInput("IGLOO", "Clue 2d");
+        clickOnCell(4);
+        doClueFormInput("ARDEN", "");
+        clickOnCell(15);
+        doClueFormInput("CHORE", "Clue 5a");
+        assert.equal($("#status").text(), "ACROSS: 2 of 2, DOWN: 2 of 3");
+    });
+    test('Updates status of ACROSS & DOWN clues after deleting clues', function (assert) {
+        let puzzleData = {id: null, size: 5};
+        new XWordEditor(puzzleData);
+        setBlocks([1,3,11])
+        $("#radio-2").prop("checked", true).change();
+        clickOnCell(0);
+        doClueFormInput("PEACH", "Clue 1d");
+        clickOnCell(5);
+        doClueFormInput("EAGER", "Clue 4a");
+        clickOnCell(4);
+        doClueFormInput("ARDEN", "Clue 3d");
+        clickOnCell(0);
+        let clueDeleteBtn = $("#clue-delete");
+        clueDeleteBtn.click();
+        clickOnCell(5);
+        clueDeleteBtn.click();
+        assert.equal($("#status").text(), "ACROSS: 0 of 2, DOWN: 1 of 3");
+    });
 
     //==> XWordEditor::Publish/Unpublish
     QUnit.module("XWordEditor::Publish/Unpublish", {
