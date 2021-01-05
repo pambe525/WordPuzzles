@@ -1,14 +1,3 @@
-// _dataChanged tests
-//--------------------------------------------------------------------------------------------------------------------
-test("_dataChanged: Called when word data is deleted", function(assert) {
-  var xword = createXWord(5);
-  var called = false;
-  xword.setDataChangedHandler(function(){ called = true; })
-  xword.setWordData("0-0","trial","clue text", true);
-  called = false;
-  xword.deleteWordData("0-0", true);
-  assert.true(called);
-});
 
 // toggleCellBlock tests
 //--------------------------------------------------------------------------------------------------------------------

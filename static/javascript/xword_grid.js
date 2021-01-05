@@ -82,11 +82,22 @@ class XWordGrid {
     removeHilitedWordData() {
         let hilitedCells = this._getHilitedCells();
         let isAcross = this._isHiliteAcross();
-        for (let i = 0; i < hilitedCells.length; i++)
-            $(hilitedCells[i]).children(".xw-letter").empty();
+        let letterIsInXWord, xwordStartCell, letter, remove;
+        for (let i = 0; i < hilitedCells.length; i++) {
+            remove = true;
+            letter = $(hilitedCells[i]).children(".xw-letter");
+            letterIsInXWord = this._isInWord(hilitedCells[i], !isAcross);
+            if ( letterIsInXWord ) {
+                xwordStartCell = this._getWordStartCell(hilitedCells[i], !isAcross);
+                if ( this._hasWord(xwordStartCell, !isAcross) ) remove = false;
+            }
+            if (remove) letter.removeClass("xw-red").empty();
+            else letter.addClass("xw-red");
+        }
         let cellIndex = this._cellIndex(hilitedCells[0]);
         if (isAcross) delete this.across[cellIndex];
         else delete this.down[cellIndex];
+        this._setToolTip(hilitedCells[0]);
     }
     setHilitedWordData(wordData) {
         let word = wordData.word.toUpperCase().trim();
@@ -277,6 +288,13 @@ class XWordGrid {
         if (isAcross) hasClue = (this.across[cellIndex] !== undefined && this.across[cellIndex].clue !== "");
         else hasClue = (this.down[cellIndex] !== undefined && this.down[cellIndex].clue !== "");
         return hasClue;
+    }
+    _hasWord(wordStartCell, isAcross=true) {
+        let hasWord;
+        let cellIndex = this._cellIndex(wordStartCell);
+        if (isAcross) hasWord = (this.across[cellIndex] !== undefined && this.across[cellIndex].word !== "");
+        else hasWord = (this.down[cellIndex] !== undefined && this.down[cellIndex].word !== "");
+        return hasWord;
     }
     _isBlocked(cell) {
         return !!($(cell).hasClass("xw-block"));

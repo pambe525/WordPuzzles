@@ -29,6 +29,7 @@ class XWordEditor {
         this.xwordGrid.removeHilitedWordData();
         this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
         this.view.setStatus( this.xwordGrid.getStatus() );
+        this.view.dataChanged();
     }
     onGridCellClick = (event) => {
         if ( this.view.isPublished() ) return;

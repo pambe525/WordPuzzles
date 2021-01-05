@@ -56,7 +56,7 @@
         for (let i = 0; i < hiliteCellIndices.length; i++)
            assert.true($(gridCells[hiliteCellIndices[i]]).hasClass("xw-hilite"));
     }
-    function assertHasRedLetters(flagsArray){
+    function assertHasRedLetterClass(flagsArray){
         var letterCells = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
         for (let i = 0; i < letterCells.length; i++) {
             if (flagsArray[i]) assert.true($(letterCells[i]).hasClass("xw-red"));
@@ -237,14 +237,6 @@
         assertHilitedWord("ABCDE");
         assertClueFormFields("#1 Across (5)", "ABCDE", "", "");
      });
-    test('Sets dataSaved to true after data is restored', function (assert) {
-        var gridSize = 5, blockStr = "";
-        var puzzleData = {
-            id: 10, size: gridSize, data:{blocks: blockStr, across:{0:{word:"ABCDE", clue:""}}, down:{}}
-        }
-        controller = new XWordEditor(puzzleData);
-        assert.true(controller.view.dataSaved);
-     });
     test('Sets Published state if restored xword is published', function (assert) {
         let gridData = {
             blocks:"0,1,23,24",
@@ -354,13 +346,6 @@
         ajaxSettings.error(null, null, msg);
         assert.equal(alertMessage, msg);
     });
-    test('Sets dataSaved to true on successful save', function (assert) {
-        let puzzleData = {id: null, size: 5}
-        let controller = new XWordEditor(puzzleData);
-        assert.false(controller.view.dataSaved);
-        saveData({});
-        assert.true(controller.view.dataSaved);
-    });
     test('Shows confirm box before deleting - cancel takes no action', function (assert) {
         let puzzleData = {id: null, size: 5}
         new XWordEditor(puzzleData);
@@ -434,14 +419,6 @@
         let clueNums = {1:"1",2:"2",3:"3",5:"4",9:"5",10:"6",13:"7",15:"8",17:"9",21:"10"};
         verifyClueNums(clueNums);
     });
-    test('Sets dataSaved to false after blocking/unblocking a grid cell', function (assert) {
-        saveData({});
-        clickOnCell(8);   // block a cell
-        assert.false(controller.view.dataSaved);
-        saveData({});
-        clickOnCell(8);   // unblock cell
-        assert.false(controller.view.dataSaved);
-    });
     test("Does not block cell if it or symm cell contains a letter", function(assert) {
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("trial", "");
@@ -452,6 +429,7 @@
         assert.false($(gridCell(1)).hasClass("xw-block"));
     });
     //==> Unblocking cells that are word start or end
+    // Unblocking recolors letters if present
 
     //==> XWordEditor::Add Clues
     QUnit.module("XWordEditor::Add Clue", {
@@ -642,21 +620,13 @@
         clickOnCell(10);
         doClueFormInput("SERVE", "");   //ACROSS word with no clue
         clickOnCell(0);
-        assertHasRedLetters([0,1,0,0,0]);
+        assertHasRedLetterClass([0,1,0,0,0]);
         clickOnCell(6);
-        assertHasRedLetters([1,1,1,1,1]);
+        assertHasRedLetterClass([1,1,1,1,1]);
         clickOnCell(8);
-        assertHasRedLetters([0,0,1,0,1]);
+        assertHasRedLetterClass([0,0,1,0,1]);
         clickOnCell(10);
-        assertHasRedLetters([1,1,1,1,1]);
-    });
-    test('Sets dataSaved to true on successfully adding word/clue', function (assert) {
-        saveData({});
-        assert.true(controller.view.dataSaved);
-        doClueFormInput("TOO", "Clue text");    // 1 ACROSS
-        assert.true(controller.view.dataSaved);     // dataSaved is still true
-        doClueFormInput("WORDS", "");               // Adds word successfully
-        assert.false(controller.view.dataSaved);
+        assertHasRedLetterClass([1,1,1,1,1]);
     });
 
     //==> XWordEditor::Delete Clues
@@ -684,48 +654,55 @@
         assertClueFormFields("#1 Down (5)", "", "", "");
         assertHilitedWord("     ");
     });
-    /**
-    test("deleteWordData: Preserves ACROSS letters in grid shared by cross-words", function(assert) {
-      var xword = createXWord(5);
-      xword.setWordData("1-0", "ACROS", "", true);  // ACROSS WORD 1
-      xword.setWordData("3-0", "WIDER", "", true);  // ACROSS WORD 2
-      xword.setWordData("0-1", "ACRID", "", false); // DOWN WORD 1
-      xword.setWordData("0-3", "COVER", "", false); // DOWN WORD 2
-      xword.deleteWordData("1-0", true);
-      assert.true(xword._getCellsInWord("1-0", true).children(".xw-letter:even").is(":empty"));
-      assert.false(xword._getCellsInWord("1-0", true).children(".xw-letter:odd").is(":empty"));
+    test("Does not delete letters in grid shared by cross-words", function(assert) {
+        $("#radio-1").prop("checked", true).change();
+        setBlocks([0, 2, 4]);
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("ALTER", "across 3a");
+        clickOnCell(15);
+        doClueFormInput("INLET", "across 5a");
+        clickOnCell(1);
+        doClueFormInput("ALINE", "down 1d");
+        clickOnCell(3);
+        doClueFormInput("HELEN", "down 2d");
+        let clueDeleteBtn = $("#clue-delete");
+        clickOnCell(5);
+        clueDeleteBtn.click();
+        assertClueFormFields("#3 Across (5)", "", "", "");
+        assertHilitedWord(" L E ");
+        clickOnCell(3);
+        clueDeleteBtn.click();
+        assertClueFormFields("#2 Down (5)", "", "", "");
+        assertHilitedWord("   E ");
     });
-    test("deleteWordData: Preserves DOWN letters in grid shared by cross-words", function(assert) {
-      var xword = createXWord(5);
-      xword.setWordData("1-0", "ACROS", "", true);  // ACROSS WORD 1
-      xword.setWordData("3-0", "WIDER", "", true);  // ACROSS WORD 2
-      xword.setWordData("0-1", "ACRID", "", false); // DOWN WORD 1
-      xword.setWordData("0-3", "COVER", "", false); // DOWN WORD 2
-      xword.deleteWordData("0-1", false);
-      assert.true(xword._getCellsInWord("0-1", false).children(".xw-letter:even").is(":empty"));
-      assert.false(xword._getCellsInWord("0-1", false).children(".xw-letter:odd").is(":empty"));
-    });
-    test("deleteWordData: Deletes letter color classes", function(assert) {
-      var xword = createXWord(5);
-      xword.toggleCellBlock("1-0");
-      xword.toggleCellBlock("1-2");
-      xword.toggleCellBlock("1-4");
-      xword.setWordData("0-0", "ACROS", "clue 1A", true);   // ACROSS WORD
-      xword.setWordData("0-1", "COVER", "clue 2D", false);  // DOWN WORD 1
-      xword.setWordData("0-3", "OVERT", "clue 3D", false);  // DOWN WORD 2
-      xword.deleteWordData("0-0", true);
-      var wordCells = xword._getCellsInWord("0-0", true).children(".xw-letter");
-      assert.false(wordCells.hasClass("xw-blue"));
-      assert.false(wordCells.hasClass("xw-xblue"));
+    test("Deletes letter color class", function(assert) {
+        $("#radio-1").prop("checked", true).change();
+        setBlocks([0, 2, 4]);
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("ALTER", "across 3a");
+        clickOnCell(1);
+        doClueFormInput("ALINE", "down 1d");
+        clickOnCell(15);
+        doClueFormInput("INLET", "across 7a");
+        clickOnCell(3);
+        doClueFormInput("HELEN", "");
+        let clueDeleteBtn = $("#clue-delete");
+        clickOnCell(5);
+        clueDeleteBtn.click();
+        assertHasRedLetterClass([0,1,0,1,0])
+        clickOnCell(3);
+        clueDeleteBtn.click();
+        assertHasRedLetterClass([0,0,0,1,0])
     });
     test("deleteWordData: Deletes tooltip for the word if it exists", function(assert) {
-      var xword = createXWord(5);
-      xword.setWordData("0-0", "AVERT", "clue 1D", false);  // DOWN WORD 1
-      xword.setWordData("0-0", "ACROS", "clue 1A", true);   // ACROSS WORD
-      xword.deleteWordData("0-0", true);
-      assert.equal($("#0-0").attr("title"), "1 Down: clue 1D (5)");
+        doClueFormInput("ALTER", "across 1a");
+        clickOnCell(0);
+        doClueFormInput("ADDER", "down 1d");
+        let clueDeleteBtn = $("#clue-delete");
+        clickOnCell(0);
+        clueDeleteBtn.click();
+        assert.equal($(getGridCells()[0]).prop("title"), "1 Down: down 1d (5)");
     });
-    */
 
     //==> XWordEditor::Clues Status
     QUnit.module("XWordEditor::Clues Status", {
@@ -781,6 +758,7 @@
         clueDeleteBtn.click();
         assert.equal($("#status").text(), "ACROSS: 0 of 2, DOWN: 1 of 3");
     });
+    // Completed clues hides form and clears hiites
 
     //==> XWordEditor::Publish/Unpublish
     QUnit.module("XWordEditor::Publish/Unpublish", {
@@ -951,6 +929,53 @@
         assertClueFormFields("#7 Across (4)", "", "", "");
         assertHilitedCells(15, [10,15]);
         assertClueFormFields("#6 Down (2)", "", "", "");
+    });
+
+    //=> XWord::Data Change
+    QUnit.module("XWordEditor::Data Change", {
+        beforeEach: function () {
+            setupFixture(EditPuzzlePageHtml);
+            puzzleData = {id: null, size: 5};
+            controller = new XWordEditor(puzzleData);
+        }
+    });
+    test('Sets dataSaved to false after blocking/unblocking a grid cell', function (assert) {
+        saveData({});
+        clickOnCell(8);   // block a cell
+        assert.false(controller.view.dataSaved);
+        saveData({});
+        clickOnCell(8);   // unblock cell
+        assert.false(controller.view.dataSaved);
+    });
+    test('Sets dataSaved to false on successfully adding word/clue', function (assert) {
+        saveData({});
+        assert.true(controller.view.dataSaved);
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("TOO", "Clue text");    // 1 ACROSS
+        assert.true(controller.view.dataSaved);     // dataSaved is still true
+        doClueFormInput("WORDS", "");               // Adds word successfully
+        assert.false(controller.view.dataSaved);
+    });
+    test('Sets dataSaved to true on successful save', function (assert) {
+        assert.false(controller.view.dataSaved);
+        saveData({});
+        assert.true(controller.view.dataSaved);
+    });
+    test('Sets dataSaved to true after data is restored', function (assert) {
+        var gridSize = 5, blockStr = "";
+        var puzzleData = {
+            id: 10, size: gridSize, data:{blocks: blockStr, across:{0:{word:"ABCDE", clue:""}}, down:{}}
+        }
+        controller = new XWordEditor(puzzleData);
+        assert.true(controller.view.dataSaved);
+     });
+    test("Sets dataSaved to false after deleting word/clue", function(assert) {
+        $("#radio-2").prop("checked", true).change();
+        doClueFormInput("ALTER", "across 1a");
+        saveData({});
+        assert.true(controller.view.dataSaved);
+        $("#clue-delete").click();
+        assert.false(controller.view.dataSaved);
     });
 })();
 
