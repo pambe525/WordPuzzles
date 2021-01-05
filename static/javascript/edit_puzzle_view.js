@@ -8,7 +8,6 @@ class EditPuzzleView {
         jqClueMsg: '#clue-msg', jqClueUpdateBtn: '#clue-update', jqClueDeleteBtn: "#clue-delete",
         jqPuzzleDiv: '#puzzle', jqStatus: '#status', jqNavbar: '#navbar'
     };
-
     dataSaved = true;
     isXWord = true;
     id = null;
