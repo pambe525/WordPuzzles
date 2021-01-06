@@ -30,10 +30,10 @@ class XWordGrid {
         wordData.maxLength = wordCells.length;
         wordData.clueRef = "#" + clueNum + " " + clueType + " (" + wordData.maxLength + ")";
         if ( isAcross ) {
-            wordData.clueWord = (this.across[index]) ? this.across[index].word : "";
+            wordData.clueWord = (this.across[index]) ? this.across[index].word : this._readGridWord(wordCells);
             wordData.clueText = (this.across[index]) ? this.across[index].clue : "";
         } else {
-            wordData.clueWord = (this.down[index]) ? this.down[index].word : "";
+            wordData.clueWord = (this.down[index]) ? this.down[index].word : this._readGridWord(wordCells);
             wordData.clueText = (this.down[index]) ? this.down[index].clue : "";
         }
         return wordData;
@@ -70,10 +70,14 @@ class XWordGrid {
     }
     hiliteNextIncomplete() {
         let numberedCells = $(this._getGridCells()).has(".xw-number");
-        let hiliteCells;
+        //this.clearHilite();
+        //let isAcross = this._isHiliteAcross();
+        //isAcross = (isAcross === null) ? true : isAcross;
+        let hiliteCells, wordStartCell;
         for (let i = 0; i < numberedCells.length; i++) {
-            if (this._isNextOpen(numberedCells[i])) {
-                hiliteCells = this._getWordCells(numberedCells[i]);
+            wordStartCell = numberedCells[i];
+            if (this._isNextOpen() && !this._hasClue(wordStartCell)) {
+                hiliteCells = this._getWordCells(wordStartCell);
                 $(hiliteCells).addClass("xw-hilite");
                 break;
             }
@@ -337,6 +341,14 @@ class XWordGrid {
         let gridCells = this._getGridCells();
         for (var i = 0; i < blockedIndices.length; i++)
             $(gridCells[parseInt(blockedIndices[i])]).addClass("xw-block");
+    }
+    _readGridWord(wordCells) {
+        let word = "", letter;
+        for (let i = 0; i < wordCells.length; i++) {
+            letter = $(wordCells[i]).children(".xw-letter").text();
+            if (letter !== "") word += letter;
+        }
+        return (word.length !== wordCells.length) ? "" : word;
     }
     _setClueNum(cell, clueNum) {
         let span = $("<span></span>").addClass("xw-number").text(clueNum);

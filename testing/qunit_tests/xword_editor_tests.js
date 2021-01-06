@@ -628,6 +628,31 @@
         clickOnCell(10);
         assertHasRedLetterClass([1,1,1,1,1]);
     });
+    test("Shows grid word in clue form if all letters are populated", function(assert) {
+        $("#radio-1").prop("checked", true).change();
+        setBlocks([0,4,12]);
+        $("#radio-2").prop("checked", true).change();
+        clickOnCell(5);
+        doClueFormInput("ACTOR", "");  // 4 ACROSS
+        clickOnCell(15);
+        doClueFormInput("ADULT", "");  // 8 ACROSS
+        clickOnCell(10);
+        doClueFormInput("DI", "");  // 6 ACROSS
+        clickOnCell(1); clickOnCell(1); // Select 1 Down
+        doClueFormInput("ACIDS", "");  // 1 DOWN
+        clickOnCell(2); clickOnCell(2); // Selects 2 down
+        doClueFormInput("IT", "");   // 2 DOWN
+        clickOnCell(3); clickOnCell(3); // Selects 3 down
+        doClueFormInput("MOLLY", "");   // 3 DOWN
+        clickOnCell(1);
+        assertClueFormFields("#1 Across (3)", "AIM", "", "");
+        clickOnCell(5); clickOnCell(5);
+        assertClueFormFields("#4 Down (3)", "ADA", "", "");
+        clickOnCell(9); clickOnCell(9);
+        assertClueFormFields("#5 Down (3)", "", "", "");
+        clickOnCell(21)
+        assertClueFormFields("#10 Across (3)", "", "", "");
+    });
 
     //==> XWordEditor::Delete Clues
     QUnit.module("XWordEditor::Delete Clue", {
@@ -930,6 +955,42 @@
         assertHilitedCells(15, [10,15]);
         assertClueFormFields("#6 Down (2)", "", "", "");
     });
+    test("Hilites first INCOMPLETE ACROSS word in grid on switch to clue edit mode", function(assert) {
+        new XWordEditor({id: null, size: 5});
+        let radioBtn1 = $("#radio-1"), radioBtn2 = $("#radio-2");
+        radioBtn2.prop("checked", true).change();
+        doClueFormInput("FIRST", "");
+        clickOnCell(10);
+        doClueFormInput("THIRD", "");
+        clickOnCell(5);
+        doClueFormInput("SECOND", "");
+        radioBtn1.prop("checked", true).change();
+        radioBtn2.prop("checked", true).change();
+        assertHilitedCells(null,[10,11,12,13,14]);
+    });
+    /**
+    test("hiliteNextIncomplete: The next incomplete word is hilited", function(assert) {
+      var xword = createXWord(5);
+      xword.setWordData("2-0", "first", "clue text (5)");
+      xword.toggleWordHilite("1-0");
+      assert.true(xword.isHiliteAcross());
+      xword.hiliteNextIncomplete(true);
+      assert.equal(xword.getFirstHilitedCellId(), "3-0")
+      assert.true(xword.isHiliteAcross());
+    });
+    test("hiliteNextIncomplete: If no incomplete Across words finds first down word", function(assert) {
+      var xword = createXWord(5);
+      xword.setWordData("0-0", "itema", "clue text 1 (5)");
+      xword.setWordData("1-0", "itemb", "clue text 2 (5)");
+      xword.setWordData("2-0", "itemc", "clue text 3 (5)");
+      xword.setWordData("3-0", "itemd", "clue text 4 (5)");
+      xword.setWordData("4-0", "iteme", "clue text 5 (5)");
+      xword.toggleWordHilite("0-0");
+      xword.hiliteNextIncomplete();
+      assert.equal(xword.getFirstHilitedCellId(), "0-0");
+      assert.false(xword.isHiliteAcross());
+    });
+    */
 
     //=> XWord::Data Change
     QUnit.module("XWordEditor::Data Change", {
