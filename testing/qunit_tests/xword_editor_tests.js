@@ -16,8 +16,9 @@
         for (const i in keys)
             assert.equal($(gridCells[keys[i]]).children("span.xw-number").text(), clueNums[keys[i]]);
     }
-    function clickOnCell(index) {
+    function clickOnCell(index, doubleClick = false) {
         getGridCells()[index].click();
+        if (doubleClick) getGridCells()[index].click();
     }
     function gridCell(index) {
         return $(getGridCells()[index]);
@@ -49,12 +50,14 @@
         for (let i = 0; i < cellIndices.length; i++)
             clickOnCell(cellIndices[i]);
     }
-    function assertHilitedCells(cellIndex, hiliteCellIndices) {
+    function assertHilitedCells(cellIndex, hilitedCellIndices) {
         if (cellIndex !== null) clickOnCell(cellIndex);
         let gridCells = getGridCells();
-        assert.equal($(gridCells).filter(".xw-hilite").length, hiliteCellIndices.length);
-        for (let i = 0; i < hiliteCellIndices.length; i++)
-           assert.true($(gridCells[hiliteCellIndices[i]]).hasClass("xw-hilite"));
+        let actualHiliteIndices = [];
+        assert.equal($(gridCells).filter(".xw-hilite").length, hilitedCellIndices.length);
+        for (let i = 0; i < gridCells.length; i++)
+            if ( $(gridCells[i]).hasClass("xw-hilite") ) actualHiliteIndices.push(i);
+        assert.deepEqual(actualHiliteIndices, hilitedCellIndices);
     }
     function assertHasRedLetterClass(flagsArray){
         var letterCells = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
@@ -257,8 +260,20 @@
         clickOnCell(3);   // Hiliting should be disabled
         assert.equal($(getGridCells()).filter(".xw-hilite").length, 0);
     })
-    // Existing puzzle - Hilites the first incomplete clue across or down
-    // Existing puzzle - Hides form if all clues are complete and enables publish
+    test('Hilites the first incomplete ACROSS clue on restore', function (assert) {
+        let gridData = {
+            blocks:"",
+            across:{0: {word: "FIRST", clue: "clue 1a"}, 5: {word: "SECND", clue: "clue 6a"},
+                    10: {word: "THIRD", clue: ""}, 15: {word: "FORTH", clue:"clue 8a"},
+                    20: {word: "FIFTH", clue: "clue 9a"}},
+            down:  {}
+        }
+        puzzleData = {id: 10, size: 5, is_xword: true, desc: "Crosword", shared_at: null, data: gridData};
+        new XWordEditor(puzzleData);
+        $("#radio-2").prop("checked", true).change();
+        assertClueFormFields("#7 Across (5)", "THIRD", "", "");
+        assertHilitedCells(null,[10,11,12,13,14]);
+    })
     // Loads words and colors them
 
     //==> XWordEditor::Save/Delete
@@ -431,7 +446,7 @@
     //==> Unblocking cells that are word start or end
     // Unblocking recolors letters if present
 
-    //==> XWordEditor::Add Clues
+    //==> XWordEditor::Add Clue
     QUnit.module("XWordEditor::Add Clue", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
@@ -489,13 +504,16 @@
         let word ="trial";
         doClueFormInput(" "+word+" ", "");
         assert.equal($("#clue-msg").text(), "");
+        clickOnCell(0);
         assertHilitedWord(word);
     });
     test('Replaces existing chars in grid when updating word', function (assert) {
         let word = "chnge";
         doClueFormInput("trial", "");
+        clickOnCell(0);
         doClueFormInput(word, "");  // Update the word
         assert.equal($("#clue-msg").text(), "");
+        clickOnCell(0);
         assertHilitedWord(word);
     });
     test('Shows error message if no. in parenthesis in clue mismatches word length', function (assert) {
@@ -512,10 +530,11 @@
         clickOnCell(0);   // Hilite 1 Down
         assertClueFormFields("#1 Down (5)", "", "", "");
         doClueFormInput("TRIAL", "clue 1 down (1,2,2)");
+        clickOnCell(0, true);
         assertHilitedWord("TRIAL");
         clickOnCell(0);   // Toggle Hilite to 1 Across
         doClueFormInput("TESTS", "clue 1 across");
-        clickOnCell(0);   // Toggle back to 1 Down
+        clickOnCell(0, true);   // Toggle back to 1 Down
         assertClueFormFields("#1 Down (5)", "TRIAL", "clue 1 down (1,2,2)", "");
         clickOnCell(6);
         doClueFormInput("RIVER", "clue 6 across (1-2,2)");
@@ -530,11 +549,10 @@
         $("#radio-1").prop("checked", true).change();
         setBlocks([0,2,4]);
         $("#radio-2").prop("checked", true).change();
-        clickOnCell(1);
+        clickOnCell(1);   // Hilite 1D
         doClueFormInput("SNAKE", "clue 1 down");
-        clickOnCell(3);
-        doClueFormInput("TENET", "clue 2 down");
-        clickOnCell(5);
+        doClueFormInput("TENET", "clue 2 down");  // 2D auto hilited
+        clickOnCell(5);                           // Hilite 3A
         doClueFormInput("PAPER","");
         assertHilitedWord(" N E ");
         assertClueFormFields("#3 Across (5)", "PAPER", "", "Word conflicts with existing letters");
@@ -549,17 +567,16 @@
     });
     test("Replaces tooltip if clue text is changed", function(assert) {
         doClueFormInput("acros", "clue text for 1a");
-        //clickOnCell(0);
+        clickOnCell(0);
         doClueFormInput("acros", "");
         assert.equal($(getGridCells()[0]).prop("title"), "");
-        //clickOnCell(0);
+        clickOnCell(0);
         doClueFormInput("acros", "clue text");
         assert.equal($(getGridCells()[0]).prop("title"), "1 Across: clue text (5)");
     });
     test("Adds to ACROSS tooltip if DOWN clue text is added", function(assert) {
         doClueFormInput("acros", "clue for 1a");
-        //clickOnCell(0);
-        clickOnCell(0);
+        clickOnCell(0, true);
         doClueFormInput("adown", "clue for 1d");
         assert.equal($(getGridCells()[0]).prop("title"), "1 Across: clue for 1a (5)\n1 Down: clue for 1d (5)");
     });
@@ -572,7 +589,7 @@
     });
     test("Does not add ACROSS tooltip to DOWN only clue", function(assert) {
         doClueFormInput("acros", "clue for 1a");
-        clickOnCell(1);
+        clickOnCell(1, true);
         doClueFormInput("crown", "clue for 2d");
         let gridCells = getGridCells();
         assert.equal($(gridCells[0]).prop("title"), "1 Across: clue for 1a (5)");
@@ -580,42 +597,38 @@
     });
     test("Sets word letters with no clue to class 'xw-red'", function(assert) {
         doClueFormInput("crown", "");  // 1 ACROSS
-        let wordLetters = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
-        assert.equal(wordLetters.length, 5);
-        assert.true(wordLetters.hasClass("xw-red"));
+        clickOnCell(0);
+        assertHasRedLetterClass([1,1,1,1,1]);
         clickOnCell(1);
         doClueFormInput("river", "");  // 2 DOWN
-        wordLetters = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
-        assert.equal(wordLetters.length, 5);
-        assert.true(wordLetters.hasClass("xw-red"));
+        clickOnCell(1, true);
+        assertHasRedLetterClass([1,1,1,1,1]);
     });
     test("Skips setting word letters with clue in single cells to red", function(assert) {
         $("#radio-1").prop("checked", true).change();
         setBlocks([5,7,9]);
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("WORDS", "Clue text");
-        let wordLetters = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
-        assert.false(wordLetters.even().hasClass("xw-red"));
-        assert.true(wordLetters.odd().hasClass("xw-red"));
+        clickOnCell(0);
+        assertHasRedLetterClass([0,1,0,1,0]);
     });
-    test("Updates word letter color when clue is set in single", function(assert) {
+    test("Updates word letter color in single cells when clue is set", function(assert) {
         $("#radio-1").prop("checked", true).change();
         setBlocks([5,7,9]);
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("WORDS", "");  // All Red
+        clickOnCell(0);
         doClueFormInput("WORDS", "clue added");
-        let wordLetters = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
-        assert.false(wordLetters.even().hasClass("xw-red"));
-        assert.true(wordLetters.odd().hasClass("xw-red"));
+        clickOnCell(0);
+        assertHasRedLetterClass([0,1,0,1,0]);
     });
     test("Skips setting cross-letters to red if both cross-words have clues", function(assert) {
         $("#radio-1").prop("checked", true).change();
         setBlocks([5,7,9]);
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("WORDS", "Clue text");   // 1 ACROSS with clue
-        clickOnCell(1);
+        clickOnCell(1, true);
         doClueFormInput("OVERT", "");  //  2 DOWN no clue
-        clickOnCell(8);
         doClueFormInput("DIVER", "Clue text"); // DOWN word with clue
         clickOnCell(10);
         doClueFormInput("SERVE", "");   //ACROSS word with no clue
@@ -652,6 +665,21 @@
         assertClueFormFields("#5 Down (3)", "", "", "");
         clickOnCell(21)
         assertClueFormFields("#10 Across (3)", "", "", "");
+    });
+    test("Hides clue form when all cles are complete", function(assert) {
+        doClueFormInput("DASHI", "clue 1a");
+        doClueFormInput("ALTER", "clue 6a");
+        doClueFormInput("VIOLA", "clue 7a");
+        doClueFormInput("INLET", "clue 8a");
+        doClueFormInput("SEINE", "clue 9a");
+        doClueFormInput("DAVIS", "clue 1d");
+        doClueFormInput("ALINE", "clue 2d");
+        doClueFormInput("STOLI", "clue 3d");
+        doClueFormInput("HELEN", "clue 4d");
+        doClueFormInput("IRATE", "clue 5d");
+        assert.true($("#clue-form").is(":hidden"));
+        assertHilitedCells(null,[]);
+        assert.false($("#publish").prop("disabled"));
     });
 
     //==> XWordEditor::Delete Clues
@@ -719,9 +747,9 @@
         clueDeleteBtn.click();
         assertHasRedLetterClass([0,0,0,1,0])
     });
-    test("deleteWordData: Deletes tooltip for the word if it exists", function(assert) {
+    test("Deletes tooltip for the word if it exists", function(assert) {
         doClueFormInput("ALTER", "across 1a");
-        clickOnCell(0);
+        clickOnCell(0, true);
         doClueFormInput("ADDER", "down 1d");
         let clueDeleteBtn = $("#clue-delete");
         clickOnCell(0);
@@ -783,7 +811,6 @@
         clueDeleteBtn.click();
         assert.equal($("#status").text(), "ACROSS: 0 of 2, DOWN: 1 of 3");
     });
-    // Completed clues hides form and clears hiites
 
     //==> XWordEditor::Publish/Unpublish
     QUnit.module("XWordEditor::Publish/Unpublish", {
@@ -956,41 +983,42 @@
         assertClueFormFields("#6 Down (2)", "", "", "");
     });
     test("Hilites first INCOMPLETE ACROSS word in grid on switch to clue edit mode", function(assert) {
-        new XWordEditor({id: null, size: 5});
         let radioBtn1 = $("#radio-1"), radioBtn2 = $("#radio-2");
         radioBtn2.prop("checked", true).change();
+        doClueFormInput("FIRST", "Clue 1A");  // 1A is complete
+        doClueFormInput("SECND", "Clue complete");  // 6A is complete
+        doClueFormInput("THIRD", "");               // 7A is incomplete
+        radioBtn1.prop("checked", true).change();   // Switch to Block edit mode
+        radioBtn2.prop("checked", true).change();   // Switch to Clue edit mode
+        assertHilitedCells(null, [10,11,12,13,14]);  // 7A should be hilited (first incomplete)
+        assertClueFormFields("#7 Across (5)", "THIRD", "", "");
+    });
+    test("Hilites the next incomplete word and updates clue form after word/clue is added", function(assert) {
+        $("#radio-2").prop("checked", true).change();
         doClueFormInput("FIRST", "");
-        clickOnCell(10);
-        doClueFormInput("THIRD", "");
-        clickOnCell(5);
-        doClueFormInput("SECOND", "");
-        radioBtn1.prop("checked", true).change();
+        assertClueFormFields("#6 Across (5)", "", "", "");
+        assertHilitedCells(null,[5,6,7,8,9]);
+    });
+    test("Hilites the next incomplete word of same type (ACROSS or DOWN)", function(assert) {
+        $("#radio-2").prop("checked", true).change();
+        clickOnCell(0);                 // 1 DOWN hilited
+        doClueFormInput("FIRST", "");   // 1 DOWN word
+        assertClueFormFields("#2 Down (5)", "", "", "");  // 2 DOWN hitlited
+        assertHilitedCells(null,[1,6,11,16,21]);
+    });
+    test("Hilites first down word if no incomplete ACROSS words exist", function(assert) {
+        let radioBtn1 = $("#radio-1"), radioBtn2 = $("#radio-2");
         radioBtn2.prop("checked", true).change();
-        assertHilitedCells(null,[10,11,12,13,14]);
+        doClueFormInput("FIRST", "Clue 1A");
+        doClueFormInput("SECND", "Clue 6A");
+        doClueFormInput("THIRD", "Clue 7A");
+        doClueFormInput("FORTH", "Clue 8A");
+        doClueFormInput("FIFTH", "Clue 9A");
+        radioBtn1.prop("checked", true).change();   // Switch to Block edit mode
+        radioBtn2.prop("checked", true).change();   // Switch to Clue edit mode
+        assertHilitedCells(null, [0,5,10,15,20]);   // 1D should be hilited (first incomplete)
+        assertClueFormFields("#1 Down (5)", "FSTFF", "", "");
     });
-    /**
-    test("hiliteNextIncomplete: The next incomplete word is hilited", function(assert) {
-      var xword = createXWord(5);
-      xword.setWordData("2-0", "first", "clue text (5)");
-      xword.toggleWordHilite("1-0");
-      assert.true(xword.isHiliteAcross());
-      xword.hiliteNextIncomplete(true);
-      assert.equal(xword.getFirstHilitedCellId(), "3-0")
-      assert.true(xword.isHiliteAcross());
-    });
-    test("hiliteNextIncomplete: If no incomplete Across words finds first down word", function(assert) {
-      var xword = createXWord(5);
-      xword.setWordData("0-0", "itema", "clue text 1 (5)");
-      xword.setWordData("1-0", "itemb", "clue text 2 (5)");
-      xword.setWordData("2-0", "itemc", "clue text 3 (5)");
-      xword.setWordData("3-0", "itemd", "clue text 4 (5)");
-      xword.setWordData("4-0", "iteme", "clue text 5 (5)");
-      xword.toggleWordHilite("0-0");
-      xword.hiliteNextIncomplete();
-      assert.equal(xword.getFirstHilitedCellId(), "0-0");
-      assert.false(xword.isHiliteAcross());
-    });
-    */
 
     //=> XWord::Data Change
     QUnit.module("XWordEditor::Data Change", {

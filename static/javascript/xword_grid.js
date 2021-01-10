@@ -65,23 +65,18 @@ class XWordGrid {
         return ( Object.keys(this.across).length > 0 || Object.keys(this.down).length > 0 );
     }
     isComplete() {
-        return this._countDoneClues() === this._countTotalClues() &&
-               this._countDoneClues(false) === this._countTotalClues(false);
+        return (this._countDoneClues() === this._countTotalClues()) &&
+            (this._countDoneClues(false) === this._countTotalClues(false));
     }
     hiliteNextIncomplete() {
         let numberedCells = $(this._getGridCells()).has(".xw-number");
-        //this.clearHilite();
-        //let isAcross = this._isHiliteAcross();
-        //isAcross = (isAcross === null) ? true : isAcross;
-        let hiliteCells, wordStartCell;
-        for (let i = 0; i < numberedCells.length; i++) {
-            wordStartCell = numberedCells[i];
-            if (this._isNextOpen() && !this._hasClue(wordStartCell)) {
-                hiliteCells = this._getWordCells(wordStartCell);
-                $(hiliteCells).addClass("xw-hilite");
-                break;
-            }
-        }
+        let currentClueNum = this._getHilitedClueNum();
+        let isAcross = this._isHiliteAcross();
+        isAcross = (isAcross === null) ? true : isAcross;
+        let cellsToHilite = this._getNextIncompleteWord(currentClueNum, isAcross);
+        if (cellsToHilite === null) cellsToHilite = this._getNextIncompleteWord(currentClueNum, !isAcross);
+        this.clearHilite();
+        if (cellsToHilite) $(cellsToHilite).addClass("xw-hilite");
     }
     removeHilitedWordData() {
         let hilitedCells = this._getHilitedCells();
@@ -227,7 +222,19 @@ class XWordGrid {
         return $(this._getGridCells()).filter(".xw-hilite");
     }
     _getHilitedClueNum() {
-        return parseInt($(this._getHilitedCells()[0]).children(".xw-number").text());
+        let hilitedCells = this._getHilitedCells();
+        return (hilitedCells.length === 0) ? 0 : parseInt($(hilitedCells[0]).children(".xw-number").text());
+    }
+    _getNextIncompleteWord(currentClueNum, isAcross=true) {
+        let numberedCells = $(this._getGridCells()).has(".xw-number");
+        let hiliteCells, wordStartCell, nextNumberedCellIndex;
+        for (let i = 0; i < numberedCells.length; i++) {
+            nextNumberedCellIndex = (currentClueNum + i) % numberedCells.length;
+            wordStartCell = numberedCells[nextNumberedCellIndex];
+            if (this._isWordStart(wordStartCell, isAcross) && !this._hasClue(wordStartCell, isAcross))
+                return this._getWordCells(wordStartCell, isAcross);
+        }
+        return null;
     }
     _getSymmCell(cell) {
         let index = this._cellIndex(cell);

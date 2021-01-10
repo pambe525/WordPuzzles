@@ -28,8 +28,5 @@ test("toggleCellBlock: Unblocks cell if neighbor letter is not in in-line word",
 });
 
 
-// Hilites tests
-//--------------------------------------------------------------------------------------------------------------------
-
 
 

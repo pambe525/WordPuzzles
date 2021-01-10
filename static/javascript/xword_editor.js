@@ -20,6 +20,11 @@ class XWordEditor {
         let wordData = this.view.getClueFormInput();
         try {
             this.xwordGrid.setHilitedWordData(wordData);
+            this.xwordGrid.hiliteNextIncomplete();
+            if (this.xwordGrid.isComplete()) {
+                this.view.disablePublish(false);
+                this.view.hideClueForm();
+            } else this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
             this.view.setStatus( this.xwordGrid.getStatus() );
             this.view.dataChanged();
         }
