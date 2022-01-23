@@ -2,6 +2,8 @@
 body {
     background: #ccc;
     font-family: 'Roboto', sans-serif;
+    color: black;
+    font-size: 14px;
 }
 .h6 {
     font-size: 14px;
@@ -27,7 +29,7 @@ button, .btn {
 .tabgroup {
     display: flex;
     flex-wrap: wrap;
-    max-width: 400px;
+    width: auto;
     margin: 20px auto;
     padding: 10px;
 }
@@ -39,11 +41,10 @@ button, .btn {
     background: #e2e2e2;
     font-weight: bold;
     font-size: 18px;
-    border-radius:8px 8px 0 0;
     margin: 0 5px 0 0;
+    color: #343a40;
 }
 .tabgroup .tabcontent {
-    width: 400px;
     padding: 30px;
     background: #fff;
     order: 1;
@@ -51,11 +52,24 @@ button, .btn {
 }
 .tabgroup input[type="radio"]:checked + label + .tabcontent {
     display: block;
+    width: auto;
+    flex: 100%;
 }
 .tabgroup input[type="radio"]:checked + label {
     background: #fff;
+    border-top: 4px solid green;
+    color: black;
 }
+
 /*** FORM BOX STYLING (LOGIN & NEW USER PAGES) ***/
+form table label {
+    padding: 8px 5px 5px 0;
+    float: left;
+}
+
+.errorlist {
+    color: darkred;
+}
 .form-box {
     margin: 10px;
     border: 1px solid darkgrey;
@@ -78,6 +92,7 @@ button, .btn {
 
 .form-table label {
     font-size: 14px;
+    color: black;
 }
 
 .form-table input {

@@ -26,8 +26,8 @@
         <div class="bg-dark text-white h4 p-2 m-0 row mw-100">
             <!-- LOGO & TITLE -->
             <div class="col mt-2">
-                <img src="{% static '/images/word-puzzles-icon.png' %}" height="40">
-                Word Puzzles
+                <!-- <img src="{% static '/images/word-puzzles-icon.png' %}" height="40"> -->
+                <h2>Home of the C'83 Puzzlers</h2>
             </div>
             <!-- NAVBAR -->
             {% if user.is_authenticated %}
@@ -52,7 +52,7 @@
             </a>
         {% else %}
             <!-- MAIN CONTENT -->
-            <div class="m-4">
+            <div class="m-4 text-dark">
                 {% block content %}{% endblock %}
             </div>
         {% endif %}
