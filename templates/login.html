@@ -1,33 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="width:400px">
-    <div class="tabgroup">
-        <input type="radio" id="tabSignIn" name="tabgroup" checked="checked">
-        <label for="tabSignIn">Sign In</label>
-        <div class="tabcontent">
-            <form action="{% url 'login' %}" method="post">
-                {% csrf_token %}
-                <table>{{ form.as_table }}</table>
-                <div class="ml-0 mt-2">
-                    <button type="submit" class="btn-sm btn-primary">Login</button>
-                </div>
-            </form>
-        </div>
+    <div style="width:400px">
+        <div class="tabgroup">
+            <input type="radio" id="tabSignIn" name="tabgroup">
+            <label for="tabSignIn">Sign In</label>
+            <div class="tabcontent">
+                <form action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+                    <table>{{ signin_form.as_table }}</table>
+                    <div class="ml-0 mt-2">
+                        <button type="submit" name="btnSignIn" class="btn-sm btn-primary">SIGN IN</button>
+                    </div>
+                </form>
+            </div>
 
-        <input type="radio" id="tabNewUser" name="tabgroup">
-        <label for="tabNewUser">New User</label>
-        <div class="tabcontent">
-            <h1>Tab 2</h1>
-            <!--
-            <form action="{% url 'login' %}" method="post">
-                {% csrf_token %}
-                <table>{{ form.as_table }}</table>
-                <div class="m-2">
-                    <button type="submit" class="btn-sm btn-primary float-left">Sign Up</button>
-                </div>
-            </form>
-            -->
+            <input type="radio" id="tabSignUp" name="tabgroup">
+            <label for="tabSignUp">New User</label>
+            <div class="tabcontent">
+                <form action="{% url 'signup' %}" method="post">
+                    {% csrf_token %}
+                    <table>{{ signup_form.as_table }}</table>
+                    <div class="ml-0 mt-2">
+                        <button type="submit" name="btnSignUp" class="btn-sm btn-primary">SIGN UP</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+    <script>
+        $(document).ready(function() {
+            $('#{{ active_tab }}').prop('checked','checked');
+        });
+    </script>
 {% endblock %}

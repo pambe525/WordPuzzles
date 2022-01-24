@@ -3,7 +3,6 @@ from django.test import TestCase
 
 from user_auth.forms import NewUserForm
 
-
 class NewUserFormTest(TestCase):
 
     def test_form_has_email_as_required(self):
@@ -32,7 +31,7 @@ class NewUserFormTest(TestCase):
 
     def test_form_helptext_for_parent_fields(self):
         form = NewUserForm()
-        self.assertIn("Required. Use your first name", form.fields["username"].help_text)
+        self.assertIn("Required. Use your first name (case-sensitive)", form.fields["username"].help_text)
         self.assertIn("Must contain at least 8 characters", form.fields["password1"].help_text)
         self.assertIn("Confirm Password", form.fields["password2"].help_text)
 

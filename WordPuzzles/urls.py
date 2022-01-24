@@ -15,15 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from user_auth.views import NewUserView, LoginView, LogoutView
+from user_auth.views import SignInView, SignOutView, SignUpView
 from puzzles.views import HomeView, EditPuzzleView
 
 urlpatterns = [
     path('admin/', admin.site.urls, name="admin"),
     path('', HomeView.as_view(), name="home"),
-    path('login', LoginView.as_view(), name="login"),
-    path('logout', LogoutView.as_view(), name="logout"),
-    path('new_user/', NewUserView.as_view(), name="new_user"),
+    path('login', SignInView.as_view(), name="login"),
+    path('signup', SignUpView.as_view(), name="signup"),
+    path('logout', SignOutView.as_view(), name="logout"),
     path('new_xword_puzzle', EditPuzzleView.as_view(), name="new_xword_puzzle"),
     path('new_word_puzzle', EditPuzzleView.as_view(), name="new_word_puzzle"),
     path('edit_puzzle/<int:id>/', EditPuzzleView.as_view(), name="edit_puzzle")
