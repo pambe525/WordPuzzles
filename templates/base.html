@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <link rel="stylesheet" href="../static/font-awesome-4.7.0/css/font-awesome.min.css"/>
 
     {% load static %}
     <link type="text/css" rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
@@ -23,20 +23,19 @@
     <div class="container-fluid p-0">
 
         <!-- TOP BANNER -->
-        <div class="bg-dark text-white h4 p-2 m-0 row mw-100">
+        <div class="bg-dark text-light p-2 m-0 row mw-100">
             <!-- LOGO & TITLE -->
-            <div class="col mt-2">
-                <!-- <img src="{% static '/images/word-puzzles-icon.png' %}" height="40"> -->
-                <h2>Home of the C'83 Puzzlers</h2>
+            <div class="col mt-2 row text-light">
+                <i class="fa fa-home fa-2x text-light"></i><h3>&nbsp;Home of the C'83 Puzzlers</h3>
             </div>
             <!-- NAVBAR -->
             {% if user.is_authenticated %}
-                <div class="col-* p-2" style="float:right">
-                    <i class="fas fa-user fa-sm" style="color:white"></i>
-                    <span class="text-light h5 ml-1">{{ user.username }} </span>&nbsp;&nbsp; |
-                    <a href="{% url 'logout' %}" class="btn text-light">
-                        <i class="fas fa-sign-out-alt fa-lg" style="color: white"></i>
-                        Logout
+                <div class="p-2 row" >
+                    <a href="" class="btn text-light .h3">
+                        <i class="fa fa-user fa-lg text-light"></i>&nbsp;{{ user.username }}
+                    </a>&nbsp;
+                    <a href="{% url 'logout' %}" class="btn text-light .h3">
+                        <i class="fa fa-sign-out fa-lg text-light"></i> Logout
                     </a>
                 </div>
             {% endif %}
