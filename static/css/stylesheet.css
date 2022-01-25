@@ -1,4 +1,10 @@
 /*** GENERAL STYLES ***/
+body {
+    background: #ccc;
+    font-family: 'Roboto', sans-serif;
+    color: black;
+    font-size: 14px;
+}
 .h6 {
     font-size: 14px;
     font-weight: bold;
@@ -14,12 +20,60 @@ textarea {
     resize: none;
 }
 button, .btn {
-    padding-left: 12px; !important;
-    padding-right: 12px; !important;
+    padding-left: 14px; !important;
+    padding-right: 14px; !important;
     font-size: 14px;
+    font-weight: bold;
+}
+
+/*** TABS ***/
+.tabgroup {
+    display: flex;
+    flex-wrap: wrap;
+    width: auto;
+    margin: 20px auto;
+    padding: 10px;
+}
+.tabgroup input[type="radio"] {
+    display: none;
+}
+.tabgroup > label {
+    padding: 5px 20px 3px 20px;
+    background: #e2e2e2;
+    font-weight: bold;
+    font-size: 18px;
+    margin: 0 5px 0 0;
+    color: #343a40;
+}
+.tabgroup .tabcontent {
+    padding: 30px;
+    background: #fff;
+    order: 1;
+    display: none;
+}
+.tabgroup input[type="radio"]:checked + label + .tabcontent {
+    display: block;
+    width: auto;
+    flex: 100%;
+}
+.tabgroup input[type="radio"]:checked + label {
+    background: #fff;
+    border-top: 4px solid green;
+    color: black;
 }
 
 /*** FORM BOX STYLING (LOGIN & NEW USER PAGES) ***/
+form table th {
+    padding: 8px 5px 5px 0;
+    vertical-align: text-top;
+}
+form table td {
+    width: auto; !important;
+}
+
+.errorlist {
+    color: darkred;
+}
 .form-box {
     margin: 10px;
     border: 1px solid darkgrey;
@@ -42,6 +96,7 @@ button, .btn {
 
 .form-table label {
     font-size: 14px;
+    color: black;
 }
 
 .form-table input {
