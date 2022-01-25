@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from user_auth.views import SignInView, SignOutView, SignUpView
+from user_auth.views import SignInView, SignOutView, SignUpView, ForgotPswdView
 from puzzles.views import HomeView, EditPuzzleView
 
 urlpatterns = [
@@ -24,6 +24,7 @@ urlpatterns = [
     path('login', SignInView.as_view(), name="login"),
     path('signup', SignUpView.as_view(), name="signup"),
     path('logout', SignOutView.as_view(), name="logout"),
+    path('forgot', ForgotPswdView.as_view(), name="forgot"),
     path('new_xword_puzzle', EditPuzzleView.as_view(), name="new_xword_puzzle"),
     path('new_word_puzzle', EditPuzzleView.as_view(), name="new_word_puzzle"),
     path('edit_puzzle/<int:id>/', EditPuzzleView.as_view(), name="edit_puzzle")

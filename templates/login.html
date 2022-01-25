@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <div style="width:400px">
+    <div style="width:500px">
         <div class="tabgroup">
             <input type="radio" id="tabSignIn" name="tabgroup">
             <label for="tabSignIn">Sign In</label>
@@ -22,6 +22,18 @@
                     <table>{{ signup_form.as_table }}</table>
                     <div class="ml-0 mt-2">
                         <button type="submit" name="btnSignUp" class="btn-sm btn-primary">SIGN UP</button>
+                    </div>
+                </form>
+            </div>
+
+            <input type="radio" id="tabForgot" name="tabgroup">
+            <label for="tabForgot">Forgot Password</label>
+            <div class="tabcontent">
+                <form action="{% url 'forgot' %}" method="post">
+                    {% csrf_token %}
+                    <table>{{ forgot_form.as_table }}</table>
+                    <div class="ml-0 mt-2">
+                        <button type="submit" name="btnEmailMe" class="btn-sm btn-primary">EMAIL ME</button>
                     </div>
                 </form>
             </div>
