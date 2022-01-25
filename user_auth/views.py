@@ -21,9 +21,7 @@ class SignInView(View):
         if not form.is_valid():
             return render(request, "login.html", context)
         else:
-            username = request.POST['username']
-            password = request.POST['password']
-            user = authenticate(request, username=username, password=password)
+            user = form.get_user()
             login(request, user)
             return redirect("home")
 
