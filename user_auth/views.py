@@ -1,4 +1,4 @@
-from django.contrib.auth import logout, login
+from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
 from django.views import View
@@ -22,7 +22,7 @@ class SignInView(View):
         if not form.is_valid():
             return render(request, "login.html", context)
         else:
-            user = form.save()
+            user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
             login(request, user)
             return redirect("home")
 
