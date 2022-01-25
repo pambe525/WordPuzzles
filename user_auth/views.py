@@ -17,12 +17,13 @@ class SignInView(View):
 
     def post(self, request):
         form = AuthenticationForm(data=request.POST)
-        context = {'signin_form': form, 'signup_form': NewUserForm(),
-                   'active_tab':'tabSignIn'}
+        context = {'signin_form': form, 'signup_form': NewUserForm(),'active_tab':'tabSignIn'}
         if not form.is_valid():
             return render(request, "login.html", context)
         else:
-            user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(request, username=username, password=password)
             login(request, user)
             return redirect("home")
 
