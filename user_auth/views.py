@@ -49,3 +49,8 @@ class SignOutView(View):
     def get(self, request):
         logout(request)
         return redirect("login")
+
+class ResetPasswordView(View):
+    def get(self, request):
+        logout(request)
+        return redirect("login")
