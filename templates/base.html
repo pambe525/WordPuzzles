@@ -15,26 +15,26 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
     {% load static %}
-    <link rel="stylesheet" href="{% static '/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <link type="text/css" rel="stylesheet" href="{% static '/font-awesome-4.7.0/css/font-awesome.min.css' %}">
     <link type="text/css" rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
 </head>
 <body>
     <div class="container-fluid p-0">
 
         <!-- TOP BANNER -->
-        <div class="bg-dark text-white h4 p-2 m-0 row mw-100">
+        <div class="bg-dark text-light h4 p-2 m-0 row">
             <!-- LOGO & TITLE -->
             <div class="col mt-2">
-                <!-- <img src="{% static '/images/word-puzzles-icon.png' %}" height="40"> -->
-                <h2>Home of the C'83 Puzzlers</h2>
+                <i class="fa fa-home" style="color:silver"></i>
+                <span>Home of the C'83 Puzzlers</span>
             </div>
             <!-- NAVBAR -->
             {% if user.is_authenticated %}
-                <div class="col-* p-2" style="float:right">
-                    <i class="fas fa-user fa-sm" style="color:white"></i>
-                    <span class="text-light h5 ml-1">{{ user.username }} </span>&nbsp;&nbsp; |
+                <div class="col-* float-right" >
+                    <i class="fa fa-user fa-sm" style="color:silver"></i>
+                    <span class="text-light h5">{{ user.username }} </span>&nbsp;&nbsp; |
                     <a href="{% url 'logout' %}" class="btn text-light">
-                        <i class="fas fa-sign-out-alt fa-lg" style="color: white"></i>
+                        <i class="fa fa-sign-out fa-lg" style="color: silver"></i>
                         Logout
                     </a>
                 </div>
