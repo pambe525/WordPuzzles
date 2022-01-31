@@ -75,10 +75,9 @@ class LoginViewTests(TestCase):
     def test_Renders_login_page_if_user_is_not_authenticated(self):
         response = self.client.get('/login')
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.templates[0].name, "signup.html")
+        self.assertEquals(response.templates[0].name, "login.html")
         self.assertContains(response, "Sign In")
         self.assertEquals(type(response.context['form']), AuthenticationForm)
-        self.assertContains(response, "Sign Up")
 
     def test_Redirects_to_home_page_if_user_is_authenticated(self):
         self.client.force_login(self.user)
@@ -92,7 +91,7 @@ class LoginViewTests(TestCase):
         response = self.client.post('/login', login_data)
         self.assertEquals(response.status_code, 200)
         error_msg = 'Please enter a correct username and password'
-        self.assertTrue(error_msg in response.context['signin_form'].errors['__all__'][0])
+        self.assertTrue(error_msg in response.context['form'].errors['__all__'][0])
 
     def test_Authenticates_user_if_login_has_no_errors(self):
         data_dict = {'username': 'testuser', 'password': 'secretkey1'}
