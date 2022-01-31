@@ -27,19 +27,15 @@ class SignInView(View):
 
 class SignUpView(View):
     def get(self, request):
-        context = {'signin_form': AuthenticationForm(), 'signup_form': NewUserForm(),
-                   'active_tab': 'tabSignUp'}
         if not request.user.is_authenticated:
-            return render(request, "login.html", context)
+            return render(request, "signup.html", {'form': NewUserForm()})
         else:
             return redirect("home")
 
     def post(self, request):
         form = NewUserForm(request.POST)
-        context = {'signin_form': AuthenticationForm(), 'signup_form': form,
-                   'active_tab':'tabSignUp'}
         if not form.is_valid():
-            return render(request, "login.html", context)
+            return render(request, "login.html", {'form': form})
         else:
             user = form.save()
             login(request, user)
