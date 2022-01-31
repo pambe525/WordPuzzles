@@ -14,21 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from user_auth.views import SignInView, SignOutView, SignUpView
-from user_auth.views import ResetPasswordView
+from django.urls import path, include
+from user_auth.views import SignOutView, SignUpView, SignInView
 from puzzles.views import HomeView, EditPuzzleView
 
 urlpatterns = [
     path('admin/', admin.site.urls, name="admin"),
     path('', HomeView.as_view(), name="home"),
-    path('login', SignInView.as_view(), name="login"),
+    path('login', SignInView.as_view(), name='login'),
     path('signup', SignUpView.as_view(), name="signup"),
     path('logout', SignOutView.as_view(), name="logout"),
-    path('reset', ResetPasswordView.as_view(), name="reset"),
-    path('reset_done', ResetPasswordView.as_view(), name="reset_done"),
-    path('change_pswd', ResetPasswordView.as_view(), name="change_pswd"),
-    path('change_pswd_done', ResetPasswordView.as_view(), name="change_pswd_done"),
 
     path('new_xword_puzzle', EditPuzzleView.as_view(), name="new_xword_puzzle"),
     path('new_word_puzzle', EditPuzzleView.as_view(), name="new_word_puzzle"),

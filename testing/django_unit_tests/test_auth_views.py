@@ -16,10 +16,13 @@ class SignUpViewTests(TestCase):
             'username': 'pga', 'password1': 'tester1!', 'password2': 'tester1!', 'email': 'a@b.com',
         }
 
-    def test_Renders_login_page_with_signup_tab_if_user_is_not_authenticated(self):
+    def test_Renders_signin_page_if_user_is_not_authenticated(self):
         response = self.client.get('/signup')
-        validate_login_page(self, response)
-        self.assertEquals(response.context['active_tab'], 'tabSignUp')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "signup.html")
+        self.assertContains(response, "Sign Up as New User")
+        self.assertEquals(type(response.context['form']), NewUserForm)
+        self.assertContains(response, "Log In")
 
     def test_Redirects_to_home_page_if_user_is_authenticated(self):
         self.client.force_login(self.user)
@@ -27,14 +30,14 @@ class SignUpViewTests(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, "/")
 
-    def test_Signup_form_has_validation_messages_if_signup_form_has_errors(self):
+    def test_Signup_form_has_validation_messages_if_form_has_errors(self):
         # Password1 & Password2 do not match
         self.new_user_data['password2'] = 'tester2!'
         response = self.client.post('/signup', self.new_user_data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(200, response.status_code)
+        self.assertEquals('signup.html', response.templates[0].name)
         error_msg = 'The two password fields didn'
-        self.assertTrue(error_msg in response.context['signup_form'].errors['password2'][0])
-        self.assertEquals(response.context['active_tab'], 'tabSignUp')
+        self.assertTrue(error_msg in response.context['form'].errors['password2'][0])
 
     def test_User_is_saved_and_authenticated_if_signup_form_has_no_errors(self):
         self.assertNotIn('_auth_user_id', self.client.session)  # No logged in user
@@ -47,7 +50,6 @@ class SignUpViewTests(TestCase):
         response = self.client.post('/signup', self.new_user_data)
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, "/")
-
 
 # When url is /logout ...
 class LogoutViewTests(TestCase):
@@ -70,10 +72,13 @@ class LoginViewTests(TestCase):
         self.user = User.objects.create_user("testuser", "abc@email.com", "secretkey1")
         # self.client.force_login(user)
 
-    def test_Renders_login_page_with_signin_tab_if_user_is_not_authenticated(self):
+    def test_Renders_login_page_if_user_is_not_authenticated(self):
         response = self.client.get('/login')
-        validate_login_page(self, response)
-        self.assertEquals(response.context['active_tab'], 'tabSignIn')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "signup.html")
+        self.assertContains(response, "Sign In")
+        self.assertEquals(type(response.context['form']), AuthenticationForm)
+        self.assertContains(response, "Sign Up")
 
     def test_Redirects_to_home_page_if_user_is_authenticated(self):
         self.client.force_login(self.user)
