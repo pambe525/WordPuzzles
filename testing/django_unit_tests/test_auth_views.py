@@ -1,11 +1,14 @@
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.urls import reverse
 from django.contrib import auth
-
 from user_auth.forms import NewUserForm
-
+from django import utils
+from django.conf import settings
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.urls import reverse
 
 # When url is /signup ...
 class SignUpViewTests(TestCase):
@@ -68,9 +71,7 @@ class LogoutViewTests(TestCase):
 # When url is /login ...
 class LoginViewTests(TestCase):
     def setUp(self):
-        # Create a logged in user
         self.user = User.objects.create_user("testuser", "abc@email.com", "secretkey1")
-        # self.client.force_login(user)
 
     def test_Renders_login_page_if_user_is_not_authenticated(self):
         response = self.client.get('/login')
@@ -87,7 +88,7 @@ class LoginViewTests(TestCase):
 
     def test_Login_has_validation_errors_with_incorrect_login(self):
         # Username does not exist
-        login_data = {'username': 'pga', 'password': 'password1', 'btnSignIn': 'Sign In'}
+        login_data = {'username': 'pga', 'password': 'password1'}
         response = self.client.post('/login', login_data)
         self.assertEquals(response.status_code, 200)
         error_msg = 'Please enter a correct username and password'
@@ -106,10 +107,64 @@ class LoginViewTests(TestCase):
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response.url, "/")
 
-def validate_login_page(self, response):
-    self.assertEquals(response.status_code, 200)
-    self.assertEquals(response.templates[0].name, "login.html")
-    self.assertContains(response, "Sign In")
-    self.assertContains(response, "New User")
-    self.assertEquals(type(response.context['signup_form']), NewUserForm)
-    self.assertEquals(type(response.context['signin_form']), AuthenticationForm)
+# When url is /password_reset or /password_reset_done ...
+class PasswordResetViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("testuser", "abc@email.com", "secretkey1")
+
+    def test_Password_reset_shows_form_if_user_is_not_authenticated(self):
+        response = self.client.get('/password_reset')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "password_reset.html")
+        self.assertContains(response, "SEND EMAIL")
+        self.assertEquals(type(response.context['form']), PasswordResetForm)
+        self.assertContains(response, "Reset Password")
+        self.assertNotContains(response, "Password reset sent")
+
+    def test_Password_reset_has_redirect_code_if_user_is_authenticated(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/password_reset')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "password_reset.html")
+        self.assertContains(response, "window.location.replace")
+        self.assertNotContains(response, "Reset Password")
+        self.assertNotContains(response, "Password reset sent")
+
+    def test_Password_reset_done_shows_message_if_user_is_not_authenticated(self):
+        response = self.client.get('/password_reset_done')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "password_reset.html")
+        self.assertContains(response, "RE-ENTER EMAIL")
+        self.assertContains(response, "Password reset sent")
+        self.assertNotContains(response, "Reset Password")
+
+# When url is /password_reset_confirm or /password_reset_complete ...
+class PasswordResetConfirmTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("testuser", "abc@email.com", "secretkey1")
+
+    def test_Password_reset_confirm_has_redirect_code_if_user_is_authenticated(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/password_reset_confirm/mq/code/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "password_reset_confirm.html")
+        self.assertContains(response, "window.location.replace")
+        self.assertNotContains(response, "Enter new password")
+        self.assertNotContains(response, "Password reset complete")
+
+    def test_Password_reset_complete_has_redirect_code_if_user_is_authenticated(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/password_reset_complete')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "password_reset_confirm.html")
+        self.assertContains(response, "window.location.replace")
+        self.assertNotContains(response, "Enter new password")
+        self.assertNotContains(response, "Password reset complete")
+
+    def test_Password_reset_complete_shows_link_to_login_if_user_is_not_authenticated(self):
+        response = self.client.get('/password_reset_complete')
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.templates[0].name, "password_reset_confirm.html")
+        self.assertContains(response, "SIGN IN")
+        self.assertContains(response, "Password reset complete")
+        self.assertNotContains(response, "Enter new password")

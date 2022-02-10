@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-    <div style="width:500px">
     <div class="m-2 bg-light p-4 d-inline-block">
         <h2 class="pb-2">Sign In</h2>
         <form action="{% url 'login' %}" method="post">
@@ -12,6 +11,8 @@
         </form>
         <hr>
         New User?
-        <a href="{% url 'signup' %}" id="lnkSignUp" class="btn-sm btn-primary">Sign Up</a>
+        <a href="{% url 'signup' %}" id="lnkSignUp" class="btn-sm btn-dark mr-2">Sign Up</a>|
+        Forgot Password?
+        <a href="{% url 'password_reset' %}" id="lnkReset" class="btn-sm btn-dark ml-2">Reset Password</a>
     </div>
-{{% endblock %}
+{% endblock %}
