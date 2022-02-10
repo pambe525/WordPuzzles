@@ -1,14 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="mt-4">
-        <a role="button" href="{%  url 'new_xword_puzzle' %}" class="btn btn-primary p-2">New Crossword</a>
+    <h2 class="pl-2">Dashboard</h2>
+    <div class="d-inline-block">
+    <div class="m-2 bg-light p-4 d-block">
+        <h3>Scheduled group puzzle sessions</h3>
+        <div class="notetext">No sessions scheduled</div>
     </div>
-    <div class="table-responsive" style="width:500px">
-        <table id="puzzle-list" class="mt-4 table table-sm table-striped">
-            <thead class="thead-dark">
-                <tr><th>Puzzle</th><th>Editor</th><th>Status</th><th>Action</th></tr>
-            </thead>
-        </table>
+
+    <div class="m-2 bg-light p-4 d-block">
+        <h3>My unpublished puzzles</h3>
+        <div class="mt-4">
+            <a role="button" href="{%  url 'new_xword_puzzle' %}" class="btn btn-primary p-2">New Crossword</a>
+        </div>
+        <div class="table-responsive" style="width:500px">
+            <table id="puzzle-list" class="mt-4 table table-sm table-striped">
+                <thead class="thead-dark">
+                    <tr><th>Puzzle</th><th>Editor</th><th>Status</th><th>Action</th></tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="m-2 bg-light p-4 d-block">
+        <h3>Puzzles published in last 7 days</h3>
+        <div class="notetext">No puzzles have been published</div>
+    </div>
     </div>
     <script>
         var puzzleList, currentUser;

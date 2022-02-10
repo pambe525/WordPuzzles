@@ -25,6 +25,21 @@ button, .btn {
     font-size: 14px;
     font-weight: bold;
 }
+.notetext {
+    font-size: 14px;
+    font-style: italic;
+    color: gray;
+}
+
+.header-badge {
+    padding: 2px 3px 2px 12px;
+    background-color: black;
+    font-size: 18px;
+    color: silver;
+    text-shadow: 1px 1px black;
+    border: 3px inset gray;
+    border-radius: 6px;
+}
 
 /*** TABS ***/
 .tabgroup {

@@ -20,40 +20,55 @@
 </head>
 <body>
     <div class="container-fluid p-0">
-
-        <!-- TOP BANNER -->
-        <div class="bg-dark text-light h4 p-2 m-0 row">
-            <!-- LOGO & TITLE -->
-            <div class="col mt-2">
-                <i class="fa fa-home" style="color:silver"></i>
-                <span>Home of the C'83 Puzzlers</span>
+        <!-- NAVBAR -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="header-badge">
+                <i class="fa fa-home fa-lg" style="color:white"></i>&nbsp;
+                <a class="navbar-brand text-light" href="">Home of the C'83 Puzzlers</a>
             </div>
-            <!-- NAVBAR -->
             {% if user.is_authenticated %}
-                <div class="col-* float-right" >
-                    <i class="fa fa-user fa-sm" style="color:silver"></i>
-                    <span class="text-light h5">{{ user.username }} </span>&nbsp;&nbsp; |
-                    <a href="{% url 'logout' %}" class="btn text-light">
-                        <i class="fa fa-sign-out fa-lg" style="color: silver"></i>
-                        Logout
+              <div class="collapse navbar-collapse pl-3" id="navbarNavDropdown">
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item active">
+                    <a class="nav-link" href="#">Dashboard<span class="sr-only">(current)</span></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">All Puzzles</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Leaderboard</a>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Settings
                     </a>
-                </div>
+                    <div class="dropdown-menu my-2" aria-labelledby="navbarDropdownMenuLink">
+                      <a class="dropdown-item" href="#">Account</a>
+                      <a class="dropdown-item" href="#">Change Password</a>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="col-* float-right" >
+                <i class="fa fa-user fa-lg" style="color:silver"></i>
+                <span class="text-light">{{ user.username }} </span>&nbsp;
+                <a href="{% url 'logout' %}" class="btn btn-dark">Logout</a>
+              </div>
             {% endif %}
-        </div>
-        <hr style="margin:0; padding:0; border-top:4px solid darkorange">
-
-        {% if error_message %}
-            <!-- FATAL ERROR MESSAGE -->
-            <div id="flash-msg" class="alert alert-danger h6" role="alert">{{ error_message }}</div>
-            <a href="{% url 'home' %}" class="btn btn-primary m-3">
-               <i class="mr-2 fas fa-backward fa-lg"></i> Back to Home Page
-            </a>
-        {% else %}
-            <!-- MAIN CONTENT -->
-            <div class="m-4 text-dark">
-                {% block content %}{% endblock %}
-            </div>
-        {% endif %}
+        </nav>
     </div>
+    <hr style="margin:0; padding:0; border-top:4px solid darkorange">
+    {% if error_message %}
+        <!-- FATAL ERROR MESSAGE -->
+        <div id="flash-msg" class="alert alert-danger h6" role="alert">{{ error_message }}</div>
+        <a href="{% url 'home' %}" class="btn btn-primary m-3">
+           <i class="mr-2 fas fa-backward fa-lg"></i> Back to Home Page
+        </a>
+    {% else %}
+        <!-- MAIN CONTENT -->
+        <div class="m-4 text-dark">
+            {% block content %}{% endblock %}
+        </div>
+    {% endif %}
 </body>
 </html>
