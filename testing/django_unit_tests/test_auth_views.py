@@ -229,3 +229,45 @@ class UserAccountView(TestCase):
         self.assertEquals(updated_user.email, 'cde@email.com')
         self.assertEquals(updated_user.first_name, 'Django')
         self.assertEquals(updated_user.last_name, 'Tester')
+
+    # When url is /change_password or /change_password_done
+class PasswordChangeView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("testuser", "abc@email.com", "secretkey1")
+
+    def test_Change_Password_redirects_to_login_if_user_is_not_authenticated(self):
+        response = self.client.get('/change_password')
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/login?next=/change_password')
+
+    def test_Change_Password_Done_redirects_to_login_if_user_is_not_authenticated(self):
+        response = self.client.get('/change_password_done')
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/login?next=/change_password_done')
+
+    def test_Change_Password_shows_form_fields_to_change_password(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/change_password')
+        self.assertEquals(response.status_code, 200)
+        self.assertTrue(response.context['form']['old_password'])
+        self.assertTrue(response.context['form']['new_password1'])
+        self.assertTrue(response.context['form']['new_password2'])
+        self.assertContains(response, "CHANGE PASSWORD")
+
+    def test_Change_Password_shows_form_errors_if_data_input_is_bad(self):
+        self.client.force_login(self.user) # testuser
+        passwords = {'old_password':'secretkey', 'new_password1':'secretkey2', 'new_password2':'secretkey3'}
+        response = self.client.post('/change_password', passwords)
+        self.assertEquals(response.status_code, 200)
+        error_msg1 = 'Your old password was entered incorrectly. Please enter it again.'
+        error_msg2 = "The two password fields didn"
+        self.assertEquals(error_msg1, response.context['form'].errors['old_password'][0])
+        self.assertTrue( error_msg2 in response.context['form'].errors['new_password2'][0])
+
+    def test_Change_Password_changes_password_and_redirects_to_confirmation(self):
+        self.client.force_login(self.user)
+        passwords = {'old_password':'secretkey1', 'new_password1':'secretkey2', 'new_password2':'secretkey2'}
+        response = self.client.post('/change_password', passwords)
+        self.assertEquals(response.status_code, 302)  # redirect
+        user = User.objects.get(username='testuser')
+        self.assertTrue(user.check_password('secretkey2'))

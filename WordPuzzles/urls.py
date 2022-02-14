@@ -18,7 +18,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from puzzles.views import HomeView, EditPuzzleView
-from user_auth.views import SignUpView, UserAccountView
+from user_auth.views import SignUpView, UserAccountView, ChangePasswordView
 
 urlpatterns = [
     path('admin/', admin.site.urls, name="admin"),
@@ -34,6 +34,8 @@ urlpatterns = [
          name='password_reset_complete'),
     path('account', UserAccountView.as_view(), name="account"),
     path('account/edit/', UserAccountView.as_view(), name="account_edit"),
+    path('change_password', ChangePasswordView.as_view(), name="change_password"),
+    path('change_password_done', ChangePasswordView.as_view(), name="change_password_done"),
 
     path('new_xword_puzzle', EditPuzzleView.as_view(), name="new_xword_puzzle"),
     path('new_word_puzzle', EditPuzzleView.as_view(), name="new_word_puzzle"),

@@ -188,6 +188,7 @@ class UserAuthTests(StaticLiveServerTestCase):
         self.helper.set_input_text("id_last_name", "Tester")
         self.helper.set_input_text("id_email", "user2@test.com")
         self.helper.click_btn("btnSave")
+        self.assertEquals(self.selenium.current_url, self.live_server_url + '/account')
         username = self.selenium.find_element(By.ID, 'id_username')
         email = self.selenium.find_element(By.ID, 'id_email')
         first_name = self.selenium.find_element(By.ID, 'id_first_name')
@@ -196,3 +197,26 @@ class UserAuthTests(StaticLiveServerTestCase):
         self.assertEquals(email.get_attribute('value'), 'user2@test.com')
         self.assertEquals(first_name.get_attribute('value'), 'Django')
         self.assertEquals(last_name.get_attribute('value'), 'Tester')
+
+    def test_Change_Password_page_redirects_to_login_if_user_is_not_authenticated(self):
+        self.selenium.get(self.live_server_url + "/change_password")
+        self.assertIn(self.live_server_url + '/login', self.selenium.current_url)
+
+    def test_Change_Password_page_has_validation_errors_with_bad_input(self):
+        self.helper.login_user(self.live_server_url + '/login', self.user.username, self.password)
+        self.selenium.get(self.live_server_url + "/change_password")
+        self.helper.set_input_text("id_old_password", "secrekey")
+        self.helper.set_input_text("id_new_password1", "secretkey1")
+        self.helper.set_input_text("id_new_password2", "secretkey1")
+        self.helper.click_btn("btnChange")
+        errors = self.selenium.find_element(By.CLASS_NAME, 'errorlist')
+        self.assertEquals(errors.text, "Your old password was entered incorrectly. Please enter it again.")
+
+    def test_Change_Password_page_changes_password_and_redirects_to_confirmation(self):
+        self.helper.login_user(self.live_server_url + '/login', self.user.username, self.password)
+        self.selenium.get(self.live_server_url + "/change_password")
+        self.helper.set_input_text("id_old_password", "secretkey1")
+        self.helper.set_input_text("id_new_password1", "secretkey2")
+        self.helper.set_input_text("id_new_password2", "secretkey2")
+        self.helper.click_btn("btnChange")
+        self.assertEquals(self.selenium.current_url, self.live_server_url + '/change_password_done')
