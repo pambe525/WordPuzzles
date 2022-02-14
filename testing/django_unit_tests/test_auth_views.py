@@ -168,3 +168,64 @@ class PasswordResetConfirmTests(TestCase):
         self.assertContains(response, "SIGN IN")
         self.assertContains(response, "Password reset complete")
         self.assertNotContains(response, "Enter new password")
+
+# When url is /account or /account/edit
+class UserAccountView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("testuser", "abc@email.com", "secretkey1")
+
+    def test_Account_redirects_to_login_if_user_is_not_authenticated(self):
+        response = self.client.get('/account')
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/login?next=/account')
+
+    def test_Account_shows_form_fields_has_exiting_user_data_and_readonly_fields(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/account')
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, 'fieldset disabled="disabled"')
+        self.assertEquals(response.context['form'].initial['username'], "testuser")
+        self.assertEquals(response.context['form'].initial['first_name'], "")
+        self.assertEquals(response.context['form'].initial['last_name'], "")
+        self.assertEquals(response.context['form'].initial['email'], "abc@email.com")
+        self.assertContains(response, "EDIT")
+
+    def test_Account_Edit_redirects_to_login_if_user_is_not_authenticated(self):
+        response = self.client.get('/account/edit/')
+        self.assertEquals(response.status_code, 302)
+        self.assertEquals(response.url, '/login?next=/account/edit/')
+
+    def test_Account_Edit_shows_form_fields_with_exiting_user_data_and_editable_fields(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/account/edit/')
+        self.assertEquals(response.status_code, 200)
+        self.assertNotContains(response, 'fieldset disabled="disabled"')
+        self.assertEquals(response.context['form'].initial['email'], "abc@email.com")
+        self.assertEquals(response.context['form'].initial['username'], "testuser")
+        self.assertEquals(response.context['form'].initial['first_name'], "")
+        self.assertEquals(response.context['form'].initial['last_name'], "")
+        self.assertNotContains(response, "EDIT")
+        self.assertContains(response, "SAVE")
+        self.assertContains(response, "CANCEL")
+
+    def test_Account_Edit_shows_form_errors_if_data_input_is_bad(self):
+        self.client.force_login(self.user) # testuser
+        self.user = User.objects.create_user("testuser2", "cde@email.com", "secretkey2")
+        user_update = {'username':'testuser2', 'email':''}
+        response = self.client.post('/account/edit/', user_update)  #change username to existing one
+        self.assertEquals(response.status_code, 200)
+        error_msg1 = 'A user with that username already exists.'
+        error_msg2 = 'Email is required.'
+        self.assertEquals(error_msg1, response.context['form'].errors['username'][0])
+        self.assertEquals(error_msg2, response.context['form'].errors['email'][0])
+
+    def test_Account_Edit_saves_data_if_data_input_is_good_and_redirects_to_account(self):
+        self.client.force_login(self.user)
+        user_update = {'username':'testuser2', 'email':'cde@email.com', 'first_name': 'Django', 'last_name': 'Tester'}
+        response = self.client.post('/account/edit/', user_update)
+        self.assertEquals(response.status_code, 302)  # redirect
+        updated_user = User.objects.get(id=self.user.id)
+        self.assertEquals(updated_user.username, 'testuser2')
+        self.assertEquals(updated_user.email, 'cde@email.com')
+        self.assertEquals(updated_user.first_name, 'Django')
+        self.assertEquals(updated_user.last_name, 'Tester')

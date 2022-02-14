@@ -1,9 +1,5 @@
 from django.contrib.auth.models import User
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.urls import reverse
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
 from selenium.webdriver.common.by import By
 
 from testing.selenium_tests.helper import Helper
@@ -102,12 +98,14 @@ class UserAuthTests(StaticLiveServerTestCase):
         self.assertEquals(len(self.selenium.find_elements(By.TAG_NAME, 'form')), 0)
 
     def test_Password_reset_confirm_cancel_redirects_to_login_page(self):
-        self.selenium.get(self.live_server_url + self.get_password_reset_url())
+        password_reset_url = self.helper.get_password_reset_url(self.user, 'password_reset_confirm')
+        self.selenium.get(self.live_server_url + password_reset_url)
         self.helper.click_btn('lnkSignIn')
         self.assertEquals(self.selenium.current_url, self.live_server_url + '/login')
 
     def test_Password_reset_confirm_with_input_resets_password(self):
-        self.selenium.get(self.live_server_url + self.get_password_reset_url())
+        password_reset_url = self.helper.get_password_reset_url(self.user, 'password_reset_confirm')
+        self.selenium.get(self.live_server_url + password_reset_url)
         self.assertEquals(len(self.selenium.find_elements(By.TAG_NAME, 'form')), 1)
         self.helper.set_input_text('id_new_password1', "secretkey2")
         self.helper.set_input_text('id_new_password2', "secretkey2")
@@ -121,10 +119,80 @@ class UserAuthTests(StaticLiveServerTestCase):
         self.helper.click_btn('lnkSignIn')
         self.assertEquals(self.selenium.current_url, self.live_server_url + '/login')
 
-    # HELPER FUNCTION
-    def get_password_reset_url(self):
-        base64_encoded_id = urlsafe_base64_encode(force_bytes(self.user.id))
-        token = PasswordResetTokenGenerator().make_token(self.user)
-        reset_url_args = {'uidb64': base64_encoded_id, 'token': token}
-        reset_path = reverse('password_reset_confirm', kwargs=reset_url_args)
-        return reset_path
+    def test_Account_page_redirects_to_login_if_user_is_not_authenticated(self):
+        self.selenium.get(self.live_server_url + "/account")
+        self.assertIn(self.live_server_url + '/login', self.selenium.current_url)
+
+    def test_Account_page_has_readonly_user_fields_with_existing_data(self):
+        self.helper.login_user(self.live_server_url + '/login', self.user.username, self.password)
+        self.selenium.get(self.live_server_url + "/account")
+        username = self.selenium.find_element(By.ID, 'id_username')
+        first_name = self.selenium.find_element(By.ID, 'id_first_name')
+        last_name = self.selenium.find_element(By.ID, 'id_last_name')
+        email = self.selenium.find_element(By.ID, 'id_email')
+        self.assertEquals(username.get_attribute('value'), 'testuser')
+        self.assertEquals(email.get_attribute('value'), 'user@test.com')
+        self.assertEquals(first_name.get_attribute('value'), '')
+        self.assertEquals(last_name.get_attribute('value'), '')
+        self.assertFalse(username.is_enabled())
+        self.assertFalse(email.is_enabled())
+        self.assertFalse(first_name.is_enabled())
+        self.assertFalse(last_name.is_enabled())
+
+    def test_Account_page_on_edit_btn_click_redirects_to_Account_Edit(self):
+        self.helper.login_user(self.live_server_url + '/login', self.user.username, self.password)
+        self.selenium.get(self.live_server_url + "/account")
+        self.helper.click_btn('lnkEditAccount')
+        self.assertEquals(self.selenium.current_url, self.live_server_url + '/account/edit/')
+
+    def test_Account_Edit_page_redirects_to_login_if_user_is_not_authenticated(self):
+        self.selenium.get(self.live_server_url + "/account/edit/")
+        self.assertIn(self.live_server_url + '/login', self.selenium.current_url)
+
+    def test_Account_Edit_page_has_editable_user_fields_with_existing_data(self):
+        self.helper.login_user(self.live_server_url + '/login', self.user.username, self.password)
+        self.selenium.get(self.live_server_url + "/account/edit/")
+        username = self.selenium.find_element(By.ID, 'id_username')
+        email = self.selenium.find_element(By.ID, 'id_email')
+        first_name = self.selenium.find_element(By.ID, 'id_first_name')
+        last_name = self.selenium.find_element(By.ID, 'id_last_name')
+        self.assertEquals(username.get_attribute('value'), 'testuser')
+        self.assertEquals(email.get_attribute('value'), 'user@test.com')
+        self.assertEquals(first_name.get_attribute('value'), '')
+        self.assertEquals(last_name.get_attribute('value'), '')
+        self.assertTrue(username.is_enabled())
+        self.assertTrue(email.is_enabled())
+        self.assertTrue(first_name.is_enabled())
+        self.assertTrue(last_name.is_enabled())
+
+    def test_Account_Edit_page_cancel_btn_redirects_to_Accounts_page(self):
+        self.helper.login_user(self.live_server_url + '/login', self.user.username, self.password)
+        self.selenium.get(self.live_server_url + "/account/edit/")
+        self.helper.click_btn("lnkAccount")
+        self.assertTrue(True)
+
+    def test_Account_Edit_page_has_errors_if_data_is_bad(self):
+        self.helper.login_user(self.live_server_url + '/login', self.user.username, self.password)
+        User.objects.create_user("testuser2", "user2@test.com", self.password)
+        self.selenium.get(self.live_server_url + "/account/edit/")
+        self.helper.set_input_text("id_username", "testuser2")
+        self.helper.click_btn("btnSave")
+        errors = self.selenium.find_element(By.CLASS_NAME, 'errorlist')
+        self.assertEquals(errors.text, "A user with that username already exists.")
+
+    def test_Account_Edit_page_saves_data_and_redirects_to_accounts_page(self):
+        self.helper.login_user(self.live_server_url + '/login', self.user.username, self.password)
+        self.selenium.get(self.live_server_url + "/account/edit/")
+        self.helper.set_input_text("id_username", "testuser2")
+        self.helper.set_input_text("id_first_name", "Django")
+        self.helper.set_input_text("id_last_name", "Tester")
+        self.helper.set_input_text("id_email", "user2@test.com")
+        self.helper.click_btn("btnSave")
+        username = self.selenium.find_element(By.ID, 'id_username')
+        email = self.selenium.find_element(By.ID, 'id_email')
+        first_name = self.selenium.find_element(By.ID, 'id_first_name')
+        last_name = self.selenium.find_element(By.ID, 'id_last_name')
+        self.assertEquals(username.get_attribute('value'), 'testuser2')
+        self.assertEquals(email.get_attribute('value'), 'user2@test.com')
+        self.assertEquals(first_name.get_attribute('value'), 'Django')
+        self.assertEquals(last_name.get_attribute('value'), 'Tester')

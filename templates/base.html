@@ -24,13 +24,13 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="header-badge">
                 <i class="fa fa-home fa-lg" style="color:white"></i>&nbsp;
-                <a class="navbar-brand text-light" href="">Home of the C'83 Puzzlers</a>
+                <a class="navbar-brand" href="">Home of the C'83 Puzzlers</a>
             </div>
             {% if user.is_authenticated %}
-              <div class="collapse navbar-collapse pl-3" id="navbarNavDropdown">
+              <div class="collapse-sm navbar-collapse pl-3" id="navbarNavDropdown">
                 <ul class="navbar-nav mr-auto">
                   <li class="nav-item active">
-                    <a class="nav-link" href="#">Dashboard<span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{% url 'home' %}">Dashboard<span class="sr-only">(current)</span></a>
                   </li>
                   <li class="nav-item">
                     <a class="nav-link" href="#">All Puzzles</a>
@@ -43,7 +43,7 @@
                       Settings
                     </a>
                     <div class="dropdown-menu my-2" aria-labelledby="navbarDropdownMenuLink">
-                      <a class="dropdown-item" href="#">Account</a>
+                      <a class="dropdown-item" href="{% url 'account' %}">Account</a>
                       <a class="dropdown-item" href="#">Change Password</a>
                     </div>
                   </li>
@@ -70,5 +70,11 @@
             {% block content %}{% endblock %}
         </div>
     {% endif %}
+    <script>
+        $(document).ready(function() {
+            $('li.active').removeClass('active');
+            $('a[href="' + location.pathname + '"]').closest('li').addClass('active');
+        });
+    </script>
 </body>
 </html>

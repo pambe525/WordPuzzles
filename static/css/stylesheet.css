@@ -35,8 +35,8 @@ button, .btn {
     padding: 2px 3px 2px 12px;
     background-color: black;
     font-size: 18px;
-    color: silver;
-    text-shadow: 1px 1px black;
+    color: white;
+    text-shadow: 1px 1px gray;
     border: 3px inset gray;
     border-radius: 6px;
 }
@@ -78,11 +78,11 @@ button, .btn {
 }
 
 /*** FORM BOX STYLING (LOGIN & NEW USER PAGES) ***/
-form table th {
+table th {
     padding: 8px 5px 5px 0;
     vertical-align: text-top;
 }
-form table td {
+table td {
     width: auto; !important;
 }
 
