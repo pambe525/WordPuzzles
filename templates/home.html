@@ -2,71 +2,58 @@
 {% block content %}
     <h2 class="pl-4">Dashboard</h2>
     <div class="d-inline-block">
-    <div class="m-2 bg-light p-4 d-block">
-        <h3>Scheduled group puzzle sessions</h3>
-        <div class="notetext">No sessions scheduled</div>
-    </div>
 
-    <div class="m-2 bg-light p-4 d-block">
-        <h3>My unpublished puzzles</h3>
-        <div class="mt-4">
-            <a role="button" href="{%  url 'new_xword_puzzle' %}" class="btn btn-primary p-2">New Crossword</a>
+        <!-- SESSIONS -->
+        <div class="m-2 bg-light p-4 d-block">
+            <h3>Scheduled group puzzle sessions</h3>
+            <div class="notetext">No sessions scheduled</div>
         </div>
-        <div class="table-responsive" style="width:500px">
-            <table id="puzzle-list" class="mt-4 table table-sm table-striped">
-                <thead class="thead-dark">
-                    <tr><th>Puzzle</th><th>Editor</th><th>Status</th><th>Action</th></tr>
-                </thead>
-            </table>
+
+        <!-- MY UNPUBLISHED PUZZLES -->
+        <div class="m-2 bg-light p-4 d-block">
+            <div class="row m-0">
+                <h3 class="mb-0">Draft Puzzles</h3>
+                <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="ml-auto btn btn-primary">NEW PUZZLE</a>
+            </div>
+            {% if puzzles|length == 0 %}
+                <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>
+            {% else %}
+                {% for puzzle in puzzles %}
+                    <div class="badge badge-dark p-3 mt-3 shadow-sm rounded d-block">
+                        <div class="row m-0">
+                            <h5 class="text-left">{{ puzzle.name }}</h5>
+                            <div class="ml-4 d-inline-block align-top">
+                                <a href="{% url 'preview_puzzle' puzzle_id=puzzle.id %}" title="Preview">
+                                    <i class="fa fa-eye fa-2x ml-4" style="color:white"></i>
+                                </a>
+                                <a href="{% url 'edit_puzzle' puzzle_id=puzzle.id %}" title="Edit">
+                                    <i class="fa fa-edit fa-2x ml-2" style="color:white"></i>
+                                </a>
+                                <a href="" title="Post">
+                                    <i class="fa fa-share fa-2x ml-2" style="color:white"></i>
+                                </a>
+                                <a href="{% url 'delete_puzzle_confirm' puzzle_id=puzzle.id %}" title="Delete">
+                                    <i class="fa fa-trash fa-2x ml-2" style="color:white"></i>
+                                </a>
+                           </div>
+                        </div>
+                        <div class="row m-0">
+                            <div class="text-left h6">Last edited: {{ puzzle.modified_at }}</div>
+                            <div class="ml-4 h6">Clues completed:</div>
+                            <div class="ml-1 progress w-25 border border-light">
+                                <div class="progress-bar bg-success" role="progressbar" style="width:50%">50%</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
+
+        <!-- RECENTLY PUBLISHED PUZZLES -->
+        <div class="m-2 bg-light p-4 d-block">
+            <h3>Puzzles posted in last 7 days</h3>
+            <div class="notetext">No puzzles have been posted</div>
+        </div>
+
     </div>
-
-    <div class="m-2 bg-light p-4 d-block">
-        <h3>Puzzles published in last 7 days</h3>
-        <div class="notetext">No puzzles have been published</div>
-    </div>
-    </div>
-    <script>
-        var puzzleList, currentUser;
-
-        $.ajaxSetup({
-            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-}       );
-
-        $(document).ready(function() {
-            puzzleList = {{ data | safe }};
-            currentUser = '{{ user.username }}';
-            try {
-                var row;
-                for (var i = 0; i < puzzleList.length; i++) {
-                    row = $("<tr></tr>");
-                    row.append($("<td>"+puzzleList[i]['name']+"</td>"));
-                    row.append($("<td>"+puzzleList[i]['editor']+"</td>"));
-                    row.append(getStatus(puzzleList[i]));
-                    row.append(getActions(puzzleList[i]));
-                    $("#puzzle-list").append(row);
-                }
-            } catch(e) {
-                alert(e)
-            }
-        });
-
-        function getStatus(puzzleItem) {
-            var dateString = new Date(puzzleItem['modified_at']).toString();
-            var td = $("<td></td>").attr("title","Last Edited: "+dateString);
-            td.text("Under Construction");
-            return td;
-        }
-
-        function getActions(puzzleItem) {
-            var td = $("<td></td>");
-            if ( currentUser === puzzleItem['editor'] ) {
-                var link = "/edit_puzzle/" + puzzleItem['id'] + "/";
-                var icon = $("<i></i>").addClass("fas fa-edit fa");
-                var anchor = $("<a></a>").attr("href", link).attr("title","Edit").html(icon);
-                td.html(anchor);
-            }
-            return td;
-        }
-    </script>
 {% endblock %}

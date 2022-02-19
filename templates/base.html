@@ -60,9 +60,9 @@
     <hr style="margin:0; padding:0; border-top:4px solid darkorange">
     {% if error_message %}
         <!-- FATAL ERROR MESSAGE -->
-        <div id="flash-msg" class="alert alert-danger h6" role="alert">{{ error_message }}</div>
+        <div id="flash-msg" class="alert alert-danger h4" role="alert">{{ error_message }}</div>
         <a href="{% url 'home' %}" class="btn btn-primary m-3">
-           <i class="mr-2 fas fa-backward fa-lg"></i> Back to Home Page
+           <i class="mr-2 fa fa-backward fa-lg" style="color:white"></i> Back to Dashboard
         </a>
     {% else %}
         <!-- MAIN CONTENT -->

@@ -1,29 +1,69 @@
-from django.views import View
-from django.shortcuts import render
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
-from django.forms.models import model_to_dict
-from puzzles.models import Puzzle
 import json
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.forms.models import model_to_dict
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.views import View
+
+from puzzles.models import Puzzle, WordPuzzle
 
 
 class HomeView(LoginRequiredMixin, View):
-    model = Puzzle
+    model = WordPuzzle
 
     def get(self, request):
-        puzzles = self.model.objects.order_by('-modified_at')
+        puzzles = self.model.objects.filter(editor=request.user.id).order_by('-modified_at')
         puzzles_list = []
         for i in range(len(puzzles)):
-            last_edited = puzzles[i].modified_at.isoformat()
-            share_date = None if puzzles[i].shared_at is None else puzzles[i].shared_at.isoformat()
-            dict_obj = {'id': puzzles[i].id, 'is_xword': puzzles[i].is_xword, 'modified_at': last_edited,
-                        'desc': puzzles[i].desc, 'shared_at': share_date,
-                        'name': str(puzzles[i]), 'editor': str(puzzles[i].editor)}
+            last_edited = puzzles[i].modified_at.strftime('%b %d, %Y')
+            dict_obj = {'id': puzzles[i].id, 'modified_at': last_edited, 'name': str(puzzles[i])}
             puzzles_list.append(dict_obj)
-        return render(request, "home.html", context={'data': json.dumps(puzzles_list)})
+        return render(request, "home.html", context={'puzzles': puzzles_list})
+
+class NewPuzzleView(LoginRequiredMixin, View):
+    model = WordPuzzle
+
+    def get(self, request):
+        new_puzzle = self.model.objects.create(editor=request.user)
+        return redirect('edit_puzzle', puzzle_id=new_puzzle.id)
+
+class DeletePuzzleView(LoginRequiredMixin, View):
+    model = WordPuzzle
+
+    def get(self, request, puzzle_id=None):
+
+        if "delete_puzzle_confirm" in request.path:
+            return render(request, 'delete_puzzle.html', context={'puzzle_id': puzzle_id})
+        else:
+            if not self.model.objects.filter(id=puzzle_id).exists():
+                msg = 'Puzzle #' + str(puzzle_id) + " does not exist."
+                return render(request, 'delete_puzzle.html', context={'error_message': msg})
+            puzzle = self.model.objects.get(id=puzzle_id)
+            if request.user != puzzle.editor:
+                msg ='You cannot delete this puzzle since you are not the editor.'
+                return render(request, 'delete_puzzle.html', context={'error_message': msg})
+            else:
+                puzzle.delete()
+                return redirect("home")
 
 
+#================================================================================
 class EditPuzzleView(LoginRequiredMixin, View):
+    model = WordPuzzle
+
+    def get(self, request, puzzle_id=None):
+        data_dict = {'id': puzzle_id}
+        return render(request, 'edit_puzzle.html', context=data_dict)
+
+class PreviewPuzzleView(LoginRequiredMixin, View):
+    model = WordPuzzle
+
+    def get(self, request, puzzle_id=None):
+        data_dict = {'id': puzzle_id}
+        return render(request, 'preview_puzzle.html', context=data_dict)
+
+class OldEditPuzzleView(LoginRequiredMixin, View):
     model = Puzzle
 
     def get(self, request, id=None):

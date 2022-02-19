@@ -2,8 +2,8 @@
 {% block content %}
     <div class="d-inline-block">
         <div class="row m-0">
-            <h2 class="pb-0 mb-0">Edit Puzzle #{{ id }}</h2>
-            <a href="{% url 'preview_puzzle' puzzle_id=id %}"  class="ml-4 btn btn-primary pl-3 pr-3">PREVIEW</a>
+            <h2 class="pb-0 mb-0">Preview Puzzle #{{ id }}</h2>
+            <a href="{% url 'edit_puzzle' puzzle_id=id %}" class="ml-4 btn btn-primary pl-3 pr-3">EDIT</a>
             <a href="{% url 'home' %}" class="ml-2 btn btn-primary pl-3 pr-3">DONE</a>
         </div>
     </div>

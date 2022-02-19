@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.test import TestCase
 from datetime import datetime
-from puzzles.models import Puzzle
+from puzzles.models import Puzzle, WordPuzzle
 
 class PuzzleModelTest(TestCase):
     def setUp(self):
@@ -14,10 +14,10 @@ class PuzzleModelTest(TestCase):
         self.assertEqual("testuser", puzzle.editor.username)
 
     def test_shared_at_field(self):
-        currentTimeStamp = datetime.now(tz=timezone.utc).isoformat() # timestamp as ISO string (UTC)
-        puzzle = Puzzle.objects.create(shared_at=currentTimeStamp)
+        current_time_stamp = datetime.now(tz=timezone.utc).isoformat() # timestamp as ISO string (UTC)
+        puzzle = Puzzle.objects.create(shared_at=current_time_stamp)
         puzzle = Puzzle.objects.get(id=puzzle.id)
-        self.assertEqual(currentTimeStamp, puzzle.shared_at.isoformat()) # Convert date object to string
+        self.assertEqual(current_time_stamp, puzzle.shared_at.isoformat()) # Convert date object to string
 
     def test_field_defaults(self):
         puzzle = Puzzle.objects.create()
@@ -35,3 +35,22 @@ class PuzzleModelTest(TestCase):
         puzzle = Puzzle.objects.create(size=20, is_xword=False)
         self.assertEqual("Puzzle #2: Word Puzzle (20 clues)", str(puzzle))
 
+class WordPuzzleModelTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='secretkey')
+
+    def test_default_instance_with_editor_field(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        self.assertEqual("testuser", puzzle.editor.username)
+        self.assertEqual(puzzle.type, 1)
+        self.assertEqual(puzzle.size, 5)
+        self.assertIsNone(puzzle.desc)
+        self.assertIsNone(puzzle.shared_at)
+        current_time_stamp = datetime.now(tz=timezone.utc).isoformat() # timestamp as ISO string (UTC)
+        self.assertEqual(current_time_stamp, puzzle.created_at.isoformat())
+
+    def test_string_representation(self):
+        puzzle = WordPuzzle.objects.create(size=10, type=0, editor=self.user)
+        self.assertEqual("Puzzle #1: Non-cryptic Clues (10)", str(puzzle))
+        puzzle = WordPuzzle.objects.create(size=20, type=1, editor=self.user)
+        self.assertEqual("Puzzle #2: Cryptic Clues (20)", str(puzzle))

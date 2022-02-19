@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="d-inline-block">
+        <div class="bg-light p-4">
+            <h2 class="pb-0 mb-0">Delete Puzzle #{{ puzzle_id }}</h2>
+            <div class="mt-3 mb-3">
+                This puzzle and all associated clues will be permanently <br />
+                deleted. This action cannot be undone.  Please confirm.
+            </div>
+            <a href="{% url 'delete_puzzle' puzzle_id=puzzle_id %}" class="btn btn-primary pl-3 pr-3">DELETE</a>
+            <a href="{% url 'home' %}" class="ml-2 btn btn-light pl-3 pr-3">CANCEL</a>
+        </div>
+    </div>
+{% endblock %}
