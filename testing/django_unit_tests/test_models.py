@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.test import TestCase
 from datetime import datetime
-from puzzles.models import Puzzle, WordPuzzle
+from puzzles.models import Puzzle, WordPuzzle, Clue
 
 class PuzzleModelTest(TestCase):
     def setUp(self):
@@ -44,6 +44,7 @@ class WordPuzzleModelTest(TestCase):
         self.assertEqual("testuser", puzzle.editor.username)
         self.assertEqual(puzzle.type, 1)
         self.assertEqual(puzzle.size, 5)
+        self.assertIsNone(puzzle.title)
         self.assertIsNone(puzzle.desc)
         self.assertIsNone(puzzle.shared_at)
         current_time_stamp = datetime.now(tz=timezone.utc).isoformat() # timestamp as ISO string (UTC)
@@ -54,3 +55,29 @@ class WordPuzzleModelTest(TestCase):
         self.assertEqual("Puzzle #1: Non-cryptic Clues (10)", str(puzzle))
         puzzle = WordPuzzle.objects.create(size=20, type=1, editor=self.user)
         self.assertEqual("Puzzle #2: Cryptic Clues (20)", str(puzzle))
+
+class ClueModelTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='secretkey')
+        self.puzzle = WordPuzzle.objects.create(editor=self.user)
+
+    def test_default_instance(self):
+        clue = Clue.objects.create(puzzle=self.puzzle)
+        self.assertIsNone(clue.clue_num)
+        self.assertIsNone(clue.clue_text)
+        self.assertIsNone(clue.answer)
+        self.assertIsNone(clue.parsing)
+        self.assertEqual(str(clue), "<#>. <clue> [<answer>]")
+
+    def test_string_representation(self):
+        clue = Clue.objects.create(puzzle=self.puzzle, clue_num=1, answer="SOME WORD", clue_text="Cryptic clue (4,4)")
+        self.assertEqual(str(clue), "1. Cryptic clue (4,4) [SOME WORD]")
+
+    def test_clues_are_deleted_if_related_puzzle_is_deleted(self):
+        clue1 = Clue.objects.create(puzzle=self.puzzle, clue_num=1)
+        clue2 = Clue.objects.create(puzzle=self.puzzle, clue_num=2)
+        clue3 = Clue.objects.create(puzzle=self.puzzle, clue_num=3)
+        self.assertEqual(Clue.objects.all().count(), 3)
+        self.puzzle.delete()
+        self.assertEqual(Clue.objects.all().count(), 0)

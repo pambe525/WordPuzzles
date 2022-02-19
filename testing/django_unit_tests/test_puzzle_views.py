@@ -29,6 +29,7 @@ class NewPuzzleViewTests(TestCase):
         self.assertEqual(response.url, "/edit_puzzle/1/")
         self.assertEqual(len(WordPuzzle.objects.all()), 1)
 
+
 class DeletePuzzleViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="testuser")
@@ -46,23 +47,26 @@ class DeletePuzzleViewTests(TestCase):
         response = self.client.get("/delete_puzzle_confirm/" + str(new_puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "delete_puzzle.html")
-        self.assertEqual(response.context['puzzle_id'], 1)
         self.assertContains(response, "Delete Puzzle #1")
+        self.assertContains(response, "This puzzle and all associated clues will be permanently")
         self.assertContains(response, "DELETE")
         self.assertContains(response, "CANCEL")
-        self.assertContains(response, "This puzzle and all associated clues will be permanently")
 
     def test_DELETE_PUZZLE_get_shows_error_if_user_is_not_editor(self):
         other_user = User.objects.create(username="otheruser")
         new_puzzle = WordPuzzle.objects.create(editor=other_user)
         response = self.client.get("/delete_puzzle/" + str(new_puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Delete Puzzle #1")
         self.assertContains(response, "You cannot delete this puzzle")
+        self.assertContains(response, "OK")
 
     def test_DELETE_PUZZLE_get_shows_error_if_puzzle_id_does_not_exist(self):
         response = self.client.get("/delete_puzzle/1/")
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Delete Puzzle #1")
         self.assertContains(response, "Puzzle #1 does not exist.")
+        self.assertContains(response, "OK")
 
     def test_DELETE_PUZZLE_deletes_puzzle_and_redirects_to_home(self):
         new_puzzle = WordPuzzle.objects.create(editor=self.user)
@@ -70,6 +74,9 @@ class DeletePuzzleViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/")
         self.assertFalse(WordPuzzle.objects.filter(id=1).exists())
+
+
+# ====================================================================================================
 
 class EditPuzzleViewTests(TestCase):
     def setUp(self):

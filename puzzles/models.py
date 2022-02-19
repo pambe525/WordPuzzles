@@ -24,7 +24,8 @@ class WordPuzzle(models.Model):
     editor = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=1)
     size = models.IntegerField(default=5)
-    desc = models.TextField(null=True)
+    title = models.CharField(null=True, max_length=64, help_text="Optional short title to indicate theme etc")
+    desc = models.TextField(null=True, help_text="Optional description, instructions or guidelines")
     shared_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
@@ -35,7 +36,14 @@ class WordPuzzle(models.Model):
 
 class Clue(models.Model):
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)
-    clue_num = models.IntegerField()
+    clue_num = models.IntegerField(null=True)
     answer = models.CharField(null=True, max_length=32)
-    clue_text = models.TextField(null=True)
-    parsing = models.TextField(null=True)
+    clue_text = models.TextField(null=True, help_text="Do not include word length (automatically calculated)")
+    parsing = models.TextField(null=True, help_text="Optional explanation of solution")
+
+    def __str__(self):
+        text = ''
+        text += ("<#>" if self.clue_num is None else str(self.clue_num)) + ". "
+        text += ("<clue>" if self.clue_text is None else self.clue_text) + " ["
+        text += ("<answer>" if self.answer is None else self.answer) + "]"
+        return text

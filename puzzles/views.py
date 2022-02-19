@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -32,20 +33,18 @@ class DeletePuzzleView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request, puzzle_id=None):
-
-        if "delete_puzzle_confirm" in request.path:
-            return render(request, 'delete_puzzle.html', context={'puzzle_id': puzzle_id})
-        else:
-            if not self.model.objects.filter(id=puzzle_id).exists():
-                msg = 'Puzzle #' + str(puzzle_id) + " does not exist."
-                return render(request, 'delete_puzzle.html', context={'error_message': msg})
+        msg = None
+        try:
             puzzle = self.model.objects.get(id=puzzle_id)
+        except ObjectDoesNotExist:
+            msg = 'Puzzle #' + str(puzzle_id) + " does not exist."
+        else:
             if request.user != puzzle.editor:
                 msg ='You cannot delete this puzzle since you are not the editor.'
-                return render(request, 'delete_puzzle.html', context={'error_message': msg})
-            else:
+            elif "delete_puzzle_confirm" not in request.path:
                 puzzle.delete()
-                return redirect("home")
+                return redirect('home')
+        return render(request, 'delete_puzzle.html', context={'puzzle_id': puzzle_id, 'err_msg': msg})
 
 
 #================================================================================
