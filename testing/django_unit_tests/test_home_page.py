@@ -13,13 +13,13 @@ class HomeViewTests(TestCase):
 
     def test_Renders_home_page_if_user_is_authenticated(self):
         response = self.client.get(reverse("home"))
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.templates[0].name, "home.html")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, "home.html")
         self.assertContains(response, "Dashboard")
 
     def test_Redirects_to_login_page_if_user_is_not_authenticated(self):
         logout(self.client)
         response = self.client.get(reverse("home"))
-        self.assertEquals(response.status_code, 302)
-        self.assertEquals(response.url, "/login?next=/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/")
 

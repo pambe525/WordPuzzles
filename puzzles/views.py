@@ -18,7 +18,7 @@ class HomeView(LoginRequiredMixin, View):
         puzzles_list = []
         for i in range(len(puzzles)):
             last_edited = puzzles[i].modified_at.strftime('%b %d, %Y')
-            dict_obj = {'id': puzzles[i].id, 'modified_at': last_edited, 'name': str(puzzles[i])}
+            dict_obj = {'id': puzzles[i].id, 'title': puzzles[i].title, 'modified_at': last_edited, 'name': str(puzzles[i])}
             puzzles_list.append(dict_obj)
         return render(request, "home.html", context={'puzzles': puzzles_list})
 

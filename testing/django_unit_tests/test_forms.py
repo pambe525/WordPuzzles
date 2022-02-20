@@ -11,11 +11,11 @@ class NewUserFormTest(TestCase):
 
     def test_form_has_correct_fields(self):
         form = NewUserForm()
-        self.assertEquals(len(form.Meta.fields), 4)
-        self.assertEquals(form.Meta.fields[0], "username")
-        self.assertEquals(form.Meta.fields[1], "password1")
-        self.assertEquals(form.Meta.fields[2], "password2")
-        self.assertEquals(form.Meta.fields[3], "email")
+        self.assertEqual(len(form.Meta.fields), 4)
+        self.assertEqual(form.Meta.fields[0], "username")
+        self.assertEqual(form.Meta.fields[1], "password1")
+        self.assertEqual(form.Meta.fields[2], "password2")
+        self.assertEqual(form.Meta.fields[3], "email")
 
     def test_form_saved_with_correct_data(self):
         data_dict = {
@@ -23,11 +23,11 @@ class NewUserFormTest(TestCase):
         }
         form = NewUserForm(data_dict)
         user = form.save()
-        self.assertEquals(type(user), User)
+        self.assertEqual(type(user), User)
 
     def test_form_label_modified_for_password2(self):
         form = NewUserForm()
-        self.assertEquals(form.fields['password2'].label, "Confirm")
+        self.assertEqual(form.fields['password2'].label, "Confirm")
 
     def test_form_helptext_for_parent_fields(self):
         form = NewUserForm()
@@ -42,4 +42,4 @@ class NewUserFormTest(TestCase):
         form = NewUserForm(data_dict)
         self.assertTrue(form.is_valid())
         user = form.save()
-        self.assertEquals(user.email, "a@b.com")
+        self.assertEqual(user.email, "a@b.com")

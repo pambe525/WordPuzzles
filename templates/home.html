@@ -5,12 +5,12 @@
 
         <!-- SESSIONS -->
         <div class="m-2 bg-light p-4 d-block">
-            <h3>Scheduled group puzzle sessions</h3>
+            <h3>Puzzle Sessions</h3>
             <div class="notetext">No sessions scheduled</div>
         </div>
 
         <!-- MY UNPUBLISHED PUZZLES -->
-        <div class="m-2 bg-light p-4 d-block">
+        <div class="m-2 bg-light p-4 d-block" style="width:380px">
             <div class="row m-0">
                 <h3 class="mb-0">Draft Puzzles</h3>
                 <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="ml-auto btn btn-primary">NEW PUZZLE</a>
@@ -20,29 +20,30 @@
             {% else %}
                 {% for puzzle in puzzles %}
                     <div class="badge badge-dark p-3 mt-3 shadow-sm rounded d-block">
+                        <h5 class="text-left">{{ puzzle.name }}</h5>
+                        {% if puzzle.title != None %}
+                            <div class="h6 text-left text-truncate">{{ puzzle.title }}</div>
+                        {% endif %}
                         <div class="row m-0">
-                            <h5 class="text-left">{{ puzzle.name }}</h5>
-                            <div class="ml-4 d-inline-block align-top">
-                                <a href="{% url 'preview_puzzle' puzzle_id=puzzle.id %}" title="Preview">
-                                    <i class="fa fa-eye fa-2x ml-4" style="color:white"></i>
-                                </a>
-                                <a href="{% url 'edit_puzzle' puzzle_id=puzzle.id %}" title="Edit">
-                                    <i class="fa fa-edit fa-2x ml-2" style="color:white"></i>
-                                </a>
-                                <a href="" title="Post">
-                                    <i class="fa fa-share fa-2x ml-2" style="color:white"></i>
-                                </a>
-                                <a href="{% url 'delete_puzzle_confirm' puzzle_id=puzzle.id %}" title="Delete">
-                                    <i class="fa fa-trash fa-2x ml-2" style="color:white"></i>
-                                </a>
-                           </div>
-                        </div>
-                        <div class="row m-0">
-                            <div class="text-left h6">Last edited: {{ puzzle.modified_at }}</div>
-                            <div class="ml-4 h6">Clues completed:</div>
+                            <div class="text-left h6">Last edit: {{ puzzle.modified_at }}</div>
+                            <div class="ml-4 h6">Clues done:</div>
                             <div class="ml-1 progress w-25 border border-light">
                                 <div class="progress-bar bg-success" role="progressbar" style="width:50%">50%</div>
                             </div>
+                        </div>
+                        <div class="d-block text-center">
+                            <a href="{% url 'preview_puzzle' puzzle_id=puzzle.id %}" title="Preview">
+                                <i class="fa fa-eye fa-2x" style="color:white"></i>
+                            </a>
+                            <a href="{% url 'edit_puzzle' puzzle_id=puzzle.id %}" title="Edit">
+                                <i class="fa fa-edit fa-2x ml-2" style="color:white"></i>
+                            </a>
+                            <a href="" title="Post">
+                                <i class="fa fa-share fa-2x ml-2" style="color:white"></i>
+                            </a>
+                            <a href="{% url 'delete_puzzle_confirm' puzzle_id=puzzle.id %}" title="Delete">
+                                <i class="fa fa-trash fa-2x ml-2" style="color:white"></i>
+                            </a>
                         </div>
                     </div>
                 {% endfor %}

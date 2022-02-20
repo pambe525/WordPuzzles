@@ -19,8 +19,8 @@ class NewPuzzleViewTests(TestCase):
     def test_NEW_PUZZLE_get_redirects_to_LOGIN_view_if_user_is_not_authenticated(self):
         logout(self.client)
         response = self.client.get(reverse("new_puzzle"))
-        self.assertEquals(response.status_code, 302)
-        self.assertEquals(response.url, "/login?next=/new_puzzle")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/new_puzzle")
 
     def test_NEW_PUZZLE_get_creates_puzzle_and_redirects_to_EDIT_PUZZLE_view_with_id(self):
         self.assertEqual(len(WordPuzzle.objects.all()), 0)
@@ -88,40 +88,40 @@ class EditPuzzleViewTests(TestCase):
     def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
         logout(self.client)
         response = self.client.get(reverse("new_xword_puzzle"))
-        self.assertEquals(response.status_code, 302)
-        self.assertEquals(response.url, "/login?next=/new_xword_puzzle")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/new_xword_puzzle")
 
     def test_GET_new_xword_puzzle_returns_is_word_as_true(self):
         response = self.client.get(reverse("new_xword_puzzle"))
-        self.assertEquals(response.templates[0].name, "edit_puzzle.html")
+        self.assertEqual(response.templates[0].name, "edit_puzzle.html")
         data = json.loads(response.context['data'])
-        self.assertEquals(None, data['id'])
+        self.assertEqual(None, data['id'])
         self.assertTrue(data['is_xword'])
 
     def test_GET_new_word_puzzle_returns_is_word_as_false(self):
         response = self.client.get(reverse("new_word_puzzle"))
-        self.assertEquals(response.templates[0].name, "edit_puzzle.html")
+        self.assertEqual(response.templates[0].name, "edit_puzzle.html")
         data = json.loads(response.context['data'])
-        self.assertEquals(None, data['id'])
+        self.assertEqual(None, data['id'])
         self.assertFalse(data['is_xword'])
 
     def test_GET_edit_puzzle_with_zero_puzzle_id_raises_error(self):
         response = self.client.get("/edit_puzzle/0/")
-        self.assertEquals(response.templates[0].name, "edit_puzzle.html")
-        self.assertEquals("Puzzle id 0 does not exist", response.context['error_message'])
+        self.assertEqual(response.templates[0].name, "edit_puzzle.html")
+        self.assertEqual("Puzzle id 0 does not exist", response.context['error_message'])
 
     def test_GET_edit_puzzle_raises_error_message_if_current_user_is_not_editor(self):
         record = Puzzle.objects.create(editor=self.user)
-        self.assertEquals(record.id, 1)
+        self.assertEqual(record.id, 1)
         logout(self.client)
         self.user = User.objects.get_or_create(username="newuser")[0]
         self.client.force_login(self.user)
         response = self.client.get("/edit_puzzle/1/")
-        self.assertEquals(response.context['error_message'], "You are not authorized to edit this puzzle")
+        self.assertEqual(response.context['error_message'], "You are not authorized to edit this puzzle")
 
     def test_GET_edit_puzzle_raises_error_message_if_puzzle_id_does_not_exist(self):
         response = self.client.get("/edit_puzzle/1/")
-        self.assertEquals(response.context['error_message'], "Puzzle id 1 does not exist")
+        self.assertEqual(response.context['error_message'], "Puzzle id 1 does not exist")
 
     def test_GET_edit_puzzle_with_existing_puzzle_id_returns_puzzle_data(self):
         timestamp = datetime.now(tz=timezone.utc).isoformat()
@@ -144,7 +144,7 @@ class EditPuzzleViewTests(TestCase):
     def test_POST_saves_new_record_if_id_is_null_and_returns_saved_id(self):
         ajax_data_dict = self.create_mock_ajax_save_data_dict(size=13)  # id=None by default
         response = self.client.post(reverse("new_word_puzzle"), data=ajax_data_dict)
-        self.assertEquals(response.json()['id'], 1)
+        self.assertEqual(response.json()['id'], 1)
         self.assert_db_record(1, json.loads(ajax_data_dict['data']))
 
     def test_POST_second_save_updates_record(self):
@@ -209,4 +209,4 @@ class EditPuzzleViewTests(TestCase):
         data_dict['data'] = json.loads(data_dict['data'])
         del data_dict['id']
         del data_dict['editor']
-        self.assertEquals(data_dict, expected_data_dict)
+        self.assertEqual(data_dict, expected_data_dict)
