@@ -3,16 +3,19 @@
     <h2 class="pl-4">Dashboard</h2>
     <div class="d-inline-block">
 
-        <!-- SESSIONS -->
+        <!-- RECENTLY PUBLISHED PUZZLES -->
         <div class="m-2 bg-light p-4 d-block">
-            <h3>Puzzle Sessions</h3>
-            <div class="notetext">No sessions scheduled</div>
+            <div class="row m-0">
+                <h3 class="mb-0">Recent Puzzles</h3>
+                <a id="btnAllPuzzles" href="" class="ml-auto btn btn-primary">ALL PUZZLES</a>
+            </div>
+            <div class="notetext">No puzzles have been posted in last 7 days</div>
         </div>
 
         <!-- MY UNPUBLISHED PUZZLES -->
         <div class="m-2 bg-light p-4 d-block" style="width:380px">
             <div class="row m-0">
-                <h3 class="mb-0">Draft Puzzles</h3>
+                <h3 class="mb-0">My Draft Puzzles</h3>
                 <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="ml-auto btn btn-primary">NEW PUZZLE</a>
             </div>
             {% if draft_puzzles|length == 0 %}
@@ -47,12 +50,5 @@
                 {% endfor %}
             {% endif %}
         </div>
-
-        <!-- RECENTLY PUBLISHED PUZZLES -->
-        <div class="m-2 bg-light p-4 d-block">
-            <h3>Puzzles posted in last 7 days</h3>
-            <div class="notetext">No puzzles have been posted</div>
-        </div>
-
     </div>
 {% endblock %}

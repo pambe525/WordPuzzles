@@ -28,14 +28,12 @@ class DashboardTests(StaticLiveServerTestCase, HelperMixin):
 
     def test_Unpopulated_dasboard(self):
         self.get('/')
-        self.assert_xpath_items("//h3", 3)
-        self.assert_xpath_text("//h3", "Puzzle Sessions", 0)
-        self.assert_xpath_text("//h3", "Draft Puzzles", 1)
-        self.assert_xpath_text("//h3", "Puzzles posted in last 7 days", 2)
-        self.assert_xpath_items("//div[contains(@class, 'notetext')]", 3)
-        self.assert_xpath_text("//div[contains(@class, 'notetext')]", "No sessions scheduled")
+        self.assert_xpath_items("//h3", 2)
+        self.assert_xpath_text("//h3", "Recent Puzzles", 0)
+        self.assert_xpath_text("//h3", "My Draft Puzzles", 1)
+        self.assert_xpath_items("//div[contains(@class, 'notetext')]", 2)
+        self.assert_xpath_contains("//div[contains(@class, 'notetext')]", "No puzzles have been posted", 0)
         self.assert_xpath_contains("//div[contains(@class, 'notetext')]", "no draft puzzles", 1)
-        self.assert_xpath_text("//div[contains(@class, 'notetext')]", "No puzzles have been posted", 2)
 
     def test_New_Puzzle_button_creates_puzzle_and_badge_for_puzzle(self):
         self.get('/')
