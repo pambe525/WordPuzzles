@@ -108,12 +108,11 @@ class EditPuzzleViewTests(TestCase):
         self.assertNotContains(response, "DONE")
 
     def test_GET_renders_template_and_form(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, title="Short title", desc="Instructions", size=0)
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions", size=0)
         response = self.client.get('/edit_puzzle/1/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Edit Puzzle #1")
         self.assertEqual(response.context['form'].initial['type'], 1)
-        self.assertEqual(response.context['form'].initial['title'], "Short title")
         self.assertEqual(response.context['form'].initial['desc'], "Instructions")
         self.assertFalse(response.context['saved'])
         self.assertContains(response, "SAVE")
@@ -123,10 +122,9 @@ class EditPuzzleViewTests(TestCase):
 
     def test_POST_saves_puzzle_data(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        puzzle_data = {'type': 1, 'title': 'Puzzle title', 'desc': 'Puzzle instructions'}
+        puzzle_data = {'type': 1, 'desc': 'Puzzle instructions'}
         response = self.client.post('/edit_puzzle/'+str(puzzle.id)+'/', puzzle_data)
         self.assertEqual(response.context['form']['type'].value(), '1')
-        self.assertEqual(response.context['form']['title'].value(), "Puzzle title")
         self.assertEqual(response.context['form']['desc'].value(), "Puzzle instructions")
         self.assertTrue(response.context['saved'])
 

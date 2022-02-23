@@ -50,22 +50,20 @@ class WordPuzzleFormTest(TestCase):
 
     def test_form_has_needed_fields(self):
         form = WordPuzzleForm()
-        self.assertEqual(len(form.fields), 3)
+        self.assertEqual(len(form.fields), 2)
         self.assertIsNotNone(form.fields['type'])
-        self.assertIsNotNone(form.fields['title'])
         self.assertIsNotNone(form.fields['desc'])
 
     def test_form_initialized_with_instance(self):
         user = User.objects.create_user('testuser')
-        puzzle = WordPuzzle.objects.create(editor=user, title="Some title")
+        puzzle = WordPuzzle.objects.create(editor=user, desc="Some title")
         form = WordPuzzleForm(instance=puzzle)
         self.assertEqual(form.initial['type'], 1)
-        self.assertEqual(form.initial['title'], "Some title")
-        self.assertEqual(form.initial['desc'], None)
+        self.assertEqual(form.initial['desc'], "Some title")
 
-    def test_form_has_no_error_if_title_is_blank(self):
+    def test_form_has_no_error_if_desc_is_blank(self):
         user = User.objects.create_user('testuser')
-        puzzle_data = {'editor': user, 'type': 1, 'title': ""}
+        puzzle_data = {'editor': user, 'type': 1, 'desc':''}
         form = WordPuzzleForm(data=puzzle_data)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.errors, {})

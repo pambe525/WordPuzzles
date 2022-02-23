@@ -44,7 +44,6 @@ class WordPuzzleModelTest(TestCase):
         self.assertEqual("testuser", puzzle.editor.username)
         self.assertEqual(puzzle.type, 1)
         self.assertEqual(puzzle.size, 0)
-        self.assertIsNone(puzzle.title)
         self.assertIsNone(puzzle.desc)
         self.assertIsNone(puzzle.shared_at)
         # current_time_stamp = datetime.now(tz=timezone.utc).isoformat() # timestamp as ISO string (UTC)

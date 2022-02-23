@@ -24,8 +24,8 @@
                 {% for puzzle in draft_puzzles %}
                     <div class="badge badge-dark p-3 mt-3 shadow-sm rounded d-block">
                         <h5 class="text-left">{{ puzzle.name }}</h5>
-                        {% if puzzle.title != None %}
-                            <div class="h6 text-left text-truncate">{{ puzzle.title }}</div>
+                        {% if puzzle.desc != None %}
+                            <div class="h6 text-left text-truncate" title="puzzle.desc">{{ puzzle.desc }}</div>
                         {% endif %}
                         <div class="row m-0">
                             <div class="text-left h6">Last edited: {{ puzzle.modified_at }}</div>

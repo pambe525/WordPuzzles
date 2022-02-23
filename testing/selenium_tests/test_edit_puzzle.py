@@ -35,7 +35,6 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.assert_xpath_exists("//button[text()='PREVIEW']")
         self.assert_xpath_exists("//button[text()='ADD CLUE']")
         #self.assert_xpath_text("//select[@id='id_type']", 'Cryptic Clues')
-        self.assert_xpath_text("//input[@id='id_title']", '')
         self.assert_xpath_text("//textarea[@id='id_desc']", '')
 
     def test_puzzle_edit_page_saves_edited_new_puzzle(self):
@@ -43,18 +42,15 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.get('/edit_puzzle/' + str(puzzle.id) + '/')
         self.assert_xpath_text("//h2", "Edit Puzzle #" + str(puzzle.id))
         self.assert_selected_text("//select[@id='id_type']", 'Cryptic Clues')
-        self.set_input_xpath("//input[@id='id_title']", 'A short title')
         self.set_input_xpath("//textarea[@id='id_desc']",  'Some instructions')
         self.click_xpath("//button[text()='SAVE']")
         self.assert_current_url('/edit_puzzle/' + str(puzzle.id) + '/')
-        self.assert_xpath_value("//input[@id='id_title']", 'A short title')
         self.assert_xpath_value("//textarea[@id='id_desc']", 'Some instructions')
 
     def test_puzzle_edit_page_loads_existing_puzzle(self):
-        puzzle_data = {'editor': self.user, 'type':0, 'title': "A short tile", 'desc':'Instructions'}
+        puzzle_data = {'editor': self.user, 'type':0, 'desc':'Instructions'}
         puzzle = WordPuzzle.objects.create(**puzzle_data)
         self.get('/edit_puzzle/' + str(puzzle.id) + '/')
         self.assert_xpath_text("//h2", "Edit Puzzle #" + str(puzzle.id))
         self.assert_selected_text("//select[@id='id_type']", 'Non-cryptic Clues')
-        self.set_input_xpath("//input[@id='id_title']", 'A short title')
         self.set_input_xpath("//textarea[@id='id_desc']",  'Instructions')

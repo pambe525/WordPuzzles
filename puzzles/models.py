@@ -23,12 +23,10 @@ class Puzzle(models.Model):
 
 class WordPuzzle(models.Model):
     TYPE_CHOICES = [(0, "Non-cryptic Clues"), (1, "Cryptic Clues")]
-    #INTEGER_CHOICES = [tuple([x, x]) for x in range(5, 26)]
-
+    #INTEGER_CHOICES = [tuple([x, x]) for x in range(5, 26)]clear
     editor = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=1)
     size = models.IntegerField(default=0)
-    title = models.CharField(null=True, blank=True, max_length=36)
     desc = models.TextField(null=True, blank=True)
     shared_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

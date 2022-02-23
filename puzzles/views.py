@@ -19,7 +19,7 @@ class HomeView(LoginRequiredMixin, View):
         draft_puzzles = []
         for i in range(len(puzzles)):
             last_edited = puzzles[i].modified_at.strftime('%b %d, %Y')
-            dict_obj = {'id': puzzles[i].id, 'title': puzzles[i].title, 'size': puzzles[i].size,
+            dict_obj = {'id': puzzles[i].id, 'desc': puzzles[i].desc, 'size': puzzles[i].size,
                         'modified_at': last_edited, 'name': str(puzzles[i])}
             draft_puzzles.append(dict_obj)
         return render(request, "home.html", context={'draft_puzzles': draft_puzzles})
@@ -90,7 +90,7 @@ class PreviewPuzzleView(LoginRequiredMixin, View):
         data_dict = {'id': puzzle_id}
         return render(request, 'preview_puzzle.html', context=data_dict)
 
-
+'''
 class OldEditPuzzleView(LoginRequiredMixin, View):
     model = Puzzle
 
@@ -148,3 +148,5 @@ class OldEditPuzzleView(LoginRequiredMixin, View):
         if data_dict is not None:
             context['data'] = json.dumps(data_dict)
         return render(request, "edit_puzzle.html", context=context)
+        
+'''

@@ -47,11 +47,11 @@ class HomeViewTests(TestCase):
         self.assertEqual(response.context['draft_puzzles'][1]['id'], 3)
 
     def test_Draft_puzzle_details_in_response_context(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, title="Daily puzzle")
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Daily puzzle")
         response = self.client.get(reverse("home"))
         puzzle_details = response.context['draft_puzzles'][0]
         self.assertEqual(puzzle_details['id'], 1)
-        self.assertEqual(puzzle_details['title'], 'Daily puzzle')
+        self.assertEqual(puzzle_details['desc'], 'Daily puzzle')
         self.assertEqual(puzzle_details['name'], "Puzzle #1: Cryptic Clues (0)")
         self.assertEqual(puzzle_details['size'], 0)
         self.assertIsNotNone(puzzle_details['modified_at'])
