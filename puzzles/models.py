@@ -40,11 +40,13 @@ class WordPuzzle(models.Model):
 
 
 class Clue(models.Model):
+    INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)
     clue_num = models.IntegerField(null=True)
-    answer = models.CharField(null=True, max_length=32)
-    clue_text = models.TextField(null=True, help_text="Do not include word length (automatically calculated)")
-    parsing = models.TextField(null=True, help_text="Optional explanation of solution")
+    answer = models.CharField(null=True, max_length=24)
+    clue_text = models.TextField(null=True)
+    parsing = models.TextField(null=True, blank=True)
+    points - models.IntegerField(default=1, choices=INTEGER_CHOICES)
 
     def __str__(self):
         text = ''

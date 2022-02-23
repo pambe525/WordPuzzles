@@ -15,7 +15,7 @@ class HomeView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request):
-        puzzles = self.model.objects.filter(editor=request.user.id).order_by('-modified_at')
+        puzzles = self.model.objects.filter(editor=request.user.id).order_by('modified_at')
         draft_puzzles = []
         for i in range(len(puzzles)):
             last_edited = puzzles[i].modified_at.strftime('%b %d, %Y')
