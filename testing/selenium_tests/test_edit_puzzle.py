@@ -54,3 +54,10 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.assert_xpath_text("//h2", "Edit Puzzle #" + str(puzzle.id))
         self.assert_selected_text("//select[@id='id_type']", 'Non-cryptic Clues')
         self.set_input_xpath("//textarea[@id='id_desc']",  'Instructions')
+        # Check Clues headers - no existing clues
+        self.assert_xpath_text("//div[@class='h4']", "Clues [0 points]")
+
+    def test_add_clue_button_redirects_to_edit_clue_form(self):
+        puzzle_data = {'editor': self.user, 'type':0, 'desc':'Instructions'}
+        puzzle = WordPuzzle.objects.create(**puzzle_data)
+        self.get('/edit_puzzle/' + str(puzzle.id) + '/')

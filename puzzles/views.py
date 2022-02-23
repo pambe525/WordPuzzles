@@ -59,6 +59,7 @@ class EditPuzzleView(LoginRequiredMixin, View):
         data_dict = {'id': puzzle_id, 'saved': False}
         try:
             puzzle = WordPuzzle.objects.get(id=puzzle_id)
+            data_dict['points'] = puzzle.get_total_points()
         except ObjectDoesNotExist:
             msg = 'Puzzle #' + str(puzzle_id) + " does not exist."
         else:

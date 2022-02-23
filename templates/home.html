@@ -25,10 +25,12 @@
                     <div class="badge badge-dark p-3 mt-3 shadow-sm rounded d-block">
                         <h5 class="text-left">{{ puzzle.name }}</h5>
                         {% if puzzle.desc != None %}
-                            <div class="h6 text-left text-truncate" title="{{ puzzle.desc }}">{{ puzzle.desc }}</div>
+                            <div class="h6 text-left text-truncate text-warning" title="{{ puzzle.desc }}">
+                                {{ puzzle.desc }}
+                            </div>
                         {% endif %}
                         <div class="row m-0">
-                            <div class="text-left h6">Last edited: {{ puzzle.modified_at }}</div>
+                            <div class="text-left h6 text-muted">Last edited: {{ puzzle.modified_at }}</div>
                             <div class="d-inline-block ml-auto">
                                 <a href="{% url 'preview_puzzle' puzzle_id=puzzle.id %}" title="Preview">
                                     <i class="fa fa-eye fa-2x" style="color:white"></i>

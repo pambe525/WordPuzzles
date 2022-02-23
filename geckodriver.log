@@ -7466,3 +7466,44 @@ JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeE
 
 ###!!! [Parent][PGPUParent] Error: RunMessage(msgname=PGPU::Msg_ShutdownVR) Channel closing: too late to send/recv, messages will be lost
 
+1645636251885	geckodriver	INFO	Listening on 127.0.0.1:55891
+1645636254946	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55892" "-no-remote" "-profile" "C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofilejzNdmz"
+1645636255287	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofilejzNdmz\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:55892/devtools/browser/2d9875c7-fd2b-4504-8de4-b13896b42254
+1645636257300	Marionette	INFO	Listening on port 55897
+1645636257634	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:55890"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:55890"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1645636259111	Marionette	INFO	Stopped listening on port 55897
+1645636699296	geckodriver	INFO	Listening on 127.0.0.1:56067
+1645636702339	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "56068" "-no-remote" "-profile" "C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofileMk7odj"
+1645636702692	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofileMk7odj\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:56068/devtools/browser/eb048848-402e-4b0a-a30d-29dfc56c4be9
+1645636704706	Marionette	INFO	Listening on port 56074
+1645636705045	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:56066"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:56066"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1645636707263	Marionette	INFO	Stopped listening on port 56074
+console.error: QuickSuggest: (new TypeError("NetworkError: Network request failed", "resource://services-settings/Utils.jsm", 132))
+
+###!!! [Parent][PGPUParent] Error: RunMessage(msgname=PGPU::Msg_ShutdownVR) Channel closing: too late to send/recv, messages will be lost
+
+1645637664833	geckodriver	INFO	Listening on 127.0.0.1:56829
+1645637667883	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "56830" "-no-remote" "-profile" "C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofilesbYI3P"
+1645637668206	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofilesbYI3P\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:56830/devtools/browser/8cf72a28-b576-4934-a85c-af595c7e64c1
+1645637670482	Marionette	INFO	Listening on port 56836
+1645637670531	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:56828"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:56828"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1645637671968	Marionette	INFO	Stopped listening on port 56836
+console.error: QuickSuggest: (new TypeError("NetworkError: Network request failed", "resource://services-settings/Utils.jsm", 132))
+
+###!!! [Parent][PGPUParent] Error: RunMessage(msgname=PGPU::Msg_ShutdownVR) Channel closing: too late to send/recv, messages will be lost
+

@@ -119,6 +119,7 @@ class EditPuzzleViewTests(TestCase):
         self.assertContains(response, "DONE")
         self.assertContains(response, "PREVIEW")
         self.assertContains(response, "ADD CLUE")
+        self.assertContains(response, "Clues [0 points]")
 
     def test_POST_saves_puzzle_data(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
