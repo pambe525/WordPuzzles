@@ -33,8 +33,12 @@ class WordPuzzle(models.Model):
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
-        puzzle_type = str(self.TYPE_CHOICES[self.type][1]) + " (" + str(self.size) + ")"
-        return "Puzzle #" + str(self.id) + ": " + puzzle_type
+        puzzle_type = str(self.TYPE_CHOICES[self.type][1])
+        points = "[" + str(self.get_total_points()) + " points]"
+        return "Puzzle #" + str(self.id) + ": " + str(self.size) + " " + puzzle_type + " " + points
+
+    def get_total_points(self):
+        return 0
 
 
 class Clue(models.Model):

@@ -51,9 +51,9 @@ class WordPuzzleModelTest(TestCase):
 
     def test_string_representation(self):
         puzzle = WordPuzzle.objects.create(size=10, type=0, editor=self.user)
-        self.assertEqual("Puzzle #1: Non-cryptic Clues (10)", str(puzzle))
+        self.assertEqual("Puzzle #1: 10 Non-cryptic Clues [0 points]", str(puzzle))
         puzzle = WordPuzzle.objects.create(size=20, type=1, editor=self.user)
-        self.assertEqual("Puzzle #2: Cryptic Clues (20)", str(puzzle))
+        self.assertEqual("Puzzle #2: 20 Cryptic Clues [0 points]", str(puzzle))
 
 class ClueModelTest(TestCase):
 
