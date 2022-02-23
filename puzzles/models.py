@@ -46,7 +46,7 @@ class Clue(models.Model):
     answer = models.CharField(null=True, max_length=24)
     clue_text = models.TextField(null=True)
     parsing = models.TextField(null=True, blank=True)
-    points - models.IntegerField(default=1, choices=INTEGER_CHOICES)
+    points = models.IntegerField(default=1, choices=INTEGER_CHOICES)
 
     def __str__(self):
         text = ''
