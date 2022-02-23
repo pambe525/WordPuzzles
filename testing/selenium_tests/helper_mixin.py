@@ -5,6 +5,7 @@ from django.utils.http import urlsafe_base64_encode
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from os import name as os_name
+from selenium.webdriver.support.ui import Select
 
 class HelperMixin:
 
@@ -28,6 +29,11 @@ class HelperMixin:
 
     def set_input_text(self, input_id, input_text):
         element = self.selenium.find_element(By.ID, input_id)
+        element.clear()
+        element.send_keys(input_text)
+
+    def set_input_xpath(self, xpath, input_text):
+        element = self.selenium.find_element(By.XPATH, xpath)
         element.clear()
         element.send_keys(input_text)
 
@@ -57,8 +63,20 @@ class HelperMixin:
         element = self.selenium.find_elements(By.XPATH, xpath)[index]
         self.testcase.assertEqual(self, element.text, text)
 
+    def assert_xpath_value(self, xpath, text, index=0):
+        element = self.selenium.find_elements(By.XPATH, xpath)[index]
+        self.testcase.assertEqual(self, element.get_attribute('value'), text)
+
     def assert_xpath_items(self, xpath, count):
         self.testcase.assertEqual(self, len(self.selenium.find_elements(By.XPATH, xpath)), count)
 
     def assert_xpath_contains(self, xpath, text, index=0):
         self.testcase.assertTrue(self, text in self.selenium.find_elements(By.XPATH, xpath)[index].text)
+
+    def assert_xpath_exists(self, xpath):
+        self.testcase.assertTrue(self, len(self.selenium.find_elements(By.XPATH, xpath))>0)
+
+    def assert_selected_text(self, xpath, text):
+        selector = Select(self.selenium.find_element(By.XPATH, xpath))
+        self.testcase.assertEqual(self, selector.first_selected_option.text, text)
+

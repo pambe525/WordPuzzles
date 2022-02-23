@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from user_auth.forms import NewUserForm
+from puzzles.forms import WordPuzzleForm
+from puzzles.models import WordPuzzle
 
 class NewUserFormTest(TestCase):
 
@@ -43,3 +45,27 @@ class NewUserFormTest(TestCase):
         self.assertTrue(form.is_valid())
         user = form.save()
         self.assertEqual(user.email, "a@b.com")
+
+class WordPuzzleFormTest(TestCase):
+
+    def test_form_has_needed_fields(self):
+        form = WordPuzzleForm()
+        self.assertEqual(len(form.fields), 3)
+        self.assertIsNotNone(form.fields['type'])
+        self.assertIsNotNone(form.fields['title'])
+        self.assertIsNotNone(form.fields['desc'])
+
+    def test_form_initialized_with_instance(self):
+        user = User.objects.create_user('testuser')
+        puzzle = WordPuzzle.objects.create(editor=user, title="Some title")
+        form = WordPuzzleForm(instance=puzzle)
+        self.assertEqual(form.initial['type'], 1)
+        self.assertEqual(form.initial['title'], "Some title")
+        self.assertEqual(form.initial['desc'], None)
+
+    def test_form_has_no_error_if_title_is_blank(self):
+        user = User.objects.create_user('testuser')
+        puzzle_data = {'editor': user, 'type': 1, 'title': ""}
+        form = WordPuzzleForm(data=puzzle_data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.errors, {})

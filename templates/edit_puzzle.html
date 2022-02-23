@@ -1,10 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="d-inline-block">
-        <div class="row m-0">
-            <h2 class="pb-0 mb-0">Edit Puzzle #{{ id }}</h2>
-            <a href="{% url 'preview_puzzle' puzzle_id=id %}"  class="ml-4 btn btn-primary pl-3 pr-3">PREVIEW</a>
-            <a href="{% url 'home' %}" class="ml-2 btn btn-primary pl-3 pr-3">DONE</a>
+        <div class="m-2 bg-light p-4">
+            <div class="ml-0 row mb-2 mr-2">
+                <h2 class="pb-0 mb-0">Edit Puzzle #{{ id }}</h2>
+                {%  if err_msg == None %}
+                    <a href="{% url 'home' %}" class="ml-auto btn btn-primary pl-2 pr-2">DONE</a>
+                {% endif %}
+            </div>
+            <hr />
+            {%  if err_msg == None %}
+                <form action="{% url 'edit_puzzle' puzzle_id=id %}" method="post">
+                    {% csrf_token %}
+                    <table>{{ form.as_table }}</table>
+                    <div class="row m-0 mt-2">
+                        <button type="submit" class="btn btn-primary pl-3 pr-3">SAVE</button>
+                        {% if saved == True %}
+                            <div id="flash-msg" class="alert p-1 h5 m-0" role="alert">
+                                <i class="fa fa-check-circle text-success"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                </form>
+                <hr />
+                <div class="ml-0 row mt-3 mr-1">
+                    <div class="h4">Clues</div>
+                    <button type="submit" id="btnAddClue" class="ml-auto btn-sm btn-dark">ADD CLUE</button>
+                    <button type="submit" id="btnPreview" class="ml-3 btn-sm btn-dark">PREVIEW</button>
+                </div>
+            {% else %}
+                <div id="errMsg" class="text-danger mb-3">{{ err_msg }}</div>
+                <a href="{% url 'home' %}" class="btn btn-primary">OK</a>
+            {% endif %}
         </div>
     </div>
+
+    <script lang="javascript">
+        $(document).ready( function(){
+            $('.alert').delay(5000).fadeOut('slow');
+        })
+    </script>
 {% endblock %}

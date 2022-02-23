@@ -49,7 +49,7 @@ class DashboardTests(StaticLiveServerTestCase, HelperMixin):
         # Redirects to dashboard and displays new puzzle badge
         self.assert_current_url('/')
         self.assert_xpath_items("//div[contains(@class,'badge badge')]", 1)
-        badge_header =  "Puzzle #" + str(puzzle_id) + ": Cryptic Clues (5)"
+        badge_header =  "Puzzle #" + str(puzzle_id) + ": Cryptic Clues (0)"
         self.assert_xpath_text("//div[contains(@class,'badge badge')]/h5", badge_header)
 
     def test_Edit_Puzzle_button_redirects_to_edit_puzzle_page(self):
@@ -82,7 +82,7 @@ class DashboardTests(StaticLiveServerTestCase, HelperMixin):
         self.assert_current_url('/')
         # Make sure the puzzle still exists
         self.assert_xpath_items("//div[contains(@class,'badge badge')]", 1)
-        badge_header =  "Puzzle #" + str(puzzle_id) + ": Cryptic Clues (5)"
+        badge_header =  "Puzzle #" + str(puzzle_id) + ": Cryptic Clues (0)"
         self.assert_xpath_text("//div[contains(@class,'badge badge')]/h5", badge_header)
 
     def test_Delete_Puzzle_button_deletes_puzzle_after_confirmation(self):

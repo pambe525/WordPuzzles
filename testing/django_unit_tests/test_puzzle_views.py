@@ -76,14 +76,62 @@ class DeletePuzzleViewTests(TestCase):
         self.assertFalse(WordPuzzle.objects.filter(id=1).exists())
 
 
-# ====================================================================================================
-
 class EditPuzzleViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
         self.user = User.objects.get_or_create(username="testuser")[0]
         self.client.force_login(self.user)
 
+    def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
+        logout(self.client)
+        response = self.client.get("/edit_puzzle/1/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/edit_puzzle/1/")
+
+    def test_GET_shows_error_if_user_is_not_editor(self):
+        other_user = User.objects.create(username="otheruser")
+        new_puzzle = WordPuzzle.objects.create(editor=other_user)
+        response = self.client.get("/edit_puzzle/" + str(new_puzzle.id) + "/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Edit Puzzle #1")
+        self.assertContains(response, "You cannot edit this puzzle")
+        self.assertContains(response, "OK")
+        self.assertNotContains(response, "SAVE")
+        self.assertNotContains(response, "DONE")
+
+    def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
+        response = self.client.get("/edit_puzzle/3/")
+        self.assertContains(response, "Edit Puzzle #3")
+        self.assertContains(response, "Puzzle #3 does not exist.")
+        self.assertContains(response, "OK")
+        self.assertNotContains(response, "SAVE")
+        self.assertNotContains(response, "DONE")
+
+    def test_GET_renders_template_and_form(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, title="Short title", desc="Instructions", size=0)
+        response = self.client.get('/edit_puzzle/1/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Edit Puzzle #1")
+        self.assertEqual(response.context['form'].initial['type'], 1)
+        self.assertEqual(response.context['form'].initial['title'], "Short title")
+        self.assertEqual(response.context['form'].initial['desc'], "Instructions")
+        self.assertFalse(response.context['saved'])
+        self.assertContains(response, "SAVE")
+        self.assertContains(response, "DONE")
+        self.assertContains(response, "PREVIEW")
+        self.assertContains(response, "ADD CLUE")
+
+    def test_POST_saves_puzzle_data(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        puzzle_data = {'type': 1, 'title': 'Puzzle title', 'desc': 'Puzzle instructions'}
+        response = self.client.post('/edit_puzzle/'+str(puzzle.id)+'/', puzzle_data)
+        self.assertEqual(response.context['form']['type'].value(), '1')
+        self.assertEqual(response.context['form']['title'].value(), "Puzzle title")
+        self.assertEqual(response.context['form']['desc'].value(), "Puzzle instructions")
+        self.assertTrue(response.context['saved'])
+
+# ====================================================================================================
+'''
     ### GET Tests ------------------------------------------------------------------------------
     def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
         logout(self.client)
@@ -210,3 +258,4 @@ class EditPuzzleViewTests(TestCase):
         del data_dict['id']
         del data_dict['editor']
         self.assertEqual(data_dict, expected_data_dict)
+'''

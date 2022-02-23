@@ -1,5 +1,6 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+
 
 class Puzzle(models.Model):
     is_xword = models.BooleanField(default=True)
@@ -19,13 +20,16 @@ class Puzzle(models.Model):
             puzzle_size = "(" + str(self.size) + " clues)"
             return "Puzzle #" + str(self.id) + ": Word Puzzle " + puzzle_size
 
+
 class WordPuzzle(models.Model):
     TYPE_CHOICES = [(0, "Non-cryptic Clues"), (1, "Cryptic Clues")]
+    #INTEGER_CHOICES = [tuple([x, x]) for x in range(5, 26)]
+
     editor = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=1)
-    size = models.IntegerField(default=5)
-    title = models.CharField(null=True, max_length=64, help_text="Optional short title to indicate theme etc")
-    desc = models.TextField(null=True, help_text="Optional description, instructions or guidelines")
+    size = models.IntegerField(default=0)
+    title = models.CharField(null=True, blank=True, max_length=36)
+    desc = models.TextField(null=True, blank=True)
     shared_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
@@ -33,6 +37,7 @@ class WordPuzzle(models.Model):
     def __str__(self):
         puzzle_type = str(self.TYPE_CHOICES[self.type][1]) + " (" + str(self.size) + ")"
         return "Puzzle #" + str(self.id) + ": " + puzzle_type
+
 
 class Clue(models.Model):
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)

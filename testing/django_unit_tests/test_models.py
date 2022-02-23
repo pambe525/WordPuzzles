@@ -43,7 +43,7 @@ class WordPuzzleModelTest(TestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         self.assertEqual("testuser", puzzle.editor.username)
         self.assertEqual(puzzle.type, 1)
-        self.assertEqual(puzzle.size, 5)
+        self.assertEqual(puzzle.size, 0)
         self.assertIsNone(puzzle.title)
         self.assertIsNone(puzzle.desc)
         self.assertIsNone(puzzle.shared_at)
