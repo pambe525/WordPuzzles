@@ -55,6 +55,26 @@ class WordPuzzleModelTest(TestCase):
         puzzle = WordPuzzle.objects.create(size=20, type=1, editor=self.user)
         self.assertEqual("Puzzle #2: 20 Cryptic Clues [0 points]", str(puzzle))
 
+    def test_add_clue_creates_new_clue_and_updates_counts(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        cleaned_data = {'answer': 'MY-WORD TWO', 'clue_text': 'some clue text',
+                     'parsing':'def', 'points': 3}
+        self.assertEqual(puzzle.size, 0)
+        self.assertEqual(puzzle.total_points, 0)
+        puzzle.add_clue(cleaned_data)
+        self.assertEqual(puzzle.size, 1)
+        self.assertEqual(puzzle.total_points, 3)
+        new_clue = Clue.objects.all()[0]
+        self.assertEqual(new_clue.puzzle, puzzle)
+        self.assertEqual(new_clue.clue_num, 1)
+        self.assertEqual(new_clue.answer, 'MY-WORD TWO')  # NOTE: capitalized answer
+        self.assertEqual(new_clue.clue_text, 'some clue text')
+        self.assertEqual(new_clue.parsing, 'def')
+        self.assertEqual(new_clue.points, 3)
+        puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertEqual(puzzle.total_points, 3)
+        self.assertEqual(puzzle.size, 1)
+
 class ClueModelTest(TestCase):
 
     def setUp(self):

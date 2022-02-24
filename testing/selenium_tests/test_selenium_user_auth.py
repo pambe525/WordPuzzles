@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.common.by import By
 
-from testing.selenium_tests.helper_mixin import HelperMixin
+from testing.selenium_tests.selenium_helper_mixin import HelperMixin
 
 
 class UserAuthTests(StaticLiveServerTestCase, HelperMixin):

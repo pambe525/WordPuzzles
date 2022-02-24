@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from puzzles.models import Puzzle, WordPuzzle
+from puzzles.models import Puzzle, WordPuzzle, Clue
 
 
 class NewPuzzleViewTests(TestCase):
@@ -128,6 +128,66 @@ class EditPuzzleViewTests(TestCase):
         self.assertEqual(response.context['form']['type'].value(), '1')
         self.assertEqual(response.context['form']['desc'].value(), "Puzzle instructions")
         self.assertTrue(response.context['saved'])
+
+class EditClueViewTests(TestCase):
+    def setUp(self):
+        # Create a logged in user
+        self.user = User.objects.get_or_create(username="testuser")[0]
+        self.client.force_login(self.user)
+
+    def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
+        logout(self.client)
+        response = self.client.get("/new_clue/1/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/new_clue/1/")
+        response = self.client.get("/edit_clue/1/1/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/edit_clue/1/1/")
+
+    def test_GET_shows_error_if_user_is_not_editor(self):
+        other_user = User.objects.create(username="otheruser")
+        puzzle = WordPuzzle.objects.create(editor=other_user)
+        response = self.client.get("/new_clue/" + str(puzzle.id) + "/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Edit Clue 1 for Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "You cannot edit this puzzle")
+        self.assertContains(response, "OK")
+        self.assertNotContains(response, "SAVE")
+        self.assertNotContains(response, "CANCEL")
+
+    def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
+        response = self.client.get("/new_clue/5/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Edit Clue 1 for Puzzle #5")
+        self.assertContains(response, "Puzzle #5 does not exist.")
+        self.assertContains(response, "OK")
+        self.assertNotContains(response, "SAVE")
+        self.assertNotContains(response, "CANCEL")
+
+    def test_GET_new_clue_renders_template_and_clue_edit_form(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
+        response = self.client.get('/new_clue/' + str(puzzle.id) + '/')
+        self.assertContains(response, "Edit Clue 1 for Puzzle #" + str(puzzle.id))
+        self.assertEqual(response.context['form']['answer'].value(), None)
+        self.assertEqual(response.context['form']['clue_text'].value(), None)
+        self.assertEqual(response.context['form']['parsing'].value(), None)
+        self.assertEqual(response.context['form']['points'].value(), 1)
+        self.assertContains(response, "SAVE")
+        self.assertContains(response, "CANCEL")
+
+    def test_POST_new_clue_form_creates_new_clue_and_redirects_to_edit_puzzle_view(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
+        clue_form_data = {'answer':"MY WORD", 'clue_text': 'clue to my word', 'parsing':'', 'points':2}
+        response = self.client.post('/new_clue/' + str(puzzle.id) + '/', clue_form_data)
+        self.assertEqual(response.url, '/edit_puzzle/' + str(puzzle.id) + '/')
+        clues = Clue.objects.all()
+        self.assertEqual(len(clues), 1)
+        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertEqual(updated_puzzle.size, 1)
+        self.assertEqual(updated_puzzle.total_points, 2)
+
+
+
 
 # ====================================================================================================
 '''

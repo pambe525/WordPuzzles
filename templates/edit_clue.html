@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="d-inline-block">
+        <div class="m-2 bg-light p-4">
+            <h3 class="pb-0">Edit Clue {{ clue_num }} for Puzzle #{{ id }}</h3>
+            <hr />
+            {%  if err_msg == None %}
+                <form action="{% url 'edit_clue' puzzle_id=id clue_num=clue_num %}" method="post">
+                    {% csrf_token %}
+                    <table>{{ form.as_table }}</table>
+                    <hr />
+                    <div class="row m-0 mt-2">
+                        <button type="submit" class="btn btn-primary pl-3 pr-3">SAVE</button>
+                        <a href="{% url 'edit_puzzle' puzzle_id=id %}" class="ml-auto btn btn-light pl-2 pr-2">CANCEL</a>
+                    </div>
+                </form>
+            {% else %}
+                <div id="errMsg" class="text-danger mb-3">{{ err_msg }}</div>
+                <a href="{% url 'home' %}" class="btn btn-primary">OK</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

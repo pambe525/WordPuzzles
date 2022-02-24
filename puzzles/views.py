@@ -1,14 +1,10 @@
-import json
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.forms.models import model_to_dict
-from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 
-from puzzles.forms import WordPuzzleForm
-from puzzles.models import Puzzle, WordPuzzle
+from puzzles.forms import WordPuzzleForm, ClueForm
+from puzzles.models import WordPuzzle, Clue
 
 
 class HomeView(LoginRequiredMixin, View):
@@ -59,7 +55,7 @@ class EditPuzzleView(LoginRequiredMixin, View):
         data_dict = {'id': puzzle_id, 'saved': False}
         try:
             puzzle = WordPuzzle.objects.get(id=puzzle_id)
-            data_dict['points'] = puzzle.get_total_points()
+            data_dict['total_points'] = puzzle.total_points
         except ObjectDoesNotExist:
             msg = 'Puzzle #' + str(puzzle_id) + " does not exist."
         else:
@@ -82,14 +78,49 @@ class EditPuzzleView(LoginRequiredMixin, View):
         return render(request, 'edit_puzzle.html', context=data_dict)
 
 
-# ================================================================================
+class EditClueView(LoginRequiredMixin, View):
+    model = Clue
 
+    def get(self, request, puzzle_id=None, clue_num=None):
+        msg = None
+        data_dict = {'id': puzzle_id, 'clue_num': 1, 'form': ClueForm()}
+        try:
+            puzzle = WordPuzzle.objects.get(id=puzzle_id)
+        except ObjectDoesNotExist:
+            msg = 'Puzzle #' + str(puzzle_id) + " does not exist."
+        else:
+            if request.user != puzzle.editor:
+                msg = 'You cannot edit this puzzle since you are not the creator.'
+            else:
+                data_dict['clue_num'] = puzzle.size + 1 if clue_num is None else clue_num
+        finally:
+            data_dict['err_msg'] = msg
+            return render(request, 'edit_clue.html', context=data_dict)
+
+    def post(self, request, puzzle_id=None, clue_num=None):
+        puzzle = WordPuzzle.objects.get(id=puzzle_id)
+        form = ClueForm(request.POST)
+        if clue_num is None: clue_num = puzzle.size + 1
+        if form.is_valid():
+            puzzle.add_clue(form.cleaned_data)
+            return redirect("edit_puzzle", puzzle.id)
+        else:
+            print(form.errors)
+            data_dict = {'id': puzzle_id, 'clue_num':clue_num, 'form': form}
+            return render(request, "edit_clue.html", context=data_dict)
+
+# ================================================================================
 class PreviewPuzzleView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request, puzzle_id=None):
-        data_dict = {'id': puzzle_id}
+        puzzle = WordPuzzle.objects.get(id=puzzle_id)
+        data_dict = {'id': puzzle_id, 'err_msg': None}
+        if request.user != puzzle.editor:
+            msg = 'You cannot edit this puzzle since you are not the creator.'
+            data_dict['err_msg'] = msg
         return render(request, 'preview_puzzle.html', context=data_dict)
+
 
 '''
 class OldEditPuzzleView(LoginRequiredMixin, View):

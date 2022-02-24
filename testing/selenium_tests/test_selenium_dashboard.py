@@ -3,7 +3,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.common.by import By
 from puzzles.models import WordPuzzle
 
-from testing.selenium_tests.helper_mixin import HelperMixin
+from testing.selenium_tests.selenium_helper_mixin import HelperMixin
 
 
 class DashboardTests(StaticLiveServerTestCase, HelperMixin):

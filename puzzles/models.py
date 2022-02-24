@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
 from django.db import models
 
 
@@ -26,20 +27,24 @@ class WordPuzzle(models.Model):
     #INTEGER_CHOICES = [tuple([x, x]) for x in range(5, 26)]clear
     editor = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=1)
-    size = models.IntegerField(default=0)
     desc = models.TextField(null=True, blank=True)
+    size = models.IntegerField(default=0)
+    total_points = models.IntegerField(default=0)
     shared_at = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
 
     def __str__(self):
         puzzle_type = str(self.TYPE_CHOICES[self.type][1])
-        points = "[" + str(self.get_total_points()) + " points]"
+        points = "[" + str(self.total_points) + " points]"
         return "Puzzle #" + str(self.id) + ": " + str(self.size) + " " + puzzle_type + " " + points
 
-    def get_total_points(self):
-        return 0
-
+    def add_clue(self, form_data_dict):
+        self.size += 1
+        self.total_points += form_data_dict['points']
+        new_clue = Clue.objects.create(puzzle=self, clue_num=self.size, **form_data_dict)
+        self.save(update_fields=['size', 'total_points'])
+        return new_clue
 
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]
