@@ -46,6 +46,16 @@ class WordPuzzle(models.Model):
         self.save(update_fields=['size', 'total_points'])
         return new_clue
 
+    def update_clue(self, clue_num, form_data_dict):
+        clue = Clue.objects.filter(puzzle=self, clue_num=clue_num)
+        self.total_points += (form_data_dict['points'] - clue[0].points)
+        clue.update(**form_data_dict)
+        self.save(update_fields=['total_points'])
+        return clue
+
+    def get_clues(self):
+        return Clue.objects.filter(puzzle=self).order_by('clue_num')
+
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)

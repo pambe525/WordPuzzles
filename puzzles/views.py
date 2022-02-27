@@ -11,7 +11,7 @@ class HomeView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request):
-        puzzles = self.model.objects.filter(editor=request.user.id).order_by('modified_at')
+        puzzles = self.model.objects.filter(editor=request.user.id).order_by('-modified_at')
         draft_puzzles = []
         for i in range(len(puzzles)):
             last_edited = puzzles[i].modified_at.strftime('%b %d, %Y')
@@ -64,6 +64,7 @@ class EditPuzzleView(LoginRequiredMixin, View):
             else:
                 form = WordPuzzleForm(instance=puzzle)
                 data_dict['form'] = form
+                data_dict['clues'] = puzzle.get_clues()
         finally:
             data_dict['err_msg'] = msg
             return render(request, 'edit_puzzle.html', context=data_dict)
@@ -75,6 +76,8 @@ class EditPuzzleView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             data_dict['saved'] = True
+            data_dict['total_points'] = puzzle.total_points
+            data_dict['clues'] = puzzle.get_clues()
         return render(request, 'edit_puzzle.html', context=data_dict)
 
 
@@ -92,7 +95,12 @@ class EditClueView(LoginRequiredMixin, View):
             if request.user != puzzle.editor:
                 msg = 'You cannot edit this puzzle since you are not the creator.'
             else:
-                data_dict['clue_num'] = puzzle.size + 1 if clue_num is None else clue_num
+                if clue_num is None:
+                    data_dict['clue_num'] = puzzle.size + 1
+                else:
+                    data_dict['clue_num'] = clue_num
+                    clue = Clue.objects.get(puzzle=puzzle, clue_num=clue_num)
+                    data_dict['form'] = ClueForm(instance=clue)
         finally:
             data_dict['err_msg'] = msg
             return render(request, 'edit_clue.html', context=data_dict)
@@ -100,12 +108,14 @@ class EditClueView(LoginRequiredMixin, View):
     def post(self, request, puzzle_id=None, clue_num=None):
         puzzle = WordPuzzle.objects.get(id=puzzle_id)
         form = ClueForm(request.POST)
-        if clue_num is None: clue_num = puzzle.size + 1
         if form.is_valid():
-            puzzle.add_clue(form.cleaned_data)
+            if clue_num is None:
+                clue_num = puzzle.size + 1
+                puzzle.add_clue(form.cleaned_data)
+            else:
+                puzzle.update_clue(clue_num, form.cleaned_data)
             return redirect("edit_puzzle", puzzle.id)
         else:
-            print(form.errors)
             data_dict = {'id': puzzle_id, 'clue_num':clue_num, 'form': form}
             return render(request, "edit_clue.html", context=data_dict)
 

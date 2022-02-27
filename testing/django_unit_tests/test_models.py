@@ -75,6 +75,15 @@ class WordPuzzleModelTest(TestCase):
         self.assertEqual(puzzle.total_points, 3)
         self.assertEqual(puzzle.size, 1)
 
+    def test_get_clues_returns_all_clues_as_a_list(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        clue1_data={'answer':"FIRST", 'clue_text': 'Clue for first', 'parsing': 'DEF1', 'points': 1}
+        clue2_data={'answer':"SECOND", 'clue_text': 'Clue for 2nd', 'parsing': 'DEF2', 'points': 2}
+        puzzle.add_clue(clue1_data)
+        puzzle.add_clue(clue2_data)
+        clues_list = puzzle.get_clues()
+        self.assertEqual(len(clues_list), 2)
+
 class ClueModelTest(TestCase):
 
     def setUp(self):

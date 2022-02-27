@@ -21,30 +21,33 @@
             {% if draft_puzzles|length == 0 %}
                 <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>
             {% else %}
+                <div class="notetext pt-1 pb-1">
+                    To edit a puzzle click on its badge header.
+                    Hover on the header to see full description.
+                </div>
                 {% for puzzle in draft_puzzles %}
-                    <div class="badge badge-dark p-3 mt-3 shadow-sm rounded d-block">
-                        <h5 class="text-left">{{ puzzle.name }}</h5>
+                    <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
+                        <a class="h5" href="{% url 'edit_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
+                            {{ puzzle.name }}
+                        </a>
                         {% if puzzle.desc != None %}
-                            <div class="h6 text-left text-truncate text-warning" title="{{ puzzle.desc }}">
-                                {{ puzzle.desc }}
+                            <div class="h6 text-left text-truncate text-dark mb-1" title="{{ puzzle.desc }}">
+                                <b>{{ puzzle.desc }}</b>
                             </div>
                         {% endif %}
                         <div class="row m-0">
-                            <div class="text-left h6 text-muted">Last edited: {{ puzzle.modified_at }}</div>
-                            <div class="d-inline-block ml-auto">
-                                <a href="{% url 'preview_puzzle' puzzle_id=puzzle.id %}" title="Preview">
-                                    <i class="fa fa-eye fa-2x" style="color:white"></i>
-                                </a>
-                                <a href="{% url 'edit_puzzle' puzzle_id=puzzle.id %}" title="Edit">
-                                    <i class="fa fa-edit fa-2x ml-2" style="color:white"></i>
+                            <div class="text-left h6 text-muted pt-0">Last edited: {{ puzzle.modified_at }}</div>
+                            <div class="d-inline-block ml-auto pt-1">
+                                <a href="{% url 'edit_puzzle' puzzle_id=puzzle.id %}" title="Preview">
+                                    <i class="fa fa-eye fa-2x ml-2"></i>
                                 </a>
                                 {% if puzzle.size != 0 %}
                                 <a href="" title="Publish">
-                                    <i class="fa fa-share fa-2x ml-2" style="color:white"></i>
+                                    <i class="fa fa-share fa-2x ml-2"></i>
                                 </a>
                                 {% endif %}
                                 <a href="{% url 'delete_puzzle_confirm' puzzle_id=puzzle.id %}" title="Delete">
-                                    <i class="fa fa-trash fa-2x ml-2" style="color:white"></i>
+                                    <i class="fa fa-trash fa-2x ml-2"></i>
                                 </a>
                             </div>
                         </div>

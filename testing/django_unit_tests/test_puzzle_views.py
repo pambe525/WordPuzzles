@@ -1,14 +1,9 @@
-import json
-from datetime import datetime
-
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.forms.models import model_to_dict
 from django.test import TestCase
 from django.urls import reverse
-from django.utils import timezone
 
-from puzzles.models import Puzzle, WordPuzzle, Clue
+from puzzles.models import WordPuzzle, Clue
 
 
 class NewPuzzleViewTests(TestCase):
@@ -124,10 +119,39 @@ class EditPuzzleViewTests(TestCase):
     def test_POST_saves_puzzle_data(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         puzzle_data = {'type': 1, 'desc': 'Puzzle instructions'}
-        response = self.client.post('/edit_puzzle/'+str(puzzle.id)+'/', puzzle_data)
+        response = self.client.post('/edit_puzzle/' + str(puzzle.id) + '/', puzzle_data)
         self.assertEqual(response.context['form']['type'].value(), '1')
         self.assertEqual(response.context['form']['desc'].value(), "Puzzle instructions")
         self.assertTrue(response.context['saved'])
+
+    def test_GET_shows_all_puzzle_clues(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        clue1_data = {'answer': "FIRST WORD", 'clue_text': 'Clue for first word', 'parsing': 'DEF1', 'points': 1}
+        clue2_data = {'answer': "SECOND WORD", 'clue_text': 'Clue for 2nd word', 'parsing': 'DEF2', 'points': 2}
+        puzzle.add_clue(clue1_data)
+        puzzle.add_clue(clue2_data)
+        response = self.client.get('/edit_puzzle/' + str(puzzle.id) + '/')
+        self.assertEqual(response.context['total_points'], 3)
+        self.assertEqual(len(response.context['clues']), 2)
+        self.assertEqual(response.context['clues'][0].clue_num, 1)
+        self.assertEqual(response.context['clues'][0].clue_text, 'Clue for first word')
+        self.assertEqual(response.context['clues'][0].parsing, 'DEF1')
+        self.assertEqual(response.context['clues'][0].points, 1)
+
+    def test_POST_save_shows_all_puzzle_clues(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        puzzle_data = {'type': 1, 'desc': 'Puzzle instructions'}
+        clue1_data = {'answer': "FIRST", 'clue_text': 'Clue for word', 'parsing': 'DEF1', 'points': 2}
+        clue2_data = {'answer': "SECOND", 'clue_text': 'Clue for 2nd word', 'parsing': 'DEF2', 'points': 3}
+        puzzle.add_clue(clue1_data)
+        puzzle.add_clue(clue2_data)
+        response = self.client.post('/edit_puzzle/' + str(puzzle.id) + '/', puzzle_data)
+        self.assertEqual(response.context['total_points'], 5)
+        self.assertEqual(len(response.context['clues']), 2)
+        self.assertEqual(response.context['clues'][0].clue_num, 1)
+        self.assertEqual(response.context['clues'][0].clue_text, 'Clue for word')
+        self.assertEqual(response.context['clues'][0].parsing, 'DEF1')
+        self.assertEqual(response.context['clues'][0].points, 2)
 
 class EditClueViewTests(TestCase):
     def setUp(self):
@@ -175,9 +199,21 @@ class EditClueViewTests(TestCase):
         self.assertContains(response, "SAVE")
         self.assertContains(response, "CANCEL")
 
+    def test_GET_existing_clue_renders_template_and_clue_edit_form(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
+        clue = puzzle.add_clue({'answer':'TEST', 'clue_text':'Clue text desc', 'parsing':'easy', 'points':1})
+        response = self.client.get('/edit_clue/' + str(puzzle.id) + '/' + str(clue.clue_num) + '/')
+        self.assertContains(response, "Edit Clue 1 for Puzzle #" + str(puzzle.id))
+        self.assertEqual(response.context['form']['answer'].value(), 'TEST')
+        self.assertEqual(response.context['form']['clue_text'].value(), 'Clue text desc')
+        self.assertEqual(response.context['form']['parsing'].value(), 'easy')
+        self.assertEqual(response.context['form']['points'].value(), 1)
+        self.assertContains(response, "SAVE")
+        self.assertContains(response, "CANCEL")
+
     def test_POST_new_clue_form_creates_new_clue_and_redirects_to_edit_puzzle_view(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
-        clue_form_data = {'answer':"MY WORD", 'clue_text': 'clue to my word', 'parsing':'', 'points':2}
+        clue_form_data = {'answer': "MY WORD", 'clue_text': 'clue to my word', 'parsing': '', 'points': 2}
         response = self.client.post('/new_clue/' + str(puzzle.id) + '/', clue_form_data)
         self.assertEqual(response.url, '/edit_puzzle/' + str(puzzle.id) + '/')
         clues = Clue.objects.all()
@@ -186,8 +222,22 @@ class EditClueViewTests(TestCase):
         self.assertEqual(updated_puzzle.size, 1)
         self.assertEqual(updated_puzzle.total_points, 2)
 
-
-
+    def test_POST_existing_clue_form_updates_clue_and_redirects_to_edit_puzzle_view(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
+        clue_data = {'answer':'TEST', 'clue_text':'Clue text desc', 'parsing':'easy', 'points':1}
+        clue = puzzle.add_clue(clue_data)
+        mod_clue_data = {'answer':'MOD-TEST', 'clue_text':'Clue text', 'parsing':'not easy', 'points':2}
+        response = self.client.post('/edit_clue/' + str(puzzle.id) + '/'+ str(clue.clue_num) + '/', mod_clue_data)
+        self.assertEqual(response.url, '/edit_puzzle/' + str(puzzle.id) + '/')
+        clues = Clue.objects.all()
+        self.assertEqual(len(clues), 1)
+        updated_clue = Clue.objects.get(puzzle=puzzle.id, id=clue.id)
+        self.assertEqual(updated_clue.answer, 'MOD-TEST')
+        self.assertEqual(updated_clue.clue_text, 'Clue text')
+        self.assertEqual(updated_clue.parsing, 'not easy')
+        self.assertEqual(updated_clue.points, 2)
+        puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertEqual(puzzle.total_points, 2)
 
 # ====================================================================================================
 '''
