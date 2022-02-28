@@ -48,15 +48,15 @@ class DashboardTests(StaticLiveServerTestCase, HelperMixin):
         self.assert_current_url('/')
         self.assert_xpath_items("//div[contains(@class,'badge badge')]", 1)
         badge_header =  "Puzzle #" + str(puzzle_id) + ": 0 Cryptic Clues [0 points]"
-        self.assert_xpath_text("//div[contains(@class,'badge badge')]/h5", badge_header)
+        self.assert_xpath_text("//div[contains(@class,'badge badge')]/a", badge_header)
 
-    def test_Edit_Puzzle_button_redirects_to_edit_puzzle_page(self):
+    def test_Puzzle_badge_header_link_redirects_to_edit_puzzle_page(self):
         self.get('/')
         # Create a new puzzle
         self.click_btn('btnNewPuzzle')
         self.click_xpath("//a[text()='DONE']")
         # Click on edit puzzle icon in new puzzle badge
-        self.click_xpath("//a[@title='Edit']")
+        self.click_xpath("//div/a[@class='h5']")
         # Edit puzzle page
         puzzle_id = WordPuzzle.objects.all()[0].id
         self.assert_current_url('/edit_puzzle/' + str(puzzle_id) + '/')
@@ -81,7 +81,7 @@ class DashboardTests(StaticLiveServerTestCase, HelperMixin):
         # Make sure the puzzle still exists
         self.assert_xpath_items("//div[contains(@class,'badge badge')]", 1)
         badge_header =  "Puzzle #" + str(puzzle_id) + ": 0 Cryptic Clues [0 points]"
-        self.assert_xpath_text("//div[contains(@class,'badge badge')]/h5", badge_header)
+        self.assert_xpath_text("//div[contains(@class,'badge badge')]/a", badge_header)
 
     def test_Delete_Puzzle_button_deletes_puzzle_after_confirmation(self):
         self.get('/')

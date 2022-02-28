@@ -80,3 +80,5 @@ class HelperMixin:
         selector = Select(self.selenium.find_element(By.XPATH, xpath))
         self.testcase.assertEqual(self, selector.first_selected_option.text, text)
 
+    def get_xpath(self, xpath):
+        return self.selenium.find_elements(By.XPATH, xpath)

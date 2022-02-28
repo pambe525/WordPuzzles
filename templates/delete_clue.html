@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="d-inline-block">
+        <div class="bg-light p-4">
+            <h2 class="mb-3">Delete Clue {{ clue_num }} of Puzzle #{{ puzzle_id }}</h2>
+            {% if err_msg == None %}
+                <div class="mb-3">
+                    This clue will be permanently deleted. This<br/>
+                    action cannot be undone. Note that clue numbers<br/>
+                    will be adjusted to close gap. Please confirm.
+                </div>
+                <a href="{% url 'delete_clue' puzzle_id=puzzle_id clue_num=clue_num %}" class="btn btn-primary pl-3 pr-3">DELETE</a>
+                <a href="{% url 'edit_puzzle' puzzle_id=puzzle_id %}" class="ml-2 btn btn-light pl-3 pr-3">CANCEL</a>
+            {% else %}
+                <div id="errMsg" class="text-danger mb-3">{{ err_msg }}</div>
+                <a href="{% url 'home' %}" class="btn btn-primary">OK</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

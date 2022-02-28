@@ -53,6 +53,22 @@ class WordPuzzle(models.Model):
         self.save(update_fields=['total_points'])
         return clue
 
+    def delete_clue(self, clue_num):
+        clue = Clue.objects.get(puzzle=self, clue_num=clue_num)
+        self.total_points -= clue.points
+        self.size -= 1
+        clue.delete()
+        self.save(update_fields=['size', 'total_points'])
+        self._adjust_clue_nums(clue_num)
+
+    def _adjust_clue_nums(self, start_clue_num):
+        clues = Clue.objects.filter(puzzle=self)
+        new_clue_num = start_clue_num
+        for index in range(start_clue_num-1, len(clues)):
+            clues[index].clue_num = new_clue_num
+            new_clue_num += 1
+            clues[index].save(update_fields=['clue_num'])
+
     def get_clues(self):
         return Clue.objects.filter(puzzle=self).order_by('clue_num')
 

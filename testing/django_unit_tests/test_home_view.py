@@ -43,8 +43,6 @@ class HomeViewTests(TestCase):
         puzzle3 = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get(reverse("home"))
         self.assertEqual(len(response.context['draft_puzzles']), 2)
-        self.assertEqual(response.context['draft_puzzles'][0]['id'], 1)
-        self.assertEqual(response.context['draft_puzzles'][1]['id'], 3)
 
     def test_Draft_puzzle_details_in_response_context(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Daily puzzle")

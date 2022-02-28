@@ -112,7 +112,6 @@ class EditPuzzleViewTests(TestCase):
         self.assertFalse(response.context['saved'])
         self.assertContains(response, "SAVE")
         self.assertContains(response, "DONE")
-        self.assertContains(response, "PREVIEW")
         self.assertContains(response, "ADD CLUE")
         self.assertContains(response, "Clues [0 points]")
 
@@ -152,6 +151,7 @@ class EditPuzzleViewTests(TestCase):
         self.assertEqual(response.context['clues'][0].clue_text, 'Clue for word')
         self.assertEqual(response.context['clues'][0].parsing, 'DEF1')
         self.assertEqual(response.context['clues'][0].points, 2)
+
 
 class EditClueViewTests(TestCase):
     def setUp(self):
@@ -201,7 +201,7 @@ class EditClueViewTests(TestCase):
 
     def test_GET_existing_clue_renders_template_and_clue_edit_form(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
-        clue = puzzle.add_clue({'answer':'TEST', 'clue_text':'Clue text desc', 'parsing':'easy', 'points':1})
+        clue = puzzle.add_clue({'answer': 'TEST', 'clue_text': 'Clue text desc', 'parsing': 'easy', 'points': 1})
         response = self.client.get('/edit_clue/' + str(puzzle.id) + '/' + str(clue.clue_num) + '/')
         self.assertContains(response, "Edit Clue 1 for Puzzle #" + str(puzzle.id))
         self.assertEqual(response.context['form']['answer'].value(), 'TEST')
@@ -214,7 +214,7 @@ class EditClueViewTests(TestCase):
     def test_POST_new_clue_form_creates_new_clue_and_redirects_to_edit_puzzle_view(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
         clue_form_data = {'answer': "MY WORD", 'clue_text': 'clue to my word', 'parsing': '', 'points': 2}
-        response = self.client.post('/new_clue/' + str(puzzle.id) + '/', clue_form_data)
+        response = self.client.post('/edit_clue/' + str(puzzle.id) + '/1/', clue_form_data)
         self.assertEqual(response.url, '/edit_puzzle/' + str(puzzle.id) + '/')
         clues = Clue.objects.all()
         self.assertEqual(len(clues), 1)
@@ -224,10 +224,10 @@ class EditClueViewTests(TestCase):
 
     def test_POST_existing_clue_form_updates_clue_and_redirects_to_edit_puzzle_view(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
-        clue_data = {'answer':'TEST', 'clue_text':'Clue text desc', 'parsing':'easy', 'points':1}
+        clue_data = {'answer': 'TEST', 'clue_text': 'Clue text desc', 'parsing': 'easy', 'points': 1}
         clue = puzzle.add_clue(clue_data)
-        mod_clue_data = {'answer':'MOD-TEST', 'clue_text':'Clue text', 'parsing':'not easy', 'points':2}
-        response = self.client.post('/edit_clue/' + str(puzzle.id) + '/'+ str(clue.clue_num) + '/', mod_clue_data)
+        mod_clue_data = {'answer': 'MOD-TEST', 'clue_text': 'Clue text', 'parsing': 'not easy', 'points': 2}
+        response = self.client.post('/edit_clue/' + str(puzzle.id) + '/' + str(clue.clue_num) + '/', mod_clue_data)
         self.assertEqual(response.url, '/edit_puzzle/' + str(puzzle.id) + '/')
         clues = Clue.objects.all()
         self.assertEqual(len(clues), 1)
@@ -238,6 +238,76 @@ class EditClueViewTests(TestCase):
         self.assertEqual(updated_clue.points, 2)
         puzzle = WordPuzzle.objects.get(id=puzzle.id)
         self.assertEqual(puzzle.total_points, 2)
+
+
+class DeleteClueViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username="tester")
+        self.client.force_login(self.user)
+
+    def test_DELETE_CLUE_CONFIRM_get_redirects_to_login_view_if_user_is_not_authenticated(self):
+        logout(self.client)
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        clue = puzzle.add_clue({'points': 1})
+        response = self.client.get("/delete_clue_confirm/" + str(puzzle.id) + "/" + str(clue.clue_num) + '/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/delete_clue_confirm/1/1/")
+
+    def test_DELETE_CLUE_CONFIRM_get_returns_delete_confirmation_options(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        clue = puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
+        response = self.client.get("/delete_clue_confirm/" + str(puzzle.id) + '/' + str(clue.clue_num) + '/')
+        # self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name, "delete_clue.html")
+        self.assertContains(response, "Delete Clue 1 of Puzzle #1")
+        self.assertContains(response, "This clue will be permanently deleted")
+        self.assertContains(response, "DELETE")
+        self.assertContains(response, "CANCEL")
+
+    def test_DELETE_CLUE_get_shows_error_if_user_is_not_editor(self):
+        other_user = User.objects.create(username="otheruser")
+        puzzle = WordPuzzle.objects.create(editor=other_user)
+        clue = puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
+        response = self.client.get("/delete_clue/" + str(puzzle.id) + "/1/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Delete Clue 1 of Puzzle #1")
+        self.assertContains(response, "You cannot delete this clue")
+        self.assertContains(response, "OK")
+
+    def test_DELETE_CLUE_get_shows_error_if_puzzle_or_clue_does_not_exist(self):
+        response = self.client.get("/delete_clue/1/1/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Delete Clue 1 of Puzzle #1")
+        self.assertContains(response, "This clue does not exist.")
+        self.assertContains(response, "OK")
+
+    def test_DELETE_CLUE_deletes_clue_updates_points_and_redirects_to_edit_puzzle(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        clue = puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
+        response = self.client.get("/delete_clue/" + str(puzzle.id) + "/1/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/edit_puzzle/" + str(puzzle.id) + '/')
+        self.assertFalse(Clue.objects.filter(puzzle=puzzle, clue_num=1).exists())
+        puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertEqual(puzzle.size, 0)
+        self.assertEqual(puzzle.total_points, 0)
+
+    def test_DELETE_CLUE_renumbers_clues_to_eliminate_gaps(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        clue1 = puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue 1', 'parsing': '', 'points': 1})
+        clue2 = puzzle.add_clue({'answer': 'WORD2', 'clue_text': 'Clue 2', 'parsing': '', 'points': 2})
+        clue3 = puzzle.add_clue({'answer': 'WORD3', 'clue_text': 'Clue 3', 'parsing': '', 'points': 3})
+        clue4 = puzzle.add_clue({'answer': 'WORD4', 'clue_text': 'Clue 4', 'parsing': '', 'points': 4})
+        response = self.client.get("/delete_clue/" + str(puzzle.id) + "/2/")
+        clues = Clue.objects.filter(puzzle=puzzle)
+        self.assertEqual(len(clues), 3)
+        puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertEqual(puzzle.size, 3)
+        self.assertEqual(puzzle.total_points, 8)
+        self.assertEqual(clues[0].clue_num, 1)
+        self.assertEqual(clues[1].clue_num, 2)
+        self.assertEqual(clues[2].clue_num, 3)
+
 
 # ====================================================================================================
 '''

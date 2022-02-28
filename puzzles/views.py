@@ -109,8 +109,7 @@ class EditClueView(LoginRequiredMixin, View):
         puzzle = WordPuzzle.objects.get(id=puzzle_id)
         form = ClueForm(request.POST)
         if form.is_valid():
-            if clue_num is None:
-                clue_num = puzzle.size + 1
+            if clue_num == (puzzle.size + 1):   # New clue
                 puzzle.add_clue(form.cleaned_data)
             else:
                 puzzle.update_clue(clue_num, form.cleaned_data)
@@ -118,6 +117,25 @@ class EditClueView(LoginRequiredMixin, View):
         else:
             data_dict = {'id': puzzle_id, 'clue_num':clue_num, 'form': form}
             return render(request, "edit_clue.html", context=data_dict)
+
+class DeleteClueView(LoginRequiredMixin, View):
+    model = Clue
+
+    def get(self, request, puzzle_id=None, clue_num=None):
+        msg = None
+        try:
+            puzzle = WordPuzzle.objects.get(id=puzzle_id)
+            self.model.objects.get(puzzle=puzzle, clue_num=clue_num)
+        except ObjectDoesNotExist:
+            msg = 'This clue does not exist.'
+        else:
+            if request.user != puzzle.editor:
+                msg = 'You cannot delete this clue since you are not the editor.'
+            elif "delete_clue_confirm" not in request.path:
+                puzzle.delete_clue(clue_num)
+                return redirect('edit_puzzle', puzzle.id)
+        return render(request, 'delete_clue.html', context={'puzzle_id': puzzle_id, 'clue_num': clue_num, 'err_msg': msg})
+
 
 # ================================================================================
 class PreviewPuzzleView(LoginRequiredMixin, View):

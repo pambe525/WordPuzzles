@@ -56,7 +56,9 @@
                             </td>
                             <td class="p-0 text-center">{{ clue.points }}</td>
                             <td class="p-0">
-                                <i class="fa fa-trash fa-lg ml-1" title="Delete"></i>
+                                <a href="{% url 'delete_clue_confirm' puzzle_id=id clue_num=clue.clue_num %}">
+                                    <i class="fa fa-trash fa-lg ml-1" title="Delete"></i>
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}
