@@ -54,4 +54,5 @@ urlpatterns = [
     path('edit_clue/<int:puzzle_id>/<int:clue_num>/', EditClueView.as_view(), name="edit_clue"),
     path('delete_clue_confirm/<int:puzzle_id>/<int:clue_num>/', DeleteClueView.as_view(), name='delete_clue_confirm'),
     path('delete_clue/<int:puzzle_id>/<int:clue_num>/', DeleteClueView.as_view(), name='delete_clue'),
+    path('preview_puzzle/<int:puzzle_id>/', PreviewPuzzleView.as_view(), name='preview_puzzle'),
 ]

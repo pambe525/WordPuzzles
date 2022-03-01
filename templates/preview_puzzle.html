@@ -1,10 +1,52 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-inline-block">
-        <div class="row m-0">
-            <h2 class="pb-0 mb-0">Preview Puzzle #{{ id }}</h2>
-            <a href="{% url 'edit_puzzle' puzzle_id=id %}" class="ml-4 btn btn-primary pl-3 pr-3">EDIT</a>
-            <a href="{% url 'home' %}" class="ml-2 btn btn-primary pl-3 pr-3">DONE</a>
+    <div class="d-inline-block" style="width:450px">
+        <div class="m-0 row mb-2">
+            <h2 class="pl-2 pb-0 mb-0">Preview for Puzzle #{{ id }}</h2>
+            {% if err_msg == None %}
+                <a href="{% url 'home' %}" class="ml-auto btn btn-primary pl-2 pr-2">DONE</a>
+            {% endif %}
+        </div>
+        <div class="ml-2 mb-3">
+          <input type="checkbox" value="" id="showAnswers" checked>
+          <label class="h5" for="showAnswers">Show answers and parsing</label>
+        </div>
+        <div class="m-2 bg-light p-4">
+            {% if err_msg == None %}
+                <div class="h4 mb-0"><b>{{ title }}</b></div>
+                <dic class="h5">Posted by: {{ puzzle.editor }}</dic>
+                <hr/>
+                {% if puzzle.desc != '' %}
+                    <div class="notetext">{{ puzzle.desc }}</div>
+                    <hr/>
+                {% endif %}
+                <div class="h5"><b>Clues</b></div>
+
+                <table class="table table-sm mt-3 p-0" style="table-layout: fixed;">
+                {% for clue in clues %}
+                    <tr>
+                        <td class="col-md-1 pt-1 pb-1 text-right">{{ clue.clue_num }}.</td>
+                        <td class="col-md-9 pl-2 pt-1 pb-1">
+                            <div class="text-wrap mb-1">{{ clue.clue_text }}</div>
+                            <div class="h6 answer text-wrap">[<b>{{ clue.answer }}</b>] {{ clue.parsing }}</div>
+                        </td>
+                        <td class="col-md-2 pt-1 pb-1 text-right">[{{ clue.points }} pts]</td>
+                    </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                <div id="errMsg" class="text-danger mb-3">{{ err_msg }}</div>
+                <a href="{% url 'home' %}" class="btn btn-primary">OK</a>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+    $(document).ready(function(){
+        $('#showAnswers').change(function() {
+            if ( this.checked ) $('.answer').show();
+            else $('.answer').hide();
+        })
+    })
+    </script>
 {% endblock %}

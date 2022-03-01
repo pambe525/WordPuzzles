@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2 class="pl-4">Dashboard</h2>
+    <h2 class="pl-2">Dashboard</h2>
     <div class="d-inline-block">
 
         <!-- RECENTLY PUBLISHED PUZZLES -->
@@ -38,7 +38,7 @@
                         <div class="row m-0">
                             <div class="text-left h6 text-muted pt-0">Last edited: {{ puzzle.modified_at }}</div>
                             <div class="d-inline-block ml-auto pt-1">
-                                <a href="{% url 'edit_puzzle' puzzle_id=puzzle.id %}" title="Preview">
+                                <a href="{% url 'preview_puzzle' puzzle_id=puzzle.id %}" title="Preview">
                                     <i class="fa fa-eye fa-2x ml-2"></i>
                                 </a>
                                 {% if puzzle.size != 0 %}

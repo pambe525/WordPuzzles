@@ -137,19 +137,27 @@ class DeleteClueView(LoginRequiredMixin, View):
         return render(request, 'delete_clue.html', context={'puzzle_id': puzzle_id, 'clue_num': clue_num, 'err_msg': msg})
 
 
-# ================================================================================
 class PreviewPuzzleView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request, puzzle_id=None):
-        puzzle = WordPuzzle.objects.get(id=puzzle_id)
-        data_dict = {'id': puzzle_id, 'err_msg': None}
-        if request.user != puzzle.editor:
-            msg = 'You cannot edit this puzzle since you are not the creator.'
-            data_dict['err_msg'] = msg
+        msg = None
+        data_dict = {'id': puzzle_id}
+        try:
+            puzzle = WordPuzzle.objects.get(id=puzzle_id)
+        except ObjectDoesNotExist:
+            msg = "This puzzle does not exist."
+        else:
+            if request.user != puzzle.editor:
+                msg = 'You cannot preview this puzzle since you are not the creator.'
+            else:
+                data_dict['title'] = str(puzzle)
+                data_dict['puzzle'] = puzzle
+                data_dict['clues'] = puzzle.get_clues()
+        data_dict['err_msg'] = msg
         return render(request, 'preview_puzzle.html', context=data_dict)
 
-
+# ================================================================================
 '''
 class OldEditPuzzleView(LoginRequiredMixin, View):
     model = Puzzle
