@@ -111,8 +111,7 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.assert_selected_text("//select[@id='id_points']", '1')
 
     def test_EDIT_CLUE_saves_changes_to_exisitng_clue_and_redirects_to_puzzle_page(self):
-        puzzle_data = {'editor': self.user}
-        puzzle = WordPuzzle.objects.create(**puzzle_data)
+        puzzle = WordPuzzle.objects.create(editor=self.user)
         clue = puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': 'Parsing for clue', 'points': 1})
         self.get('/edit_puzzle/' + str(puzzle.id) + '/')
         self.click_xpath("//a[@href='/edit_clue/"+str(puzzle.id)+"/1/']")
@@ -152,7 +151,7 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.click_xpath("//a[@href='/delete_clue_confirm/"+str(puzzle.id)+"/1/']")
         self.assert_current_url("/delete_clue_confirm/"+str(puzzle.id)+"/1/")
         self.assert_xpath_text("//h2", "Delete Clue 1 of Puzzle #" + str(puzzle.id))
-        self.assert_xpath_contains("//div/div/div", "This clue will be permanently deleted.")
+        self.assert_xpath_contains("//div/div/div/div", "This clue will be permanently deleted.")
         # Cancel redirects back to Dashboard
         self.click_xpath("//a[text()='CANCEL']")
         self.assert_current_url("/edit_puzzle/"+str(puzzle.id)+"/")

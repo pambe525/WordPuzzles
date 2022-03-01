@@ -3,9 +3,9 @@
     <div class="d-inline-block">
         <div class="m-2 bg-light p-4">
             <div class="ml-0 row mb-2 mr-2">
-                <h2 class="pb-0 mb-0">Edit Puzzle #{{ id }}</h2>
+                <h2 class="pb-0 mb-0 mt-0">Edit Puzzle #{{ id }}</h2>
                 {% if err_msg == None %}
-                    <a href="{% url 'home' %}" class="ml-auto btn btn-light pl-2 pr-2">DONE</a>
+                    <a href="{% url 'home' %}" class="ml-auto btn btn-dark pl-2 pr-2">DONE</a>
                 {% endif %}
             </div>
             <hr/>
@@ -31,13 +31,13 @@
                     To edit a clue click on the description. Hover over the<br/>
                     clue or parsing to reveal a tooltip with full text.
                 </div>
-                <table class="table table-sm mt-3 p-0" style="table-layout: fixed; max-width:340px">
+                <table class="table table-sm mt-3 p-0" style="table-layout: fixed">
                     <thead>
                     <tr class="bg-secondary text-light">
-                        <th class="col-md-1 p-0 pt-1 pb-1 text-center">#</th>
-                        <th class="col-md-8 p-0 pt-1 pb-1">Clue description</th>
-                        <th class="col-md-1 p-0 pt-1 pb-1">Pts</th>
-                        <th class="col-md-2"></th>
+                        <th class="col-1 p-0 pt-1 pb-1 text-center">#</th>
+                        <th class="col-9 p-0 pt-1 pb-1">Clue</th>
+                        <th class="col-1 p-0 pt-1 pb-1 text-right">Pts</th>
+                        <th class="col-1"></th>
                     </tr>
                     </thead>
                     {% for clue in clues %}
@@ -46,8 +46,7 @@
                             <td class="p-0">
                                 <div class="text-truncate">
                                     <a class="text-primary" href="{% url 'edit_clue' id clue.clue_num %}"
-                                       title="{{ clue.clue_text }}">
-                                        {{ clue.clue_text }}
+                                       title="{{ clue.clue_text }}">{{ clue.clue_text }}
                                     </a>
                                 </div>
                                 <div class="h6 text-secondary text-truncate">
@@ -55,7 +54,7 @@
                                     <span title="{{ clue.parsing }}">{{ clue.parsing }}</span>
                                 </div>
                             </td>
-                            <td class="p-0 text-center">{{ clue.points }}</td>
+                            <td class="p-0 text-right">{{ clue.points }}</td>
                             <td class="p-0">
                                 <a href="{% url 'delete_clue_confirm' puzzle_id=id clue_num=clue.clue_num %}">
                                     <i class="fa fa-trash fa-lg ml-1" title="Delete"></i>

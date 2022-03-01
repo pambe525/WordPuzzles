@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-inline-block" style="width:450px">
+    <div class="d-inline-block">
         <div class="m-0 row mb-2">
             <h2 class="pl-2 pb-0 mb-0">Preview for Puzzle #{{ id }}</h2>
             {% if err_msg == None %}
-                <a href="{% url 'home' %}" class="ml-auto btn btn-primary pl-2 pr-2">DONE</a>
+                <a href="{% url 'home' %}" class="ml-auto btn btn-dark">DONE</a>
             {% endif %}
         </div>
         <div class="ml-2 mb-3">
@@ -13,24 +13,24 @@
         </div>
         <div class="m-2 bg-light p-4">
             {% if err_msg == None %}
-                <div class="h4 mb-0"><b>{{ title }}</b></div>
-                <dic class="h5">Posted by: {{ puzzle.editor }}</dic>
-                <hr/>
-                {% if puzzle.desc != '' %}
-                    <div class="notetext">{{ puzzle.desc }}</div>
-                    <hr/>
+                <div class="h5 mb-0"><b>{{ title }}</b></div>
+                <dic class="h6">Posted by: {{ puzzle.editor }}</dic>
+                {% if not puzzle.desc == None %}
+                    <div class="h6 pt-2 text-dark">Description: {{ puzzle.desc }}</div>
                 {% endif %}
-                <div class="h5"><b>Clues</b></div>
+                <div class="h5 m-0 row">
+                    <div><b>Clues</b></div><div class="ml-auto"><b>Pts</b></div>
+                </div>
 
-                <table class="table table-sm mt-3 p-0" style="table-layout: fixed;">
+                <table class="table table-sm mt-1 p-0" style="table-layout: fixed;">
                 {% for clue in clues %}
                     <tr>
-                        <td class="col-md-1 pt-1 pb-1 text-right">{{ clue.clue_num }}.</td>
-                        <td class="col-md-9 pl-2 pt-1 pb-1">
-                            <div class="text-wrap mb-1">{{ clue.clue_text }}</div>
-                            <div class="h6 answer text-wrap">[<b>{{ clue.answer }}</b>] {{ clue.parsing }}</div>
+                        <td class="col-1 p-1">{{ clue.clue_num }}.</td>
+                        <td class="col-10">
+                            <div class="text-wrap p-0" style="line-height:normal">{{ clue.clue_text }}</div>
+                            <div class="h6 answer text-wrap pt-1">[<b>{{ clue.answer }}</b>] {{ clue.parsing }}</div>
                         </td>
-                        <td class="col-md-2 pt-1 pb-1 text-right">[{{ clue.points }} pts]</td>
+                        <td class="col-1 p-1">[{{ clue.points }}]</td>
                     </tr>
                 {% endfor %}
                 </table>

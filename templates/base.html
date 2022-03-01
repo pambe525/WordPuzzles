@@ -24,7 +24,7 @@
             <div class="header-badge ml-2">
                 <i class="fa fa-home fa-lg" style="color:white"></i>&nbsp;Home of the Puzzlers
             </div>
-            <div class="ml-auto pt-2 pr-2" >
+            <div class="ml-4 pt-2 pr-2" >
                 <i class="fa fa-user fa-lg" style="color:silver"></i>
                 <span class="text-light">{{ user.username }} </span>&nbsp;
             </div>
@@ -75,7 +75,7 @@
         </a>
     {% else %}
         <!-- MAIN CONTENT -->
-        <div class="m-3 text-dark">
+        <div class="m-2 text-dark" style='width:400px'>
             {% block content %}{% endblock %}
         </div>
     {% endif %}

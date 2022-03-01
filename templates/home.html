@@ -7,16 +7,16 @@
         <div class="m-2 bg-light p-4 d-block">
             <div class="row m-0">
                 <h3 class="mb-0">Recent Puzzles</h3>
-                <a id="btnAllPuzzles" href="" class="ml-auto btn btn-primary">ALL PUZZLES</a>
+                <a id="btnAllPuzzles" href="" class="ml-auto btn-sm btn-dark mt-2">ALL PUZZLES</a>
             </div>
-            <div class="notetext">No puzzles have been posted in last 7 days</div>
+            <div class="notetext pt-2">No puzzles have been posted in last 7 days</div>
         </div>
 
         <!-- MY UNPUBLISHED PUZZLES -->
         <div class="m-2 bg-light p-4 d-block" style="width:380px">
             <div class="row m-0">
                 <h3 class="mb-0">My Draft Puzzles</h3>
-                <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="ml-auto btn btn-primary">NEW PUZZLE</a>
+                <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="ml-auto btn-sm btn-dark mt-2">NEW PUZZLE</a>
             </div>
             {% if draft_puzzles|length == 0 %}
                 <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>
