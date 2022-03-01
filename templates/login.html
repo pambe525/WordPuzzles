@@ -10,9 +10,13 @@
             </div>
         </form>
         <hr>
-        New User?
-        <a href="{% url 'signup' %}" id="lnkSignUp" class="btn-sm btn-dark mr-2">Sign Up</a>|
-        Forgot Password?
-        <a href="{% url 'password_reset' %}" id="lnkReset" class="btn-sm btn-dark ml-2">Reset Password</a>
+        <div class="text-right mb-2">
+            New User?
+            <a href="{% url 'signup' %}" id="lnkSignUp" class="btn-sm btn-dark">SIGN UP HERE</a>
+        </div>
+        <div class="text-right">
+            Forgot Password?
+            <a href="{% url 'password_reset' %}" id="lnkReset" class="btn-sm btn-dark">RESET PASSWORD</a>
+        </div>
     </div>
 {% endblock %}
