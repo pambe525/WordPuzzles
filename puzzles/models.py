@@ -95,3 +95,26 @@ class Clue(models.Model):
         text += ("<clue>" if self.clue_text is None else self.clue_text) + " ["
         text += ("<answer>" if self.answer is None else self.answer) + "]"
         return text
+
+    def get_decorated_clue_text(self):
+        paren_text = ' ('
+        words = self.answer.split()
+        for idx, word in enumerate(words):
+            paren_text += self._get_word_length_as_string(word)
+            paren_text += ',' if idx < len(words)-1 else ')'
+        return self.clue_text + paren_text
+
+    def _get_word_length_as_string(self, word):
+        len_text = str(len(word))
+        hyphenated_parts = word.split('-')
+        if len(hyphenated_parts) > 1:
+            len_text = ''
+            for idx, part in enumerate(hyphenated_parts):
+                len_text += str(len(part))
+                if idx < (len(hyphenated_parts)-1):
+                    len_text += '-'
+        return len_text
+
+
+
+        return self.clue_text + ' (' + str(len(self.answer)) + ')'

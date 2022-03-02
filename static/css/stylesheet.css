@@ -35,7 +35,7 @@ button, .btn {
     font-size: 18px;
     color: white;
     text-shadow: 1px 1px lightgray;
-    border: 3px inset white;
+    border: 2px inset white;
     border-radius: 6px;
 }
 

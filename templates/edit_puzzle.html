@@ -46,7 +46,7 @@
                             <td class="p-0 pl-1">
                                 <div class="text-truncate">
                                     <a class="text-primary" href="{% url 'edit_clue' id clue.clue_num %}"
-                                       title="{{ clue.clue_text }}">{{ clue.clue_text }}
+                                       title="{{ clue.get_decorated_clue_text }}">{{ clue.get_decorated_clue_text }}
                                     </a>
                                 </div>
                                 <div class="h6 text-secondary text-truncate">
