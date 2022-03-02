@@ -140,7 +140,7 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         for index in range(0, len(clues)):
             self.assertEqual(clue_nums[index].text, str(clues[index].clue_num) + '.')
             href = '/edit_clue/' + str(puzzle.id) + '/' + str(clues[index].clue_num) + '/'
-            self.assert_xpath_text("//div[@class='text-truncate']/a[@href='"+href+"']", clues[index].clue_text)
+            self.assert_xpath_text("//div[@class='text-truncate']/a[@href='"+href+"']", clues[index].clue_text + ' (5)')
             self.assertEqual(answers[index].text, '['+clues[index].answer+']')
             self.assert_xpath_text("//div/span[@title='"+clues[index].parsing+"']", clues[index].parsing)
 
