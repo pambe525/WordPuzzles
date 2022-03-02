@@ -33,8 +33,8 @@ class HomeViewTests(TestCase):
         puzzle1 = WordPuzzle.objects.create(editor=self.user)
         puzzle2 = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get(reverse("home"))
-        self.assertContains(response, "Puzzle #1: 0 Cryptic Clues [0 points]")
-        self.assertContains(response, "Puzzle #2: 0 Cryptic Clues [0 points]")
+        self.assertContains(response, "Puzzle #1: 0 Cryptic Clues [0 pts]")
+        self.assertContains(response, "Puzzle #2: 0 Cryptic Clues [0 pts]")
 
     def test_Draft_puzzles_filtered_for_current_user(self):
         user2 = User.objects.create_user("testuser2")
@@ -50,7 +50,7 @@ class HomeViewTests(TestCase):
         puzzle_details = response.context['draft_puzzles'][0]
         self.assertEqual(puzzle_details['id'], 1)
         self.assertEqual(puzzle_details['desc'], 'Daily puzzle')
-        self.assertEqual(puzzle_details['name'], "Puzzle #1: 0 Cryptic Clues [0 points]")
+        self.assertEqual(puzzle_details['name'], "Puzzle #1: 0 Cryptic Clues [0 pts]")
         self.assertEqual(puzzle_details['size'], 0)
         self.assertIsNotNone(puzzle_details['modified_at'])
 
