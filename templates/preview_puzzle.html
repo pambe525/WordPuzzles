@@ -11,7 +11,7 @@
           <input type="checkbox" value="" id="showAnswers" checked>
           <label class="h5" for="showAnswers">Show answers and parsing</label>
         </div>
-        <div class="m-2 bg-light p-4">
+        <div class="m-1 bg-light p-3">
             {% if err_msg == None %}
                 <div class="h5 mb-0"><b>{{ title }}</b></div>
                 <div class="h6 mb-2">Posted by: {{ puzzle.editor }}</div>
@@ -22,7 +22,7 @@
                     <div><b>Clues</b></div><div class="ml-auto"><b>Pts</b></div>
                 </div>
 
-                <table class="table table-responsive-sm mt-1 p-0">
+                <table class="table table-responsive mt-1 p-0">
                 {% for clue in clues %}
                     <tr>
                         <td>{{ clue.clue_num }}.</td>

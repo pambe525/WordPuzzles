@@ -13,7 +13,7 @@ class WordPuzzleForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(WordPuzzleForm, self).__init__(*args, **kwargs)
         self.fields['type'].widget.attrs['style'] = 'width: 160px; height: 28px'
-        self.fields['desc'].widget.attrs['style'] = "width: 300px; height:60px"
+        self.fields['desc'].widget.attrs['style'] = "width: 100%; height:60px"
         self.fields['desc'].help_text = "Optional description, instructions or guidelines"
 
 
