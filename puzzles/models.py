@@ -2,6 +2,14 @@ from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.db import models
 
+def get_name(self):
+    if self.first_name:
+        return (self.first_name + ' ' + self.last_name).strip()
+    else:
+        return self.username
+
+User.add_to_class("__str__", get_name)
+
 
 class Puzzle(models.Model):
     is_xword = models.BooleanField(default=True)

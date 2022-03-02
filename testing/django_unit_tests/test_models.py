@@ -4,6 +4,28 @@ from django.test import TestCase
 from datetime import datetime
 from puzzles.models import Puzzle, WordPuzzle, Clue
 
+
+class UserNameTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='joesmith')
+
+    def test_name_without_first_or_last_name(self):
+        self.assertEqual(str(self.user), "joesmith")
+
+    def test_name_with_last_name_only(self):
+        self.user.last_name = "Smith"
+        self.assertEqual(str(self.user), "joesmith")
+
+    def test_name_with_first_name_only(self):
+        self.user.first_name = "Joe"
+        self.assertEqual(str(self.user), "Joe")
+
+    def test_name_with_first_and_last_name(self):
+        self.user.first_name = "Joe"
+        self.user.last_name = "Smith"
+        self.assertEqual(str(self.user), "Joe Smith")
+
+
 class PuzzleModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='12345')
@@ -14,10 +36,10 @@ class PuzzleModelTest(TestCase):
         self.assertEqual("testuser", puzzle.editor.username)
 
     def test_shared_at_field(self):
-        current_time_stamp = datetime.now(tz=timezone.utc).isoformat() # timestamp as ISO string (UTC)
+        current_time_stamp = datetime.now(tz=timezone.utc).isoformat()  # timestamp as ISO string (UTC)
         puzzle = Puzzle.objects.create(shared_at=current_time_stamp)
         puzzle = Puzzle.objects.get(id=puzzle.id)
-        self.assertEqual(current_time_stamp, puzzle.shared_at.isoformat()) # Convert date object to string
+        self.assertEqual(current_time_stamp, puzzle.shared_at.isoformat())  # Convert date object to string
 
     def test_field_defaults(self):
         puzzle = Puzzle.objects.create()
@@ -34,6 +56,7 @@ class PuzzleModelTest(TestCase):
         self.assertEqual("Puzzle #1: Crossword Puzzle (10x10)", str(puzzle))
         puzzle = Puzzle.objects.create(size=20, is_xword=False)
         self.assertEqual("Puzzle #2: Word Puzzle (20 clues)", str(puzzle))
+
 
 class WordPuzzleModelTest(TestCase):
     def setUp(self):
@@ -58,7 +81,7 @@ class WordPuzzleModelTest(TestCase):
     def test_add_clue_creates_new_clue_and_updates_counts(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         cleaned_data = {'answer': 'MY-WORD TWO', 'clue_text': 'some clue text',
-                     'parsing':'def', 'points': 3}
+                        'parsing': 'def', 'points': 3}
         self.assertEqual(puzzle.size, 0)
         self.assertEqual(puzzle.total_points, 0)
         puzzle.add_clue(cleaned_data)
@@ -77,12 +100,13 @@ class WordPuzzleModelTest(TestCase):
 
     def test_get_clues_returns_all_clues_as_a_list(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        clue1_data={'answer':"FIRST", 'clue_text': 'Clue for first', 'parsing': 'DEF1', 'points': 1}
-        clue2_data={'answer':"SECOND", 'clue_text': 'Clue for 2nd', 'parsing': 'DEF2', 'points': 2}
+        clue1_data = {'answer': "FIRST", 'clue_text': 'Clue for first', 'parsing': 'DEF1', 'points': 1}
+        clue2_data = {'answer': "SECOND", 'clue_text': 'Clue for 2nd', 'parsing': 'DEF2', 'points': 2}
         puzzle.add_clue(clue1_data)
         puzzle.add_clue(clue2_data)
         clues_list = puzzle.get_clues()
         self.assertEqual(len(clues_list), 2)
+
 
 class ClueModelTest(TestCase):
 

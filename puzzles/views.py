@@ -109,14 +109,15 @@ class EditClueView(LoginRequiredMixin, View):
         puzzle = WordPuzzle.objects.get(id=puzzle_id)
         form = ClueForm(request.POST)
         if form.is_valid():
-            if clue_num == (puzzle.size + 1):   # New clue
+            if clue_num == (puzzle.size + 1):  # New clue
                 puzzle.add_clue(form.cleaned_data)
             else:
                 puzzle.update_clue(clue_num, form.cleaned_data)
             return redirect("edit_puzzle", puzzle.id)
         else:
-            data_dict = {'id': puzzle_id, 'clue_num':clue_num, 'form': form}
+            data_dict = {'id': puzzle_id, 'clue_num': clue_num, 'form': form}
             return render(request, "edit_clue.html", context=data_dict)
+
 
 class DeleteClueView(LoginRequiredMixin, View):
     model = Clue
@@ -134,7 +135,8 @@ class DeleteClueView(LoginRequiredMixin, View):
             elif "delete_clue_confirm" not in request.path:
                 puzzle.delete_clue(clue_num)
                 return redirect('edit_puzzle', puzzle.id)
-        return render(request, 'delete_clue.html', context={'puzzle_id': puzzle_id, 'clue_num': clue_num, 'err_msg': msg})
+        return render(request, 'delete_clue.html',
+                      context={'puzzle_id': puzzle_id, 'clue_num': clue_num, 'err_msg': msg})
 
 
 class PreviewPuzzleView(LoginRequiredMixin, View):
@@ -156,6 +158,7 @@ class PreviewPuzzleView(LoginRequiredMixin, View):
                 data_dict['clues'] = puzzle.get_clues()
         data_dict['err_msg'] = msg
         return render(request, 'preview_puzzle.html', context=data_dict)
+
 
 # ================================================================================
 '''
@@ -216,5 +219,4 @@ class OldEditPuzzleView(LoginRequiredMixin, View):
         if data_dict is not None:
             context['data'] = json.dumps(data_dict)
         return render(request, "edit_puzzle.html", context=context)
-        
 '''
