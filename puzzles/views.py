@@ -1,5 +1,4 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import UpdateView, DeleteView
@@ -129,7 +128,7 @@ class DeleteClueView(PuzzleEditorMixin, View):
 class PreviewPuzzleView(PuzzleEditorMixin, View):
     model = WordPuzzle
 
-    def get(self, request, pk=None, clue_num=None):
-        puzzle = self.model.objects.get(id=pk)
+    def get(self, request, **kwargs):
+        puzzle = self.model.objects.get(id=kwargs['pk'])
         ctx = {'object': puzzle}
         return render(request, 'preview_puzzle.html', context=ctx)

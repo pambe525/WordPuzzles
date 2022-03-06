@@ -343,7 +343,7 @@ class DeleteClueViewTests(TestCase):
         self.assertContains(response, "This puzzle does not exist.")
         self.assertContains(response, "OK")
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        response = self.client.get("/delete_clue_confirm/"+str(puzzle.id)+"/1/")
+        response = self.client.get("/delete_clue_confirm/" + str(puzzle.id) + "/1/")
         self.assertContains(response, "This clue does not exist.")
 
     def test_POST_deletes_clue_updates_points_and_redirects_to_edit_puzzle(self):
