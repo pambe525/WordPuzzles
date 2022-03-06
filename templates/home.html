@@ -38,15 +38,12 @@
                         <div class="row m-0">
                             <div class="text-left h6 text-muted pt-0">Last edited: {{ puzzle.modified_at }}</div>
                             <div class="d-inline-block ml-auto pt-1">
-                                <a href="{% url 'preview_puzzle' puzzle_id=puzzle.id %}" title="Preview">
-                                    <i class="fa fa-eye fa-2x ml-2"></i>
-                                </a>
                                 {% if puzzle.size != 0 %}
-                                <a href="" title="Publish">
+                                <a href="{% url 'preview_puzzle' puzzle.id %}" title="Preview & Publish">
                                     <i class="fa fa-share fa-2x ml-2"></i>
                                 </a>
                                 {% endif %}
-                                <a href="{% url 'delete_puzzle_confirm' puzzle_id=puzzle.id %}" title="Delete">
+                                <a href="{% url 'delete_puzzle_confirm' puzzle.id %}" title="Delete">
                                     <i class="fa fa-trash fa-2x ml-2"></i>
                                 </a>
                             </div>

@@ -1,37 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-inline-block">
+    <div class="d-block">
         <div class="m-1 bg-light p-3">
-            <div class="ml-0 row mb-2 mr-2">
-                <h2 class="pb-0 mb-0 mt-0">Edit Puzzle #{{ id }}</h2>
-                {% if err_msg == None %}
-                    <a href="{% url 'home' %}" class="ml-auto btn btn-dark pl-2 pr-2">DONE</a>
-                {% endif %}
+            <div class="ml-0 row mb-2 mr-1">
+                <h2 class="pb-0 mb-0 mt-0">Edit Puzzle #{{ object.id }}</h2>
+                <a href="{% url 'home' %}" class="ml-auto btn btn-dark pl-2 pr-2">DONE</a>
             </div>
             <hr/>
-            {% if err_msg == None %}
-                <form action="{% url 'edit_puzzle' puzzle_id=id %}" method="post">
-                    {% csrf_token %}
-                    <table>{{ form.as_table }}</table>
-                    <div class="row m-0 mt-2">
-                        <button type="submit" class="btn btn-primary pl-3 pr-3">SAVE</button>
-                        {% if saved == True %}
-                            <div id="flash-msg" class="alert p-1 h5 m-0" role="alert">
-                                <i class="fa fa-check-circle text-success"></i>
-                            </div>
-                        {% endif %}
-                    </div>
-                </form>
-                <hr/>
-                <div class="ml-0 row mt-3 mr-1">
-                    <div class="h4 mb-0">Clues [{{ total_points }} points]</div>
-                    <a href="{% url 'new_clue' puzzle_id=id %}" class="ml-auto btn-sm btn-dark">ADD CLUE</a>
+            <form action="{% url 'edit_puzzle' object.id %}" method="post">
+                {% csrf_token %}
+                <table>{{ form.as_table }}</table>
+                <div class="row m-0 mt-2">
+                    <button type="submit" class="btn btn-primary pl-3 pr-3">SAVE</button>
+                    {% if saved == True %}
+                        <div id="flash-msg" class="alert p-1 h5 m-0" role="alert">
+                            <i class="fa fa-check-circle text-success"></i>
+                        </div>
+                    {% endif %}
                 </div>
+            </form>
+            <hr/>
+            <div class="ml-0 row mt-3 mr-1">
+                <div class="h4 mb-0">Clues [{{ object.total_points }} points]</div>
+                <a href="{% url 'new_clue' object.id %}" class="ml-auto btn-sm btn-dark">ADD CLUE</a>
+            </div>
+            {% if clues|length == 0 %}
+                <div class="mt-1 notetext">No clues exist. Use ADD CLUE to create clues.</div>
+            {% else %}
                 <div class="notetext pt-1">
                     To edit a clue click on the description. Hover over the<br/>
                     clue or parsing to reveal a tooltip with full text.
                 </div>
-                <table class="table table-responsive mt-3 p-0">
+                <table class="table table-sm mt-3 p-0">
                     <thead>
                     <tr class="bg-secondary text-light">
                         <th class="text-center">#</th>
@@ -44,28 +44,25 @@
                         <tr>
                             <td class="p-0 pl-1 text-center">{{ clue.clue_num }}.</td>
                             <td class="p-0 pl-1">
-                                <div class="text-truncate">
-                                    <a class="text-primary" href="{% url 'edit_clue' id clue.clue_num %}"
+                                <div class="text-wrap" style="line-height:normal; padding-top:2px">
+                                    <a class="text-primary" href="{% url 'edit_clue' object.id clue.clue_num %}"
                                        title="{{ clue.get_decorated_clue_text }}">{{ clue.get_decorated_clue_text }}
                                     </a>
                                 </div>
-                                <div class="h6 text-secondary text-truncate">
+                                <div class="h6 mt-1 text-secondary text-wrap">
                                     <b>[{{ clue.answer }}]</b>
                                     <span title="{{ clue.parsing }}">{{ clue.parsing }}</span>
                                 </div>
                             </td>
                             <td class="p-0 text-right">{{ clue.points }}</td>
                             <td class="p-0 pl-2">
-                                <a href="{% url 'delete_clue_confirm' puzzle_id=id clue_num=clue.clue_num %}">
+                                <a href="{% url 'delete_clue_confirm' id clue.clue_num %}">
                                     <i class="fa fa-trash fa-lg ml-1" title="Delete"></i>
                                 </a>
                             </td>
                         </tr>
                     {% endfor %}
                 </table>
-            {% else %}
-                <div id="errMsg" class="text-danger mb-3">{{ err_msg }}</div>
-                <a href="{% url 'home' %}" class="btn btn-primary">OK</a>
             {% endif %}
         </div>
     </div>

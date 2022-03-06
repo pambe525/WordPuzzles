@@ -46,13 +46,11 @@ urlpatterns = [
     # PUZZLE RELATED URL
     # path('new_xword_puzzle', OldEditPuzzleView.as_view(), name="new_xword_puzzle"),
     path('new_puzzle', NewPuzzleView.as_view(), name="new_puzzle"),
-    path('edit_puzzle/<int:puzzle_id>/', EditPuzzleView.as_view(), name="edit_puzzle"),
-    path('preview_puzzle/<int:puzzle_id>/', PreviewPuzzleView.as_view(), name="preview_puzzle"),
-    path('delete_puzzle_confirm/<int:puzzle_id>/', DeletePuzzleView.as_view(), name="delete_puzzle_confirm"),
-    path('delete_puzzle/<int:puzzle_id>/', DeletePuzzleView.as_view(), name="delete_puzzle"),
-    path('new_clue/<int:puzzle_id>/', EditClueView.as_view(), name="new_clue"),
-    path('edit_clue/<int:puzzle_id>/<int:clue_num>/', EditClueView.as_view(), name="edit_clue"),
-    path('delete_clue_confirm/<int:puzzle_id>/<int:clue_num>/', DeleteClueView.as_view(), name='delete_clue_confirm'),
-    path('delete_clue/<int:puzzle_id>/<int:clue_num>/', DeleteClueView.as_view(), name='delete_clue'),
-    path('preview_puzzle/<int:puzzle_id>/', PreviewPuzzleView.as_view(), name='preview_puzzle'),
+    path('edit_puzzle/<int:pk>/', EditPuzzleView.as_view(), name="edit_puzzle"),
+    path('preview_puzzle/<int:pk>/', PreviewPuzzleView.as_view(), name="preview_puzzle"),
+    path('delete_puzzle_confirm/<int:pk>/', DeletePuzzleView.as_view(), name="delete_puzzle_confirm"),
+    path('new_clue/<int:pk>/', EditClueView.as_view(), name="new_clue"),
+    path('edit_clue/<int:pk>/<int:clue_num>/', EditClueView.as_view(), name="edit_clue"),
+    path('delete_clue_confirm/<int:pk>/<int:clue_num>/', DeleteClueView.as_view(), name='delete_clue_confirm'),
+
 ]

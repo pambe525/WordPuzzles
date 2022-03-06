@@ -140,7 +140,7 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         for index in range(0, len(clues)):
             self.assertEqual(clue_nums[index].text, str(clues[index].clue_num) + '.')
             href = '/edit_clue/' + str(puzzle.id) + '/' + str(clues[index].clue_num) + '/'
-            self.assert_xpath_text("//div[@class='text-truncate']/a[@href='"+href+"']", clues[index].clue_text + ' (5)')
+            self.assert_xpath_text("//div[@class='text-wrap']/a[@href='"+href+"']", clues[index].clue_text + ' (5)')
             self.assertEqual(answers[index].text, '['+clues[index].answer+']')
             self.assert_xpath_text("//div/span[@title='"+clues[index].parsing+"']", clues[index].parsing)
 
@@ -150,8 +150,8 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.get('/edit_puzzle/' + str(puzzle.id) + '/')
         self.click_xpath("//a[@href='/delete_clue_confirm/"+str(puzzle.id)+"/1/']")
         self.assert_current_url("/delete_clue_confirm/"+str(puzzle.id)+"/1/")
-        self.assert_xpath_text("//h2", "Delete Clue 1 of Puzzle #" + str(puzzle.id))
-        self.assert_xpath_contains("//div/div/div/div", "This clue will be permanently deleted.")
+        self.assert_xpath_text("//h2", "Delete Clue 1 for Puzzle #" + str(puzzle.id))
+        self.assert_xpath_contains("//div/div/form/div", "This clue will be permanently deleted.")
         # Cancel redirects back to Dashboard
         self.click_xpath("//a[text()='CANCEL']")
         self.assert_current_url("/edit_puzzle/"+str(puzzle.id)+"/")
@@ -166,7 +166,7 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         clue4 = puzzle.add_clue({'answer': 'WORD4', 'clue_text': 'Clue text 4', 'parsing': 'p4', 'points': 4})
         self.get('/edit_puzzle/' + str(puzzle.id) + '/')
         self.click_xpath("//a[@href='/delete_clue_confirm/"+str(puzzle.id)+"/2/']") # Delete clue number 2
-        self.click_xpath("//a[text()='DELETE']")
+        self.click_xpath("//button[text()='DELETE']")
         self.assert_current_url("/edit_puzzle/"+str(puzzle.id)+"/")
         # Veriy remaining clues
         self.assertEqual(len(Clue.objects.filter(puzzle=puzzle, points=2)), 0)

@@ -89,6 +89,6 @@ class DashboardTests(StaticLiveServerTestCase, HelperMixin):
         self.click_xpath("//a[text()='DONE']")  # DONE btn on edit_puzzle page
         self.click_xpath("//a[@title='Delete']") # DELETE icon on dashboard page
         puzzle_id = WordPuzzle.objects.all()[0].id
-        self.click_xpath("//a[text()='DELETE']")
+        self.click_xpath("//button[text()='DELETE']")
         # Make sure the puzzle does not exist
         self.assert_xpath_items("//div[contains(@class,'badge badge')]", 0)
