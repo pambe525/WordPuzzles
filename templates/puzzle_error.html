@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-block">
-        {% if clue_num == None %}
-            <h2 class="pb-0 mb-0 mt-0">Puzzle #{{ id }}</h2>
-        {% else %}
-            <h2 class="pb-0 mb-0 mt-0">Clue {{ clue_num }} for Puzzle #{{ id }}</h2>
-        {% endif %}
-        <div id="errMsg" class="text-danger mb-3">{{ err_msg }}</div>
-        <a href="{% url 'home' %}" class="btn btn-primary">OK</a>
+    <div class="d-inline-block">
+        <div class="bg-light p-4">
+            {% if clue_num == None %}
+                <h2 class="pb-0 mb-0 mt-0">Puzzle #{{ id }}</h2>
+            {% else %}
+                <h2 class="pb-0 mb-0 mt-0">Clue {{ clue_num }} for Puzzle #{{ id }}</h2>
+            {% endif %}
+            <div id="errMsg" class="text-danger mb-3 mt-2">{{ err_msg }}</div>
+            <a href="{% url 'home' %}" class="btn btn-primary">OK</a>
+        </div>
     </div>
 {% endblock %}
