@@ -18,11 +18,13 @@ class HelperMixin:
         if os_name == 'nt':
             if browser == 'Chrome':
                 webdriver_path = 'C:\\Users\Prashant\Documents\PyCharmProjects\chromedriver.exe'
-                return webdriver.Chrome(executable_path=webdriver_path)
+                driver = webdriver.Chrome(executable_path=webdriver_path)
             else:
                 webdriver_path = 'C:\\Users\Prashant\Documents\PyCharmProjects\geckodriver.exe'
-                return webdriver.Firefox(executable_path=webdriver_path)
-        else: return webdriver.Chrome()
+                driver = webdriver.Firefox(executable_path=webdriver_path)
+        else: driver = webdriver.Chrome()
+        driver.set_window_size(600, 700)
+        return driver
 
     def get(self, url):
         self.selenium.get(self.server_url + url)
