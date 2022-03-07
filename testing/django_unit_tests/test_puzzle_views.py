@@ -449,7 +449,7 @@ class PublishClassViewTest(TestCase):
 
     def test_GET_sets_shared_at_field_to_now_and_redirects_to_homepage(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        puzzle.add_clue({'answer':'WORD', 'clue_text':'some clue text','points':1})
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
         self.assertIsNone(puzzle.shared_at)
         response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 302)
@@ -459,7 +459,7 @@ class PublishClassViewTest(TestCase):
 
     def test_GET_does_nothing_if_shared_at_is_already_set(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        puzzle.add_clue({'answer':'WORD', 'clue_text':'some clue text','points':1})
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
         response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
         shared_at = WordPuzzle.objects.get(id=puzzle.id).shared_at
         response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # do it again
@@ -478,7 +478,7 @@ class PublishClassViewTest(TestCase):
 
     def test_EDIT_PUZZLE_shows_error_if_puzzle_is_published(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        puzzle.add_clue({'answer':'WORD', 'clue_text':'some clue text','points':1})
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
         self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
         response = self.client.get("/edit_puzzle/" + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
@@ -486,3 +486,42 @@ class PublishClassViewTest(TestCase):
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
         self.assertContains(response, "Published puzzle cannot be edited. Unpublish to edit.")
         self.assertContains(response, "OK")
+
+
+class UnpublishClassViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username="test_user")
+        self.client.force_login(self.user)
+
+    def test_GET_redirects_to_LOGIN_view_if_user_is_not_authenticated(self):
+        logout(self.client)
+        response = self.client.get("/unpublish_puzzle/1/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/unpublish_puzzle/1/")
+
+    def test_GET_shows_error_if_user_is_not_editor(self):
+        other_user = User.objects.create(username="other_user")
+        puzzle = WordPuzzle.objects.create(editor=other_user)
+        response = self.client.get("/unpublish_puzzle/" + str(puzzle.id) + "/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "OK")
+        self.assertContains(response, "This operation is not permitted since you are not the editor.")
+
+    def test_GET_shows_error_if_puzzle_does_not_exist(self):
+        response = self.client.get("/unpublish_puzzle/50/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed("puzzle_error.html")
+        self.assertContains(response, "Puzzle #50")
+        self.assertContains(response, "This puzzle does not exist.")
+        self.assertContains(response, "OK")
+
+    def test_GET_sets_shared_at_field_to_None_and_redirects_to_homepage(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
+        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        response = self.client.get("/unpublish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/")
+        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertIsNone(updated_puzzle.shared_at)

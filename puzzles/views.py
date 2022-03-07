@@ -151,3 +151,13 @@ class PublishPuzzleView(PuzzleEditorMixin, View):
             puzzle.shared_at = datetime.now()
             puzzle.save()
         return redirect('home')
+
+
+class UnpublishPuzzleView(PuzzleEditorMixin, View):
+    model = WordPuzzle
+
+    def get(self, request, **kwargs):
+        puzzle = self.model.objects.get(id=kwargs['pk'])
+        puzzle.shared_at = None
+        puzzle.save()
+        return redirect('home')
