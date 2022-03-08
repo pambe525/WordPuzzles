@@ -232,5 +232,3 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
         self.assertIsNone(updated_puzzle.shared_at)
         self.assert_current_url('/')
-
-        #TODO: Add test to exclude Preview for Published editing permission in django unit tests

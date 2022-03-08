@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -486,6 +484,14 @@ class PublishClassViewTest(TestCase):
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
         self.assertContains(response, "Published puzzle cannot be edited. Unpublish to edit.")
         self.assertContains(response, "OK")
+
+    def test_PREVIE_PUZZLE_does_not_show_error_if_puzzle_is_published(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
+        self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
+        self.assertTemplateUsed("/preview_puzzle.html")
+        self.assertContains(response, "Preview Puzzle #" + str(puzzle.id))
 
 
 class UnpublishClassViewTest(TestCase):
