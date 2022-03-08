@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -7,7 +9,7 @@ from puzzles.models import WordPuzzle, Clue
 
 class NewPuzzleViewTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create(username="testuser")
+        self.user = User.objects.create(username="test_user")
         self.client.force_login(self.user)
 
     def test_GET_redirects_to_LOGIN_view_if_user_is_not_authenticated(self):
@@ -32,7 +34,7 @@ class NewPuzzleViewTests(TestCase):
 class EditPuzzleViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
-        self.user = User.objects.get_or_create(username="testuser")[0]
+        self.user = User.objects.get_or_create(username="test_user")[0]
         self.client.force_login(self.user)
 
     def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
@@ -42,7 +44,7 @@ class EditPuzzleViewTests(TestCase):
         self.assertEqual(response.url, "/login?next=/edit_puzzle/1/")
 
     def test_GET_shows_error_if_user_is_not_editor(self):
-        other_user = User.objects.create(username="otheruser")
+        other_user = User.objects.create(username="other_user")
         new_puzzle = WordPuzzle.objects.create(editor=other_user)
         response = self.client.get("/edit_puzzle/" + str(new_puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
@@ -131,7 +133,7 @@ class EditPuzzleViewTests(TestCase):
 
 class DeletePuzzleViewTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create(username="testuser")
+        self.user = User.objects.create(username="test_user")
         self.client.force_login(self.user)
 
     def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
@@ -152,7 +154,7 @@ class DeletePuzzleViewTests(TestCase):
         self.assertContains(response, "CANCEL")
 
     def test_GET_shows_error_if_user_is_not_editor(self):
-        other_user = User.objects.create(username="otheruser")
+        other_user = User.objects.create(username="other_user")
         new_puzzle = WordPuzzle.objects.create(editor=other_user)
         response = self.client.get("/delete_puzzle_confirm/" + str(new_puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
@@ -169,7 +171,7 @@ class DeletePuzzleViewTests(TestCase):
         self.assertContains(response, "OK")
 
     def test_POST_deletes_puzzle_and_redirects_to_home(self):
-        new_puzzle = WordPuzzle.objects.create(editor=self.user)
+        WordPuzzle.objects.create(editor=self.user)
         response = self.client.post("/delete_puzzle_confirm/1/")
         self.assertEqual(response.status_code, 302)
         self.assertTemplateUsed("home.html")
@@ -179,7 +181,7 @@ class DeletePuzzleViewTests(TestCase):
 class EditClueViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
-        self.user = User.objects.get_or_create(username="testuser")[0]
+        self.user = User.objects.get_or_create(username="test_user")[0]
         self.client.force_login(self.user)
 
     def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
@@ -192,7 +194,7 @@ class EditClueViewTests(TestCase):
         self.assertEqual(response.url, "/login?next=/edit_clue/1/1/")
 
     def test_GET_new_clue_shows_error_if_user_is_not_editor_of_puzzle(self):
-        other_user = User.objects.create(username="otheruser")
+        other_user = User.objects.create(username="other_user")
         puzzle = WordPuzzle.objects.create(editor=other_user)
         response = self.client.get("/new_clue/" + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
@@ -202,9 +204,9 @@ class EditClueViewTests(TestCase):
         self.assertContains(response, "OK")
 
     def test_GET_edit_clue_shows_error_if_user_is_not_editor_of_puzzle(self):
-        other_user = User.objects.create(username="otheruser")
+        other_user = User.objects.create(username="other_user")
         puzzle = WordPuzzle.objects.create(editor=other_user)
-        clue = puzzle.add_clue({'answer': 'TEST', 'clue_text': 'Clue text desc', 'parsing': '', 'points': 1})
+        puzzle.add_clue({'answer': 'TEST', 'clue_text': 'Clue text desc', 'parsing': '', 'points': 1})
         response = self.client.get("/edit_clue/" + str(puzzle.id) + "/1/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed("puzzle_error.html")
@@ -325,9 +327,9 @@ class DeleteClueViewTests(TestCase):
         self.assertContains(response, "CANCEL")
 
     def test_GET_shows_error_if_user_is_not_editor(self):
-        other_user = User.objects.create(username="otheruser")
+        other_user = User.objects.create(username="other_user")
         puzzle = WordPuzzle.objects.create(editor=other_user)
-        clue = puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
+        puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
         response = self.client.get("/delete_clue_confirm/" + str(puzzle.id) + "/1/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed("puzzle_error.html")
@@ -348,7 +350,7 @@ class DeleteClueViewTests(TestCase):
 
     def test_POST_deletes_clue_updates_points_and_redirects_to_edit_puzzle(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        clue = puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
+        puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
         response = self.client.post("/delete_clue_confirm/" + str(puzzle.id) + "/1/")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/edit_puzzle/" + str(puzzle.id) + '/')
@@ -359,11 +361,11 @@ class DeleteClueViewTests(TestCase):
 
     def test_POST_renumbers_clues_after_delete_to_eliminate_gaps(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        clue1 = puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue 1', 'parsing': '', 'points': 1})
-        clue2 = puzzle.add_clue({'answer': 'WORD2', 'clue_text': 'Clue 2', 'parsing': '', 'points': 2})
-        clue3 = puzzle.add_clue({'answer': 'WORD3', 'clue_text': 'Clue 3', 'parsing': '', 'points': 3})
-        clue4 = puzzle.add_clue({'answer': 'WORD4', 'clue_text': 'Clue 4', 'parsing': '', 'points': 4})
-        response = self.client.post("/delete_clue_confirm/" + str(puzzle.id) + "/2/")
+        puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue 1', 'parsing': '', 'points': 1})
+        puzzle.add_clue({'answer': 'WORD2', 'clue_text': 'Clue 2', 'parsing': '', 'points': 2})
+        puzzle.add_clue({'answer': 'WORD3', 'clue_text': 'Clue 3', 'parsing': '', 'points': 3})
+        puzzle.add_clue({'answer': 'WORD4', 'clue_text': 'Clue 4', 'parsing': '', 'points': 4})
+        self.client.post("/delete_clue_confirm/" + str(puzzle.id) + "/2/")
         clues = Clue.objects.filter(puzzle=puzzle)
         self.assertEqual(len(clues), 3)
         puzzle = WordPuzzle.objects.get(id=puzzle.id)
@@ -387,35 +389,139 @@ class PreviewPuzzleViewTest(TestCase):
         self.assertEqual(response.url, "/login?next=/preview_puzzle/1/")
 
     def test_GET_shows_error_if_user_is_not_editor(self):
-        other_user = User.objects.create(username="otheruser")
+        other_user = User.objects.create(username="other_user")
         puzzle = WordPuzzle.objects.create(editor=other_user)
         response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
         self.assertContains(response, "OK")
-        self.assertNotContains(response, "DONE")
         self.assertContains(response, "This operation is not permitted since you are not the editor.")
 
-    def test_get_shows_error_if_puzzle_does_not_exist(self):
+    def test_GET_shows_error_if_puzzle_does_not_exist(self):
         response = self.client.get("/preview_puzzle/50/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed("puzzle_error.html")
         self.assertContains(response, "Puzzle #50")
         self.assertContains(response, "This puzzle does not exist.")
         self.assertContains(response, "OK")
-        self.assertNotContains(response, "DONE")
 
-    def test_get_displays_puzzle_details(self):
+    def test_GET_displays_puzzle_details(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc='Description')
-        clue1 = puzzle.add_clue(
-            {'answer': 'WORD-A', 'clue_text': 'Clue 1 for word A', 'parsing': 'this is a parsing', 'points': 1})
-        clue2 = puzzle.add_clue({'answer': 'WORD-B', 'clue_text': 'Clue 2 for word B', 'parsing': '', 'points': 2})
-        clue3 = puzzle.add_clue({'answer': 'WORD-C', 'clue_text': 'Clue 3 for word C', 'parsing': '', 'points': 3})
-        clue4 = puzzle.add_clue(
-            {'answer': 'WORD-D', 'clue_text': 'Clue 4 for word D', 'parsing': 'parsin for D', 'points': 4})
+        puzzle.add_clue({'answer': 'WORD-A', 'clue_text': 'Clue 1 for word A', 'parsing': 'parsing', 'points': 1})
+        puzzle.add_clue({'answer': 'WORD-B', 'clue_text': 'Clue 2 for word B', 'parsing': '', 'points': 2})
+        puzzle.add_clue({'answer': 'WORD-C', 'clue_text': 'Clue 3 for word C', 'parsing': '', 'points': 3})
+        puzzle.add_clue({'answer': 'WORD-D', 'clue_text': 'Clue 4 for word D', 'parsing': 'parsing for D', 'points': 4})
         response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
         self.assertContains(response, "DONE")
         self.assertContains(response, str(puzzle))
         self.assertContains(response, puzzle.desc)
         self.assertContains(response, "Clues")
+
+
+class PublishClassViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username="test_user")
+        self.client.force_login(self.user)
+
+    def test_GET_redirects_to_LOGIN_view_if_user_is_not_authenticated(self):
+        logout(self.client)
+        response = self.client.get("/publish_puzzle/1/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/publish_puzzle/1/")
+
+    def test_GET_shows_error_if_user_is_not_editor(self):
+        other_user = User.objects.create(username="other_user")
+        puzzle = WordPuzzle.objects.create(editor=other_user)
+        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "OK")
+        self.assertContains(response, "This operation is not permitted since you are not the editor.")
+
+    def test_GET_shows_error_if_puzzle_does_not_exist(self):
+        response = self.client.get("/publish_puzzle/50/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed("puzzle_error.html")
+        self.assertContains(response, "Puzzle #50")
+        self.assertContains(response, "This puzzle does not exist.")
+        self.assertContains(response, "OK")
+
+    def test_GET_sets_shared_at_field_to_now_and_redirects_to_homepage(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
+        self.assertIsNone(puzzle.shared_at)
+        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/")
+        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertIsNotNone(updated_puzzle.shared_at)
+
+    def test_GET_does_nothing_if_shared_at_is_already_set(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
+        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        shared_at = WordPuzzle.objects.get(id=puzzle.id).shared_at
+        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # do it again
+        self.assertEqual(response.url, "/")
+        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertEqual(shared_at, updated_puzzle.shared_at)
+
+    def test_GET_shows_error_if_puzzle_has_no_clues(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed("/puzzle_error.html")
+        self.assertContains(response, "Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "No clues to publish.  Add clues before publishing.")
+        self.assertContains(response, "OK")
+
+    def test_EDIT_PUZZLE_shows_error_if_puzzle_is_published(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
+        self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        response = self.client.get("/edit_puzzle/" + str(puzzle.id) + "/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed("/puzzle_error.html")
+        self.assertContains(response, "Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "Published puzzle cannot be edited. Unpublish to edit.")
+        self.assertContains(response, "OK")
+
+
+class UnpublishClassViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(username="test_user")
+        self.client.force_login(self.user)
+
+    def test_GET_redirects_to_LOGIN_view_if_user_is_not_authenticated(self):
+        logout(self.client)
+        response = self.client.get("/unpublish_puzzle/1/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/unpublish_puzzle/1/")
+
+    def test_GET_shows_error_if_user_is_not_editor(self):
+        other_user = User.objects.create(username="other_user")
+        puzzle = WordPuzzle.objects.create(editor=other_user)
+        response = self.client.get("/unpublish_puzzle/" + str(puzzle.id) + "/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "OK")
+        self.assertContains(response, "This operation is not permitted since you are not the editor.")
+
+    def test_GET_shows_error_if_puzzle_does_not_exist(self):
+        response = self.client.get("/unpublish_puzzle/50/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed("puzzle_error.html")
+        self.assertContains(response, "Puzzle #50")
+        self.assertContains(response, "This puzzle does not exist.")
+        self.assertContains(response, "OK")
+
+    def test_GET_sets_shared_at_field_to_None_and_redirects_to_homepage(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
+        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        response = self.client.get("/unpublish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/")
+        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertIsNone(updated_puzzle.shared_at)

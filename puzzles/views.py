@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
@@ -50,6 +52,8 @@ class PuzzleEditorMixin(LoginRequiredMixin):
             else:
                 if request.user != puzzle.editor:
                     err_msg = "This operation is not permitted since you are not the editor."
+                elif puzzle.shared_at is not None and "publish" not in request.resolver_match.url_name:
+                    err_msg = "Published puzzle cannot be edited. Unpublish to edit."
         if err_msg is not None:
             ctx = {'err_msg': err_msg, 'id': pk, 'clue_num': clue_num}
             return render(request, "puzzle_error.html", context=ctx)
@@ -132,3 +136,28 @@ class PreviewPuzzleView(PuzzleEditorMixin, View):
         puzzle = self.model.objects.get(id=kwargs['pk'])
         ctx = {'object': puzzle}
         return render(request, 'preview_puzzle.html', context=ctx)
+
+
+class PublishPuzzleView(PuzzleEditorMixin, View):
+    model = WordPuzzle
+
+    def get(self, request, **kwargs):
+        puzzle = self.model.objects.get(id=kwargs['pk'])
+        if puzzle.size == 0:
+            err_msg = "No clues to publish.  Add clues before publishing."
+            ctx = {'err_msg': err_msg, 'id': kwargs['pk']}
+            return render(request, "puzzle_error.html", context=ctx)
+        if puzzle.shared_at is None:
+            puzzle.shared_at = datetime.now()
+            puzzle.save()
+        return redirect('home')
+
+
+class UnpublishPuzzleView(PuzzleEditorMixin, View):
+    model = WordPuzzle
+
+    def get(self, request, **kwargs):
+        puzzle = self.model.objects.get(id=kwargs['pk'])
+        puzzle.shared_at = None
+        puzzle.save()
+        return redirect('home')
