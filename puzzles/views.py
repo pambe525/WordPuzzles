@@ -1,7 +1,6 @@
-from datetime import datetime
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
+from django.utils.timezone import now
 from django.views import View
 from django.views.generic import UpdateView, DeleteView
 
@@ -52,7 +51,8 @@ class PuzzleEditorMixin(LoginRequiredMixin):
             else:
                 if request.user != puzzle.editor:
                     err_msg = "This operation is not permitted since you are not the editor."
-                elif puzzle.shared_at is not None and "publish" not in request.resolver_match.url_name:
+                elif puzzle.shared_at is not None and "publish" not in request.resolver_match.url_name\
+                        and "preview" not in  request.resolver_match.url_name:
                     err_msg = "Published puzzle cannot be edited. Unpublish to edit."
         if err_msg is not None:
             ctx = {'err_msg': err_msg, 'id': pk, 'clue_num': clue_num}
@@ -148,7 +148,7 @@ class PublishPuzzleView(PuzzleEditorMixin, View):
             ctx = {'err_msg': err_msg, 'id': kwargs['pk']}
             return render(request, "puzzle_error.html", context=ctx)
         if puzzle.shared_at is None:
-            puzzle.shared_at = datetime.now()
+            puzzle.shared_at = now()
             puzzle.save()
         return redirect('home')
 
