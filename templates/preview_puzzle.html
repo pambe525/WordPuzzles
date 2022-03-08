@@ -1,45 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="d-inline-block">
-        <h2 class="pl-2 pb-0 mb-2 mt-2">Preview Puzzle #{{ object.id }}</h2>
-        <div class="m-0 row mt-2 mb-3">
-            <div class="ml-2 pt-2">
-              <input type="checkbox" value="" id="showAnswers" checked>
-              <label class="h5" for="showAnswers">Show answers</label>
-            </div>
-            {% if object.size != 0 and object.shared_at == None %}
-                <a href="{% url 'publish_puzzle' object.id %}" class="ml-auto btn btn-primary">PUBLISH</a>
-            {% endif %}
-            {% if object.size != 0 and object.shared_at != None %}
-                <a href="{% url 'unpublish_puzzle' object.id %}" class="ml-auto btn btn-primary">UNPUBLISH</a>
-            {% endif %}
+        <div class="m-0 row mt-2 mb-2">
+            <div class="h2 pl-2 pb-0 mb-0">Preview Puzzle #{{ object.id }}</div>
             <a href="{% url 'home' %}" class="ml-auto btn btn-dark">DONE</a>
         </div>
+        <div class="ml-2 mb-3">
+          <input type="checkbox" value="" id="showAnswers" checked>
+          <label class="h5" for="showAnswers">Show answers and parsing</label>
+        </div>
         <div class="m-1 bg-light p-3">
-            <h5 class="mb-0"><b>{{ object }}</b></h5>
-            <h6 class="mb-2 text-secondary">Posted by: {{ object.editor }}</h6>
+            <div class="h5 mb-0"><b>{{ object }}</b></div>
+            <div class="h6 mb-2">Posted by: {{ object.editor }}</div>
             {% if object.desc != None and object.desc != "" %}
-                <h6 class="text-dark">Description: {{ object.desc }}</h6>
+                <div class="h6 text-dark">Description: {{ object.desc }}</div>
             {% endif %}
-            {% if object.size == 0 %}
-                <div class="mt-2 notetext">No clues exist.</div>
-            {% else %}
-                <div class="m-0 row">
-                    <h6><b>Clues</b></h6><h6 class="ml-auto"><b>Pts</b></h6>
-                </div>
-                <table class="table table-responsive mt-1 p-0">
-                {% for clue in object.get_clues %}
-                    <tr>
-                        <td class="pt-1">{{ clue.clue_num }}.</td>
-                        <td class="pl-1 pb-0 pt-1">
-                            <div class="text-wrap" style="line-height:normal">{{ clue.get_decorated_clue_text }}</div>
-                            <div class="h6 answer text-wrap pt-1">[<b>{{ clue.answer }}</b>] {{ clue.parsing }}</div>
-                        </td>
-                        <td class="pt-1">[{{ clue.points }}]</td>
-                    </tr>
-                {% endfor %}
-                </table>
-            {% endif %}
+            <div class="h6 m-0 row">
+                <div><b>Clues</b></div><div class="ml-auto"><b>Pts</b></div>
+            </div>
+
+            <table class="table table-responsive mt-1 p-0">
+            {% for clue in object.get_clues %}
+                <tr>
+                    <td class="pt-1">{{ clue.clue_num }}.</td>
+                    <td class="pl-1 pb-0 pt-1">
+                        <div class="text-wrap" style="line-height:normal">{{ clue.get_decorated_clue_text }}</div>
+                        <div class="h6 answer text-wrap pt-1">[<b>{{ clue.answer }}</b>] {{ clue.parsing }}</div>
+                    </td>
+                    <td class="pt-1">[{{ clue.points }}]</td>
+                </tr>
+            {% endfor %}
+            </table>
         </div>
     </div>
 
