@@ -27,8 +27,7 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
 
     def test_New_Puzzle_creates_puzzle_and_loads_edit_page(self):
         self.get('/new_puzzle')
-        puzzle = WordPuzzle.objects.all()[0]
-        self.assert_xpath_text("//h2", "Edit Puzzle #" + str(puzzle.id))
+        self.assert_xpath_text("//h2", "Edit Puzzle #1")
         self.assert_selected_text("//select[@id='id_type']", 'Cryptic Clues')
         self.assert_xpath_text("//textarea[@id='id_desc']", '')
         self.assert_xpath_exists("//a[text()='DONE']")
@@ -195,9 +194,9 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.assert_xpath_not_exists("//a[text()='PUBLISH']")    # No Publish button
         self.assert_xpath_not_exists("//a[text()='UNPUBLISH']")  # No Unpublish button
         self.assert_xpath_exists("//input[@type='checkbox']")
-        self.assert_xpath_text("//label", "Show answers")
+        self.assert_xpath_text("//label", "Show answers and parsing")
         self.assert_xpath_text("//h5", str(puzzle))
-        self.assert_xpath_exists("//h6[text()='Posted by: test_user']")
+        self.assert_xpath_exists("//h6[text()='Posted by: test_user']")  # No description
         self.assert_xpath_not_exists("//h6[contains(text, 'Description')]")  # No description
         self.assert_xpath_text("//div[contains(@class,'notetext')]", "No clues exist.")
 
@@ -209,28 +208,10 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.assert_xpath_exists("//a[text()='DONE']")
         self.assert_xpath_exists("//a[text()='PUBLISH']")        # Publish button
         self.assert_xpath_not_exists("//a[text()='UNPUBLISH']")  # No Unpublish button
+        self.assert_xpath_exists("//input[@type='checkbox']")
+        self.assert_xpath_text("//label", "Show answers and parsing")
         self.assert_xpath_text("//h5", str(puzzle))
+        self.assert_xpath_exists("//h6[text()='Posted by: test_user']")  # No description
         self.assert_xpath_exists("//h6[text()='Description: Some description']")  # No description
         self.assert_xpath_not_exists("//div[text()='No clues exist.']")
 
-    def test_Preview_Puzzle_page_publish_button_publishes_puzzle(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue text 1', 'parsing': 'p1', 'points': 1})
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.click_xpath("//a[text()='PUBLISH']")
-        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
-        self.assertIsNotNone(updated_puzzle.shared_at)
-        self.assert_current_url('/')
-
-    def test_Preview_Puzzle_page_unpublish_button_unpublishes_puzzle(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user)
-        puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue text 1', 'parsing': 'p1', 'points': 1})
-        self.get('/publish_puzzle/' + str(puzzle.id) + '/')
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_xpath_not_exists("//a[text()='PUBLISH']")
-        self.click_xpath("//a[text()='UNPUBLISH']")
-        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
-        self.assertIsNone(updated_puzzle.shared_at)
-        self.assert_current_url('/')
-
-        #TODO: Add test to exclude Preview for Published editing permission in django unit tests
