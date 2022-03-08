@@ -22,7 +22,14 @@ class HelperMixin:
             else:
                 webdriver_path = 'C:\\Users\Prashant\Documents\PyCharmProjects\geckodriver.exe'
                 driver = webdriver.Firefox(executable_path=webdriver_path)
-        else: driver = webdriver.Chrome()
+        else:
+            path = '/Library/Frameworks/Python.framework/Versions/3.8/bin/'
+            if browser == 'Firefox':
+                webdriver_path = path + 'geckodriver'
+                driver = webdriver.Firefox(executable_path=webdriver_path)
+            else:
+                webdriver_path = path + 'chromedriver'
+                driver = webdriver.Chrome(executable_path=webdriver_path)
         driver.set_window_size(600, 700)
         return driver
 
@@ -77,6 +84,9 @@ class HelperMixin:
 
     def assert_xpath_exists(self, xpath):
         self.testcase.assertTrue(self, len(self.selenium.find_elements(By.XPATH, xpath))>0)
+
+    def assert_xpath_not_exists(self, xpath):
+        self.testcase.assertTrue(self, len(self.selenium.find_elements(By.XPATH, xpath))==0)
 
     def assert_selected_text(self, xpath, text):
         selector = Select(self.selenium.find_element(By.XPATH, xpath))
