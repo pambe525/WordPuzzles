@@ -485,7 +485,7 @@ class PublishClassViewTest(TestCase):
         self.assertContains(response, "Published puzzle cannot be edited. Unpublish to edit.")
         self.assertContains(response, "OK")
 
-    def test_PREVIE_PUZZLE_does_not_show_error_if_puzzle_is_published(self):
+    def test_PREVIEW_PUZZLE_does_not_show_error_if_puzzle_is_published(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
         self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
@@ -525,8 +525,8 @@ class UnpublishClassViewTest(TestCase):
     def test_GET_sets_shared_at_field_to_None_and_redirects_to_homepage(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
-        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
-        response = self.client.get("/unpublish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        response = self.client.get("/unpublish_puzzle/" + str(puzzle.id) + "/")  # Unublish puzzle
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/")
         updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
