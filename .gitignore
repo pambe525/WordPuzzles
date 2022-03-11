@@ -2,3 +2,4 @@
 /venv/
 
 !/geckodriver.log
+/testing/selenium_tests/geckodriver.log
