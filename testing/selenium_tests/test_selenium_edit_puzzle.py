@@ -1,25 +1,12 @@
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from puzzles.models import WordPuzzle, Clue
-from testing.selenium_tests.selenium_helper_mixin import HelperMixin
+from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 
 
-class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
+class EditPuzzleTests(SeleniumTestCase):
     user = None
     password = 'secret_key'
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.server_url = cls.live_server_url
-        cls.selenium = super().get_webdriver(cls, 'Firefox')
-        cls.testcase = cls
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super().tearDownClass()
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
@@ -192,7 +179,7 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_xpath_text("//h2", "Preview Puzzle #" + str(puzzle.id))
         self.assert_xpath_exists("//a[text()='DONE']")
-        self.assert_xpath_not_exists("//a[text()='PUBLISH']")    # No Publish button
+        self.assert_xpath_not_exists("//a[text()='PUBLISH']")  # No Publish button
         self.assert_xpath_not_exists("//a[text()='UNPUBLISH']")  # No Unpublish button
         self.assert_xpath_exists("//input[@type='checkbox']")
         self.assert_xpath_text("//label", "Show answers")
@@ -207,7 +194,7 @@ class EditPuzzleTests(StaticLiveServerTestCase, HelperMixin):
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_xpath_text("//h2", "Preview Puzzle #" + str(puzzle.id))
         self.assert_xpath_exists("//a[text()='DONE']")
-        self.assert_xpath_exists("//a[text()='PUBLISH']")        # Publish button
+        self.assert_xpath_exists("//a[text()='PUBLISH']")  # Publish button
         self.assert_xpath_not_exists("//a[text()='UNPUBLISH']")  # No Unpublish button
         self.assert_xpath_text("//h5", str(puzzle))
         self.assert_xpath_exists("//h6[text()='Description: Some description']")  # No description
