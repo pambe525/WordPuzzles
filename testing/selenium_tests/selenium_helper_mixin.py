@@ -1,22 +1,31 @@
+from os import name as os_name
+
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from os import name as os_name
 from selenium.webdriver.support.ui import Select
 
-class HelperMixin:
 
-    selenium = None
-    server_url = None
-    testcase = None
+### This class is required to run all selenium tests in a single browser instance
+class SingletonWebDriver(object):
+    _instance = None
+    _browser = 'Firefox'
 
-    @staticmethod
-    def get_webdriver(self, browser):
+    webdriver = None
+    is_persistent = False
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(SingletonWebDriver, cls).__new__(cls)
+        return cls._instance
+
+    def _create_webdriver(self):
         if os_name == 'nt':
-            if browser == 'Chrome':
+            if self._browser == 'Chrome':
                 webdriver_path = 'C:\\Users\Prashant\Documents\PyCharmProjects\chromedriver.exe'
                 driver = webdriver.Chrome(executable_path=webdriver_path)
             else:
@@ -24,14 +33,37 @@ class HelperMixin:
                 driver = webdriver.Firefox(executable_path=webdriver_path)
         else:
             path = '/Library/Frameworks/Python.framework/Versions/3.8/bin/'
-            if browser == 'Firefox':
+            if self._browser == 'Firefox':
                 webdriver_path = path + 'geckodriver'
                 driver = webdriver.Firefox(executable_path=webdriver_path)
             else:
                 webdriver_path = path + 'chromedriver'
                 driver = webdriver.Chrome(executable_path=webdriver_path)
-        driver.set_window_size(600, 700)
         return driver
+
+    def start_webdriver(self):
+        if self.webdriver is None:
+            self.webdriver = self._create_webdriver()
+        return self.webdriver
+
+    def quit_webdriver(self):
+        if not self.is_persistent:
+            self.webdriver.quit()
+            self.webdriver = None
+
+
+class HelperMixin:
+    selenium = None
+    server_url = None
+    testcase = None
+
+    @staticmethod
+    def get_selenium_webdriver():
+        return SingletonWebDriver().start_webdriver()
+
+    @staticmethod
+    def quit_selenium_webdriver():
+        SingletonWebDriver().quit_webdriver()
 
     def get(self, url):
         self.selenium.get(self.server_url + url)
@@ -83,10 +115,10 @@ class HelperMixin:
         self.testcase.assertTrue(self, text in self.selenium.find_elements(By.XPATH, xpath)[index].text)
 
     def assert_xpath_exists(self, xpath):
-        self.testcase.assertTrue(self, len(self.selenium.find_elements(By.XPATH, xpath))>0)
+        self.testcase.assertTrue(self, len(self.selenium.find_elements(By.XPATH, xpath)) > 0)
 
     def assert_xpath_not_exists(self, xpath):
-        self.testcase.assertTrue(self, len(self.selenium.find_elements(By.XPATH, xpath))==0)
+        self.testcase.assertTrue(self, len(self.selenium.find_elements(By.XPATH, xpath)) == 0)
 
     def assert_selected_text(self, xpath, text):
         selector = Select(self.selenium.find_element(By.XPATH, xpath))
@@ -94,3 +126,18 @@ class HelperMixin:
 
     def get_xpath(self, xpath):
         return self.selenium.find_elements(By.XPATH, xpath)
+
+
+### Parent class from which all selenium test cases will be derived
+class SeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.selenium = cls.get_selenium_webdriver()
+        cls.server_url = cls.live_server_url
+        cls.testcase = cls
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.quit_selenium_webdriver()
+        super().tearDownClass()

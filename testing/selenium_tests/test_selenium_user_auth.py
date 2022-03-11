@@ -1,25 +1,12 @@
 from django.contrib.auth.models import User
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium.webdriver.common.by import By
 
-from testing.selenium_tests.selenium_helper_mixin import HelperMixin
+from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 
 
-class UserAuthTests(StaticLiveServerTestCase, HelperMixin):
+class UserAuthTests(SeleniumTestCase):
     user = None
     password = 'secretkey1'
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.server_url = cls.live_server_url
-        cls.selenium = super().get_webdriver(cls, 'Firefox')
-        cls.testcase = cls
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super().tearDownClass()
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
