@@ -18,6 +18,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from puzzles.views import HomeView, EditPuzzleView, NewPuzzleView, EditClueView, DeleteClueView
+from puzzles.views import ReleaseNotesView
 from puzzles.views import PreviewPuzzleView, DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView
 from user_auth.views import SignUpView, UserAccountView, ChangePasswordView
 
@@ -25,6 +26,7 @@ urlpatterns = [
     # USER AUTH RELATED URLS
     path('admin/', admin.site.urls, name="admin"),
     path('', HomeView.as_view(), name="home"),
+    path('/release_notes', ReleaseNotesView.as_view(), name='release_notes'),
     path('signup', SignUpView.as_view(), name="signup"),
     path('login', auth_views.LoginView.as_view(template_name='login.html', redirect_authenticated_user=True),
          name='login'),

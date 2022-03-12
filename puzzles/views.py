@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from django.views import View
-from django.views.generic import UpdateView, DeleteView
+from django.views.generic import UpdateView, DeleteView, TemplateView
 
 from puzzles.forms import WordPuzzleForm, ClueForm
 from puzzles.models import WordPuzzle, Clue
@@ -13,6 +13,9 @@ from puzzles.models import WordPuzzle, Clue
 def utc_date_to_local_format(utc_date):
     dt_format = '%b %d, %Y at %H:%M:%S'
     return utc_date.astimezone().strftime(dt_format)
+
+class ReleaseNotesView(TemplateView):
+    template_name = "release_notes.html"
 
 
 class HomeView(LoginRequiredMixin, View):

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="m-2 bg-light p-4 d-inline-block">
+    <h2 class="pb-2">Release Notes</h2>
+    <h3>v0.7: [3/12/2022]</h3>
+    <b>Dashboard</b>
+    <ul class="'h5">
+        <li>Dashboard is the home page and shows <b>Recently Published</b> puzzles and user's <b>Draft Puzzles</b>.</li>
+        <li>Puzzlers can see puzzles published within the last 7 days in the <b>Recently Published</b> section.</li>
+        <li>Puzzlers can see their unpublished draft puzzles in the <b>Draft Puzzles</b> section, last edited first.</li>
+        <li>Puzzle editors can <b>edit</b> their puzzle by clicking on the title of the puzzle in the draft section.</li>
+        <li>Each puzzle in the draft list offers icon buttons to <b>preview</b> or <b>delete</b> the puzzle.</li>
+    </ul>
+    <hr>
+    <h3>v0.5: [3/5/2022]</h3>
+    <b>Word Puzzle Management</b>
+    <ul class="'h5">
+        <li>Puzzler can create a <b>New Puzzle</b> (crytic or non-cryptic clues).</li>
+        <li>Word puzzles can be edited and saved.</li>
+        <li>Puzzle editor can <b>Add Clue(s)</b> to the puzzle.</li>
+        <li><b>Points</b> and <b>parsing</b> note can also be added to each clue.</li>
+        <li>Puzzle editor can <b>delete</b> the puzzle (after confirmation).</li>
+        <li>Puzzle editor can <b>Preview and Publish</b> the puzzle (after clues are created).</li>
+        <li>Once published, a puzzle is available to all logged in puzzlers to solve. Published puzzles cannot be edited.</li>
+        <li><b>Unpublish</b> a puzzle to withdraw it from availibility to other puzzlers or to edit errors.</li>
+    </ul>
+    <hr>
+    <h3>v0.3: [2/10/2022]</h3>
+    <b>User Authentication</b>
+    <ul class="'h5">
+        <li><b>New User</b> can create an account with username, password and email address.</li>
+        <li>Existing users can <b>login</b> with username and password.</li>
+        <li><b>Reset Password</b> if user has forgotten the password.</li>
+        <li>Once signed in, user can edit their <b>Account Settings</b> including username, email, first and last name.</li>
+        <li>Users can <b>Change Password.</b></li>
+    </ul>
+</div>
+{% endblock %}

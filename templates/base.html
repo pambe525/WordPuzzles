@@ -24,7 +24,7 @@
             <div class="header-badge ml-2">
                 <i class="fa fa-home fa-lg" style="color:white"></i>&nbsp;Home of the Puzzlers&nbsp;
             </div>
-            <h5><a class="badge badge-secondary ml-3 mt-2">v1.0</a></h5>
+            <h5><a href='{% url 'release_notes' %}' class="badge badge-secondary ml-3 mt-2">v1.0</a></h5>
             {% if user.is_authenticated %}
                 <div class="ml-2 pt-2 pr-2" >
                     <i class="fa fa-user fa-lg" style="color:silver"></i>
