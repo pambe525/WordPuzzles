@@ -63,7 +63,7 @@ class DraftPuzzlesTests(SeleniumTestCase):
         self.click_xpath("//div[contains(@class,'badge badge')]//a[@title='Delete']")  # DELETE icon on puzzle badge
         self.assert_current_url('/delete_puzzle_confirm/' + str(puzzle.id) + '/')
         self.assert_xpath_text("//h2", "Delete Puzzle #" + str(puzzle.id))
-        self.click_xpath("//a[text()='CANCEL']")          # Cancel redirects back to Dashboard
+        self.click_xpath("//a[text()='CANCEL']")  # Cancel redirects back to Dashboard
         self.assert_current_url('/')
         self.assert_xpath_items("//div[contains(@class,'badge badge')]", 1)  # Puzzle still exists
         badge_header = "Puzzle #" + str(puzzle.id) + ": 0 Cryptic Clues [0 pts]"
@@ -74,7 +74,7 @@ class DraftPuzzlesTests(SeleniumTestCase):
         self.get('/')
         self.click_xpath("//a[@title='Delete']")
         self.click_xpath("//button[text()='DELETE']")  # Delete button on Edit Puzzle page
-        self.assert_xpath_items("//div[contains(@class,'badge badge')]", 0) # Puzzle deleted
+        self.assert_xpath_items("//div[contains(@class,'badge badge')]", 0)  # Puzzle deleted
 
     def test_Preview_Puzzle_button_is_not_visible_if_draft_puzzle_has_no_clues(self):
         WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
@@ -83,7 +83,15 @@ class DraftPuzzlesTests(SeleniumTestCase):
 
     def test_Preview_Puzzle_button_redirects_to_preview_page_if_draft_puzzle_has_clues(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
-        puzzle.add_clue({'answer':"WORDLE", 'clue_text':"Clue for word", 'points': 1})
+        puzzle.add_clue({'answer': "WORDLE", 'clue_text': "Clue for word", 'points': 1})
         self.get('/')
         self.click_xpath("//a[@title='Preview & Publish']")
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + '/')
+
+class RecentPuzzlesTests(SeleniumTestCase):
+    password = 'secretkey'
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
+        self.login_user(username=self.user.username, password=self.password)
+
