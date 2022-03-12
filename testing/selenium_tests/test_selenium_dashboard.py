@@ -95,3 +95,6 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
         self.login_user(username=self.user.username, password=self.password)
 
+    def test_Recent_puzzles_section_offers_button_to_all_puzzles_page(self):
+        self.get('/')
+        self.assert_xpath_exists("//div/a[text()='SHOW ALL PUZZLES']")

@@ -26,7 +26,7 @@ urlpatterns = [
     # USER AUTH RELATED URLS
     path('admin/', admin.site.urls, name="admin"),
     path('', HomeView.as_view(), name="home"),
-    path('/release_notes', ReleaseNotesView.as_view(), name='release_notes'),
+    path('release_notes', ReleaseNotesView.as_view(), name='release_notes'),
     path('signup', SignUpView.as_view(), name="signup"),
     path('login', auth_views.LoginView.as_view(template_name='login.html', redirect_authenticated_user=True),
          name='login'),
