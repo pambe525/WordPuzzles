@@ -4,11 +4,25 @@
     <div class="d-inline-block">
 
         <!-- RECENTLY PUBLISHED PUZZLES -->
-        <div class="m-2 bg-light p-4 d-block">
+        <div class="m-2 bg-light p-4 d-block" style="width:380px">
             <div class="row m-0">
                 <h3 class="mb-0">Recently Published Puzzles</h3>
             </div>
-            <div class="notetext pt-2">No puzzles have been posted in last 7 days</div>
+            {% if recent_puzzles|length == 0 %}
+                <div class="notetext pt-2">No puzzles have been posted in last 7 days</div>
+            {% else %}
+                <div class="notetext pt-1 pb-1">
+                    Puzzles published within the last 7 days.
+                    Click on the title to solve the puzzle.
+                </div>
+                {% for puzzle in recent_puzzles %}
+                    <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
+                        <a class="h5" href="{% url 'edit_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
+                            {{ puzzle }}
+                        </a>
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
 
         <!-- MY UNPUBLISHED PUZZLES -->
@@ -21,13 +35,13 @@
                 <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>
             {% else %}
                 <div class="notetext pt-1 pb-1">
-                    To edit a puzzle click on its badge header.
-                    Hover on the header to see full description.
+                    To edit a puzzle click on its title.
+                    Hover on the title to view full description.
                 </div>
                 {% for puzzle in draft_puzzles %}
                     <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
                         <a class="h5" href="{% url 'edit_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
-                            {{ puzzle.name }}
+                            {{ puzzle }}
                         </a>
                         {% if puzzle.desc != None %}
                             <div class="h6 text-left text-truncate text-dark mb-1" title="{{ puzzle.desc }}">

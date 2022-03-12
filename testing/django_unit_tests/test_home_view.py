@@ -3,16 +3,17 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from puzzles.models import WordPuzzle
+from django.utils.timezone import now
+from datetime import datetime, timedelta
 
-
-class HomeViewTests(TestCase):
+class DashboardViewTests(TestCase):
 
     def setUp(self):
         # Create a logged in user
         self.user = User.objects.create_user("testuser", "abc@email.com", "secretkey")
         self.client.force_login(self.user)
 
-    def test_Renders_home_page_if_user_is_authenticated(self):
+    def test_Renders_dashboard_page_if_user_is_authenticated(self):
         response = self.client.get(reverse("home"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "home.html")
@@ -33,14 +34,13 @@ class HomeViewTests(TestCase):
         puzzle1 = WordPuzzle.objects.create(editor=self.user)
         puzzle2 = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get(reverse("home"))
-        self.assertContains(response, "Puzzle #1: 0 Cryptic Clues [0 pts]")
-        self.assertContains(response, "Puzzle #2: 0 Cryptic Clues [0 pts]")
+        self.assertTemplateUsed("home.html")
 
     def test_Draft_puzzles_filtered_for_current_user(self):
         user2 = User.objects.create_user("testuser2")
-        puzzle1 = WordPuzzle.objects.create(editor=self.user)
-        puzzle2 = WordPuzzle.objects.create(editor=user2)
-        puzzle3 = WordPuzzle.objects.create(editor=self.user)
+        WordPuzzle.objects.create(editor=self.user)
+        WordPuzzle.objects.create(editor=user2)
+        WordPuzzle.objects.create(editor=self.user)
         response = self.client.get(reverse("home"))
         self.assertEqual(len(response.context['draft_puzzles']), 2)
 
@@ -48,12 +48,53 @@ class HomeViewTests(TestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Daily puzzle")
         response = self.client.get(reverse("home"))
         puzzle_details = response.context['draft_puzzles'][0]
-        self.assertEqual(puzzle_details['id'], 1)
-        self.assertEqual(puzzle_details['desc'], 'Daily puzzle')
-        self.assertEqual(puzzle_details['name'], "Puzzle #1: 0 Cryptic Clues [0 pts]")
-        self.assertEqual(puzzle_details['size'], 0)
-        self.assertIsNotNone(puzzle_details['modified_at'])
+        self.assertEqual(puzzle_details.id, puzzle.id)
+        self.assertEqual(puzzle_details.desc, puzzle.desc)
+        self.assertEqual(str(puzzle_details), str(puzzle))
+        self.assertEqual(puzzle_details.size, puzzle.size)
+        self.assertIsNotNone(puzzle_details.modified_at)
+        self.assertIsNone(puzzle_details.shared_at)
 
+    def test_Draft_puzzles_do_not_include_published_puzzles_and_sorted_latest_first(self):
+        puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
+        puzzle2 = WordPuzzle.objects.create(editor=self.user)
+        puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
+        puzzle1.modified_at = now() - timedelta(days=1)   # recent draft
+        puzzle1.save()
+        puzzle3.modified_at = now() - timedelta(days=2)   # older draft
+        puzzle3.save()
+        puzzle2.shared_at = now()
+        puzzle2.save()
+        response = self.client.get('/')
+        self.assertEqual(len(response.context['draft_puzzles']), 2)
+        self.assertEqual(response.context['draft_puzzles'][0].desc, puzzle1.desc)
+        self.assertEqual(response.context['draft_puzzles'][1].desc, puzzle3.desc)
 
+    def test_Recently_posted_puzzles_include_only_published_puzzles_and_sorted_by_recent_first(self):
+        puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
+        puzzle2 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 2")
+        puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
+        puzzle2.shared_at = now()-timedelta(days=3)    # shared 3 days ago
+        puzzle2.save()
+        puzzle3.shared_at = now()-timedelta(days=2)    # shared 2 days ago
+        puzzle3.save()
+        response = self.client.get('/')
+        self.assertEqual(len(response.context['recent_puzzles']), 2)
+        self.assertEqual(response.context['recent_puzzles'][0].desc, puzzle3.desc)
+        self.assertEqual(response.context['recent_puzzles'][1].desc, puzzle2.desc)
 
-
+    def test_Recently_posted_puzzles_only_include_published_puzzles_within_last_7_days(self):
+        puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
+        puzzle2 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 2")
+        puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
+        puzzle4 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 4")
+        puzzle1.shared_at = now()-timedelta(days=6)    # shared 6 days ago
+        puzzle1.save()
+        puzzle2.shared_at = now()-timedelta(days=8)    # shared 8 days ago
+        puzzle2.save()
+        puzzle3.shared_at = now()-timedelta(days=2)    # shared 2 days ago
+        puzzle3.save()
+        response = self.client.get('/')
+        self.assertEqual(len(response.context['recent_puzzles']), 2)
+        self.assertEqual(response.context['recent_puzzles'][0].desc, puzzle3.desc)
+        self.assertEqual(response.context['recent_puzzles'][1].desc, puzzle1.desc)

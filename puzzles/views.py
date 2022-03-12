@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.utils.timezone import now
@@ -17,15 +19,11 @@ class HomeView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request):
-        puzzles = self.model.objects.filter(editor=request.user.id).order_by('-modified_at')
-        draft_puzzles = []
-
-        for i in range(len(puzzles)):
-            last_edited = utc_date_to_local_format(puzzles[i].modified_at)
-            dict_obj = {'id': puzzles[i].id, 'desc': puzzles[i].desc, 'size': puzzles[i].size,
-                        'modified_at': last_edited, 'name': str(puzzles[i])}
-            draft_puzzles.append(dict_obj)
-        return render(request, "home.html", context={'draft_puzzles': draft_puzzles})
+        seven_days_ago = now() - timedelta(days=7)
+        draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
+        recent_puzzles = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago).order_by('-shared_at')
+        ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recent_puzzles}
+        return render(request, "home.html", context=ctx)
 
 
 class NewPuzzleView(LoginRequiredMixin, View):
@@ -51,8 +49,8 @@ class PuzzleEditorMixin(LoginRequiredMixin):
             else:
                 if request.user != puzzle.editor:
                     err_msg = "This operation is not permitted since you are not the editor."
-                elif puzzle.shared_at is not None and "publish" not in request.resolver_match.url_name\
-                        and "preview" not in  request.resolver_match.url_name:
+                elif puzzle.shared_at is not None and "publish" not in request.resolver_match.url_name \
+                        and "preview" not in request.resolver_match.url_name:
                     err_msg = "Published puzzle cannot be edited. Unpublish to edit."
         if err_msg is not None:
             ctx = {'err_msg': err_msg, 'id': pk, 'clue_num': clue_num}
