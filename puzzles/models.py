@@ -1,12 +1,13 @@
 from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
 from django.db import models
+
 
 def get_name(self):
     if self.first_name:
         return (self.first_name + ' ' + self.last_name).strip()
     else:
         return self.username
+
 
 User.add_to_class("__str__", get_name)
 
@@ -32,7 +33,7 @@ class Puzzle(models.Model):
 
 class WordPuzzle(models.Model):
     TYPE_CHOICES = [(0, "Non-cryptic Clues"), (1, "Cryptic Clues")]
-    #INTEGER_CHOICES = [tuple([x, x]) for x in range(5, 26)]clear
+    # INTEGER_CHOICES = [tuple([x, x]) for x in range(5, 26)]clear
     editor = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=1)
     desc = models.TextField(null=True, blank=True)
@@ -72,13 +73,14 @@ class WordPuzzle(models.Model):
     def _adjust_clue_nums(self, start_clue_num):
         clues = Clue.objects.filter(puzzle=self)
         new_clue_num = start_clue_num
-        for index in range(start_clue_num-1, len(clues)):
+        for index in range(start_clue_num - 1, len(clues)):
             clues[index].clue_num = new_clue_num
             new_clue_num += 1
             clues[index].save(update_fields=['clue_num'])
 
     def get_clues(self):
         return Clue.objects.filter(puzzle=self).order_by('clue_num')
+
 
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]
@@ -101,7 +103,7 @@ class Clue(models.Model):
         words = self.answer.split()
         for idx, word in enumerate(words):
             paren_text += self._get_word_length_as_string(word)
-            paren_text += ',' if idx < len(words)-1 else ')'
+            paren_text += ',' if idx < len(words) - 1 else ')'
         return self.clue_text + paren_text
 
     def _get_word_length_as_string(self, word):
@@ -111,10 +113,8 @@ class Clue(models.Model):
             len_text = ''
             for idx, part in enumerate(hyphenated_parts):
                 len_text += str(len(part))
-                if idx < (len(hyphenated_parts)-1):
+                if idx < (len(hyphenated_parts) - 1):
                     len_text += '-'
         return len_text
-
-
 
         return self.clue_text + ' (' + str(len(self.answer)) + ')'
