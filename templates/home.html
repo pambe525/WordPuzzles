@@ -35,8 +35,7 @@
                 <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>
             {% else %}
                 <div class="notetext pt-1 pb-1">
-                    To edit a puzzle click on its title.
-                    Hover on the title to view full description.
+                    To edit a puzzle click on its title. Hover on the title to view full description.
                 </div>
                 {% for puzzle in draft_puzzles %}
                     <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
@@ -49,7 +48,9 @@
                             </div>
                         {% endif %}
                         <div class="row m-0">
-                            <div class="text-left h6 text-muted pt-0">Last edited: {{ puzzle.modified_at }}</div>
+                            <div class="text-left h6 text-muted pt-0">
+                                Last edited: {{ puzzle.modified_at|date:'M d, Y h:i A' }} (GMT)
+                            </div>
                             <div class="d-inline-block ml-auto pt-1">
                                 {% if puzzle.size != 0 %}
                                 <a href="{% url 'preview_puzzle' puzzle.id %}" title="Preview & Publish">

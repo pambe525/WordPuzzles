@@ -36,6 +36,12 @@ class EditPuzzleTests(SeleniumTestCase):
         self.assert_xpath_exists("//div[text()='Clues [0 points]']")
         self.assert_xpath_exists("//div[text()='No clues exist. Use ADD CLUE to create clues.']")
 
+    def test_Edit_Puzzle_DONE_button_redirects_to_Dashboard(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some Instructions")
+        self.get('/edit_puzzle/' + str(puzzle.id) + '/')
+        self.click_xpath("//a[text()='DONE']")
+        self.assert_current_url('/')
+
     def test_Edit_Puzzle_save_button_updates_puzzle_field(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         self.get('/edit_puzzle/' + str(puzzle.id) + '/')
