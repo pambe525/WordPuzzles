@@ -17,9 +17,22 @@
                 </div>
                 {% for puzzle in recent_puzzles %}
                     <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
-                        <a class="h5" href="{% url 'edit_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
+                        <a class="h5" href="{% url 'preview_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
                             {{ puzzle }}
                         </a>
+                        {% if puzzle.desc != None %}
+                            <div class="h6 text-left text-truncate text-secondary mb-1" title="{{ puzzle.desc }}">
+                                <b>{{ puzzle.desc }}</b>
+                            </div>
+                        {% endif %}
+                        <div class="text-left h6 text-muted pt-0">
+                            {% if puzzle.editor != request.user %}
+                                Posted by: {{ puzzle.editor }} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
+                            {% else %}
+                                Posted by: <span class="bg-secondary p-1 rounded text-white">YOU</span>
+                                on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
+                            {% endif %}
+                        </div>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -32,7 +45,7 @@
         <div class="m-2 mt-4 bg-light p-4 d-block shadow rounded" style="width:380px">
             <div class="row m-0">
                 <h3 class="mb-0">My Draft Puzzles</h3>
-                <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="ml-auto btn-sm btn-dark mt-2">NEW PUZZLE</a>
+                <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="ml-auto btn-sm btn-dark mt-1">NEW PUZZLE</a>
             </div>
             {% if draft_puzzles|length == 0 %}
                 <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>
@@ -46,7 +59,7 @@
                             {{ puzzle }}
                         </a>
                         {% if puzzle.desc != None %}
-                            <div class="h6 text-left text-truncate text-dark mb-1" title="{{ puzzle.desc }}">
+                            <div class="h6 text-left text-truncate text-secondary mb-1" title="{{ puzzle.desc }}">
                                 <b>{{ puzzle.desc }}</b>
                             </div>
                         {% endif %}

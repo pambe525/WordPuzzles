@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 
 from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
@@ -98,3 +99,36 @@ class RecentPuzzlesTests(SeleniumTestCase):
     def test_Recent_puzzles_section_offers_button_to_all_puzzles_page(self):
         self.get('/')
         self.assert_xpath_exists("//div/a[text()='SHOW ALL PUZZLES']")
+
+    def test_Recent_puzzles_show_title_desc_and_posted_by_with_date(self):
+        other_user = User.objects.create_user(username="other_user", password="secretkey")
+        puzzle = WordPuzzle.objects.create(editor=other_user, type=1, desc="Some description")
+        puzzle.add_clue({'answer': "WORDLE", 'clue_text': "Clue for word", 'points': 3})
+        puzzle.shared_at = now()
+        puzzle.save()
+        self.get('/')
+        badge_header = "Puzzle #" + str(puzzle.id) + ": 1 Cryptic Clues [3 pts]"
+        self.assert_xpath_text("//div[contains(@class,'badge badge')]/a[1]", badge_header)
+        self.assert_xpath_text("//div[contains(@class,'badge badge')]/div[1]", puzzle.desc)
+        posted_by_str = 'Posted by: ' + str(puzzle.editor) + ' on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
+        self.assert_xpath_text("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
+
+    def test_shows_YOU_for_posted_by_if_editor_is_current_user(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
+        puzzle.add_clue({'answer': "WORDLE", 'clue_text': "Clue for word", 'points': 2})
+        puzzle.shared_at = now()
+        puzzle.save()
+        self.get('/')
+        badge_header = "Puzzle #" + str(puzzle.id) + ": 1 Non-cryptic Clues [2 pts]"
+        self.assert_xpath_text("//div[contains(@class,'badge badge')]/a[1]", badge_header)
+        posted_by_str = 'Posted by: YOU on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
+        self.assert_xpath_text("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
+
+    def test_links_puzzle_title_to_preview_page_if_editor_is_current_user(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle.add_clue({'answer': "WORD", 'clue_text': "Clue for word", 'points': 2})
+        puzzle.shared_at = now()
+        puzzle.save()
+        self.get('/')
+        self.click_xpath("//div[contains(@class,'badge badge')]/a[1]")
+        self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
