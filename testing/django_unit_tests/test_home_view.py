@@ -71,7 +71,7 @@ class DashboardViewTests(TestCase):
         self.assertEqual(response.context['draft_puzzles'][1].desc, puzzle3.desc)
 
     def test_Recently_posted_puzzles_include_only_published_puzzles_and_sorted_by_recent_first(self):
-        puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
+        WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
         puzzle2 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 2")
         puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
         puzzle2.shared_at = now()-timedelta(days=3)    # shared 3 days ago
@@ -87,14 +87,15 @@ class DashboardViewTests(TestCase):
         puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
         puzzle2 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 2")
         puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
-        puzzle4 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 4")
-        puzzle1.shared_at = now()-timedelta(days=6)    # shared 6 days ago
-        puzzle1.save()
+        WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 4")
         puzzle2.shared_at = now()-timedelta(days=8)    # shared 8 days ago
         puzzle2.save()
+        puzzle1.shared_at = now()-timedelta(days=6)    # shared 6 days ago
         puzzle3.shared_at = now()-timedelta(days=2)    # shared 2 days ago
+        puzzle1.save()
         puzzle3.save()
         response = self.client.get('/')
         self.assertEqual(len(response.context['recent_puzzles']), 2)
-        self.assertEqual(response.context['recent_puzzles'][0].desc, puzzle3.desc)
         self.assertEqual(response.context['recent_puzzles'][1].desc, puzzle1.desc)
+        self.assertEqual(response.context['recent_puzzles'][0].desc, puzzle3.desc)
+
