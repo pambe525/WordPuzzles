@@ -113,7 +113,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
         posted_by_str = 'Posted by: ' + str(puzzle.editor) + ' on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_xpath_text("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
 
-    def test_shows_YOU_for_posted_by_if_editor_is_current_user(self):
+    def test_shows_ME_for_posted_by_if_editor_is_current_user(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
         puzzle.add_clue({'answer': "WORDLE", 'clue_text': "Clue for word", 'points': 2})
         puzzle.shared_at = now()
@@ -121,7 +121,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.get('/')
         badge_header = "Puzzle #" + str(puzzle.id) + ": 1 Non-cryptic Clues [2 pts]"
         self.assert_xpath_text("//div[contains(@class,'badge badge')]/a[1]", badge_header)
-        posted_by_str = 'Posted by: YOU on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
+        posted_by_str = 'Posted by: ME on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_xpath_text("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
 
     def test_links_puzzle_title_to_preview_page_if_editor_is_current_user(self):

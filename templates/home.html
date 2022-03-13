@@ -29,7 +29,7 @@
                             {% if puzzle.editor != request.user %}
                                 Posted by: {{ puzzle.editor }} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                             {% else %}
-                                Posted by: <span class="bg-secondary p-1 rounded text-white">YOU</span>
+                                Posted by: <span class="bg-secondary p-1 rounded text-white">ME</span>
                                 on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                             {% endif %}
                         </div>
