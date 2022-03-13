@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from puzzles.views import HomeView, EditPuzzleView, NewPuzzleView, EditClueView, DeleteClueView
+from puzzles.views import HomeView, EditPuzzleView, NewPuzzleView, EditClueView, DeleteClueView, AllPuzzlesView
 from puzzles.views import ReleaseNotesView
 from puzzles.views import PreviewPuzzleView, DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView
 from user_auth.views import SignUpView, UserAccountView, ChangePasswordView
@@ -46,7 +46,6 @@ urlpatterns = [
     path('change_password_done', ChangePasswordView.as_view(), name="change_password_done"),
 
     # PUZZLE RELATED URL
-    # path('new_xword_puzzle', OldEditPuzzleView.as_view(), name="new_xword_puzzle"),
     path('new_puzzle', NewPuzzleView.as_view(), name="new_puzzle"),
     path('edit_puzzle/<int:pk>/', EditPuzzleView.as_view(), name="edit_puzzle"),
     path('preview_puzzle/<int:pk>/', PreviewPuzzleView.as_view(), name="preview_puzzle"),
@@ -55,5 +54,6 @@ urlpatterns = [
     path('edit_clue/<int:pk>/<int:clue_num>/', EditClueView.as_view(), name="edit_clue"),
     path('delete_clue_confirm/<int:pk>/<int:clue_num>/', DeleteClueView.as_view(), name='delete_clue_confirm'),
     path('publish_puzzle/<int:pk>/', PublishPuzzleView.as_view(), name="publish_puzzle"),
-    path('unpublish_puzzle/<int:pk>/', UnpublishPuzzleView.as_view(), name='unpublish_puzzle')
+    path('unpublish_puzzle/<int:pk>/', UnpublishPuzzleView.as_view(), name='unpublish_puzzle'),
+    path('all_puzzles', AllPuzzlesView.as_view(), name='all_puzzles')
 ]

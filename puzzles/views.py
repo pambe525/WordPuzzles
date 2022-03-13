@@ -162,3 +162,6 @@ class UnpublishPuzzleView(PuzzleEditorMixin, View):
         puzzle.shared_at = None
         puzzle.save()
         return redirect('home')
+
+class AllPuzzlesView(View):
+    pass
