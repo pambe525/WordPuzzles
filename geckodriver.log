@@ -14400,3 +14400,31 @@ JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeE
 
 ###!!! [Parent][PGPUParent] Error: RunMessage(msgname=PGPU::Msg_ShutdownVR) Channel closing: too late to send/recv, messages will be lost
 
+1647177914173	geckodriver	INFO	Listening on 127.0.0.1:64712
+1647177917245	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "64713" "-no-remote" "-profile" "C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofileanYAaU"
+1647177917876	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofileanYAaU\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:64713/devtools/browser/7e730719-2950-4143-ab5d-a7b989e4302f
+1647177921094	Marionette	INFO	Listening on port 64719
+1647177921508	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:64711"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:64711"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1647177925017	Marionette	INFO	Stopped listening on port 64719
+
+###!!! [Parent][PGPUParent] Error: RunMessage(msgname=PGPU::Msg_ShutdownVR) Channel closing: too late to send/recv, messages will be lost
+
+1647177962796	geckodriver	INFO	Listening on 127.0.0.1:64781
+1647177965853	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "64782" "-no-remote" "-profile" "C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofilehXEaJn"
+1647177966552	Marionette	INFO	Marionette enabled
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\Prashant\\AppData\\Local\\Temp\\rust_mozprofilehXEaJn\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:64782/devtools/browser/79523003-5216-421d-b648-dadd1bd97a3f
+1647177969644	Marionette	INFO	Listening on port 64787
+1647177970064	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:64780"
+console.warn: LoginRecipes: "getRecipes: falling back to a synchronous message for:" "http://localhost:64780"
+JavaScript error: resource://gre/modules/LoginManagerParent.jsm, line 136: TypeError: gRecipeManager is null
+1647177972433	Marionette	INFO	Stopped listening on port 64787
+
+###!!! [Parent][PGPUParent] Error: RunMessage(msgname=PGPU::Msg_ShutdownVR) Channel closing: too late to send/recv, messages will be lost
+

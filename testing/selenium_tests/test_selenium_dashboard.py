@@ -124,7 +124,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
         posted_by_str = 'Posted by: ME on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_xpath_text("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
 
-    def test_links_puzzle_title_to_preview_page_if_editor_is_current_user(self):
+    def test_Puzzle_title_links_to_preview_page_if_editor_is_current_user(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         puzzle.add_clue({'answer': "WORD", 'clue_text': "Clue for word", 'points': 2})
         puzzle.shared_at = now()
@@ -132,3 +132,8 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.get('/')
         self.click_xpath("//div[contains(@class,'badge badge')]/a[1]")
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
+
+    def test_All_Puzzles_button_links_to_all_puzzles_page(self):
+        self.get('/')
+        self.click_xpath("//a[text()='SHOW ALL PUZZLES']")
+        self.assert_current_url("/all_puzzles")
