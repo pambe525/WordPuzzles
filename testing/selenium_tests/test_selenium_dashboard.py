@@ -137,3 +137,4 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.get('/')
         self.click_xpath("//a[text()='SHOW ALL PUZZLES']")
         self.assert_current_url("/all_puzzles")
+        self.assert_xpath_text("//div/h2", 'All Published Puzzles')

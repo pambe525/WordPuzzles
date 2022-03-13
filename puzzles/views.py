@@ -163,5 +163,5 @@ class UnpublishPuzzleView(PuzzleEditorMixin, View):
         puzzle.save()
         return redirect('home')
 
-class AllPuzzlesView(View):
-    pass
+class AllPuzzlesView(TemplateView):
+    template_name = "all_puzzles.html"
