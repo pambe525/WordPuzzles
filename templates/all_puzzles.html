@@ -10,7 +10,7 @@
         </form>
     </div>
     <div class="m-2 bg-light p-1">
-        <table class="table table-sm p-0">
+        <table class="table table-sm">
             <thead>
                 <tr class="bg-secondary text-light">
                     <th class="pl-1">Puzzle Details</th>
@@ -20,15 +20,37 @@
             <tbody>
             {% for puzzle in object_list %}
                 <tr>
-                    <td style="line-height:16px">
-                        <b><a class="text-primary" title='{{ puzzle.desc }}'>{{ puzzle }}</a></b><br />
-                        <span class="small">
-                            Posted by: {{ puzzle.editor }} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
+                    <td style="line-height:18px">
+                        <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>
+                            <b>{{ puzzle }}</b>
+                        </a><br />
+                        <span class="h6">Posted by:
+                            {% if puzzle.editor != request.user %}
+                                <b>{{ puzzle.editor }}</b>
+                            {% else %}
+                                <span class="bg-secondary p-1 rounded text-white">ME</span>
+                            {% endif %} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                         </span>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
+        <hr class="mb-1">
+        <div class="ml-1 mt-1 pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">| Previous</a>
+                {% endif %}
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">| Last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
     </div>
 {% endblock %}

@@ -26,12 +26,13 @@
                             </div>
                         {% endif %}
                         <div class="text-left h6 text-muted pt-0">
+                            Posted by:
                             {% if puzzle.editor != request.user %}
-                                Posted by: {{ puzzle.editor }} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
+                                {{ puzzle.editor }}
                             {% else %}
-                                Posted by: <span class="bg-secondary p-1 rounded text-white">ME</span>
-                                on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
+                                <span class="bg-secondary p-1 rounded text-white">ME</span>
                             {% endif %}
+                            on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                         </div>
                     </div>
                 {% endfor %}

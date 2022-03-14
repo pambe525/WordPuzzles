@@ -210,7 +210,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_xpath_exists("//a[text()='DONE']")
         self.assert_xpath_exists("//input[@type='checkbox']")
         self.assert_xpath_text("//label", "Show answers")
-        self.assert_xpath_text("//h5", str(puzzle))
+        self.assert_xpath_text("//h5/b", str(puzzle))
         self.assert_xpath_exists("//h6[text()='Posted by: test_user']")
         self.assert_xpath_not_exists("//h6[contains(text, 'Description')]")  # No description
 
