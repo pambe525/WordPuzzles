@@ -4,9 +4,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from django.views import View
-from django.views.generic import UpdateView, DeleteView, TemplateView
+from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
-from puzzles.forms import WordPuzzleForm, ClueForm
+from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm
 from puzzles.models import WordPuzzle, Clue
 
 
@@ -163,5 +163,14 @@ class UnpublishPuzzleView(PuzzleEditorMixin, View):
         puzzle.save()
         return redirect('home')
 
-class AllPuzzlesView(TemplateView):
+class AllPuzzlesView(ListView):
     template_name = "all_puzzles.html"
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super(AllPuzzlesView,self).get_context_data(**kwargs)
+        context['form'] = SortPuzzlesForm()
+        return context
+
+    def get_queryset(self):
+        return WordPuzzle.objects.exclude(shared_at=None).order_by('-shared_at')

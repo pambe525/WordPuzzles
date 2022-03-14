@@ -1,6 +1,7 @@
 import re
 
-from django.forms import ModelForm
+from django import forms
+from django.forms import ModelForm, Form
 
 from puzzles.models import WordPuzzle, Clue
 
@@ -39,3 +40,16 @@ class ClueForm(ModelForm):
         if forbidden_char.search(value) is not None:
             raise ValueError("Answer cannot contain non-alphabet characters")
         return value.upper()
+
+
+class SortPuzzlesForm(Form):
+    SORT_CHOICES = [('desc', 'Description'), ('size', 'No. of Clues'), ('editor', 'Posted By'),
+                    ('shared_at', 'Posted On'), ('id', 'Puzzle #'), ('type', 'Puzzle Type'), ('points', 'Total Points')]
+    ORDER_CHOICES = [('-', 'Descending'), ('+', 'Ascending')]
+
+    def __init__(self, *args, **kwargs):
+        super(SortPuzzlesForm, self).__init__(*args, **kwargs)
+        self.fields['sort_by'] = forms.ChoiceField(choices=self.SORT_CHOICES, initial='shared_at', label='Sort by:',
+                                widget=forms.Select(attrs={'style': 'height:26px'}))
+        self.fields['order'] = forms.ChoiceField(choices=self.ORDER_CHOICES, label='Order', initial='-',
+                                widget=forms.Select(attrs={'style': 'height:26px'}))
