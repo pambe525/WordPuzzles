@@ -17,7 +17,7 @@
                 </div>
                 {% for puzzle in recent_puzzles %}
                     <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
-                        <a class="h5" href="{% url 'preview_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
+                        <a class="h5" href="{% url 'solve_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
                             {{ puzzle }}
                         </a>
                         {% if puzzle.desc != None %}

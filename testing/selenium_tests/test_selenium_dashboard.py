@@ -122,15 +122,16 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.click_xpath("//div[contains(@class,'badge badge')]/a[1]")
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
 
+    def test_Puzzle_title_links_to_solve_puzzle_page_if_user_is_not_editor(self):
+        other_user = User.objects.create_user(username="other_user")
+        puzzle = create_published_puzzle(user=other_user)
+        self.get('/')
+        self.click_xpath("//div[contains(@class,'badge badge')]/a[1]")
+        self.assert_current_url("/solve_puzzle/" + str(puzzle.id) + "/")
+
     def test_All_Puzzles_button_links_to_all_puzzles_page(self):
         self.get('/')
         self.click_xpath("//a[text()='SHOW ALL PUZZLES']")
         self.assert_current_url("/all_puzzles")
         self.assert_xpath_text("//div/h2", 'All Published Puzzles')
 
-    def test_Puzzle_title_links_to_solve_puzzle_page_if_user_is_not_editor(self):
-        other_user = User.objects.create_user(username="other_user")
-        puzzle = create_published_puzzle(user=other_user)
-        self.get('/')
-        self.click_xpath("//div[contains(@class,'badge badge')]/a[1]")
-        self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
