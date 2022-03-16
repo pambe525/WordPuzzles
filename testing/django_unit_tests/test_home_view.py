@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from puzzles.models import WordPuzzle
 from django.utils.timezone import now
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 class DashboardViewTests(TestCase):
 

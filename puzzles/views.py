@@ -163,14 +163,19 @@ class UnpublishPuzzleView(PuzzleEditorMixin, View):
         puzzle.save()
         return redirect('home')
 
-class AllPuzzlesView(ListView):
+class AllPuzzlesView(LoginRequiredMixin, ListView):
     template_name = "all_puzzles.html"
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
+        sort_by = self.request.GET.get('sort_by', 'shared_at')
+        order = self.request.GET.get('order', '-')
         context = super(AllPuzzlesView,self).get_context_data(**kwargs)
-        context['form'] = SortPuzzlesForm()
+        context['form'] = SortPuzzlesForm(initial={'sort_by':sort_by, 'order':order})
         return context
 
     def get_queryset(self):
-        return WordPuzzle.objects.exclude(shared_at=None).order_by('-shared_at')
+        sort_by = self.request.GET.get('sort_by', 'shared_at')
+        order = self.request.GET.get('order', '-')
+        query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
+        return query_set
