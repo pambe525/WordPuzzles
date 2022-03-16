@@ -21,9 +21,7 @@
 <body>
     <div class="container-fluid p-0">
         <div class="row m-0 pt-2 bg-dark">
-            <div class="header-badge ml-2">
-                <i class="fa fa-home fa-lg" style="color:white"></i>&nbsp;Home of the Puzzlers&nbsp;
-            </div>
+            <div class="header-badge ml-2 pr-2">Home of the Puzzlers</div>
             <h5><a href='{% url 'release_notes' %}' class="badge badge-secondary ml-3 mt-2">v1.0</a></h5>
             {% if user.is_authenticated %}
                 <div class="ml-2 pt-2 pr-2" >
@@ -45,15 +43,22 @@
               <div class="collapse-sm navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-0">
                   <li class="nav-item p-0 active">
-                    <a class="nav-link" href="{% url 'home' %}">Dashboard<span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="{% url 'home' %}" title="Dashboard">
+                        <i class="fa fa-home fa-lg" style="color:white"></i>
+                        <span class="sr-only">(current)</span>
+                    </a>
                   </li>
                   <li class="nav-item p-0">
-                    <a class="nav-link" href="{% url 'all_puzzles' %}">Puzzles</a>
+                    <a class="ml-2 nav-link" href="{% url 'all_puzzles' %}" title="All Puzzles">
+                        <i class="fa fa-list fa-lg" style="color:white"></i>
+                    </a>
                   </li>
                   <li class="nav-item p-0">
-                    <a class="nav-link" href="#">Leaderboard</a>
+                    <a class="ml-2 nav-link" href="#" title="Leaderboard">
+                        <i class="fa fa-trophy fa-lg" style="color:white"></i>
+                    </a>
                   </li>
-                  <li class="nav-item dropdown">
+                  <li class="nav-item dropdown ml-4">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       Settings
                     </a>
