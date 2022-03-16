@@ -21,10 +21,6 @@ class DashboardTests(SeleniumTestCase):
         self.assert_xpath_contains("//div[contains(@class, 'notetext')]", "No puzzles have been posted", 0)
         self.assert_xpath_contains("//div[contains(@class, 'notetext')]", "no draft puzzles", 1)
 
-    def test_Fully_populated_dashboard(self):
-        # TODO: Add test for fully populated dashboard
-        pass
-
 
 class DraftPuzzlesTests(SeleniumTestCase):
     password = 'secretkey'
@@ -89,6 +85,7 @@ class DraftPuzzlesTests(SeleniumTestCase):
         self.click_xpath("//a[@title='Preview & Publish']")
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + '/')
 
+
 class RecentPuzzlesTests(SeleniumTestCase):
     password = 'secretkey'
 
@@ -138,8 +135,3 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.click_xpath("//a[text()='SHOW ALL PUZZLES']")
         self.assert_current_url("/all_puzzles")
         self.assert_xpath_text("//div/h2", 'All Published Puzzles')
-
-
-
-
-
