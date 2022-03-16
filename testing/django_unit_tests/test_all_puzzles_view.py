@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.utils.timezone import now
 
 from puzzles.models import WordPuzzle
+from testing.django_unit_tests.unit_test_helpers import create_published_puzzle
 
 
 class AllPuzzlesViewTest(TestCase):
@@ -81,14 +82,3 @@ class AllPuzzlesViewTest(TestCase):
         self.assertEqual(objects[0].id, puzzle3.id)
         self.assertEqual(objects[1].id, puzzle1.id)
         self.assertEqual(objects[2].id, puzzle2.id)
-
-
-def create_published_puzzle(user=None, desc=None, type=0, posted_on=now(), clues_pts=None):
-    if clues_pts is None: clues_pts = [1]
-    n_clues = len(clues_pts)
-    SUFFIX = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H'}
-    puzzle = WordPuzzle.objects.create(editor=user, type=type, desc=desc, shared_at=posted_on)
-    for n in range(1, n_clues + 1):
-        puzzle.add_clue(
-            {'answer': 'WORD-' + SUFFIX[n], 'clue_text': 'Clue for Word' + SUFFIX[n], 'points': clues_pts[n - 1]})
-    return puzzle

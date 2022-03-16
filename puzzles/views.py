@@ -180,5 +180,10 @@ class AllPuzzlesView(LoginRequiredMixin, ListView):
         query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
         return query_set
 
-class SolvePuzzleView(View):
-    pass
+class SolvePuzzleView(LoginRequiredMixin, View):
+    def get(self, request, pk=None):
+        puzzle = WordPuzzle.objects.get(id=pk)
+        if puzzle.editor == request.user:
+            return redirect('preview_puzzle', pk)
+        else:
+            return render(request, "solve_puzzle.html", context={'object':puzzle})

@@ -59,12 +59,14 @@ class DashboardViewTests(TestCase):
         puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
         puzzle2 = WordPuzzle.objects.create(editor=self.user)
         puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
+        puzzle1.type=0
+        puzzle1.save()    # Change Puzzle 1 so it becomes last modified
         puzzle2.shared_at = now()   # PUBLISHED
         puzzle2.save()
         response = self.client.get('/')
         self.assertEqual(len(response.context['draft_puzzles']), 2)
-        self.assertEqual(response.context['draft_puzzles'][0].desc, puzzle3.desc)
-        self.assertEqual(response.context['draft_puzzles'][1].desc, puzzle1.desc)
+        self.assertEqual(response.context['draft_puzzles'][0].desc, puzzle1.desc)
+        self.assertEqual(response.context['draft_puzzles'][1].desc, puzzle3.desc)
 
     def test_Recently_posted_puzzles_include_only_published_puzzles_and_sorted_by_recent_first(self):
         WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
