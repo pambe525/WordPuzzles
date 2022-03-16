@@ -179,3 +179,6 @@ class AllPuzzlesView(LoginRequiredMixin, ListView):
         order = self.request.GET.get('order', '-')
         query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
         return query_set
+
+class SolvePuzzleView(View):
+    pass

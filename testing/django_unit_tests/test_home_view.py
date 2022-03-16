@@ -55,20 +55,16 @@ class DashboardViewTests(TestCase):
         self.assertIsNotNone(puzzle_details.modified_at)
         self.assertIsNone(puzzle_details.shared_at)
 
-    def test_Draft_puzzles_do_not_include_published_puzzles_and_sorted_latest_first(self):
+    def test_Draft_puzzles_do_not_include_published_puzzles_and_sorted_last_modified_first(self):
         puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
         puzzle2 = WordPuzzle.objects.create(editor=self.user)
         puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
-        puzzle1.modified_at = now() - timedelta(days=1)   # recent draft
-        puzzle1.save()
-        puzzle3.modified_at = now() - timedelta(days=2)   # older draft
-        puzzle3.save()
-        puzzle2.shared_at = now()
+        puzzle2.shared_at = now()   # PUBLISHED
         puzzle2.save()
         response = self.client.get('/')
         self.assertEqual(len(response.context['draft_puzzles']), 2)
-        self.assertEqual(response.context['draft_puzzles'][0].desc, puzzle1.desc)
-        self.assertEqual(response.context['draft_puzzles'][1].desc, puzzle3.desc)
+        self.assertEqual(response.context['draft_puzzles'][0].desc, puzzle3.desc)
+        self.assertEqual(response.context['draft_puzzles'][1].desc, puzzle1.desc)
 
     def test_Recently_posted_puzzles_include_only_published_puzzles_and_sorted_by_recent_first(self):
         WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
