@@ -43,7 +43,7 @@ class ClueForm(ModelForm):
 
 
 class SortPuzzlesForm(Form):
-    SORT_CHOICES = [('desc', 'Description'), ('size', 'No. of Clues'), ('editor__username', 'Editor'),
+    SORT_CHOICES = [('desc', 'Description'), ('editor__username', 'Editor'), ('size', 'No. of Clues'),
                     ('shared_at', 'Posted On'), ('id', 'Puzzle #'), ('type', 'Puzzle Type'),
                     ('total_points', 'Total Points')]
     ORDER_CHOICES = [('-', 'Descending'), ('', 'Ascending')]

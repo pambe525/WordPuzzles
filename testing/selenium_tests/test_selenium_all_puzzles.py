@@ -51,3 +51,54 @@ class AllPuzzlesTests(SeleniumTestCase):
         self.get('/all_puzzles')
         self.click_xpath("//table/tbody/tr[1]/td[1]/a")
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
+
+    def test_Sort_form_reflects_get_parameters_in_url(self):
+        self.get('/all_puzzles?sort_by=total_points&order=')
+        self.assert_xpath_text("//div/h2", 'All Published Puzzles')
+        self.assert_xpath_value("//select[1]", "total_points")
+        self.assert_xpath_value("//select[2]", '')
+
+    def test_Selecting_sort_by_description_submits_form_with_correct_url(self):
+        self.get('/all_puzzles')
+        self.select_xpath_by_text("//select[1]", "Description")
+        self.assert_current_url("/all_puzzles?sort_by=desc&order=-")
+        self.assert_xpath_text("//div/h2", 'All Published Puzzles')
+        self.assert_xpath_value("//select[1]", "desc")
+        self.assert_xpath_value("//select[2]", '-')
+
+    def test_Selecting_sort_by_editor_submits_form_with_correct_url(self):
+        self.get('/all_puzzles')
+        self.select_xpath_by_text("//select[1]", "Editor")
+        self.select_xpath_by_text("//select[2]", "Ascending")
+        self.assert_current_url("/all_puzzles?sort_by=editor__username&order=")
+        self.assert_xpath_text("//div/h2", 'All Published Puzzles')
+        self.assert_xpath_value("//select[1]", "editor__username")
+        self.assert_xpath_value("//select[2]", '')
+
+    def test_Selecting_sort_by_size_submits_form_with_correct_url(self):
+        self.get('/all_puzzles')
+        self.select_xpath_by_text("//select[1]", "No. of Clues")
+        self.assert_current_url("/all_puzzles?sort_by=size&order=-")
+        self.assert_xpath_value("//select[1]", "size")
+        self.assert_xpath_value("//select[2]", '-')
+
+    def test_Selecting_sort_by_id_submits_form_with_correct_url(self):
+        self.get('/all_puzzles')
+        self.select_xpath_by_text("//select[1]", "Puzzle #")
+        self.assert_current_url("/all_puzzles?sort_by=id&order=-")
+        self.assert_xpath_value("//select[1]", "id")
+        self.assert_xpath_value("//select[2]", '-')
+
+    def test_Selecting_sort_by_type_submits_form_with_correct_url(self):
+        self.get('/all_puzzles')
+        self.select_xpath_by_text("//select[1]", "Puzzle Type")
+        self.assert_current_url("/all_puzzles?sort_by=type&order=-")
+        self.assert_xpath_value("//select[1]", "type")
+        self.assert_xpath_value("//select[2]", '-')
+
+    def test_Selecting_sort_by_total_points_submits_form_with_correct_url(self):
+        self.get('/all_puzzles')
+        self.select_xpath_by_text("//select[1]", "Total Points")
+        self.assert_current_url("/all_puzzles?sort_by=total_points&order=-")
+        self.assert_xpath_value("//select[1]", "total_points")
+        self.assert_xpath_value("//select[2]", '-')

@@ -127,6 +127,10 @@ class HelperMixin:
     def get_xpath(self, xpath):
         return self.selenium.find_elements(By.XPATH, xpath)
 
+    def select_xpath_by_text(self, xpath, visible_text):
+        selector = Select(self.selenium.find_element(By.XPATH, xpath))
+        selector.select_by_visible_text(visible_text)
+
 
 ### Parent class from which all selenium test cases will be derived
 class SeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
