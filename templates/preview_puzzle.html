@@ -16,7 +16,7 @@
             <a href="{% url 'home' %}" class="ml-2 btn btn-dark">DONE</a>
         </div>
         <div class="m-1 bg-light p-3">
-            <h5 class="mb-0"><b>{{ object }}</b></h5>
+            <h4 class="mb-0"><b>{{ object }}</b></h4>
             <h6 class="mb-2 text-secondary">Posted by: {{ object.editor }}</h6>
             {% if object.desc != None and object.desc != "" %}
                 <h6 class="text-dark">Description: {{ object.desc }}</h6>
