@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -27,3 +29,14 @@ class SolvePuzzleViewTest(TestCase):
         puzzle = create_published_puzzle(user=self.other_user)
         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
         self.assertEqual(response.context['object'], puzzle)
+
+    def test_Response_context_contains_serialized_clues_list(self):
+        puzzle = create_published_puzzle(user=self.other_user, clues_pts=[4,2,1,4])
+        response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
+        clues = puzzle.get_clues()
+        json_clues_list = json.loads(response.context['clues'])
+        self.assertEqual(len(json_clues_list), 4)
+        for index in range(0, len(json_clues_list)):
+            self.assertEqual(json_clues_list[index]['clue_num'], index+1)
+            self.assertEqual(json_clues_list[index]['points'], clues[index].points)
+            self.assertEqual(json_clues_list[index]['clue_text'], clues[index].get_decorated_clue_text())

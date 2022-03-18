@@ -2,9 +2,6 @@
 {% block content %}
     <div class="d-inline-block">
         <h2 class="pl-2 pb-0 mb-2 mt-2">Solve Puzzle</h2>
-{#        <div class="m-0 row mt-2 mb-3">#}
-{#            <a href="{% url 'home' %}" class="ml-2 btn btn-dark">DONE</a>#}
-{#        </div>#}
         <div class="m-1 bg-light p-3">
             <h4 class="mb-0"><b>{{ object }}</b></h4>
             <h6 class="mb-2 mt-1 text-secondary">
@@ -17,23 +14,66 @@
             {% if object.size == 0 %}
                 <div class="mt-2 notetext">No clues exist.</div>
             {% else %}
-                <h5 class="mb-0"><b>Clues: [0 points earned of {{ object.total_points }}]</b></h5>
+                <h5 class="mb-0"><b>Clues [score: 0 of {{ object.total_points }} pts] - 00h:00m:00s</b></h5>
                 <div class="notetext">Hover or click on a button below to view the clue.</div>
+                <!-- CLUE BUTTONS -->
                 <div class="mt-1">
                     {% for clue in object.get_clues %}
-                        <button class="btn-sm btn-light border-secondary pt-0 pb-0">{{ clue.clue_num }}</button>
+                        <button class="btn-sm btn-light border border-secondary pt-0 pb-0"
+                                id = "clue-btn-{{ clue.clue_num }}"
+                                onclick = "showClue(this.innerText);"
+                                title="{{ clue.get_decorated_clue_text }} [{{ clue.points }} pts]">
+                                {{ clue.clue_num }}
+                        </button>
                     {% endfor %}
+                </div>
+                <!-- CLUE BOX -->
+                <div class="mt-2 text-left d-block border border-dark rounded-3 p-1">
+                    <div class="m-0 row align-items-center">
+                        <button class="pr-2 p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
+                            <i class="fa fa-caret-left fa-3x"></i>
+                        </button>
+                        <span class="col pl-1 pr-1" id="id-clue"></span>
+                        <button class="pl-2 p-0 btn" title="Next clue" id="id-right-caret" onclick="nextClue();">
+                            <i class="fa fa-caret-right fa-3x"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="m-0 row mt-2">
+                    <a class="btn btn-primary">SOLVE NOW</a>
+                    <a class="ml-2 btn btn-light">CANCEL</a>
                 </div>
             {% endif %}
         </div>
     </div>
-
     <script>
+    const clueSet = {{ clues | safe }}
+
     $(document).ready(function(){
-        $('#showAnswers').change(function() {
-            if ( this.checked ) $('.answer').show();
-            else $('.answer').hide();
-        })
+        $("#clue-btn-1").click();
     })
+
+    function getClueDesc(clue) {
+        return "Clue #" + clue.clue_num + ": " + clue.clue_text + " [" + clue.points + " pts]";
+    }
+
+    function showClue(clickedClueNum) {
+        var clue = clueSet[parseInt(clickedClueNum)-1]
+        $('#id-clue').text(getClueDesc(clue));
+        $("[id^=clue-btn-]").removeClass('active');
+        $("#clue-btn-"+clickedClueNum).addClass('active').focus();
+    }
+
+    function nextClue() {
+        var currentClueNum = parseInt($('.active').text());
+        var nextClueNum = (currentClueNum < clueSet.length) ? currentClueNum+1 : 1
+        $("#clue-btn-"+nextClueNum).click()
+    }
+
+    function prevClue() {
+        var currentClueNum = parseInt($('.active').text());
+        var prevClueNum = (currentClueNum > 1) ? currentClueNum-1 : clueSet.length
+        $("#clue-btn-"+prevClueNum).click()
+    }
     </script>
 {% endblock %}

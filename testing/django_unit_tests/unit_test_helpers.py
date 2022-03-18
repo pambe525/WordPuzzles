@@ -12,3 +12,6 @@ def create_published_puzzle(user=None, desc=None, type=0, posted_on=now(), clues
         puzzle.add_clue(
             {'answer': 'WORD-' + SUFFIX[n], 'clue_text': 'Clue for Word' + SUFFIX[n], 'points': clues_pts[n - 1]})
     return puzzle
+
+def get_full_clue_desc(clue):
+    return "Clue #" + str(clue.clue_num) + ": " + clue.get_decorated_clue_text() + " [" + str(clue.points) + " pts]"

@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -186,4 +187,14 @@ class SolvePuzzleView(LoginRequiredMixin, View):
         if puzzle.editor == request.user:
             return redirect('preview_puzzle', pk)
         else:
-            return render(request, "solve_puzzle.html", context={'object':puzzle})
+            clues_list = self.get_clues_list(puzzle)
+            return render(request, "solve_puzzle.html", context={'object':puzzle, 'clues': json.dumps(clues_list)})
+
+    def get_clues_list(self, puzzle):
+        clues = puzzle.get_clues()
+        clues_list = []
+        for index in range(0, len(clues)):
+            data = {'clue_num': clues[index].clue_num, 'clue_text': clues[index].get_decorated_clue_text(),
+                    'points': clues[index].points}
+            clues_list.append(data)
+        return clues_list
