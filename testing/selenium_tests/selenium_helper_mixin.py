@@ -68,26 +68,18 @@ class HelperMixin:
     def get(self, url):
         self.selenium.get(self.server_url + url)
 
-    def set_input_text(self, input_id, input_text):
-        element = self.selenium.find_element(By.ID, input_id)
-        element.clear()
-        element.send_keys(input_text)
-
-    def set_input_xpath(self, xpath, input_text):
+    def set_input_text(self, xpath, input_text):
         element = self.selenium.find_element(By.XPATH, xpath)
         element.clear()
         element.send_keys(input_text)
-
-    # def click_btn(self, btn_id):
-    #     self.selenium.find_element(By.ID, btn_id).click()
 
     def do_click(self, xpath):
         self.selenium.find_element(By.XPATH, xpath).click()
 
     def login_user(self, username, password):
         self.get('/login')
-        self.set_input_text('id_username', username)
-        self.set_input_text('id_password', password)
+        self.set_input_text("//input[@id='id_username']", username)
+        self.set_input_text("//input[@id='id_password']", password)
         self.do_click("//button[@id='btnSignIn']")
 
     def get_password_reset_url(self, user, password_reset_base_url):

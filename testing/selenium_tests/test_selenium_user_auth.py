@@ -13,20 +13,20 @@ class UserAuthTests(SeleniumTestCase):
 
     def test_SignUp_with_invalid_input_displays_errors(self):
         self.get('/signup')
-        self.set_input_text('id_username', 'someuser')
-        self.set_input_text('id_password1', 'password1')
-        self.set_input_text('id_password2', 'password2')  # passwords do not match
-        self.set_input_text('id_email', 'abc@cde.com')
+        self.set_input_text("//input[@id='id_username']", 'someuser')
+        self.set_input_text("//input[@id='id_password1']", 'password1')
+        self.set_input_text("//input[@id='id_password2']", 'password2')  # passwords do not match
+        self.set_input_text("//input[@id='id_email']", 'abc@cde.com')
         self.assert_item_count("//*[contains(@class,'errorlist')]", 0)
         self.do_click("//button[@id='btnSignUp']")
         self.assert_text_contains("//*[contains(@class,'errorlist')]", "The two password fields didn")
 
     def test_SignUp_with_valid_input_authenticates_user_and_redirects_to_home_page(self):
         self.get('/signup')
-        self.set_input_text('id_username', 'someuser')
-        self.set_input_text('id_password1', 'secretkey')
-        self.set_input_text('id_password2', 'secretkey')
-        self.set_input_text('id_email', 'abc@cde.com')
+        self.set_input_text("//input[@id='id_username']", 'someuser')
+        self.set_input_text("//input[@id='id_password1']", 'secretkey')
+        self.set_input_text("//input[@id='id_password2']", 'secretkey')
+        self.set_input_text("//input[@id='id_email']", 'abc@cde.com')
         self.assert_item_count("//*[contains(@class,'errorlist')]", 0)
         self.do_click("//button[@id='btnSignUp']")
         self.assert_current_url('/')
@@ -38,8 +38,8 @@ class UserAuthTests(SeleniumTestCase):
 
     def test_LogIn_with_invalid_input_displays_errors(self):
         self.get('/login')
-        self.set_input_text('id_username', 'someuser')  # invalid username
-        self.set_input_text('id_password', self.password)
+        self.set_input_text("//input[@id='id_username']", 'someuser')  # invalid username
+        self.set_input_text("//input[@id='id_password']", self.password)
         self.assert_item_count("//*[contains(@class,'errorlist')]", 0)
         self.do_click("//button[@id='btnSignIn']")
         error_msg = "Please enter a correct username and password"
@@ -81,7 +81,7 @@ class UserAuthTests(SeleniumTestCase):
 
     def test_Password_reset_send_email_shows_email_sent_message(self):
         self.get('/password_reset')
-        self.set_input_text('id_email', 'bad@email.com')
+        self.set_input_text("//input[@id='id_email']", 'bad@email.com')
         self.do_click("//button[@id='btnReset']")
         self.assert_item_count("//form", 0)
 
@@ -95,8 +95,8 @@ class UserAuthTests(SeleniumTestCase):
         password_reset_url = self.get_password_reset_url(self.user, 'password_reset_confirm')
         self.get(password_reset_url)
         self.assert_item_count("//form", 1)
-        self.set_input_text('id_new_password1', "secretkey2")
-        self.set_input_text('id_new_password2', "secretkey2")
+        self.set_input_text("//input[@id='id_new_password1']", "secretkey2")
+        self.set_input_text("//input[@id='id_new_password2']", "secretkey2")
         self.do_click("//button[@id='btnReset']")
         self.assert_current_url('/password_reset_complete')
         self.assert_text_equals("//h2", "Password reset complete")
@@ -162,17 +162,17 @@ class UserAuthTests(SeleniumTestCase):
         self.login_user(self.user.username, self.password)
         User.objects.create_user("testuser2", "user2@test.com", self.password)
         self.get("/account/edit/")
-        self.set_input_text("id_username", "testuser2")
+        self.set_input_text("//input[@id='id_username']", "testuser2")
         self.do_click("//button[@id='btnSave']")
         self.assert_text_equals("//*[contains(@class,'errorlist')]", "A user with that username already exists.")
 
     def test_Account_Edit_page_saves_data_and_redirects_to_accounts_page(self):
         self.login_user(self.user.username, self.password)
         self.get("/account/edit/")
-        self.set_input_text("id_username", "testuser2")
-        self.set_input_text("id_first_name", "Django")
-        self.set_input_text("id_last_name", "Tester")
-        self.set_input_text("id_email", "user2@test.com")
+        self.set_input_text("//input[@id='id_username']", "testuser2")
+        self.set_input_text("//input[@id='id_first_name']", "Django")
+        self.set_input_text("//input[@id='id_last_name']", "Tester")
+        self.set_input_text("//input[@id='id_email']", "user2@test.com")
         self.do_click("//button[@id='btnSave']")
         self.assert_current_url('/account')
         username = self.selenium.find_element(By.ID, 'id_username')
@@ -191,9 +191,9 @@ class UserAuthTests(SeleniumTestCase):
     def test_Change_Password_page_has_validation_errors_with_bad_input(self):
         self.login_user(self.user.username, self.password)
         self.get("/change_password")
-        self.set_input_text("id_old_password", "secrekey")
-        self.set_input_text("id_new_password1", "secretkey1")
-        self.set_input_text("id_new_password2", "secretkey1")
+        self.set_input_text("//input[@id='id_old_password']", "secrekey")
+        self.set_input_text("//input[@id='id_new_password1']", "secretkey1")
+        self.set_input_text("//input[@id='id_new_password2']", "secretkey1")
         self.do_click("//button[@id='btnChange']")
         error_msg = "Your old password was entered incorrectly. Please enter it again."
         self.assert_text_equals("//*[contains(@class,'errorlist')]", error_msg)
@@ -201,8 +201,8 @@ class UserAuthTests(SeleniumTestCase):
     def test_Change_Password_page_changes_password_and_redirects_to_confirmation(self):
         self.login_user(self.user.username, self.password)
         self.get("/change_password")
-        self.set_input_text("id_old_password", "secretkey1")
-        self.set_input_text("id_new_password1", "secretkey2")
-        self.set_input_text("id_new_password2", "secretkey2")
+        self.set_input_text("//input[@id='id_old_password']", "secretkey1")
+        self.set_input_text("//input[@id='id_new_password1']", "secretkey2")
+        self.set_input_text("//input[@id='id_new_password2']", "secretkey2")
         self.do_click("//button[@id='btnChange']")
         self.assert_current_url('/change_password_done')
