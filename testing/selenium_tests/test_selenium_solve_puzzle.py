@@ -59,7 +59,7 @@ class SolvePuzzleTests(SeleniumTestCase):
     def test_Clicking_on_right_caret_on_last_clue_advances_to_first_clue(self):
         puzzle = create_published_puzzle(user=self.other_user, desc="Puzzle description", clues_pts=[1, 2, 3, 4])
         self.get('/solve_puzzle/' + str(puzzle.id) + '/')
-        self.click_btn("clue-btn-4")
+        self.click_xpath("//button[@id='clue-btn-4']")
         self.click_xpath("//div/button[@id='id-right-caret']")
         next_clue = puzzle.get_clues()[0]
         self.assert_xpath_text("//span[@id='id-clue']", get_full_clue_desc(next_clue))
@@ -69,7 +69,7 @@ class SolvePuzzleTests(SeleniumTestCase):
     def test_Clicking_on_left_caret_advances_to_previous_clue(self):
         puzzle = create_published_puzzle(user=self.other_user, desc="Puzzle description", clues_pts=[2, 1, 3, 4, 5])
         self.get('/solve_puzzle/' + str(puzzle.id) + '/')
-        self.click_btn("clue-btn-4")   # Click on 4th clue btn
+        self.click_xpath("//button[@id='clue-btn-4']")   # Click on 4th clue btn
         self.click_xpath("//div/button[@id='id-left-caret']")
         prev_clue = puzzle.get_clues()[2]  # 3rd clue
         self.assert_xpath_text("//span[@id='id-clue']", get_full_clue_desc(prev_clue))

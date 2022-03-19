@@ -18,7 +18,7 @@ class UserAuthTests(SeleniumTestCase):
         self.set_input_text('id_password2', 'password2')  # passwords do not match
         self.set_input_text('id_email', 'abc@cde.com')
         self.assert_xpath_items("//*[contains(@class,'errorlist')]", 0)
-        self.click_btn('btnSignUp')
+        self.click_xpath("//button[@id='btnSignUp']")
         self.assert_xpath_contains("//*[contains(@class,'errorlist')]", "The two password fields didn")
 
     def test_SignUp_with_valid_input_authenticates_user_and_redirects_to_home_page(self):
@@ -28,12 +28,12 @@ class UserAuthTests(SeleniumTestCase):
         self.set_input_text('id_password2', 'secretkey')
         self.set_input_text('id_email', 'abc@cde.com')
         self.assert_xpath_items("//*[contains(@class,'errorlist')]", 0)
-        self.click_btn('btnSignUp')
+        self.click_xpath("//button[@id='btnSignUp']")
         self.assert_current_url('/')
 
     def test_SignUp_links_to_login_page(self):
         self.get('/signup')
-        self.click_btn('lnkSignIn')
+        self.click_xpath("//a[@id='lnkSignIn']")
         self.assert_current_url('/login')
 
     def test_LogIn_with_invalid_input_displays_errors(self):
@@ -41,7 +41,7 @@ class UserAuthTests(SeleniumTestCase):
         self.set_input_text('id_username', 'someuser')  # invalid username
         self.set_input_text('id_password', self.password)
         self.assert_xpath_items("//*[contains(@class,'errorlist')]", 0)
-        self.click_btn('btnSignIn')
+        self.click_xpath("//button[@id='btnSignIn']")
         error_msg = "Please enter a correct username and password"
         self.assert_xpath_contains("//*[contains(@class,'errorlist')]", error_msg)
 
@@ -51,12 +51,12 @@ class UserAuthTests(SeleniumTestCase):
 
     def test_Login_links_to_signup_page(self):
         self.get('/login')
-        self.click_btn('lnkSignUp')
+        self.click_xpath("//a[@id='lnkSignUp']")
         self.assert_current_url('/signup')
 
     def test_Login_links_to_reset_password_page(self):
         self.get('/login')
-        self.click_btn('lnkReset')
+        self.click_xpath("//a[@id='lnkReset']")
         self.assert_current_url('/password_reset')
 
     def test_Auth_pages_redirect_to_home_page_if_user_is_already_logged_in(self):
@@ -76,19 +76,19 @@ class UserAuthTests(SeleniumTestCase):
 
     def test_Password_reset_cancel_redirects_to_login_page(self):
         self.get('/password_reset')
-        self.click_btn('lnkSignIn')
+        self.click_xpath("//a[@id='lnkSignIn']")
         self.assert_current_url('/login')
 
     def test_Password_reset_send_email_shows_email_sent_message(self):
         self.get('/password_reset')
         self.set_input_text('id_email', 'bad@email.com')
-        self.click_btn('btnReset')
+        self.click_xpath("//button[@id='btnReset']")
         self.assert_xpath_items("//form", 0)
 
     def test_Password_reset_confirm_cancel_redirects_to_login_page(self):
         password_reset_url = self.get_password_reset_url(self.user, 'password_reset_confirm')
         self.get(password_reset_url)
-        self.click_btn('lnkSignIn')
+        self.click_xpath("//a[@id='lnkSignIn']")
         self.assert_current_url('/login')
 
     def test_Password_reset_confirm_with_input_resets_password(self):
@@ -97,13 +97,13 @@ class UserAuthTests(SeleniumTestCase):
         self.assert_xpath_items("//form", 1)
         self.set_input_text('id_new_password1', "secretkey2")
         self.set_input_text('id_new_password2', "secretkey2")
-        self.click_btn('btnReset')
+        self.click_xpath("//button[@id='btnReset']")
         self.assert_current_url('/password_reset_complete')
         self.assert_xpath_text("//h2", "Password reset complete")
 
     def test_Password_reset_complete_links_to_login_page(self):
         self.get("/password_reset_complete")
-        self.click_btn('lnkSignIn')
+        self.click_xpath("//a[@id='lnkSignIn']")
         self.assert_current_url('/login')
 
     def test_Account_page_redirects_to_login_if_user_is_not_authenticated(self):
@@ -129,7 +129,7 @@ class UserAuthTests(SeleniumTestCase):
     def test_Account_page_on_edit_btn_click_redirects_to_Account_Edit(self):
         self.login_user(self.user.username, self.password)
         self.get("/account")
-        self.click_btn('lnkEditAccount')
+        self.click_xpath("//a[@id='lnkEditAccount']")
         self.assert_current_url('/account/edit/')
 
     def test_Account_Edit_page_redirects_to_login_if_user_is_not_authenticated(self):
@@ -155,7 +155,7 @@ class UserAuthTests(SeleniumTestCase):
     def test_Account_Edit_page_cancel_btn_redirects_to_Accounts_page(self):
         self.login_user(self.user.username, self.password)
         self.get("/account/edit/")
-        self.click_btn("lnkAccount")
+        self.click_xpath("//a[@id='lnkAccount']")
         self.assert_current_url('/account')
 
     def test_Account_Edit_page_has_errors_if_data_is_bad(self):
@@ -163,7 +163,7 @@ class UserAuthTests(SeleniumTestCase):
         User.objects.create_user("testuser2", "user2@test.com", self.password)
         self.get("/account/edit/")
         self.set_input_text("id_username", "testuser2")
-        self.click_btn("btnSave")
+        self.click_xpath("//button[@id='btnSave']")
         self.assert_xpath_text("//*[contains(@class,'errorlist')]", "A user with that username already exists.")
 
     def test_Account_Edit_page_saves_data_and_redirects_to_accounts_page(self):
@@ -173,7 +173,7 @@ class UserAuthTests(SeleniumTestCase):
         self.set_input_text("id_first_name", "Django")
         self.set_input_text("id_last_name", "Tester")
         self.set_input_text("id_email", "user2@test.com")
-        self.click_btn("btnSave")
+        self.click_xpath("//button[@id='btnSave']")
         self.assert_current_url('/account')
         username = self.selenium.find_element(By.ID, 'id_username')
         email = self.selenium.find_element(By.ID, 'id_email')
@@ -194,7 +194,7 @@ class UserAuthTests(SeleniumTestCase):
         self.set_input_text("id_old_password", "secrekey")
         self.set_input_text("id_new_password1", "secretkey1")
         self.set_input_text("id_new_password2", "secretkey1")
-        self.click_btn("btnChange")
+        self.click_xpath("//button[@id='btnChange']")
         error_msg = "Your old password was entered incorrectly. Please enter it again."
         self.assert_xpath_text("//*[contains(@class,'errorlist')]", error_msg)
 
@@ -204,5 +204,5 @@ class UserAuthTests(SeleniumTestCase):
         self.set_input_text("id_old_password", "secretkey1")
         self.set_input_text("id_new_password1", "secretkey2")
         self.set_input_text("id_new_password2", "secretkey2")
-        self.click_btn("btnChange")
+        self.click_xpath("//button[@id='btnChange']")
         self.assert_current_url('/change_password_done')

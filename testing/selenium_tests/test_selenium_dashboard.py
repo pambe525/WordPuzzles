@@ -32,7 +32,7 @@ class DraftPuzzlesTests(SeleniumTestCase):
 
     def test_New_Puzzle_button_creates_puzzle_and_loads_edit_puzzle_page(self):
         self.get('/')
-        self.click_btn('btnNewPuzzle')
+        self.click_xpath("//a[@id='btnNewPuzzle']")
         # Creates puzzle and redirects to edit puzzle page
         puzzle_id = WordPuzzle.objects.all()[0].id
         self.assert_current_url('/edit_puzzle/' + str(puzzle_id) + '/')

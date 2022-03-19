@@ -88,7 +88,7 @@ class HelperMixin:
         self.get('/login')
         self.set_input_text('id_username', username)
         self.set_input_text('id_password', password)
-        self.click_btn('btnSignIn')
+        self.click_xpath("//button[@id='btnSignIn']")
 
     def get_password_reset_url(self, user, password_reset_base_url):
         base64_encoded_id = urlsafe_base64_encode(force_bytes(user.id))
