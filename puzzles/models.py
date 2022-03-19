@@ -87,6 +87,11 @@ class WordPuzzle(models.Model):
         self.save(update_fields=['shared_at'])
         return self
 
+    def unpublish(self):
+        self.shared_at = None
+        self.save(update_fields=['shared_at'])
+        return self
+
     def is_published(self):
         return self.shared_at is not None
 

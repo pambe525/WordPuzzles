@@ -159,8 +159,7 @@ class UnpublishPuzzleView(PuzzleEditorMixin, View):
 
     def get(self, request, **kwargs):
         puzzle = self.model.objects.get(id=kwargs['pk'])
-        puzzle.shared_at = None
-        puzzle.save()
+        puzzle.unpublish()
         return redirect('home')
 
 class AllPuzzlesView(LoginRequiredMixin, ListView):
