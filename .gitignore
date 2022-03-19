@@ -1,4 +1,14 @@
 /db.sqlite3
 /venv/
-/geckodriver.log
 /testing/selenium_tests/geckodriver.log
+.idea/dataSources/
+WordPuzzles/__pycache__/
+__pycache__/
+puzzles/__pycache__/
+puzzles/migrations/__pycache__/
+testing/__pycache__/
+testing/django_unit_tests/__pycache__/
+testing/selenium_tests/__pycache__/
+user_auth/__pycache__/
+user_auth/migrations/__pycache__/
+/geckodriver.log
