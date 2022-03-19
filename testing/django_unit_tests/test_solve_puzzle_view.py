@@ -19,6 +19,15 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/login?next=/solve_puzzle/1/")
 
+    def test_Error_message_if_puzzle_does_not_exist(self):
+        response = self.client.get("/solve_puzzle/1/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed("puzzle_error.html")
+        self.assertContains(response, "Puzzle #1")
+        self.assertContains(response, "This puzzle does not exist.")
+        self.assertContains(response, "OK")
+
+
     def test_Redirects_to_PREVIEW_PAGE_if_user_is_editor(self):
         puzzle = create_published_puzzle(user=self.user)
         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
