@@ -183,12 +183,18 @@ class AllPuzzlesView(LoginRequiredMixin, ListView):
 
 class SolvePuzzleView(LoginRequiredMixin, View):
     def get(self, request, pk=None):
-        puzzle = WordPuzzle.objects.get(id=pk)
-        if puzzle.editor == request.user:
-            return redirect('preview_puzzle', pk)
+        try:
+            puzzle = WordPuzzle.objects.get(id=pk)
+        except WordPuzzle.DoesNotExist:
+            err_msg = "This puzzle does not exist."
+            ctx = {'err_msg': err_msg, 'id': pk}
+            return render(request, "puzzle_error.html", context=ctx)
         else:
-            clues_list = self.get_clues_list(puzzle)
-            return render(request, "solve_puzzle.html", context={'object':puzzle, 'clues': json.dumps(clues_list)})
+            if puzzle.editor == request.user:
+                return redirect('preview_puzzle', pk)
+            else:
+                clues_list = self.get_clues_list(puzzle)
+                return render(request, "solve_puzzle.html", context={'object':puzzle, 'clues': json.dumps(clues_list)})
 
     def get_clues_list(self, puzzle):
         clues = puzzle.get_clues()
