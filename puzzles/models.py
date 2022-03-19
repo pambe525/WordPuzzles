@@ -84,7 +84,11 @@ class WordPuzzle(models.Model):
 
     def publish(self, time_stamp=now()):
         self.shared_at = time_stamp
+        self.save(update_fields=['shared_at'])
         return self
+
+    def is_published(self):
+        return self.shared_at is not None
 
 
 class Clue(models.Model):

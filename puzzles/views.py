@@ -149,9 +149,8 @@ class PublishPuzzleView(PuzzleEditorMixin, View):
             err_msg = "No clues to publish.  Add clues before publishing."
             ctx = {'err_msg': err_msg, 'id': kwargs['pk']}
             return render(request, "puzzle_error.html", context=ctx)
-        if puzzle.shared_at is None:
-            puzzle.shared_at = now()
-            puzzle.save()
+        if not puzzle.is_published():
+            puzzle.publish()
         return redirect('home')
 
 
