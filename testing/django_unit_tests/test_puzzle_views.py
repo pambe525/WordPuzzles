@@ -458,7 +458,7 @@ class PublishPuzzleViewTest(TestCase):
     def test_GET_does_nothing_if_shared_at_is_already_set(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
-        response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
+        self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
         shared_at = WordPuzzle.objects.get(id=puzzle.id).shared_at
         response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # do it again
         self.assertEqual(response.url, "/")
