@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.timezone import now
 
 
 def get_name(self):
@@ -80,6 +81,10 @@ class WordPuzzle(models.Model):
 
     def get_clues(self):
         return Clue.objects.filter(puzzle=self).order_by('clue_num')
+
+    def publish(self, time_stamp=now()):
+        self.shared_at = time_stamp
+        return self
 
 
 class Clue(models.Model):
