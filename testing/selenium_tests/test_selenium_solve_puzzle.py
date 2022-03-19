@@ -19,7 +19,7 @@ class SolvePuzzleTests(SeleniumTestCase):
         post_on = "Posted by: " + str(self.other_user) + " on " + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_xpath_text("//div/h6[1]", post_on)
         self.assert_xpath_text("//div/h6[2]", "Description: " + puzzle.desc)
-        self.assert_xpath_text("//div/div/div//h5", "Clues [score: 0 of 10 pts] - 00h:00m:00s")
+        self.assert_xpath_text("//div/div/div//h5", "Clues")
         self.assert_xpath_items("//div//button[contains(@id,'clue-btn-')]", 4)
 
     def test_Clue_button_details(self):
