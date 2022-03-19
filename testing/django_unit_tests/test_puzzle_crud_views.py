@@ -374,49 +374,6 @@ class DeleteClueViewTests(TestCase):
         self.assertEqual(clues[2].clue_num, 3)
 
 
-class PreviewPuzzleViewTest(TestCase):
-    def setUp(self):
-        self.user = User.objects.create(username="tester")
-        self.client.force_login(self.user)
-
-    def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
-        logout(self.client)
-        puzzle = WordPuzzle.objects.create(editor=self.user)
-        response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/login?next=/preview_puzzle/1/")
-
-    def test_GET_shows_error_if_user_is_not_editor(self):
-        other_user = User.objects.create(username="other_user")
-        puzzle = WordPuzzle.objects.create(editor=other_user)
-        response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Puzzle #" + str(puzzle.id))
-        self.assertContains(response, "OK")
-        self.assertContains(response, "This operation is not permitted since you are not the editor.")
-
-    def test_GET_shows_error_if_puzzle_does_not_exist(self):
-        response = self.client.get("/preview_puzzle/50/")
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
-        self.assertContains(response, "Puzzle #50")
-        self.assertContains(response, "This puzzle does not exist.")
-        self.assertContains(response, "OK")
-
-    def test_GET_displays_puzzle_details(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, desc='Description')
-        puzzle.add_clue({'answer': 'WORD-A', 'clue_text': 'Clue 1 for word A', 'parsing': 'parsing', 'points': 1})
-        puzzle.add_clue({'answer': 'WORD-B', 'clue_text': 'Clue 2 for word B', 'parsing': '', 'points': 2})
-        puzzle.add_clue({'answer': 'WORD-C', 'clue_text': 'Clue 3 for word C', 'parsing': '', 'points': 3})
-        puzzle.add_clue({'answer': 'WORD-D', 'clue_text': 'Clue 4 for word D', 'parsing': 'parsing for D', 'points': 4})
-        response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
-        self.assertContains(response, "Puzzle #" + str(puzzle.id))
-        self.assertContains(response, "DONE")
-        self.assertContains(response, str(puzzle))
-        self.assertContains(response, puzzle.desc)
-        self.assertContains(response, "Clues")
-
-
 class PublishPuzzleViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test_user")
