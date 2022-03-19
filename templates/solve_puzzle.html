@@ -8,14 +8,13 @@
                 Posted by: <b>{{ object.editor }}</b> on {{ object.shared_at|date:'M d, Y' }} (GMT)
             </h6>
             {% if object.desc != None and object.desc != "" %}
-                <h6 class="text-dark">Description: {{ object.desc }}</h6>
+                <h6 class="text-dark mb-3">Description: {{ object.desc }}</h6>
             {% endif %}
-            <hr>
             {% if object.size == 0 %}
                 <div class="mt-2 notetext">No clues exist.</div>
             {% else %}
-                <h5 class="mb-0"><b>Clues [score: 0 of {{ object.total_points }} pts] - 00h:00m:00s</b></h5>
-                <div class="notetext">Hover or click on a button below to view the clue.</div>
+                <h5 class="mb-0"><b>Clues</b></h5>
+                <div class="notetext">Hover or click on a clue number button below to view the clue.</div>
                 <!-- CLUE BUTTONS -->
                 <div class="mt-1">
                     {% for clue in object.get_clues %}
