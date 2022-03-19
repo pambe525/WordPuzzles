@@ -9,19 +9,19 @@ from puzzles.models import WordPuzzle
 from testing.django_unit_tests.unit_test_helpers import create_published_puzzle
 
 
-class AllPuzzlesViewTest(TestCase):
+class PuzzlesListViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test_user")
         self.client.force_login(self.user)
 
     def test_Redirects_to_LOGIN_view_if_user_is_not_authenticated(self):
         logout(self.client)
-        response = self.client.get("/all_puzzles")
+        response = self.client.get("/puzzles_list")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/login?next=/all_puzzles")
+        self.assertEqual(response.url, "/login?next=/puzzles_list")
 
     def test_Default_form_and_list_when_no_puzzles_exist(self):
-        response = self.client.get("/all_puzzles")
+        response = self.client.get("/puzzles_list")
         form = response.context['form']
         self.assertEqual(form.initial['sort_by'], 'shared_at')
         self.assertEqual(form.initial['order'], '-')
@@ -29,7 +29,7 @@ class AllPuzzlesViewTest(TestCase):
 
     def test_Form_reflects_passed_parameters_on_url(self):
         create_published_puzzle(self.user)
-        response = self.client.get("/all_puzzles?sort_by=desc&order=")
+        response = self.client.get("/puzzles_list?sort_by=desc&order=")
         form = response.context['form']
         self.assertEqual(form.initial['sort_by'], 'desc')
         self.assertEqual(form.initial['order'], '')
@@ -39,7 +39,7 @@ class AllPuzzlesViewTest(TestCase):
         puzzle1 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=1))
         puzzle2 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=5))
         puzzle3 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=3))
-        response = self.client.get("/all_puzzles")
+        response = self.client.get("/puzzles_list")
         objects = response.context['object_list']
         self.assertEqual(len(objects), 3)
         self.assertEqual(objects[0].id, puzzle1.id)
@@ -50,7 +50,7 @@ class AllPuzzlesViewTest(TestCase):
         puzzle1 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=1))
         puzzle2 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=5))
         puzzle3 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=3))
-        response = self.client.get("/all_puzzles?sort_by=shared_at&order=")
+        response = self.client.get("/puzzles_list?sort_by=shared_at&order=")
         objects = response.context['object_list']
         self.assertEqual(objects[0].id, puzzle2.id)
         self.assertEqual(objects[1].id, puzzle3.id)
@@ -62,7 +62,7 @@ class AllPuzzlesViewTest(TestCase):
         puzzle1 = create_published_puzzle(user2, posted_on=now() - timedelta(days=1))
         puzzle2 = create_published_puzzle(user3, posted_on=now() - timedelta(days=5))
         puzzle3 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=3))
-        response = self.client.get("/all_puzzles?sort_by=editor__username&order=")
+        response = self.client.get("/puzzles_list?sort_by=editor__username&order=")
         objects = response.context['object_list']
         self.assertEqual(objects[0].id, puzzle2.id)
         self.assertEqual(objects[1].id, puzzle1.id)
@@ -72,12 +72,12 @@ class AllPuzzlesViewTest(TestCase):
         puzzle1 = create_published_puzzle(self.user, clues_pts=[3, 5])
         puzzle2 = create_published_puzzle(self.user, clues_pts=[3, 4, 5, 1])
         puzzle3 = create_published_puzzle(self.user, clues_pts=[3, 2, 1])
-        response = self.client.get("/all_puzzles?sort_by=size&order=-")
+        response = self.client.get("/puzzles_list?sort_by=size&order=-")
         objects = response.context['object_list']
         self.assertEqual(objects[0].id, puzzle2.id)
         self.assertEqual(objects[1].id, puzzle3.id)
         self.assertEqual(objects[2].id, puzzle1.id)
-        response = self.client.get("/all_puzzles?sort_by=total_points&order=")
+        response = self.client.get("/puzzles_list?sort_by=total_points&order=")
         objects = response.context['object_list']
         self.assertEqual(objects[0].id, puzzle3.id)
         self.assertEqual(objects[1].id, puzzle1.id)

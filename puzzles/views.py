@@ -162,14 +162,14 @@ class UnpublishPuzzleView(PuzzleEditorMixin, View):
         puzzle.unpublish()
         return redirect('home')
 
-class AllPuzzlesView(LoginRequiredMixin, ListView):
+class PuzzlesListView(LoginRequiredMixin, ListView):
     template_name = "all_puzzles.html"
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
         sort_by = self.request.GET.get('sort_by', 'shared_at')
         order = self.request.GET.get('order', '-')
-        context = super(AllPuzzlesView,self).get_context_data(**kwargs)
+        context = super(PuzzlesListView, self).get_context_data(**kwargs)
         context['form'] = SortPuzzlesForm(initial={'sort_by':sort_by, 'order':order})
         return context
 

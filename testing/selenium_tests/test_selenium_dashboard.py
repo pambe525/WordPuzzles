@@ -132,6 +132,6 @@ class RecentPuzzlesTests(SeleniumTestCase):
     def test_All_Puzzles_button_links_to_all_puzzles_page(self):
         self.get('/')
         self.do_click("//a[text()='SHOW ALL PUZZLES']")
-        self.assert_current_url("/all_puzzles")
+        self.assert_current_url("/puzzles_list")
         self.assert_text_equals("//div/h2", 'All Published Puzzles')
 
