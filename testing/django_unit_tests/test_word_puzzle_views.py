@@ -56,39 +56,3 @@ class PreviewPuzzleViewTest(TestCase):
             self.assertEqual(json_clues_list[index]['clue_text'], clues[index].get_decorated_clue_text())
             self.assertEqual(json_clues_list[index]['answer'], clues[index].answer)
             self.assertEqual(json_clues_list[index]['parsing'], clues[index].parsing)
-
-    # def test_Displays_puzzle_details(self):
-    #     puzzle = WordPuzzle.objects.create(editor=self.user, desc='Description')
-    #     puzzle.add_clue({'answer': 'WORD-A', 'clue_text': 'Clue 1 for word A', 'parsing': 'parsing', 'points': 1})
-    #     puzzle.add_clue({'answer': 'WORD-B', 'clue_text': 'Clue 2 for word B', 'parsing': '', 'points': 2})
-    #     puzzle.add_clue({'answer': 'WORD-C', 'clue_text': 'Clue 3 for word C', 'parsing': '', 'points': 3})
-    #     puzzle.add_clue({'answer': 'WORD-D', 'clue_text': 'Clue 4 for word D', 'parsing': 'parsing for D', 'points': 4})
-    #     response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
-    #     self.assertContains(response, "Puzzle #" + str(puzzle.id))
-    #     self.assertContains(response, "DONE")
-    #     self.assertContains(response, str(puzzle))
-    #     self.assertContains(response, puzzle.desc)
-    #     self.assertContains(response, "Clues")
-
-
-# class WordPuzzleViewTest(TestCase):
-#     def setUp(self):
-#         self.user = User.objects.create(username="test_user")
-#         self.other_user = User.objects.create(username="other_user")
-#         self.client.force_login(self.user)
-#
-#     def test_Response_context_contains_puzzle_object(self):
-#         puzzle = create_published_puzzle(user=self.other_user)
-#         response = self.client.get("/word_puzzle/" + str(puzzle.id) + "/")
-#         self.assertEqual(response.context['object'], puzzle)
-#
-#     def test_Response_context_contains_serialized_clues_list(self):
-#         puzzle = create_published_puzzle(user=self.other_user, clues_pts=[4,2,1,4])
-#         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
-#         clues = puzzle.get_clues()
-#         json_clues_list = json.loads(response.context['clues'])
-#         self.assertEqual(len(json_clues_list), 4)
-#         for index in range(0, len(json_clues_list)):
-#             self.assertEqual(json_clues_list[index]['clue_num'], index+1)
-#             self.assertEqual(json_clues_list[index]['points'], clues[index].points)
-#             self.assertEqual(json_clues_list[index]['clue_text'], clues[index].get_decorated_clue_text())
