@@ -197,6 +197,6 @@ class WordPuzzleView(View):
 
 
 class PreviewPuzzleView(EditorRequiredMixin, WordPuzzleView):
-    heading = "Preview & Publish Puzzle"
+    heading = "Preview Puzzle"
     show_answers = True
 
