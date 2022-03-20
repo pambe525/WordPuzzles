@@ -130,5 +130,3 @@ class Clue(models.Model):
                 if idx < (len(hyphenated_parts) - 1):
                     len_text += '-'
         return len_text
-
-        return self.clue_text + ' (' + str(len(self.answer)) + ')'
