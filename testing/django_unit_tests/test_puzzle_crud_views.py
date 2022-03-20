@@ -447,8 +447,8 @@ class PublishPuzzleViewTest(TestCase):
         puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
         self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
         response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
-        self.assertTemplateUsed("/preview_puzzle.html")
-        self.assertContains(response, "Preview Puzzle #" + str(puzzle.id))
+        self.assertTemplateUsed("/word_puzzle.html")
+        self.assertContains(response, "Puzzle #" + str(puzzle.id))
 
 
 class UnpublishPuzzleViewTest(TestCase):
