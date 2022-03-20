@@ -4,11 +4,13 @@
         <h2 class="pl-2 pb-0 mb-2 mt-2">{{ heading }}</h2>
         <div class="m-1 bg-light p-3">
             <h4 class="mb-0"><b>{{ object }}</b></h4>
-            <h6 class="mb-2 mt-1 text-secondary">
-                Posted by: <b>{{ object.editor }}</b> on {{ object.shared_at|date:'M d, Y' }} (GMT)
-            </h6>
+            {% if object.is_published %}
+                <h6 class="mb-2 mt-1 text-secondary" id="id-posted-by">
+                    Posted by: <b>{{ object.editor }}</b> on {{ object.shared_at|date:'M d, Y' }} (GMT)
+                </h6>
+            {% endif %}
             {% if object.desc != None and object.desc != "" %}
-                <h6 class="text-dark mb-3">Description: {{ object.desc }}</h6>
+                <h6 class="text-dark mb-3" id="id-desc">Description: {{ object.desc }}</h6>
             {% endif %}
             {% if object.size == 0 %}
                 <div class="mt-2 notetext">No clues exist.</div>
@@ -38,10 +40,19 @@
                         </button>
                     </div>
                 </div>
-                <div class="m-0 row mt-2">
-                    <a class="btn btn-primary">SOLVE NOW</a>
-                    <a class="ml-2 btn btn-light">CANCEL</a>
-                </div>
+            {% endif %}
+            <hr>
+            <div class="m-0 row mt-2">
+                {% if object.size != 0 %}
+                    <a class="btn btn-primary" href="{% url 'publish_puzzle' object.id %}">PUBLISH</a>
+                {% endif %}
+                <a class="ml-auto btn btn-dark" href="/">DONE</a>
+            </div>
+            {% if object.size != 0 and not object.is_published %}
+            <div class="notetext pt-2">
+                NOTE: Publish your puzzle only after all clues are complete. Published puzzles cannot be edited
+                and will be accessible to all puzzlers to solve.  Unpublish the puzzle to edit.
+            </div>
             {% endif %}
         </div>
     </div>
