@@ -34,6 +34,11 @@
                             {% endif %}
                             on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                         </div>
+                        <div class="d-inline-block ml-auto pt-1">
+                            <a href="{% url 'preview_puzzle' puzzle.id %}" title="Preview">
+                                <i class="fa fa-eye fa-2x ml-2"></i>
+                            </a>
+                        </div>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -69,9 +74,12 @@
                                 Last edited: {{ puzzle.modified_at|date:'M d, Y h:i A' }} (GMT)
                             </div>
                             <div class="d-inline-block ml-auto pt-1">
+                                <a href="{% url 'edit_puzzle' puzzle.id %}" title="Edit">
+                                    <i class="fa fa-edit fa-2x ml-2"></i>
+                                </a>
                                 {% if puzzle.size != 0 %}
                                 <a href="{% url 'preview_puzzle' puzzle.id %}" title="Preview & Publish">
-                                    <i class="fa fa-share fa-2x ml-2"></i>
+                                    <i class="fa fa-eye fa-2x ml-2"></i>
                                 </a>
                                 {% endif %}
                                 <a href="{% url 'delete_puzzle_confirm' puzzle.id %}" title="Delete">
