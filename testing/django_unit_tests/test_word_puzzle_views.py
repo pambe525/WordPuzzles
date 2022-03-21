@@ -20,7 +20,7 @@ class PreviewPuzzleViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/login?next=/preview_puzzle/1/")
 
-    def test_Shows_error_if_user_is_not_editor_for_unpublished_puzzle(self):
+    def test_Shows_error_if_user_is_not_editor_for_draft_puzzle(self):
         puzzle = WordPuzzle.objects.create(editor=self.other_user)
         response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
