@@ -127,7 +127,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
         puzzle = create_published_puzzle(user=other_user)
         self.get('/')
         self.do_click("//div[contains(@class,'badge badge')]/a[1]")
-        self.assert_current_url("/solve_puzzle/" + str(puzzle.id) + "/")
+        self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
 
     def test_All_Puzzles_button_links_to_all_puzzles_page(self):
         self.get('/')

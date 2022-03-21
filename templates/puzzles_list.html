@@ -23,7 +23,7 @@
             {% for puzzle in object_list %}
                 <tr>
                     <td style="line-height:18px">
-                        <a class="text-primary" href="{% url 'solve_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>
+                        <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>
                             <b>{{ puzzle }}</b>
                         </a><br />
                         <span class="h6">Posted by:

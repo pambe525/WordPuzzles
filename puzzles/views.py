@@ -157,7 +157,7 @@ class UnpublishPuzzleView(EditorRequiredMixin, View):
 
 
 class PuzzlesListView(LoginRequiredMixin, ListView):
-    template_name = "all_puzzles.html"
+    template_name = "puzzles_list.html"
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
