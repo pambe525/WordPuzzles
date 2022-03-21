@@ -16,9 +16,9 @@
                 <div class="mt-2 notetext">No clues exist.</div>
             {% else %}
                 <h5 class="mb-0"><b>Clues</b></h5>
-                <div class="notetext">Hover or click on a clue number button below to view the clue.</div>
+                <div class="notetext">Click on a clue number button below to view the clue.</div>
                 <!-- CLUE BUTTONS -->
-                <div class="mt-1">
+                <div class="mt-1 mb-2">
                     {% for clue in object.get_clues %}
                         <button class="btn-sm btn-light border border-secondary pt-0 pb-0"
                                 id = "clue-btn-{{ clue.clue_num }}"
@@ -28,17 +28,19 @@
                         </button>
                     {% endfor %}
                 </div>
-                <!-- CLUE BOX -->
-                <div class="mt-2 text-left d-block border border-dark rounded-3 p-1">
-                    <div class="m-0 row align-items-center">
-                        <button class="pr-2 p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
-                            <i class="fa fa-caret-left fa-3x"></i>
-                        </button>
-                        <span class="col pl-1 pr-1" id="id-clue"></span>
-                        <button class="pl-2 p-0 btn" title="Next clue" id="id-right-caret" onclick="nextClue();">
-                            <i class="fa fa-caret-right fa-3x"></i>
-                        </button>
+                <!-- CLUE ROTATOR -->
+                <div class="m-0 row align-items-center">
+                    <button class="pr-2 p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
+                        <i class="fa fa-caret-left fa-3x"></i>
+                    </button>
+                    <div class="col p-2 border border-dark rounded-3" style="line-height:18px">
+                        <div class="font-weight-bold mb-2" id="id-clue"></div>
+                        <div id="id-answer"></div>
+                        <div class="mt-1" id="id-parsing"></div>
                     </div>
+                    <button class="pl-2 p-0 btn" title="Next clue" id="id-right-caret" onclick="nextClue();">
+                        <i class="fa fa-caret-right fa-3x"></i>
+                    </button>
                 </div>
             {% endif %}
             <hr>
@@ -57,33 +59,9 @@
         </div>
     </div>
     <script>
-    const clueSet = {{ clues | safe }}
-
-    $(document).ready(function(){
-        $("#clue-btn-1").click();
-    })
-
-    function getClueDesc(clue) {
-        return "Clue #" + clue.clue_num + ": " + clue.clue_text + " [" + clue.points + " pts]";
-    }
-
-    function showClue(clickedClueNum) {
-        var clue = clueSet[parseInt(clickedClueNum)-1]
-        $('#id-clue').text(getClueDesc(clue));
-        $("[id^=clue-btn-]").removeClass('active');
-        $("#clue-btn-"+clickedClueNum).addClass('active').focus();
-    }
-
-    function nextClue() {
-        var currentClueNum = parseInt($('.active').text());
-        var nextClueNum = (currentClueNum < clueSet.length) ? currentClueNum+1 : 1
-        $("#clue-btn-"+nextClueNum).click()
-    }
-
-    function prevClue() {
-        var currentClueNum = parseInt($('.active').text());
-        var prevClueNum = (currentClueNum > 1) ? currentClueNum-1 : clueSet.length
-        $("#clue-btn-"+prevClueNum).click()
-    }
+        const clueSet = {{ clues | safe }}
+        const showAnswers = {{ show_answers }}
     </script>
+    {% load static %}
+    <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>
 {% endblock %}
