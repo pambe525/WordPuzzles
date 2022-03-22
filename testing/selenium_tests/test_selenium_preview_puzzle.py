@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle
-from testing.django_unit_tests.unit_test_helpers import create_draft_puzzle, get_full_clue_desc
+from testing.django_unit_tests.unit_test_helpers import create_draft_puzzle, get_full_clue_desc, create_published_puzzle
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 
 
@@ -48,6 +48,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue text 1', 'parsing': 'p1', 'points': 1})
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
+        self.assert_text_contains("//div[contains(@class,'notetext')][2]", "NOTE: Publish your puzzle only")
         self.do_click("//a[text()='PUBLISH']")
         updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
         self.assertTrue(updated_puzzle.is_published())
@@ -140,14 +141,31 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')   # Current user is NOT editor
         self.assert_text_equals("//div[@id='errMsg']", "This operation is not permitted since you are not the editor.")
 
+    def test_Published_puzzle_editor_preview_shows_posted_by(self):
+        puzzle = create_published_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3])
+        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
+        self.assert_text_equals("//h2", "Preview Puzzle")
+        self.assert_text_equals("//h4", str(puzzle))
+        posted_by_str = 'Posted by: ' + str(self.user) + ' on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
+        self.assert_text_equals("//h6[@id='id-posted-by']", posted_by_str)
+        self.assert_not_exists("//a[text()='PUBLISH']")
 
-    # def test_Preview_Puzzle_page_unpublish_button_unpublishes_puzzle(self):
-    #     puzzle = WordPuzzle.objects.create(editor=self.user)
-    #     puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue text 1', 'parsing': 'p1', 'points': 1})
-    #     self.get('/publish_puzzle/' + str(puzzle.id) + '/')
-    #     self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-    #     self.assert_not_exists("//a[text()='PUBLISH']")
-    #     self.do_click("//a[text()='UNPUBLISH']")
-    #     updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
-    #     self.assertIsNone(updated_puzzle.shared_at)
-    #     self.assert_current_url('/')
+    def test_Published_puzzle_editor_can_unpublish_puzzle(self):
+        puzzle = create_published_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3])
+        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
+        self.assert_text_contains("//div[contains(@class,'notetext')][2]", "NOTE: Unpublish your puzzle")
+        self.do_click("//a[text()='UNPUBLISH']")
+        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertIsNone(updated_puzzle.shared_at)
+        self.assert_current_url('/')
+
+    def test_Published_puzzle_can_be_viewed_by_non_editor(self):
+        puzzle = create_published_puzzle(user=self.other_user, desc="Puzzle description", clues_pts=[2, 2, 3])
+        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
+        self.assert_text_equals("//h2", "Preview Puzzle")
+        self.assert_text_equals("//h4", str(puzzle))
+        posted_by_str = 'Posted by: ' + str(self.other_user) + ' on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
+        self.assert_text_equals("//h6[@id='id-posted-by']", posted_by_str)
+        self.assert_not_exists("//a[text()='PUBLISH']")                 # No Publish button
+        self.assert_not_exists("//a[text()='UNPUBLISH']")               # No Unpublish button
+        self.assert_exists("//a[text()='SOLVE NOW']")                   # Solve button

@@ -30,14 +30,14 @@ function prevClue() {
 }
 
 function getCellAsDiv(letter, hasBorder) {
-    var cell = $("<div>").addClass('d-inline text-center').text(letter).width('18px').height('18px');
+    var cell = $("<div>").addClass('d-inline-block text-center').text(letter).width('18px').height('18px');
     cell.css('font-size', '12px');
     if (hasBorder) cell.addClass('border border-dark');
     return cell;
 }
 
 function getWordAsCellChain(word) {
-    var chain = $("<div>").addClass('m-0 row'), index = 0;
+    var chain = $("<div>"), index = 0;
     for (const letter of word) {
         var hasBorder = (letter !== '-' && letter !== ' ');
         var cell = getCellAsDiv(letter, hasBorder);

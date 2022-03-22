@@ -45,22 +45,34 @@
             {% endif %}
             <hr>
             <div class="m-0 row mt-2">
-                {% if object.size != 0 %}
+                {% if object.size != 0 and not object.is_published and request.user == object.editor %}
                     <a class="btn btn-primary" href="{% url 'publish_puzzle' object.id %}">PUBLISH</a>
+                {% endif %}
+                {% if object.size != 0 and object.is_published and request.user == object.editor %}
+                    <a class="btn btn-primary" href="{% url 'unpublish_puzzle' object.id %}">UNPUBLISH</a>
+                {% endif %}
+                {% if object.size != 0 and object.is_published and request.user != object.editor %}
+                    <a class="btn btn-primary" href="{% url 'solve_puzzle' object.id %}">SOLVE NOW</a>
                 {% endif %}
                 <a class="ml-auto btn btn-dark" href="/">DONE</a>
             </div>
-            {% if object.size != 0 and not object.is_published %}
-            <div class="notetext pt-2">
-                NOTE: Publish your puzzle only after all clues are complete. Published puzzles cannot be edited
-                and will be accessible to all puzzlers to solve.  Unpublish the puzzle to edit.
-            </div>
+            {% if object.size != 0 and not object.is_published and request.user == object.editor %}
+                <div class="notetext pt-2">
+                    NOTE: Publish your puzzle only after all clues are complete. Published puzzles cannot be edited
+                    and will be accessible to all puzzlers to solve.  Unpublish the puzzle to edit.
+                </div>
+            {% endif %}
+            {% if object.size != 0 and object.is_published and request.user == object.editor %}
+                <div class="notetext pt-2">
+                    NOTE: Unpublish your puzzle only if you wish to make critical edits or delete the puzzle.
+                    Unpublished puzzle will not be accessible to puzzlers and will put it in draft mode with
+                    restricted editing.
+                </div>
             {% endif %}
         </div>
     </div>
     <script>
         const clueSet = {{ clues | safe }}
-        const showAnswers = {{ show_answers }}
     </script>
     {% load static %}
     <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>

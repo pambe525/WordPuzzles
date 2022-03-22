@@ -61,13 +61,13 @@ class EditPuzzleTests(SeleniumTestCase):
         self.get('/edit_puzzle/' + str(puzzle.id) + '/')
         clues = Clue.objects.filter(puzzle=puzzle)
         self.assert_text_equals("//div[contains(text(),'Clues [')]", 'Clues [10 points]')
-        answers = self.get_element("//div/b")
-        clue_nums = self.get_element("(//tr/td[1][contains(@class,'text-center')])")
         for index in range(0, len(clues)):
-            self.assertEqual(clue_nums[index].text, str(clues[index].clue_num) + '.')
+            answer = self.get_element("//div/b", index)
+            clue_num = self.get_element("(//tr/td[1][contains(@class,'text-center')])", index)
+            self.assertEqual(clue_num.text, str(clues[index].clue_num) + '.')
             href = '/edit_clue/' + str(puzzle.id) + '/' + str(clues[index].clue_num) + '/'
             self.assert_text_equals("//div[@class='text-wrap']/a[@href='" + href + "']", clues[index].clue_text + ' (5)')
-            self.assertEqual(answers[index].text, '[' + clues[index].answer + ']')
+            self.assertEqual(answer.text, '[' + clues[index].answer + ']')
             self.assert_text_equals("//div/span[@title='" + clues[index].parsing + "']", clues[index].parsing)
 
 

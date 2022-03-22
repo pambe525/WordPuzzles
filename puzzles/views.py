@@ -53,11 +53,11 @@ class EditorRequiredMixin(LoginRequiredMixin):
             except Clue.DoesNotExist:
                 err_msg = "This clue does not exist."
             else:
-                if request.user != puzzle.editor:
-                    err_msg = "This operation is not permitted since you are not the editor."
-                elif puzzle.is_published() and "publish" not in request.resolver_match.url_name \
+                if puzzle.is_published() and "publish" not in request.resolver_match.url_name \
                         and "preview" not in request.resolver_match.url_name:
                     err_msg = "Published puzzle cannot be edited. Unpublish to edit."
+                elif request.user != puzzle.editor and not puzzle.is_published():
+                    err_msg = "This operation is not permitted since you are not the editor."
         if err_msg is not None:
             ctx = {'err_msg': err_msg, 'id': pk, 'clue_num': clue_num}
             return render(request, "puzzle_error.html", context=ctx)
@@ -198,5 +198,4 @@ class WordPuzzleView(View):
 
 class PreviewPuzzleView(EditorRequiredMixin, WordPuzzleView):
     heading = "Preview Puzzle"
-    show_answers = True
 

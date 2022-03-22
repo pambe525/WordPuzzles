@@ -43,10 +43,9 @@ class PreviewPuzzleViewTest(TestCase):
         self.assertEqual(response.context['heading'], "Preview Puzzle")
         self.assertEqual(response.context['object'], puzzle)
 
-    def test_Response_context_contains_serialized_clues_list_and_show_answers_is_true(self):
+    def test_Response_context_contains_serialized_clues_list(self):
         puzzle = create_published_puzzle(user=self.user, clues_pts=[4,2,1,4])
         response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
-        self.assertEqual(response.context['show_answers'], True)
         clues = puzzle.get_clues()
         json_clues_list = json.loads(response.context['clues'])
         self.assertEqual(len(json_clues_list), 4)
