@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.utils.timezone import now
 
@@ -135,5 +136,15 @@ class Clue(models.Model):
 class Session(models.Model):
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)
     solver = models.ForeignKey(User, on_delete=models.CASCADE)
+    solved_clue_nums = models.CharField(null=True, validators=[validate_comma_separated_integer_list], max_length=100)
+    revealed_clue_nums = models.CharField(null=True, validators=[validate_comma_separated_integer_list], max_length=100)
+    is_complete = models.BooleanField(default=False)
+    elapsed_seconds = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
+
+    def get_solved_clue_nums(self):
+        return [] if self.solved_clue_nums is None else [int(e) for e in self.solved_clue_nums.split(',')]
+
+    def get_revealed_clue_nums(self):
+        return [] if self.revealed_clue_nums is None else [int(e) for e in self.revealed_clue_nums.split(',')]

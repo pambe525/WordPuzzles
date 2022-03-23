@@ -160,3 +160,22 @@ class SessionModelTest(TestCase):
 
     def test_solver_is_required_field(self):
         self.assertRaises(IntegrityError, Session.objects.create, puzzle=self.puzzle)
+
+    def test_get_solved_clue_nums(self):
+        session = Session.objects.create(solver=self.user, puzzle=self.puzzle)
+        self.assertEqual(session.get_solved_clue_nums(), [])
+        session.solved_clue_nums = '1,2,3,4,5,6,7,8,9,10,11,12,13,14'
+        self.assertEqual(session.get_solved_clue_nums(), [1,2,3,4,5,6,7,8,9,10,11,12,13,14])
+
+    def test_default_fields(self):
+        session = Session.objects.create(solver=self.user, puzzle=self.puzzle)
+        self.assertIsNone(session.solved_clue_nums)
+        self.assertIsNone(session.revealed_clue_nums)
+        self.assertFalse(session.is_complete)
+        self.assertEqual(session.elapsed_seconds, 0)
+
+    def test_get_revealed_clue_nums(self):
+        session = Session.objects.create(solver=self.user, puzzle=self.puzzle)
+        self.assertEqual(session.get_revealed_clue_nums(), [])
+        session.revealed_clue_nums = '1,2,3,4,5,6,7,8,9'
+        self.assertEqual(session.get_revealed_clue_nums(), [1,2,3,4,5,6,7,8,9])
