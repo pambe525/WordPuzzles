@@ -1,9 +1,11 @@
+from django.db.utils import IntegrityError
+
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.test import TestCase
 from datetime import datetime
-from puzzles.models import Puzzle, WordPuzzle, Clue
-
+from puzzles.models import Puzzle, WordPuzzle, Clue, Session
+from testing.django_unit_tests.unit_test_helpers import create_published_puzzle
 
 class UserNameTest(TestCase):
     def setUp(self):
@@ -146,3 +148,15 @@ class ClueModelTest(TestCase):
         self.assertEqual(clue.get_decorated_clue_text(), 'This is a clue (10-4)')
         clue.answer = "THE EDITOR-IN-CHIEF FOR ALL-IN"
         self.assertEqual(clue.get_decorated_clue_text(), 'This is a clue (3,6-2-5,3,3-2)')
+
+class SessionModelTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='12345')
+        self.puzzle = create_published_puzzle(user=self.user, clues_pts=[4,2,1,2,1])
+
+    def test_puzzle_is_required_field(self):
+        self.assertRaises(IntegrityError, Session.objects.create, solver=self.user)
+
+    def test_solver_is_required_field(self):
+        self.assertRaises(IntegrityError, Session.objects.create, puzzle=self.puzzle)

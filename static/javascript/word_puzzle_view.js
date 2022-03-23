@@ -11,12 +11,16 @@ function getClueDesc(clue) {
 function showClue(clickedClueNum) {
     var clue = clueSet[parseInt(clickedClueNum) - 1]
     $('#id-clue').text(getClueDesc(clue));
-    $("[id^=clue-btn-]").removeClass('active');
-    $("#clue-btn-" + clickedClueNum).addClass('active').focus();
+    setActiveClueBtn(clickedClueNum);
     if (showAnswers) {
         $('#id-answer').empty().append(getWordAsCellChain(clue.answer));
         $('#id-parsing').empty().text("Parsing: " + clue.parsing);
     }
+}
+
+function setActiveClueBtn(clueNum) {
+    $("[id^=clue-btn-]").removeClass('active');
+    $("#clue-btn-" + clueNum).addClass('active').focus();
 }
 
 function nextClue() {

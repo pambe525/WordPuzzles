@@ -130,3 +130,10 @@ class Clue(models.Model):
                 if idx < (len(hyphenated_parts) - 1):
                     len_text += '-'
         return len_text
+
+
+class Session(models.Model):
+    puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)
+    solver = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_at = models.DateTimeField(auto_now=True, editable=False)
