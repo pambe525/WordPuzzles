@@ -42,26 +42,30 @@ class NewPuzzleView(LoginRequiredMixin, View):
 
 class EditorRequiredMixin(LoginRequiredMixin):
 
-    def dispatch(self, request, *args, pk=None, clue_num=None):
+    def dispatch(self, request, *args, **kwargs):
         err_msg = None
+        pk = kwargs['pk']
+        clue_num = kwargs['clue_num'] if 'clue_num' in kwargs else None
+
         if request.user.is_authenticated:
             try:
                 puzzle = WordPuzzle.objects.get(id=pk)
-                if clue_num: Clue.objects.get(puzzle=pk, clue_num=clue_num)
+                if clue_num: Clue.objects.get(puzzle=kwargs['pk'], clue_num=clue_num)
             except WordPuzzle.DoesNotExist:
                 err_msg = "This puzzle does not exist."
             except Clue.DoesNotExist:
                 err_msg = "This clue does not exist."
             else:
-                if puzzle.is_published() and "publish" not in request.resolver_match.url_name \
-                        and "preview" not in request.resolver_match.url_name:
-                    err_msg = "Published puzzle cannot be edited. Unpublish to edit."
-                elif request.user != puzzle.editor and not puzzle.is_published():
+                if puzzle.is_published():
+                    url_name = request.resolver_match.url_name
+                    if "publish" not in url_name and "preview" not in url_name:
+                        err_msg = "Published puzzle cannot be edited. Unpublish to edit."
+                elif request.user != puzzle.editor:
                     err_msg = "This operation is not permitted since you are not the editor."
         if err_msg is not None:
             ctx = {'err_msg': err_msg, 'id': pk, 'clue_num': clue_num}
             return render(request, "puzzle_error.html", context=ctx)
-        return super(EditorRequiredMixin, self).dispatch(request, *args, pk=pk, clue_num=clue_num)
+        return super(EditorRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
 class EditPuzzleView(EditorRequiredMixin, UpdateView):
@@ -174,14 +178,18 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
         return query_set
 
 
-class WordPuzzleView(View):
-    heading = None
+class PreviewPuzzleView(EditorRequiredMixin, View):
+    show_answers = True
+    heading = "Preview Puzzle"
     puzzle = None
-    show_answers = False
 
-    def dispatch(self, request, *args, **kwargs):
-        super().dispatch(request, *args, **kwargs)
+    def get(self, request, *args, **kwargs):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
+        if self.puzzle.editor == request.user:
+            self.heading += " & Unpublish" if self.puzzle.is_published() else " & Publish"
+        else:
+            self.heading += " & Solve"
+            self.show_answers = False
         ctx = {'heading': self.heading, 'show_answers': self.show_answers, 'object': self.puzzle,
                'clues': json.dumps(self.get_clues_list())}
         return render(request, "word_puzzle.html", context=ctx)
@@ -191,11 +199,9 @@ class WordPuzzleView(View):
         clues_list = []
         for index in range(0, len(clues)):
             data = {'clue_num': clues[index].clue_num, 'clue_text': clues[index].get_decorated_clue_text(),
-                    'points': clues[index].points, 'answer': clues[index].answer, 'parsing': clues[index].parsing}
+                    'points': clues[index].points}
+            if self.show_answers:
+                data.update({'answer': clues[index].answer, 'parsing': clues[index].parsing})
             clues_list.append(data)
         return clues_list
-
-
-class PreviewPuzzleView(EditorRequiredMixin, WordPuzzleView):
-    heading = "Preview Puzzle"
 

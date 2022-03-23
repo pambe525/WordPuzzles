@@ -16,8 +16,8 @@ def create_draft_puzzle(user=None, desc=None, type=0, clues_pts=None, has_parsin
     return puzzle
 
 
-def create_published_puzzle(user=None, desc=None, type=0, posted_on=now(), clues_pts=None):
-    puzzle = create_draft_puzzle(user=user, desc=desc, type=type, clues_pts=clues_pts)
+def create_published_puzzle(user=None, desc=None, type=0, posted_on=now(), clues_pts=None, has_parsing=False):
+    puzzle = create_draft_puzzle(user=user, desc=desc, type=type, clues_pts=clues_pts, has_parsing=has_parsing)
     puzzle.publish(time_stamp=posted_on)
     return puzzle
 

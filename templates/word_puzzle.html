@@ -72,7 +72,8 @@
         </div>
     </div>
     <script>
-        const clueSet = {{ clues | safe }}
+        const clueSet = {{ clues | safe }};
+        var showAnswers = {{ show_answers | yesno:'true, false' | safe }};
     </script>
     {% load static %}
     <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>

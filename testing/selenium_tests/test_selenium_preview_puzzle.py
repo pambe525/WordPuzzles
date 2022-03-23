@@ -17,7 +17,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
     def test_Draft_puzzle_editor_can_preview_with_no_desc_and_no_clues(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_text_equals("//h2", "Preview Puzzle")
+        self.assert_text_equals("//h2", "Preview Puzzle & Publish")
         self.assert_text_equals("//h4", str(puzzle))
         self.assert_not_exists("//h6[@id='id-posted-by']")              # No Posted by (since it is draft)
         self.assert_not_exists("//h6[@id='id-desc']")                   # No description
@@ -33,7 +33,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description of clue")
         puzzle.add_clue({'answer': "WORD-A", 'clue_text': "Some clue", 'points': 2})
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_text_equals("//h2", "Preview Puzzle")
+        self.assert_text_equals("//h2", "Preview Puzzle & Publish")
         self.assert_text_equals("//h4", str(puzzle))
         self.assert_not_exists("//h6[@id='id-posted-by']")              # No Posted by (since it is draft)
         self.assert_text_equals("//h6[@id='id-desc']", "Description: " + puzzle.desc)
@@ -127,13 +127,14 @@ class PreviewPuzzleTests(SeleniumTestCase):
         puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4], has_parsing=True)
         clues = puzzle.get_clues()
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
+        self.assert_text_equals("//h2", "Preview Puzzle & Publish")
         self.do_click("//button[@id='clue-btn-3']")
         answer = self.get_element("//div[@id='id-answer']").text.replace('\n',"")
-        self.assertEqual(answer, "Answer: " + clues[2].answer)
+        self.assertEqual(answer, clues[2].answer)
         self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[2].parsing)
         self.do_click("//div/button[@id='id-right-caret']")
         answer = self.get_element("//div[@id='id-answer']").text.replace('\n',"")
-        self.assertEqual(answer, "Answer: " + clues[3].answer)
+        self.assertEqual(answer, clues[3].answer)
         self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[3].parsing)
 
     def test_Draft_puzzle_preview_shows_error_for_non_editor(self):
@@ -144,7 +145,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
     def test_Published_puzzle_editor_preview_shows_posted_by(self):
         puzzle = create_published_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_text_equals("//h2", "Preview Puzzle")
+        self.assert_text_equals("//h2", "Preview Puzzle & Unpublish")
         self.assert_text_equals("//h4", str(puzzle))
         posted_by_str = 'Posted by: ' + str(self.user) + ' on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_text_equals("//h6[@id='id-posted-by']", posted_by_str)
@@ -160,12 +161,19 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_current_url('/')
 
     def test_Published_puzzle_can_be_viewed_by_non_editor(self):
-        puzzle = create_published_puzzle(user=self.other_user, desc="Puzzle description", clues_pts=[2, 2, 3])
+        puzzle = create_published_puzzle(user=self.other_user, desc="Description", clues_pts=[2, 2, 3], has_parsing=True)
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_text_equals("//h2", "Preview Puzzle")
+        self.assert_text_equals("//h2", "Preview Puzzle & Solve")
         self.assert_text_equals("//h4", str(puzzle))
         posted_by_str = 'Posted by: ' + str(self.other_user) + ' on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_text_equals("//h6[@id='id-posted-by']", posted_by_str)
         self.assert_not_exists("//a[text()='PUBLISH']")                 # No Publish button
         self.assert_not_exists("//a[text()='UNPUBLISH']")               # No Unpublish button
         self.assert_exists("//a[text()='SOLVE NOW']")                   # Solve button
+
+    def test_Published_puzzle_preview_by_non_editor_hides_answers(self):
+        puzzle = create_published_puzzle(user=self.other_user, desc="Puzzle description", clues_pts=[2, 2, 3])
+        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
+        self.assert_text_equals("//h2", "Preview Puzzle & Solve")
+        self.assert_text_equals("//div[@id='id-answer']",'')
+        self.assert_text_equals("//div[@id='id-parsing']",'')
