@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.utils.timezone import now
+from django.db.utils import IntegrityError
 
 
 def get_name(self):
@@ -133,12 +134,11 @@ class Clue(models.Model):
         return len_text
 
 
-class Session(models.Model):
+class PuzzleSession(models.Model):
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)
     solver = models.ForeignKey(User, on_delete=models.CASCADE)
     solved_clue_nums = models.CharField(null=True, validators=[validate_comma_separated_integer_list], max_length=100)
     revealed_clue_nums = models.CharField(null=True, validators=[validate_comma_separated_integer_list], max_length=100)
-    is_complete = models.BooleanField(default=False)
     elapsed_seconds = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
@@ -148,3 +148,29 @@ class Session(models.Model):
 
     def get_revealed_clue_nums(self):
         return [] if self.revealed_clue_nums is None else [int(e) for e in self.revealed_clue_nums.split(',')]
+
+    def get_total_clues(self):
+        return WordPuzzle.objects.get(id=self.puzzle.id).size
+
+    def get_clue_points(self):
+        clues = WordPuzzle.objects.get(id=self.puzzle.id).get_clues()
+        points = []
+        for clue in clues: points.append(clue.points)
+        return points
+
+    def is_complete(self):
+        complete = False
+        solved = self.get_solved_clue_nums()
+        revealed = self.get_revealed_clue_nums()
+        if any(item in solved for item in revealed):
+            raise IntegrityError("Solved and revealed clue numbers are not mutually exclusive.")
+        if len(solved) + len(revealed) == self.get_total_clues(): complete = True
+        return complete
+
+    def get_score(self):
+        solved = self.get_solved_clue_nums()
+        points = self.get_clue_points()
+        sum = 0
+        for clue_num in solved:
+            sum += points[clue_num-1]
+        return sum
