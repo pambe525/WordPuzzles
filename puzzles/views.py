@@ -8,7 +8,7 @@ from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
 from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm
-from puzzles.models import WordPuzzle, Clue
+from puzzles.models import WordPuzzle, Clue, PuzzleSession
 
 
 def utc_date_to_local_format(utc_date):
@@ -56,12 +56,16 @@ class EditorRequiredMixin(LoginRequiredMixin):
             except Clue.DoesNotExist:
                 err_msg = "This clue does not exist."
             else:
+                url_name = request.resolver_match.url_name
                 if puzzle.is_published():
-                    url_name = request.resolver_match.url_name
-                    if "publish" not in url_name and "preview" not in url_name:
+                    if "publish" not in url_name and "preview" not in url_name and "solve" not in url_name:
                         err_msg = "Published puzzle cannot be edited. Unpublish to edit."
+                    elif "solve" in url_name and request.user == puzzle.editor:
+                        return redirect("preview_puzzle", puzzle.id)
                 elif request.user != puzzle.editor:
                     err_msg = "This operation is not permitted since you are not the editor."
+                elif "solve" in url_name:
+                    err_msg = "This puzzle is not published."
         if err_msg is not None:
             ctx = {'err_msg': err_msg, 'id': pk, 'clue_num': clue_num}
             return render(request, "puzzle_error.html", context=ctx)
@@ -190,9 +194,11 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
         else:
             self.heading += " & Solve"
             self.show_answers = False
-        ctx = {'heading': self.heading, 'show_answers': self.show_answers, 'object': self.puzzle,
-               'clues': json.dumps(self.get_clues_list())}
-        return render(request, "word_puzzle.html", context=ctx)
+        return render(request, "word_puzzle.html", context=self.get_context_data())
+
+    def get_context_data(self):
+        return {'heading': self.heading, 'show_answers': self.show_answers, 'object': self.puzzle,
+               'clues': json.dumps(self.get_clues_list()), 'session': None}
 
     def get_clues_list(self):
         clues = self.puzzle.get_clues()
@@ -205,3 +211,23 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
             clues_list.append(data)
         return clues_list
 
+class SolvePuzzleView(PreviewPuzzleView):
+
+    solve_session = None
+
+    def get(self, request, *args, **kwargs):
+        self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
+        self.heading = "Solve Puzzle"
+        self.show_answers = False
+        self.solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
+        return render(request, "word_puzzle.html", context=self.get_context_data())
+
+    def get_context_data(self):
+        ctx = super(SolvePuzzleView, self).get_context_data()
+        session_dict = {'solver_id':self.solve_session.solver.id, 'puzzle_id': self.puzzle.id,
+                        'elapsed_secs': self.solve_session.elapsed_seconds, 'score': self.solve_session.get_score(),
+                        'solved_clues': self.solve_session.get_solved_clue_nums(),
+                        'revealed_clues': self.solve_session.get_revealed_clue_nums()
+                        }
+        ctx['session'] = json.dumps(session_dict)
+        return ctx
