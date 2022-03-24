@@ -55,13 +55,13 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_current_url('/')
 
     def test_Shows_clue_button_for_each_clue(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4])
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//div/div/div//h5", "Clues")
         self.assert_item_count("//div//button[contains(@id,'clue-btn-')]", 4)
 
     def test_Clue_button_details(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4])
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         for index, clue in enumerate(puzzle.get_clues()):
             clue_btn = self.get_element("//div/button[@id='clue-btn-" + str(index + 1) + "']")
@@ -70,14 +70,14 @@ class PreviewPuzzleTests(SeleniumTestCase):
             self.assertEqual(clue_btn.get_attribute('title'), tooltip)
 
     def test_First_clue_is_shown_in_clue_box_and_first_clue_btn_is_activated(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[3, 1, 2, 4])
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[3, 1, 2, 4])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         first_clue = puzzle.get_clues()[0]
         self.assert_text_equals("//div[@id='id-clue']", get_full_clue_desc(first_clue))   # clue text
         self.assert_exists("//button[@id='clue-btn-1'][contains(@class,'active')]")        # clue btn is active
 
     def test_Clicking_on_a_clue_button_activates_it_and_shows_clue_text_in_clue_box(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4, 5])
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4, 5])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.do_click("//div/button[@id='clue-btn-4']")
         fourth_clue = puzzle.get_clues()[3]
@@ -86,7 +86,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//button[@id='clue-btn-1'][contains(@class,'active')]")
 
     def test_Clicking_on_right_caret_advances_to_next_clue(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4, 5])
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4, 5])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.do_click("//div/button[@id='id-right-caret']")
         next_clue = puzzle.get_clues()[1]
@@ -95,7 +95,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//button[@id='clue-btn-1'][contains(@class,'active')]")
 
     def test_Clicking_on_right_caret_on_last_clue_advances_to_first_clue(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4])
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.do_click("//button[@id='clue-btn-4']")
         self.do_click("//div/button[@id='id-right-caret']")
@@ -105,7 +105,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//button[@id='clue-btn-4'][contains(@class,'active')]")
 
     def test_Clicking_on_left_caret_advances_to_previous_clue(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4, 5])
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4, 5])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.do_click("//button[@id='clue-btn-4']")   # Click on 4th clue btn
         self.do_click("//div/button[@id='id-left-caret']")
@@ -115,7 +115,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//button[@id='clue-btn-4'][contains(@class,'active')]")
 
     def test_Clicking_on_left_caret_on_first_clue_advances_to_last_clue(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4])
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.do_click("//div/button[@id='id-left-caret']")
         next_clue = puzzle.get_clues()[3]
@@ -124,7 +124,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//button[@id='clue-btn-1'][contains(@class,'active')]")
 
     def test_Draft_puzzle_editor_can_preview_answer_and_parsing_for_each_clue(self):
-        puzzle = create_draft_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4], has_parsing=True)
+        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4], has_parsing=True)
         clues = puzzle.get_clues()
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Preview Puzzle & Publish")
@@ -138,12 +138,12 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[3].parsing)
 
     def test_Draft_puzzle_preview_shows_error_for_non_editor(self):
-        puzzle = create_draft_puzzle(user=self.other_user, desc="Puzzle description", clues_pts=[1, 2, 3])
+        puzzle = create_draft_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[1, 2, 3])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')   # Current user is NOT editor
         self.assert_text_equals("//div[@id='errMsg']", "This operation is not permitted since you are not the editor.")
 
     def test_Published_puzzle_editor_preview_shows_posted_by(self):
-        puzzle = create_published_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3])
+        puzzle = create_published_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Preview Puzzle & Unpublish")
         self.assert_text_equals("//h4", str(puzzle))
@@ -152,7 +152,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//a[text()='PUBLISH']")
 
     def test_Published_puzzle_editor_can_unpublish_puzzle(self):
-        puzzle = create_published_puzzle(user=self.user, desc="Puzzle description", clues_pts=[1, 2, 3])
+        puzzle = create_published_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_contains("//div[contains(@class,'notetext')][2]", "NOTE: Unpublish your puzzle")
         self.do_click("//a[text()='UNPUBLISH']")
@@ -161,7 +161,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_current_url('/')
 
     def test_Published_puzzle_can_be_viewed_by_non_editor(self):
-        puzzle = create_published_puzzle(user=self.other_user, desc="Description", clues_pts=[2, 2, 3], has_parsing=True)
+        puzzle = create_published_puzzle(editor=self.other_user, desc="Description", clues_pts=[2, 2, 3], has_parsing=True)
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Preview Puzzle & Solve")
         self.assert_text_equals("//h4", str(puzzle))
@@ -172,8 +172,30 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_exists("//a[text()='SOLVE NOW']")                   # Solve button
 
     def test_Published_puzzle_preview_by_non_editor_hides_answers(self):
-        puzzle = create_published_puzzle(user=self.other_user, desc="Puzzle description", clues_pts=[2, 2, 3])
+        puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[2, 2, 3])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Preview Puzzle & Solve")
         self.assert_text_equals("//div[@id='id-answer']",'')
         self.assert_text_equals("//div[@id='id-parsing']",'')
+
+    def test_Solve_button_starts_solve_session(self):
+        puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[1, 2, 3])
+        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
+        self.do_click("//a[text()='SOLVE NOW']")
+        self.assert_text_equals("//h2", "Solve Puzzle")
+        self.assert_not_exists("//a[text()='PUBLISH']")                 # No PUBLISH button
+        self.assert_not_exists("//a[text()='UNPUBLISH']")               # No UNPUBLISH button
+        self.assert_not_exists("//a[text()='SOLVE NOW']")               # NO SOLVE NOW button
+        self.assert_not_exists("//a[text()='DONE']")                    # No DONE button
+        self.assert_exists("//a[text()='FINISH LATER']")                # Only FINISH LATER button
+
+
+class SolvePuzzleTests(SeleniumTestCase):
+    user = None
+    password = 'secret_key'
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
+        self.login_user(username=self.user.username, password=self.password)
+        self.other_user = User.objects.create_user(username="other_user", password=self.password)
+

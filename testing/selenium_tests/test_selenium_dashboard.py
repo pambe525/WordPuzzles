@@ -100,7 +100,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
 
     def test_Recent_puzzles_show_title_desc_and_posted_by_with_date(self):
         other_user = User.objects.create_user(username="other_user", password="secretkey")
-        puzzle = create_published_puzzle(user=other_user, desc="Puzzle description")
+        puzzle = create_published_puzzle(editor=other_user, desc="Puzzle description")
         self.get('/')
         badge_header = "Puzzle #" + str(puzzle.id) + ": 1 Non-cryptic Clues [1 pts]"
         self.assert_text_equals("//div[contains(@class,'badge badge')]/a[1]", badge_header)
@@ -109,7 +109,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.assert_text_equals("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
 
     def test_shows_ME_for_posted_by_if_editor_is_current_user(self):
-        puzzle = create_published_puzzle(user=self.user, desc="Puzzle description")
+        puzzle = create_published_puzzle(editor=self.user, desc="Puzzle description")
         self.get('/')
         badge_header = "Puzzle #" + str(puzzle.id) + ": 1 Non-cryptic Clues [1 pts]"
         self.assert_text_equals("//div[contains(@class,'badge badge')]/a[1]", badge_header)
@@ -117,14 +117,14 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.assert_text_equals("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
 
     def test_Puzzle_title_links_to_preview_page_if_editor_is_current_user(self):
-        puzzle = create_published_puzzle(user=self.user)
+        puzzle = create_published_puzzle(editor=self.user)
         self.get('/')
         self.do_click("//div[contains(@class,'badge badge')]/a[1]")
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
 
     def test_Puzzle_title_links_to_solve_puzzle_page_if_user_is_not_editor(self):
         other_user = User.objects.create_user(username="other_user")
-        puzzle = create_published_puzzle(user=other_user)
+        puzzle = create_published_puzzle(editor=other_user)
         self.get('/')
         self.do_click("//div[contains(@class,'badge badge')]/a[1]")
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
