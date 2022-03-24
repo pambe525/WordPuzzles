@@ -44,18 +44,29 @@
                 </div>
             {% endif %}
             <hr>
+            {% if session is None %}
             <div class="m-0 row mt-2">
-                {% if object.size != 0 and not object.is_published and request.user == object.editor %}
-                    <a class="btn btn-primary" href="{% url 'publish_puzzle' object.id %}">PUBLISH</a>
-                {% endif %}
-                {% if object.size != 0 and object.is_published and request.user == object.editor %}
-                    <a class="btn btn-primary" href="{% url 'unpublish_puzzle' object.id %}">UNPUBLISH</a>
-                {% endif %}
-                {% if object.size != 0 and object.is_published and request.user != object.editor %}
-                    <a class="btn btn-primary" href="{% url 'solve_puzzle' object.id %}">SOLVE NOW</a>
+                {% if object.size != 0 %}
+                    {% if not object.is_published and request.user == object.editor %}
+                        <a class="btn btn-primary" href="{% url 'publish_puzzle' object.id %}">PUBLISH</a>
+                    {% endif %}
+                    {% if object.is_published and request.user == object.editor %}
+                        <a class="btn btn-primary" href="{% url 'unpublish_puzzle' object.id %}">UNPUBLISH</a>
+                    {% endif %}
+                    {% if object.is_published and request.user != object.editor %}
+                        <a class="btn btn-primary" href="{% url 'solve_puzzle' object.id %}">SOLVE NOW</a>
+                    {% endif %}
                 {% endif %}
                 <a class="ml-auto btn btn-dark" href="/">DONE</a>
             </div>
+            {% else %}
+                <div class="m-0 row">
+                    <div id="id-score"></div>
+                    <div id="id-progress"></div>
+                    <div id="id-timer"></div>
+                </div>
+                <a class="ml-auto btn btn-dark" href="/">FINISH LATER</a>
+            {% endif %}
             {% if object.size != 0 and not object.is_published and request.user == object.editor %}
                 <div class="notetext pt-2">
                     NOTE: Publish your puzzle only after all clues are complete. Published puzzles cannot be edited
@@ -73,7 +84,8 @@
     </div>
     <script>
         const clueSet = {{ clues | safe }};
-        var showAnswers = {{ show_answers | yesno:'true, false' | safe }};
+        const puzzleSession = {{ session | safe }}
+        const showAnswers = {{ show_answers | yesno:'true, false' | safe }};
     </script>
     {% load static %}
     <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>
