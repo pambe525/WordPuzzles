@@ -186,6 +186,7 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
     show_answers = True
     heading = "Preview Puzzle"
     puzzle = None
+    active_session = False
 
     def get(self, request, *args, **kwargs):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
@@ -198,7 +199,7 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
 
     def get_context_data(self):
         return {'heading': self.heading, 'show_answers': self.show_answers, 'object': self.puzzle,
-               'clues': json.dumps(self.get_clues_list()), 'session': None}
+               'clues': json.dumps(self.get_clues_list()), 'active_session': self.active_session}
 
     def get_clues_list(self):
         clues = self.puzzle.get_clues()
@@ -214,6 +215,7 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
 class SolvePuzzleView(PreviewPuzzleView):
 
     solve_session = None
+    active_session = True
 
     def get(self, request, *args, **kwargs):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])

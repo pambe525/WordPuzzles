@@ -57,7 +57,7 @@ class PreviewPuzzleViewTest(TestCase):
         self.assertEqual(response.context['heading'], "Preview Puzzle & Solve")
         self.assertEqual(response.context['object'], puzzle)
         self.assertFalse(response.context['show_answers'])
-        self.assertIsNone(response.context['session'])
+        self.assertFalse(response.context['active_session'])
 
     def test_Editor_response_context_contains_serialized_clues_list_with_answers(self):
         puzzle = create_published_puzzle(editor=self.user, clues_pts=[4, 2, 1, 4])
@@ -140,7 +140,7 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(response.context['heading'], "Solve Puzzle")
         self.assertEqual(response.context['object'], puzzle)
         self.assertFalse(response.context['show_answers'])
-        self.assertIsNotNone(response.context['session'])
+        self.assertTrue(response.context['active_session'])
         json_session = json.loads(response.context['session'])
         self.assertEqual(json_session['puzzle_id'], puzzle.id)
         self.assertEqual(json_session['solver_id'], self.user.id)
@@ -151,7 +151,7 @@ class SolvePuzzleViewTest(TestCase):
 
     def test_Loads_existing_session_and_renders_solve_puzzle_page(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
-        session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
+        create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
         self.assertTemplateUsed("word_puzzle.html")
         json_session = json.loads(response.context['session'])

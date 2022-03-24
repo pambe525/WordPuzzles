@@ -44,7 +44,7 @@
                 </div>
             {% endif %}
             <hr>
-            {% if session is None %}
+            {% if not active_session %}
             <div class="m-0 row mt-2">
                 {% if object.size != 0 %}
                     {% if not object.is_published and request.user == object.editor %}
@@ -84,8 +84,10 @@
     </div>
     <script>
         const clueSet = {{ clues | safe }};
-        const puzzleSession = {{ session | safe }}
         const showAnswers = {{ show_answers | yesno:'true, false' | safe }};
+        {% if active_session %}
+            const puzzleSession = {{ session | safe }}
+        {% endif %}
     </script>
     {% load static %}
     <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>
