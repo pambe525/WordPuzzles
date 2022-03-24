@@ -4,7 +4,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from puzzles.models import WordPuzzle, PuzzleSession
+from puzzles.models import WordPuzzle
 from testing.django_unit_tests.unit_test_helpers import create_published_puzzle, create_draft_puzzle, create_session
 
 
@@ -67,7 +67,7 @@ class PreviewPuzzleViewTest(TestCase):
         self.assertTrue(response.context['show_answers'])
         self.assertEqual(len(json_clues_list), 4)
         for index in range(0, len(json_clues_list)):
-            self.assertEqual(json_clues_list[index]['clue_num'], index+1)
+            self.assertEqual(json_clues_list[index]['clue_num'], index + 1)
             self.assertEqual(json_clues_list[index]['points'], clues[index].points)
             self.assertEqual(json_clues_list[index]['clue_text'], clues[index].get_decorated_clue_text())
             self.assertEqual(json_clues_list[index]['answer'], clues[index].answer)
@@ -81,11 +81,17 @@ class PreviewPuzzleViewTest(TestCase):
         self.assertFalse(response.context['show_answers'])
         self.assertEqual(len(json_clues_list), 3)
         for index in range(0, len(json_clues_list)):
-            self.assertEqual(json_clues_list[index]['clue_num'], index+1)
+            self.assertEqual(json_clues_list[index]['clue_num'], index + 1)
             self.assertEqual(json_clues_list[index]['points'], clues[index].points)
             self.assertEqual(json_clues_list[index]['clue_text'], clues[index].get_decorated_clue_text())
             self.assertFalse('answer' in json_clues_list[index])
             self.assertFalse('parsing' in json_clues_list[index])
+
+    def test_Redirects_to_solve_puzzle_url_if_puzzle_has_active_session(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[4, 2, 1])
+        create_session(puzzle=puzzle, solver=self.user)
+        response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
+        self.assertRedirects(response, "/solve_puzzle/" + str(puzzle.id) + "/", 302)
 
 
 class SolvePuzzleViewTest(TestCase):
@@ -110,7 +116,7 @@ class SolvePuzzleViewTest(TestCase):
         self.assertContains(response, "OK")
 
     def test_Shows_error_for_editor_of_draft_puzzle(self):
-        puzzle = create_draft_puzzle(editor=self.user, clues_pts=[2, 3, 1, 4, 5])
+        puzzle = create_draft_puzzle(editor=self.user, clues_pts=[2, 4, 1, 4, 5])
         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed("puzzle_error.html")
@@ -158,6 +164,6 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(json_session['puzzle_id'], puzzle.id)
         self.assertEqual(json_session['solver_id'], self.user.id)
         self.assertEqual(json_session['elapsed_secs'], 0)
-        self.assertEqual(json_session['solved_clues'], [1,5])
-        self.assertEqual(json_session['revealed_clues'], [2,3])
+        self.assertEqual(json_session['solved_clues'], [1, 5])
+        self.assertEqual(json_session['revealed_clues'], [2, 3])
         self.assertEqual(json_session['score'], 7)

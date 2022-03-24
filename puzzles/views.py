@@ -193,6 +193,8 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
         if self.puzzle.editor == request.user:
             self.heading += " & Unpublish" if self.puzzle.is_published() else " & Publish"
         else:
+            if PuzzleSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
+                return redirect("solve_puzzle", self.puzzle.id)
             self.heading += " & Solve"
             self.show_answers = False
         return render(request, "word_puzzle.html", context=self.get_context_data())
