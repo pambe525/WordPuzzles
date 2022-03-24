@@ -18,8 +18,8 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from puzzles.views import HomeView, EditPuzzleView, NewPuzzleView, EditClueView, DeleteClueView, PuzzlesListView
-from puzzles.views import ReleaseNotesView
 from puzzles.views import PreviewPuzzleView, DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView
+from puzzles.views import ReleaseNotesView, SolvePuzzleView
 from user_auth.views import SignUpView, UserAccountView, ChangePasswordView
 
 urlpatterns = [
@@ -38,7 +38,8 @@ urlpatterns = [
     path('password_reset_confirm/<uidb64>/<token>/',
          auth_views.PasswordResetConfirmView.as_view(template_name="password_reset_confirm.html"),
          name='password_reset_confirm'),
-    path('password_reset_complete', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_confirm.html'),
+    path('password_reset_complete',
+         auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_confirm.html'),
          name='password_reset_complete'),
     path('account', UserAccountView.as_view(), name="account"),
     path('account/edit/', UserAccountView.as_view(), name="account_edit"),
@@ -56,5 +57,5 @@ urlpatterns = [
     path('publish_puzzle/<int:pk>/', PublishPuzzleView.as_view(), name="publish_puzzle"),
     path('unpublish_puzzle/<int:pk>/', UnpublishPuzzleView.as_view(), name='unpublish_puzzle'),
     path('puzzles_list', PuzzlesListView.as_view(), name='puzzles_list'),
-    path('solve_puzzle/<int:pk>/', PreviewPuzzleView.as_view(), name='solve_puzzle'),
+    path('solve_puzzle/<int:pk>/', SolvePuzzleView.as_view(), name='solve_puzzle'),
 ]
