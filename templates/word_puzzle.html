@@ -30,14 +30,36 @@
                 </div>
                 <!-- CLUE ROTATOR -->
                 <div class="m-0 row align-items-center">
+                    <!-- LEFT ARROW -->
                     <button class="pr-2 p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
                         <i class="fa fa-caret-left fa-3x"></i>
                     </button>
+                    <!-- CLUE & ANSWER BOX -->
                     <div class="col p-2 border border-dark rounded-3" style="line-height:18px">
                         <div class="font-weight-bold mb-2" id="id-clue"></div>
+                        <div class="m-0 row align-items-center">
+                            Answer:
+                            {% if active_session %}
+                                <div class="m-0 row ml-1" id="id-answer-icons">
+                                    <div id="id-check-icon"><i class="fa fa-check text-success"></i></div>
+                                    <div id="id-eye-icon"><i class="fa fa-eye text-secondary"></i></div>
+                                    <div id="id-wrong-icon"><i class="fa fa-times text-danger"></i></div>
+                                    <div class="ml-1" id="id-answer-msg">[2 pts]</div>
+                                </div>
+                            {% endif %}
+                        </div>
                         <div id="id-answer"></div>
+                        {% if active_session %}
+                            <div class="m-0 row mt-2" id="id-answer-btns">
+                                <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-answer">SUBMIT</button>
+                                <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-answer">CLEAR</button>
+                                <button class="btn-sm btn-danger pt-0 pb-0 ml-1" id="id-reveal_answer">REVEAL</button>
+                            </div>
+                        {% endif %}
                         <div class="mt-1" id="id-parsing"></div>
                     </div>
+
+                    <!-- RIGHT ARROW -->
                     <button class="pl-2 p-0 btn" title="Next clue" id="id-right-caret" onclick="nextClue();">
                         <i class="fa fa-caret-right fa-3x"></i>
                     </button>
@@ -65,7 +87,7 @@
                     <div id="id-progress"></div>
                     <div id="id-timer"></div>
                 </div>
-                <a class="ml-auto btn btn-dark" href="/">FINISH LATER</a>
+                <a class="ml-auto btn btn-primary" href="/">FINISH LATER</a>
             {% endif %}
             {% if object.size != 0 and not object.is_published and request.user == object.editor %}
                 <div class="notetext pt-2">

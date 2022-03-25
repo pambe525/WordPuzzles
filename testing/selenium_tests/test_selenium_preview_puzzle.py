@@ -136,6 +136,8 @@ class PreviewPuzzleTests(SeleniumTestCase):
         answer = self.get_element("//div[@id='id-answer']").text.replace('\n',"")
         self.assertEqual(answer, clues[3].answer)
         self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[3].parsing)
+        self.assert_not_exists("//div[@id='id-answer-icons']")
+        self.assert_not_exists("//div[@id='id-answer-btns']")
 
     def test_Draft_puzzle_preview_shows_error_for_non_editor(self):
         puzzle = create_draft_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[1, 2, 3])
@@ -170,6 +172,8 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//a[text()='PUBLISH']")                 # No Publish button
         self.assert_not_exists("//a[text()='UNPUBLISH']")               # No Unpublish button
         self.assert_exists("//a[text()='SOLVE NOW']")                   # Solve button
+        self.assert_not_exists("//div[@id='id-answer-icons']")
+        self.assert_not_exists("//div[@id='id-answer-btns']")
 
     def test_Published_puzzle_preview_by_non_editor_hides_answers(self):
         puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[2, 2, 3])
