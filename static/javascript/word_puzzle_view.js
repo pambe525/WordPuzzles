@@ -1,11 +1,30 @@
 /** Calling script must define variables clueSet and showAnswers */
 
 $(document).ready(function () {
+    if (puzzleSession) loadPuzzleSessionState();
     $("#clue-btn-1").click();
 })
 
 function getClueDesc(clue) {
     return clue.clue_num + ". " + clue.clue_text + " [" + clue.points + " pts]";
+}
+
+function loadPuzzleSessionState() {
+    setClueButtonStates();
+    setScore();
+}
+
+function setClueButtonStates() {
+    for (let i = 1; i <= clueSet.length; i++) {
+        if (puzzleSession['solved_clues'].includes(i))
+            $('#clue-btn-' + i).addClass('btn-success').removeClass('btn-light');
+        else if (puzzleSession['revealed_clues'].includes(i))
+            $('#clue-btn-' + i).addClass('btn-secondary').removeClass('btn-light');
+    }
+}
+
+function setScore() {
+    $('#id-score').text("Score: " + puzzleSession['score'] + ' pts')
 }
 
 function showClue(clickedClueNum) {

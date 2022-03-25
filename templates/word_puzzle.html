@@ -43,7 +43,7 @@
                     </button>
                 </div>
             {% endif %}
-            <hr>
+            <hr class="mb-1">
             {% if not active_session %}
             <div class="m-0 row mt-2">
                 {% if object.size != 0 %}
@@ -60,7 +60,7 @@
                 <a class="ml-auto btn btn-dark" href="/">DONE</a>
             </div>
             {% else %}
-                <div class="m-0 row">
+                <div class="m-0 row mt-0 mb-2 font-weight-bold text-primary">
                     <div id="id-score"></div>
                     <div id="id-progress"></div>
                     <div id="id-timer"></div>
@@ -85,8 +85,9 @@
     <script>
         const clueSet = {{ clues | safe }};
         const showAnswers = {{ show_answers | yesno:'true, false' | safe }};
+        let puzzleSession = null;
         {% if active_session %}
-            const puzzleSession = {{ session | safe }}
+            puzzleSession = {{ session | safe }}
         {% endif %}
     </script>
     {% load static %}
