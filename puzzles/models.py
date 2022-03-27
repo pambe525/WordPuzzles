@@ -115,14 +115,17 @@ class Clue(models.Model):
         return text
 
     def get_decorated_clue_text(self):
-        paren_text = ' ('
+        return self.clue_text + " (" + self.get_answer_footprint_as_string() + ")"
+
+    def get_answer_footprint_as_string(self):
+        footprint = ''
         words = self.answer.split()
         for idx, word in enumerate(words):
-            paren_text += self._get_word_length_as_string(word)
-            paren_text += ',' if idx < len(words) - 1 else ')'
-        return self.clue_text + paren_text
+            footprint += self.get_word_length_as_string(word)
+            if idx < len(words) - 1: footprint += ','
+        return footprint
 
-    def _get_word_length_as_string(self, word):
+    def get_word_length_as_string(self, word):
         len_text = str(len(word))
         hyphenated_parts = word.split('-')
         if len(hyphenated_parts) > 1:
