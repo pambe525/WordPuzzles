@@ -39,7 +39,7 @@
                         <div class="font-weight-bold mb-2" id="id-clue"></div>
                         <div class="m-0 row align-items-center">
                             Answer:
-                            {% if active_session %}
+                            {% if active_session != None %}
                                 <div class="m-0 row ml-1" id="id-answer-icons">
                                     <div id="id-check-icon"><i class="fa fa-check text-success"></i></div>
                                     <div id="id-eye-icon"><i class="fa fa-eye text-secondary"></i></div>
@@ -49,11 +49,11 @@
                             {% endif %}
                         </div>
                         <div id="id-answer"></div>
-                        {% if active_session %}
+                        {% if active_session != None %}
                             <div class="m-0 row mt-2" id="id-answer-btns">
-                                <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-answer">SUBMIT</button>
-                                <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-answer">CLEAR</button>
-                                <button class="btn-sm btn-danger pt-0 pb-0 ml-1" id="id-reveal_answer">REVEAL</button>
+                                <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn">SUBMIT</button>
+                                <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn">CLEAR</button>
+                                <button class="btn-sm btn-danger pt-0 pb-0 ml-1" id="id-reveal-btn">REVEAL</button>
                             </div>
                         {% endif %}
                         <div class="mt-1" id="id-parsing"></div>
@@ -66,7 +66,7 @@
                 </div>
             {% endif %}
             <hr class="mb-1">
-            {% if not active_session %}
+            {% if active_session == None %}
             <div class="m-0 row mt-2">
                 {% if object.size != 0 %}
                     {% if not object.is_published and request.user == object.editor %}
@@ -106,11 +106,7 @@
     </div>
     <script>
         const clueSet = {{ clues | safe }};
-        const showAnswers = {{ show_answers | yesno:'true, false' | safe }};
-        let puzzleSession = null;
-        {% if active_session %}
-            puzzleSession = {{ session | safe }}
-        {% endif %}
+        const activeSession = {{ active_session | default_if_none:'null' | safe }};
     </script>
     {% load static %}
     <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>
