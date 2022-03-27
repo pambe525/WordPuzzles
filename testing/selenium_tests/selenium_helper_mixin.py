@@ -123,6 +123,12 @@ class HelperMixin:
         selector = Select(self.selenium.find_element(By.XPATH, xpath))
         selector.select_by_visible_text(visible_text)
 
+    def assert_is_not_displayed(self, xpath, index=0):
+        self.testcase.assertFalse(self, self.selenium.find_elements(By.XPATH, xpath)[index].is_displayed())
+
+    def assert_is_displayed(self, xpath, index=0):
+        self.testcase.assertTrue(self, self.selenium.find_elements(By.XPATH, xpath)[index].is_displayed())
+
 
 ### Parent class from which all selenium test cases will be derived
 class SeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
