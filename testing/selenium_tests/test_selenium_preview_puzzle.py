@@ -73,7 +73,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[3, 1, 2, 4])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         first_clue = puzzle.get_clues()[0]
-        self.assert_text_equals("//div[@id='id-clue']", get_full_clue_desc(first_clue))   # clue text
+        self.assert_text_equals("//div[@id='id-clue']", get_full_clue_desc(first_clue))    # clue text
         self.assert_exists("//button[@id='clue-btn-1'][contains(@class,'active')]")        # clue btn is active
 
     def test_Clicking_on_a_clue_button_activates_it_and_shows_clue_text_in_clue_box(self):
@@ -192,7 +192,5 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//a[text()='SOLVE NOW']")               # NO SOLVE NOW button
         self.assert_not_exists("//a[text()='DONE']")                    # No DONE button
         self.assert_exists("//a[text()='FINISH LATER']")                # Only FINISH LATER button
-
-
 
 
