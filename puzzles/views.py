@@ -183,55 +183,70 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
 
 
 class PreviewPuzzleView(EditorRequiredMixin, View):
-    show_answers = True
     heading = "Preview Puzzle"
     puzzle = None
-    active_session = False
+    active_session = None
+    clues = None
 
     def get(self, request, *args, **kwargs):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
         if self.puzzle.editor == request.user:
             self.heading += " & Unpublish" if self.puzzle.is_published() else " & Publish"
+            self.clues = self.get_clues_list(with_answers=True)
         else:
             if PuzzleSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
                 return redirect("solve_puzzle", self.puzzle.id)
             self.heading += " & Solve"
-            self.show_answers = False
+            self.clues = self.get_clues_list()
         return render(request, "word_puzzle.html", context=self.get_context_data())
 
     def get_context_data(self):
-        return {'heading': self.heading, 'show_answers': self.show_answers, 'object': self.puzzle,
-               'clues': json.dumps(self.get_clues_list()), 'active_session': self.active_session}
+        if self.active_session is not None:
+            self.active_session = json.dumps(self.active_session)
+        return {'heading': self.heading, 'object': self.puzzle, 'active_session': self.active_session,
+                'clues': json.dumps(self.clues)}
 
-    def get_clues_list(self):
+    def get_clues_list(self, with_answers=False):
         clues = self.puzzle.get_clues()
         clues_list = []
-        for index in range(0, len(clues)):
-            data = {'clue_num': clues[index].clue_num, 'clue_text': clues[index].get_decorated_clue_text(),
-                    'points': clues[index].points}
-            if self.show_answers:
-                data.update({'answer': clues[index].answer, 'parsing': clues[index].parsing})
-            clues_list.append(data)
+        for clue in clues:
+            clue_dict = self.get_clue_as_dict(clue, with_answers)
+            clues_list.append(clue_dict)
         return clues_list
 
-class SolvePuzzleView(PreviewPuzzleView):
+    def get_clue_as_dict(self, clue, with_answer):
+        clue_dict = {'clue_num': clue.clue_num, 'clue_text': clue.get_decorated_clue_text(),
+                     'points': clue.points, 'answer_footprint': clue.get_answer_footprint_as_string()}
+        if with_answer:
+            clue_dict.update({'answer': clue.answer, 'parsing': clue.parsing})
+        return clue_dict
 
-    solve_session = None
-    active_session = True
+
+class SolvePuzzleView(PreviewPuzzleView):
 
     def get(self, request, *args, **kwargs):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
         self.heading = "Solve Puzzle"
-        self.show_answers = False
-        self.solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
+        solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
+        self.active_session = self.get_session_as_dict(solve_session)
+        self.clues = self.get_clues_list()
         return render(request, "word_puzzle.html", context=self.get_context_data())
 
-    def get_context_data(self):
-        ctx = super(SolvePuzzleView, self).get_context_data()
-        session_dict = {'solver_id':self.solve_session.solver.id, 'puzzle_id': self.puzzle.id,
-                        'elapsed_secs': self.solve_session.elapsed_seconds, 'score': self.solve_session.get_score(),
-                        'solved_clues': self.solve_session.get_solved_clue_nums(),
-                        'revealed_clues': self.solve_session.get_revealed_clue_nums()
-                        }
-        ctx['session'] = json.dumps(session_dict)
-        return ctx
+    def get_session_as_dict(self, solve_session):
+        return {'solver_id':solve_session.solver.id, 'puzzle_id': self.puzzle.id,
+                'elapsed_secs': solve_session.elapsed_seconds, 'score': solve_session.get_score(),
+                'solved_clues': solve_session.get_solved_clue_nums(),
+                'revealed_clues': solve_session.get_revealed_clue_nums()}
+
+    def get_clues_list(self, **kwargs):
+        clues = self.puzzle.get_clues()
+        clues_list = []
+        for clue in clues:
+            with_answer = False if self.is_unsolved_clue(clue) else True
+            clue_dict = self.get_clue_as_dict(clue, with_answer)
+            clues_list.append(clue_dict)
+        return clues_list
+
+    def is_unsolved_clue(self, clue):
+        return clue.clue_num not in self.active_session['solved_clues'] and \
+               clue.clue_num not in self.active_session['revealed_clues']
