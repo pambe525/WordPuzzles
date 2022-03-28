@@ -179,8 +179,8 @@ class PreviewPuzzleTests(SeleniumTestCase):
         puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[2, 2, 3])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Preview Puzzle & Solve")
-        self.assert_text_equals("//div[@id='id-answer']",'')
-        self.assert_text_equals("//div[@id='id-parsing']",'')
+        self.assert_is_not_displayed("//div[@id='id-answer']")
+        self.assert_is_not_displayed("//div[@id='id-parsing']")
 
     def test_Solve_button_starts_solve_session(self):
         puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[1, 2, 3])
