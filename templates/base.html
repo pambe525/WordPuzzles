@@ -21,7 +21,7 @@
 <body>
     <div class="container-fluid p-0">
         <div class="row m-0 pt-2 bg-dark">
-            <div class="header-badge ml-2 pr-2">Home of the Puzzlers</div>
+            <a class="header-badge ml-2 pr-2" href="{% url 'home' %}">Home of the Puzzlers</a>
             <h5><a href='{% url 'release_notes' %}' class="badge badge-secondary ml-3 mt-2">v1.0</a></h5>
             {% if user.is_authenticated %}
                 <div class="ml-2 pt-2 pr-2" >
@@ -29,7 +29,6 @@
                     <span class="text-light">{{ user.username }} </span>&nbsp;
                 </div>
             {% endif %}
-
         </div>
 
         <!-- NAVBAR -->
