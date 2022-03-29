@@ -66,9 +66,9 @@ class PreviewPuzzleViewTest(TestCase):
             self.assertEqual(json_clues_list[index]['clue_num'], index + 1)
             self.assertEqual(json_clues_list[index]['points'], clues[index].points)
             self.assertEqual(json_clues_list[index]['clue_text'], clues[index].get_decorated_clue_text())
-            self.assertEqual(json_clues_list[index]['answer_footprint'], '4-1')
             self.assertEqual(json_clues_list[index]['answer'], clues[index].answer)
             self.assertEqual(json_clues_list[index]['parsing'], clues[index].parsing)
+            self.assertEqual(json_clues_list[index]['mode'], 'PREVIEW')
 
     def test_Non_editor_response_context_contains_serialized_clues_list_without_answers(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[4, 2, 1])
@@ -79,10 +79,10 @@ class PreviewPuzzleViewTest(TestCase):
         for index in range(0, len(json_clues_list)):
             self.assertEqual(json_clues_list[index]['clue_num'], index + 1)
             self.assertEqual(json_clues_list[index]['points'], clues[index].points)
-            self.assertEqual(json_clues_list[index]['answer_footprint'], '4-1')
             self.assertEqual(json_clues_list[index]['clue_text'], clues[index].get_decorated_clue_text())
-            self.assertFalse('answer' in json_clues_list[index])
-            self.assertFalse('parsing' in json_clues_list[index])
+            self.assertEqual(json_clues_list[index]['answer'], "****-*")
+            self.assertEqual(json_clues_list[index]['parsing'], '')
+            self.assertEqual(json_clues_list[index]['mode'], 'PRESOLVE')
 
     def test_Redirects_to_solve_puzzle_url_if_puzzle_has_active_session(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[4, 2, 1])
@@ -147,43 +147,48 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(json_session['puzzle_id'], puzzle.id)
         self.assertEqual(json_session['solver_id'], self.user.id)
         self.assertEqual(json_session['elapsed_secs'], 0)
-        self.assertEqual(json_session['solved_clues'], [])
-        self.assertEqual(json_session['revealed_clues'], [])
-        self.assertEqual(json_session['score'], 0)
+        self.assertEqual(json_session['total_points'], 15)
+        self.assertEqual(json_session['solved_points'], 0)
+        self.assertEqual(json_session['revealed_points'], 0)
 
     def test_Loads_existing_session_and_renders_solve_puzzle_page(self):
-        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 2, 4, 5])
         create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
         json_session = json.loads(response.context['active_session'])
         self.assertEqual(json_session['puzzle_id'], puzzle.id)
         self.assertEqual(json_session['solver_id'], self.user.id)
         self.assertEqual(json_session['elapsed_secs'], 0)
-        self.assertEqual(json_session['solved_clues'], [1, 5])
-        self.assertEqual(json_session['revealed_clues'], [2, 3])
-        self.assertEqual(json_session['score'], 7)
+        self.assertEqual(json_session['total_points'], 16)
+        self.assertEqual(json_session['solved_points'], 7)
+        self.assertEqual(json_session['revealed_points'], 5)
 
     def test_With_existing_session_response_contains_clue_details(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 1, 5], has_parsing=True)
+        clues = puzzle.get_clues()
         create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
         json_clues = json.loads(response.context['clues'])
-        self.assertEqual(json_clues[0]['clue_num'], 1)
-        self.assertEqual(json_clues[0]['clue_text'], "Clue for WordA (4-1)")
-        self.assertEqual(json_clues[0]['points'], 2)
-        self.assertEqual(json_clues[0]['answer_footprint'], '4-1')
-        self.assertEqual(json_clues[0]['parsing'], "Parsing for wordA")
-        self.assertEqual(json_clues[0]['answer'], 'WORD-A')
+        for index, json_clue in enumerate(json_clues):
+            self.assertEqual(json_clue['clue_num'], clues[index].clue_num)
+            self.assertEqual(json_clue['clue_text'], clues[index].get_decorated_clue_text())
+            self.assertEqual(json_clue['points'], clues[index].points)
+
 
     def test_With_existing_session_response_contains_answers_for_solved_and_revealed_clues(self):
-        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 1, 5])
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 3, 1, 5], has_parsing=True)
         create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
         json_clues = json.loads(response.context['clues'])
-        self.assertTrue('answer' in json_clues[0])
-        self.assertTrue('answer' in json_clues[1])
-        self.assertTrue('answer' in json_clues[2])
-        self.assertTrue('answer' in json_clues[4])
-        self.assertFalse('answer' in json_clues[3])   # Unsolved clue does not include answer
-        self.assertTrue('parsing' in json_clues[0])
-        self.assertFalse('parsing' in json_clues[3])
+        # SOLVED CLUE
+        self.assertEqual(json_clues[0]['mode'], 'SOLVED')
+        self.assertEqual(json_clues[0]['answer'], 'WORD-A')
+        self.assertEqual(json_clues[0]['parsing'], 'Parsing for wordA')
+        # REVEALED CLUE
+        self.assertEqual(json_clues[1]['mode'], 'REVEALED')
+        self.assertEqual(json_clues[1]['answer'], 'WORD-B')
+        self.assertEqual(json_clues[1]['parsing'], 'Parsing for wordB')
+        # UNSOLVED CLUE
+        self.assertEqual(json_clues[3]['mode'], 'UNSOLVED')
+        self.assertEqual(json_clues[3]['answer'], '****-*')  # Unsolved clue includes masked answer
+        self.assertEqual(json_clues[3]['parsing'], '')

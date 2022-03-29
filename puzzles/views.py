@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -192,12 +193,12 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
         if self.puzzle.editor == request.user:
             self.heading += " & Unpublish" if self.puzzle.is_published() else " & Publish"
-            self.clues = self.get_clues_list(with_answers=True)
+            self.clues = self.get_clues_list(mode='PREVIEW')
         else:
             if PuzzleSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
                 return redirect("solve_puzzle", self.puzzle.id)
             self.heading += " & Solve"
-            self.clues = self.get_clues_list()
+            self.clues = self.get_clues_list(mode='PRESOLVE')
         return render(request, "word_puzzle.html", context=self.get_context_data())
 
     def get_context_data(self):
@@ -206,47 +207,54 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
         return {'heading': self.heading, 'object': self.puzzle, 'active_session': self.active_session,
                 'clues': json.dumps(self.clues)}
 
-    def get_clues_list(self, with_answers=False):
+    def get_clues_list(self, mode='PREVIEW'):
         clues = self.puzzle.get_clues()
         clues_list = []
         for clue in clues:
-            clue_dict = self.get_clue_as_dict(clue, with_answers)
+            clue_dict = self.get_clue_as_dict(clue, mode=mode)
             clues_list.append(clue_dict)
         return clues_list
 
-    def get_clue_as_dict(self, clue, with_answer):
+    def get_clue_as_dict(self, clue, mode='PREVIEW'):
         clue_dict = {'clue_num': clue.clue_num, 'clue_text': clue.get_decorated_clue_text(),
-                     'points': clue.points, 'answer_footprint': clue.get_answer_footprint_as_string()}
-        if with_answer:
-            clue_dict.update({'answer': clue.answer, 'parsing': clue.parsing})
+                     'points': clue.points}
+        if mode == 'PREVIEW' or mode == 'SOLVED' or mode == 'REVEALED':
+            clue_dict.update({'answer': clue.answer, 'parsing': clue.parsing, 'mode': mode})
+        else:
+            masked_answer = re.sub("[a-zA-Z]","*", clue.answer)
+            clue_dict.update({'answer': masked_answer , 'parsing': '', 'mode': mode})
         return clue_dict
 
 
 class SolvePuzzleView(PreviewPuzzleView):
 
+    solve_session = None
+
     def get(self, request, *args, **kwargs):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
         self.heading = "Solve Puzzle"
-        solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
-        self.active_session = self.get_session_as_dict(solve_session)
+        self.solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
+        self.active_session = self.get_session_as_dict()
         self.clues = self.get_clues_list()
         return render(request, "word_puzzle.html", context=self.get_context_data())
 
-    def get_session_as_dict(self, solve_session):
-        return {'solver_id':solve_session.solver.id, 'puzzle_id': self.puzzle.id,
-                'elapsed_secs': solve_session.elapsed_seconds, 'score': solve_session.get_score(),
-                'solved_clues': solve_session.get_solved_clue_nums(),
-                'revealed_clues': solve_session.get_revealed_clue_nums()}
+    def get_session_as_dict(self):
+        return {'solver_id': self.solve_session.solver.id, 'puzzle_id': self.puzzle.id,
+                'elapsed_secs': self.solve_session.elapsed_seconds,
+                'total_points': self.solve_session.puzzle.total_points,
+                'solved_points': self.solve_session.get_solved_points(),
+                'revealed_points': self.solve_session.get_revealed_points(),
+                }
 
     def get_clues_list(self, **kwargs):
         clues = self.puzzle.get_clues()
+        solved_clue_nums = self.solve_session.get_solved_clue_nums()
+        revealed_clue_nums = self.solve_session.get_revealed_clue_nums()
         clues_list = []
         for clue in clues:
-            with_answer = False if self.is_unsolved_clue(clue) else True
-            clue_dict = self.get_clue_as_dict(clue, with_answer)
+            if clue.clue_num in solved_clue_nums: mode = 'SOLVED'
+            elif clue.clue_num in revealed_clue_nums: mode = 'REVEALED'
+            else: mode = 'UNSOLVED'
+            clue_dict = self.get_clue_as_dict(clue, mode=mode)
             clues_list.append(clue_dict)
         return clues_list
-
-    def is_unsolved_clue(self, clue):
-        return clue.clue_num not in self.active_session['solved_clues'] and \
-               clue.clue_num not in self.active_session['revealed_clues']

@@ -12,59 +12,76 @@ function getFullClueDesc(clue) {
 function loadPuzzleSessionState() {
     setClueButtonStates();
     setScore();
+    setProgress();
+    setTimer();
 }
 
 function setClueButtonStates() {
     for (let i = 1; i <= clueSet.length; i++) {
-        if (activeSession['solved_clues'].includes(i))
+        if (clueSet[i-1].mode === 'SOLVED')
             $('#clue-btn-' + i).addClass('btn-success').removeClass('btn-light');
-        else if (activeSession['revealed_clues'].includes(i))
+        else if (clueSet[i-1].mode === 'REVEALED')
             $('#clue-btn-' + i).addClass('btn-secondary').removeClass('btn-light');
     }
 }
 
 function setScore() {
-    $('#id-score').text("Score: " + activeSession['score'] + ' pts')
+    $('#id-score').text("Score: " + activeSession['solved_points'] + ' pts')
+}
+
+function setProgress() {
+    let totalPoints = activeSession['total_points'];
+    let solvedPoints = activeSession['solved_points'];
+    let revealedPoints = activeSession['revealed_points'];
+    let solvedBarWidth = Math.round(100*solvedPoints/totalPoints) + "%";
+    let revealedBarWidth = Math.round(100*revealedPoints/totalPoints) + "%";
+    $("#id-solved-pts").width(solvedBarWidth).text(solvedPoints+" pts");
+    $("#id-revealed-pts").width(revealedBarWidth).text(revealedPoints+" pts");
+}
+
+function setTimer() {
+    let timerFormat = new Date(activeSession['elapsed_secs'] * 1000).toISOString().slice(11, 19);
+    $('#id-timer').text(timerFormat+'s');
 }
 
 function showClue(clickedClueNum) {
     var clue = clueSet[parseInt(clickedClueNum) - 1]
     $('#id-clue').text(getFullClueDesc(clue));
     setActiveClueBtn(clickedClueNum);
-    if (activeSession) showAnswerByClueState(clue);
-    else showAnswerWithParsing(clue)
+    showAnswerByClueMode(clue);
+}
+
+function showAnswerByClueMode(clue) {
+    if ( clue.mode === 'PRESOLVE' ) $("#id-answer-section").hide();
+    else {
+        setAnswerIcons(clue);
+        showAnswerWithParsing(clue);
+        setAnswerBtns(clue);
+    }
+}
+
+function setAnswerIcons(clue) {
+    $("#id-answer-icons").children().hide();
+    if (clue.mode === "SOLVED") {
+        $("#id-check-icon").show();
+        $("#id-answer-msg").text("[" + clue.points + " pts]").show();
+    }
+    else if (clue.mode === "REVEALED") {
+        $("#id-eye-icon").show();
+        $("#id-answer-msg").text("[0 pts]").show();
+    }
 }
 
 function showAnswerWithParsing(clue) {
-    $('#id-answer').empty().append(getWordAsGrid(clue.answer, false));
-    if (clue.parsing == null) $('#id-parsing').hide();
+    let emptyGrid = (clue.mode === 'UNSOLVED');
+    $('#id-answer').empty().append(getAnswerGrid(clue.answer, emptyGrid)).show();
+    if (clue.parsing === '' || clue.parsing === null) $('#id-parsing').hide();
     else $('#id-parsing').empty().text("Parsing: " + clue.parsing).show();
 }
 
-function showAnswerByClueState(clue) {
-    if ( activeSession.solved_clues.includes(clue.clue_num) ) showAnswerAsSolved(clue);
-    else if ( activeSession.revealed_clues.includes(clue.clue_num) ) showAnswerAsRevealed(clue);
-//    else showAnswerAsUnsolved(clue);
-}
-
-function showAnswerAsSolved(clue) {
-    $("#id-answer-icons").show();
-    $("#id-check-icon").show();
-    $("#id-eye-icon").hide();
-    $("#id-wrong-icon").hide();
-    $("#id-answer-msg").text("[" + clue.points + " pts]");
-    $("#id-answer-btns").hide();
-    showAnswerWithParsing(clue);
-}
-
-function showAnswerAsRevealed(clue) {
-    $("#id-answer-icons").show();
-    $("#id-check-icon").hide();
-    $("#id-eye-icon").show();
-    $("#id-wrong-icon").hide();
-    $("#id-answer-msg").text("[0 pts]");
-    $("#id-answer-btns").hide();
-    showAnswerWithParsing(clue);
+function setAnswerBtns(clue) {
+    if (clue.mode === 'UNSOLVED') $("#id-answer-btns").show();
+    else $("#id-answer-btns").hide();
 }
 
 function setActiveClueBtn(clueNum) {
@@ -84,20 +101,22 @@ function prevClue() {
     $("#clue-btn-" + prevClueNum).click()
 }
 
-function getCellAsDiv(hasBorder) {
+function getCellAsDiv(hasBorder, left_shift) {
     var cell = $("<div>").addClass('d-inline-block text-center').width('18px').height('18px');
     cell.css('font-size', '12px');
     if (hasBorder) cell.addClass('border border-dark');
+    shiftCellLeft(cell, left_shift);
     return cell;
 }
 
-function getWordAsGrid(word, isEmpty) {
+function getAnswerGrid(word, isEmpty) {
     if (isEmpty === undefined) isEmpty = false;
     var chain = $("<div>"), index = 0, hasBorder, cell;
     for (const letter of word) {
         hasBorder = (letter !== '-' && letter !== ' ');
-        cell = getCellAsDiv(letter, hasBorder);
+        cell = getCellAsDiv(hasBorder);
         if ( !isEmpty ) cell.text(letter);
+        else cell.attr('contenteditable', 'true');
         shiftCellLeft(cell, index++);
         $(chain).append(cell);
     }
