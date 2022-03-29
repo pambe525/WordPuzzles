@@ -170,10 +170,18 @@ class PuzzleSession(models.Model):
         if len(solved) + len(revealed) == self.get_total_clues(): complete = True
         return complete
 
-    def get_score(self):
+    def get_solved_points(self):
         solved = self.get_solved_clue_nums()
         points = self.get_clue_points()
         sum = 0
         for clue_num in solved:
+            sum += points[clue_num-1]
+        return sum
+
+    def get_revealed_points(self):
+        revealed = self.get_revealed_clue_nums()
+        points = self.get_clue_points()
+        sum = 0
+        for clue_num in revealed:
             sum += points[clue_num-1]
         return sum

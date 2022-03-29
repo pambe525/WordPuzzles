@@ -203,8 +203,8 @@ class SessionModelTest(TestCase):
 
     def test_get_score_returns_correct_score(self):
         session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        self.assertEqual(session.get_score(), 0)
+        self.assertEqual(session.get_solved_points(), 0)
         session.revealed_clue_nums = '1,4,6'
-        self.assertEqual(session.get_score(), 0)
+        self.assertEqual(session.get_solved_points(), 0)
         session.solved_clue_nums = '2,3'
-        self.assertEqual(session.get_score(), 3)
+        self.assertEqual(session.get_solved_points(), 3)
