@@ -58,6 +58,7 @@ function showAnswerByClueMode(clue) {
         showAnswerWithParsing(clue);
         setAnswerBtns(clue);
     }
+    if ( clue.mode === 'UNSOLVED') $("#id-answer div div:first-child").click(); //.css('background','yellow').focus();
 }
 
 function setAnswerIcons(clue) {
@@ -103,7 +104,7 @@ function prevClue() {
 
 function getCellAsDiv(hasBorder, left_shift) {
     var cell = $("<div>").addClass('d-inline-block text-center').width('18px').height('18px');
-    cell.css('font-size', '12px');
+    cell.css('font-size', '14px').css('font-weight', 'bold').css('caret-color','transparent').on('click', hiliteCell);
     if (hasBorder) cell.addClass('border border-dark');
     shiftCellLeft(cell, left_shift);
     return cell;
@@ -111,18 +112,62 @@ function getCellAsDiv(hasBorder, left_shift) {
 
 function getAnswerGrid(word, isEmpty) {
     if (isEmpty === undefined) isEmpty = false;
-    var chain = $("<div>"), index = 0, hasBorder, cell;
+    let grid = $("<div>"), index = 0, hasBorder, cell;
     for (const letter of word) {
-        hasBorder = (letter !== '-' && letter !== ' ');
-        cell = getCellAsDiv(hasBorder);
-        if ( !isEmpty ) cell.text(letter);
-        else cell.attr('contenteditable', 'true');
+        if (letter === '-' || letter === ' ') {
+            cell = getCellAsDiv(false).text(letter);
+        } else {
+            cell = getCellAsDiv(true);
+            if (!isEmpty) cell.text(letter);
+            else cell.attr('contenteditable', 'true').on('keydown', onKeyDown);
+        }
         shiftCellLeft(cell, index++);
-        $(chain).append(cell);
+        $(grid).append(cell);
     }
-    return chain;
+    return grid;
 }
 
 function shiftCellLeft(cell, pixels) {
     cell.css('margin-left', '-' + pixels + 'px').css('margin-right', pixels + 'px')
+}
+
+
+onKeyDown = (event) => {
+    let key = event.keyCode || event.which;
+    let keyChar = String.fromCharCode(key);
+    event.preventDefault();
+    if (/[a-zA-Z]/.test(keyChar)) {
+        $(event.target).text(keyChar);
+        let nextCell = getNextCell( $(event.target) );
+        if (nextCell) setFocusAndHilite(nextCell);
+    } else if (key === 8) {
+        $(event.target).text('');
+        let prevCell = getPrevCell( $(event.target) );
+        if (prevCell) setFocusAndHilite(prevCell);
+    }
+}
+
+hiliteCell = (event) => {
+    $("div[contenteditable=true]").css('background', '');
+    $(event.target).css('background', 'yellow').focus();
+}
+
+function getNextCell(currentCell) {
+    let nextCell = currentCell.nextAll("div[contenteditable=true]:first");
+    return (nextCell.length > 0) ? nextCell : null;
+}
+
+function getPrevCell(currentCell) {
+    let prevCell = currentCell.prevAll("div[contenteditable=true]:first");
+    return (prevCell.length > 0) ? prevCell : null;
+}
+
+function setFocusAndHilite(cell) {
+    $("div[contenteditable=true]").css('background', '');
+    cell.css('background', 'yellow').focus();
+}
+
+clearAllCells = () => {
+    $("div[contenteditable=true]").empty();
+    $("#id-answer div div:first-child").click()
 }
