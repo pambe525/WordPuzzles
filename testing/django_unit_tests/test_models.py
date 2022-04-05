@@ -208,3 +208,30 @@ class SessionModelTest(TestCase):
         self.assertEqual(session.get_solved_points(), 0)
         session.solved_clue_nums = '2,3'
         self.assertEqual(session.get_solved_points(), 3)
+
+    def test_checking_contained_clue_nums(self):
+        PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle, solved_clue_nums="1,3")
+        self.assertFalse(PuzzleSession.objects.filter(solved_clue_nums__contains="2"))
+        self.assertTrue(PuzzleSession.objects.filter(solved_clue_nums__contains="3"))
+
+    def test_adding_solved_clue_num(self):
+        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
+        session.add_solved_clue_num(2)
+        self.assertEqual(session.solved_clue_nums, "2")
+        session.add_solved_clue_num(4)
+        self.assertEqual(session.solved_clue_nums, "2,4")
+        session.add_solved_clue_num(2)                                             # Adding existing clue num ignored
+        self.assertEqual(session.solved_clue_nums, "2,4")
+        session = PuzzleSession.objects.get(solver=self.user, puzzle=self.puzzle)  # Retreived saved record
+        self.assertEqual(session.solved_clue_nums, "2,4")                          # Verify updated data is saved
+
+    def test_adding_revealed_clue_num(self):
+        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
+        session.add_revealed_clue_num(1)
+        self.assertEqual(session.revealed_clue_nums, "1")
+        session.add_revealed_clue_num(3)
+        self.assertEqual(session.revealed_clue_nums, "1,3")
+        session.add_revealed_clue_num(3)                                           # Adding existing clue num ignored
+        self.assertEqual(session.revealed_clue_nums, "1,3")
+        session = PuzzleSession.objects.get(solver=self.user, puzzle=self.puzzle)  # Retreived saved record
+        self.assertEqual(session.revealed_clue_nums, "1,3")                        # Verify updated data is saved

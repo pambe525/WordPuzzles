@@ -185,3 +185,16 @@ class PuzzleSession(models.Model):
         for clue_num in revealed:
             sum += points[clue_num-1]
         return sum
+
+    def add_solved_clue_num(self, clue_num):
+        if clue_num not in self.get_solved_clue_nums() and clue_num not in self.get_revealed_clue_nums():
+            if self.solved_clue_nums is None: self.solved_clue_nums = str(clue_num)
+            else: self.solved_clue_nums += ',' + str(clue_num)
+            self.save(update_fields=['solved_clue_nums'])
+
+    def add_revealed_clue_num(self, clue_num):
+        if clue_num not in self.get_revealed_clue_nums() and clue_num not in self.get_solved_clue_nums():
+            if self.revealed_clue_nums is None: self.revealed_clue_nums = str(clue_num)
+            else:
+                self.revealed_clue_nums += ',' + str(clue_num)
+            self.save(update_fields=['revealed_clue_nums'])
