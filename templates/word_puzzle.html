@@ -22,7 +22,7 @@
                     {% for clue in object.get_clues %}
                         <button class="btn-sm btn-light border border-secondary pt-0 pb-0"
                                 id = "clue-btn-{{ clue.clue_num }}"
-                                onclick = "showClue(this.innerText);"
+                                onclick = "showClueAndAnswer(this.innerText);"
                                 title="{{ clue.get_decorated_clue_text }} [{{ clue.points }} pts]">
                                 {{ clue.clue_num }}
                         </button>
@@ -52,10 +52,12 @@
                             <div id="id-answer"></div>
                             {% if active_session != None %}
                                 <div class="m-0 row mt-2" id="id-answer-btns">
-                                    <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn">SUBMIT</button>
+                                    <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn"
+                                            onclick='submitClicked();'>SUBMIT</button>
                                     <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn"
                                             onclick='clearAllCells();'>CLEAR</button>
-                                    <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn">REVEAL</button>
+                                    <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn"
+                                            onclick='revealClicked();'>REVEAL</button>
                                 </div>
                             {% endif %}
                             <div class="mt-1" id="id-parsing"></div>
@@ -114,8 +116,13 @@
         </div>
     </div>
     <script>
-        const clueSet = {{ clues | safe }};
-        const activeSession = {{ active_session | default_if_none:'null' | safe }};
+        var clueSet = {{ clues | safe }};
+        var activeSession = {{ active_session | default_if_none:'null' | safe }};
+        var activeClueNum = 0;
+
+        $.ajaxSetup({
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+}       );
     </script>
     {% load static %}
     <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>

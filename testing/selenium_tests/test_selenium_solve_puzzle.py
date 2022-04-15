@@ -1,5 +1,8 @@
 from django.contrib.auth.models import User
 from selenium.webdriver import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
@@ -16,7 +19,7 @@ class SolvePuzzleTests(SeleniumTestCase):
         self.login_user(username=self.user.username, password=self.password)
         self.other_user = User.objects.create_user(username="other_user", password=self.password)
 
-    def test_Displays_loaded_session_state(self):
+    def test_loads_existing_session(self):
         puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[5, 2, 3, 1, 2])
         session = create_session(solver=self.user, puzzle=puzzle, solved_clues='1,4', revealed_clues='5',
                                  elapsed_secs=5000)
@@ -24,14 +27,14 @@ class SolvePuzzleTests(SeleniumTestCase):
         self.get('/solve_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Solve Puzzle")
         self.verify_all_clue_btns_states(session)
-        self.verify_answer_state_for_clue(clues[0], session)     # SOLVED clue #1
-        self.verify_answer_state_for_clue(clues[4], session)     # REVEALED clue #5
-        self.verify_answer_state_for_clue(clues[1], session)     # UNSOLVED clue #2
-        self.verify_score(session)
+        self.verify_answer_state_for_clue(clues[0], 'solved')     # SOLVED clue #1
+        self.verify_answer_state_for_clue(clues[4], 'revealed')   # REVEALED clue #5
+        self.verify_answer_state_for_clue(clues[1], 'unsolved')   # UNSOLVED clue #2
+        self.verify_score(6)
         self.verify_progress_bars(46, 15)
         self.verify_timer("01:23:20s")
 
-    def test_Answer_grid_cells_editing(self):
+    def test_answer_grid_cells_editing(self):
         puzzle = WordPuzzle.objects.create(editor=self.other_user)
         puzzle.add_clue({'answer':'HYPHEN-AT-D WORD', 'clue_text':'Clue for complex answer', 'points': 2})
         puzzle.add_clue({'answer':'SINGLEWORD', 'clue_text': 'Clue for single word', 'points': 1})
@@ -59,6 +62,37 @@ class SolvePuzzleTests(SeleniumTestCase):
         self.verify_cell_has_focus_and_hilite(cells[5])        # Cell with N (6th) now has focus and hilite
         self.assertEqual(self.get_answer_from_cells(), "HYPHEN--")
 
+    def test_answer_submit_button_behavior(self):
+        puzzle = WordPuzzle.objects.create(editor=self.other_user)
+        clue1 = puzzle.add_clue({'answer':'TWO WORDS', 'clue_text':'Clue for two words', 'points': 2})
+        clue2 = puzzle.add_clue({'answer':'SINGLEWORD', 'clue_text': 'Clue for single word', 'points': 1})
+        puzzle.publish()
+        self.get('/solve_puzzle/' + str(puzzle.id) + '/')   # Creates a new session
+        clue_btn_2 = self.get_element("//button[@id='clue-btn-2']")
+        clue_btn_2.click()        # Click on 2nd clue btn
+        self.set_answer_input("SINGLEWORD")
+        self.do_click("//button[@id='id-submit-btn']")
+        self.wait_until_invisible("//button[@id='id-submit-btn']")
+        self.verify_clue_btn_has_state(clue_btn_2, "solved")
+        self.verify_answer_state_as_solved(clue2)
+        self.verify_score(1)
+        self.verify_progress_bars(33, 0)
+
+    def test_answer_reveal_button_behavior(self):
+        puzzle = WordPuzzle.objects.create(editor=self.other_user)
+        clue1 = puzzle.add_clue({'answer':'TWO WORDS', 'clue_text':'Clue for two words', 'points': 2})
+        clue2 = puzzle.add_clue({'answer':'ONEWORD', 'clue_text': 'Clue for single word', 'points': 1})
+        puzzle.publish()
+        self.get('/solve_puzzle/' + str(puzzle.id) + '/')   # Creates a new session
+        self.do_click("//button[@id='id-reveal-btn']")      # Reveal first clue (default)
+        self.wait_until_invisible("//button[@id='id-reveal-btn']")
+        self.verify_clue_btn_has_state(self.get_element("//button[@id='clue-btn-1']"), "revealed")
+        self.verify_answer_state_as_revealed(clue1)
+        self.verify_score(0)
+        self.verify_progress_bars(0, 67)
+
+
+
     ##==============================================================================================================
     # HELPER FUNCTIONS
     #
@@ -71,13 +105,11 @@ class SolvePuzzleTests(SeleniumTestCase):
             elif clue.clue_num in revealed_clues: self.verify_clue_btn_has_state(clue_btn, 'revealed')
             else: self.verify_clue_btn_has_state(clue_btn, 'unsolved')
 
-    def verify_answer_state_for_clue(self, clue, session):
+    def verify_answer_state_for_clue(self, clue, state):
         self.do_click("//div/button[@id='clue-btn-" + str(clue.clue_num) + "']")    # Click on Clue btn
         self.assert_text_equals("//div[@id='id-clue']", get_full_clue_desc(clue))   # Check clue text
-        solved_clues = session.get_solved_clue_nums()
-        revealed_clues = session.get_revealed_clue_nums()
-        if clue.clue_num in solved_clues: self.verify_answer_state_as_solved(clue)
-        elif clue.clue_num in revealed_clues: self.verify_answer_state_as_revealed(clue)
+        if state == 'solved': self.verify_answer_state_as_solved(clue)
+        elif state == 'revealed': self.verify_answer_state_as_revealed(clue)
         else: self.verify_answer_state_as_unsolved()
 
     def verify_answer_state_as_solved(self, clue):
@@ -120,8 +152,8 @@ class SolvePuzzleTests(SeleniumTestCase):
             else:
                 self.assertNotIn(class_dict[state_key], clue_btn.get_attribute('class'))
 
-    def verify_score(self, session):
-        self.assert_text_equals("//div[@id='id-score']", "Score: " + str(session.get_solved_points()) + " pts")
+    def verify_score(self, points):
+        self.assert_text_equals("//div[@id='id-score']", "Score: " + str(points) + " pts")
 
     def verify_progress_bars(self, solved_percent, revealed_percent):
         solved_bar = self.get_element("//div[@id='id-solved-pts']")
@@ -140,12 +172,12 @@ class SolvePuzzleTests(SeleniumTestCase):
 
     def verify_cell_has_focus_and_hilite(self, cell):
         self.assertEqual(cell, self.get_active_cell())  # Has focus
-        self.assertEqual(cell.value_of_css_property('background'), 'rgb(255, 255, 0) none repeat scroll 0% 0%')
+        self.assertTrue('rgb(255, 255, 0) none repeat scroll 0% 0%' in cell.value_of_css_property('background'))
         editable_cells = self.get_editable_cells()
         # Verify no other cells are hilted
         no_hilite = 'rgba(0, 0, 0, 0) none repeat scroll 0% 0%'
         for c in editable_cells:
-            if c != cell: self.assertEqual(c.value_of_css_property('background'), no_hilite)
+            if c != cell: self.assertTrue(no_hilite in c.value_of_css_property('background'))
 
     def get_answer_from_cells(self):
         return self.get_element("//div[@id='id-answer']").text

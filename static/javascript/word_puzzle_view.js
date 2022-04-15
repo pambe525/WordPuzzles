@@ -44,7 +44,8 @@ function setTimer() {
     $('#id-timer').text(timerFormat+'s');
 }
 
-function showClue(clickedClueNum) {
+function showClueAndAnswer(clickedClueNum) {
+    activeClueNum = clickedClueNum;
     var clue = clueSet[parseInt(clickedClueNum) - 1]
     $('#id-clue').text(getFullClueDesc(clue));
     setActiveClueBtn(clickedClueNum);
@@ -58,7 +59,7 @@ function showAnswerByClueMode(clue) {
         showAnswerWithParsing(clue);
         setAnswerBtns(clue);
     }
-    if ( clue.mode === 'UNSOLVED') $("#id-answer div div:first-child").click(); //.css('background','yellow').focus();
+    if ( clue.mode === 'UNSOLVED') $("#id-answer div div:first-child").click();
 }
 
 function setAnswerIcons(clue) {
@@ -144,6 +145,8 @@ onKeyDown = (event) => {
         $(event.target).text('');
         let prevCell = getPrevCell( $(event.target) );
         if (prevCell) setFocusAndHilite(prevCell);
+    } else if (key === 13) {
+        $("#id-submit-btn").click();
     }
 }
 
@@ -170,4 +173,40 @@ function setFocusAndHilite(cell) {
 clearAllCells = () => {
     $("div[contenteditable=true]").empty();
     $("#id-answer div div:first-child").click()
+}
+
+function submitClicked() {
+    let answer_input = $("#id-answer").text();
+    if (answer_input.length !== clueSet[activeClueNum-1].answer.length) return;
+    let context = {'puzzle_id': activeSession.puzzle_id, 'clue_num': activeClueNum, 'answer_input': answer_input};
+    let request = $.ajax({
+        method: "POST",
+        dataType: "json",
+        data: {'action': 'solve', 'data': JSON.stringify(context)},
+    });
+    request.done(updateAnswerState);
+    request.fail(answerIncorrect);
+}
+
+function updateAnswerState(json_data) {
+    activeSession = json_data['active_session'];
+    clueSet = JSON.parse(json_data['clues']);
+    setClueButtonStates();
+    showClueAndAnswer(activeClueNum);
+    setScore();
+    setProgress();
+}
+
+function answerIncorrect() {
+    alert("This answer is incorrect.");
+}
+
+function revealClicked() {
+    let context = {'puzzle_id': activeSession.puzzle_id, 'clue_num': activeClueNum};
+    let request = $.ajax({
+        method: "POST",
+        dataType: "json",
+        data: {'action': 'reveal', 'data': JSON.stringify(context)},
+    });
+    request.done(updateAnswerState);
 }
