@@ -8,12 +8,16 @@ from django.utils.http import urlsafe_base64_encode
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
-
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 ### This class is required to run all selenium tests in a single browser instance
+
+
+
 class SingletonWebDriver(object):
     _instance = None
-    _browser = 'Firefox'
+    _browser = 'Chrome'
 
     webdriver = None
     is_persistent = False
@@ -129,6 +133,11 @@ class HelperMixin:
     def assert_is_displayed(self, xpath, index=0):
         self.testcase.assertTrue(self, self.selenium.find_elements(By.XPATH, xpath)[index].is_displayed())
 
+    def wait_until_invisible(self, xpath):
+        WebDriverWait(self.selenium, 10).until(EC.invisibility_of_element((By.XPATH, xpath)))
+
+    def wait_until_visible(self, xpath):
+        WebDriverWait(self.selenium, 10).until(EC.visibility_of((By.XPATH, xpath)))
 
 ### Parent class from which all selenium test cases will be derived
 class SeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
