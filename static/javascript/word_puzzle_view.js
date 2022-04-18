@@ -198,7 +198,8 @@ function updateAnswerState(json_data) {
 }
 
 function answerIncorrect() {
-    alert("This answer is incorrect.");
+    $("#id-wrong-icon").show();
+    $("#id-answer-msg").text("Incorrect").show();
 }
 
 function revealClicked() {
@@ -209,4 +210,10 @@ function revealClicked() {
         data: {'action': 'reveal', 'data': JSON.stringify(context)},
     });
     request.done(updateAnswerState);
+}
+
+function clearClicked() {
+    clearAllCells();
+    $("#id-wrong-icon").hide();
+    $("#id-answer-msg").empty().hide();
 }
