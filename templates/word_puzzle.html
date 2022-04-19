@@ -89,7 +89,7 @@
                 <div class="m-0 row mt-2 font-weight-bold h5 align-items-center">
                     <div id="id-score"></div>
                     <div class="ml-auto"><i class="fa fa-clock-o"></i></div>
-                    <div id="id-timer" class="ml-1">00h:00m:00s</div>
+                    <div id="id-timer" class="ml-1"></div>
                 </div>
                 <div class="m-0 p-0 row align-items-center mt-1 shadow-sm">
                     <div class="progress col m-0 border border-secondary p-0" id="id-progress" style="height:18px">
@@ -119,6 +119,8 @@
         var clueSet = {{ clues | safe }};
         var activeSession = {{ active_session | default_if_none:'null' | safe }};
         var activeClueNum = 0;
+        var intervalTimer = null;
+        var elapsedSecs = 0;
 
         $.ajaxSetup({
             data: {csrfmiddlewaretoken: '{{ csrf_token }}' },

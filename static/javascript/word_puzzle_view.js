@@ -3,7 +3,20 @@
 $(document).ready(function () {
     if (activeSession) loadPuzzleSessionState();
     $("#clue-btn-1").click();
+    intervalTimer = setInterval(setTimer, 1000);
 })
+
+window.onblur = function() {
+    clearInterval(intervalTimer);
+}
+
+window.onfocus = function() {
+    intervalTimer = setInterval(setTimer, 1000);
+}
+
+window.onunload = function() {
+
+}
 
 function getFullClueDesc(clue) {
     return clue.clue_num + ". " + clue.clue_text + " [" + clue.points + " pts]";
@@ -13,7 +26,7 @@ function loadPuzzleSessionState() {
     setClueButtonStates();
     setScore();
     setProgress();
-    setTimer();
+    elapsedSecs = activeSession['elapsed_secs'];
 }
 
 function setClueButtonStates() {
@@ -40,7 +53,8 @@ function setProgress() {
 }
 
 function setTimer() {
-    let timerFormat = new Date(activeSession['elapsed_secs'] * 1000).toISOString().slice(11, 19);
+    elapsedSecs++;
+    let timerFormat = new Date(elapsedSecs*1000).toISOString().slice(11, 19);
     $('#id-timer').text(timerFormat+'s');
 }
 
