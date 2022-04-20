@@ -11,10 +11,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-### This class is required to run all selenium tests in a single browser instance
-
-
-
+# This class is required to run all selenium tests in a single browser instance
 class SingletonWebDriver(object):
     _instance = None
     _browser = 'Chrome'
