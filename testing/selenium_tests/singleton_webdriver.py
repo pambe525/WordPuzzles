@@ -13,7 +13,6 @@ class SingletonWebDriver(object):
 
     def __new__(cls):
         if cls._instance is None:
-            print("CREATING SINGLETON")
             cls._instance = super(SingletonWebDriver, cls).__new__(cls)
         return cls._instance
 
