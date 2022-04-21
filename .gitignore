@@ -12,3 +12,4 @@ testing/selenium_tests/__pycache__/
 user_auth/__pycache__/
 user_auth/migrations/__pycache__/
 /geckodriver.log
+.idea/
