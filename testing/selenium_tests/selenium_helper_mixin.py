@@ -1,3 +1,8 @@
+import json
+import os
+from os.path import exists
+
+from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
@@ -9,12 +14,15 @@ from selenium.webdriver.support.wait import WebDriverWait
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 from testing.selenium_tests.singleton_webdriver import SingletonWebDriver
+from django.contrib.auth import (SESSION_KEY, BACKEND_SESSION_KEY, HASH_SESSION_KEY, get_user_model)
+from django.contrib.sessions.backends.db import SessionStore
 
 
 class HelperMixin:
     selenium = None
     server_url = None
     testcase = None
+    cookie_path = os.getcwd() + '/cookies.pkl'
 
     @staticmethod
     def get_selenium_webdriver():
@@ -23,6 +31,15 @@ class HelperMixin:
     @staticmethod
     def quit_selenium_webdriver():
         SingletonWebDriver().quit_webdriver()
+
+    def create_session_cookie(self, user):
+        session = SessionStore()
+        session[SESSION_KEY] = user.pk
+        session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
+        session[HASH_SESSION_KEY] = user.get_session_auth_hash()
+        session.save()
+        cookie = {'name': settings.SESSION_COOKIE_NAME, 'value': session.session_key,'secure': False,'path': '/'}
+        return cookie
 
     def get(self, url):
         self.selenium.get(self.server_url + url)
@@ -35,9 +52,14 @@ class HelperMixin:
     def do_click(self, xpath):
         self.selenium.find_element(By.XPATH, xpath).click()
 
+    def auto_login_user(self, user):
+        session_cookie = self.create_session_cookie(user)
+        self.get('/login')
+        self.selenium.add_cookie(session_cookie)
+        self.selenium.refresh()
+
     def login_user(self, username, password):
         self.get('/login')
-        if '/login' not in self.selenium.current_url: return
         self.set_input_text("//input[@id='id_username']", username)
         self.set_input_text("//input[@id='id_password']", password)
         self.do_click("//button[@id='btnSignIn']")

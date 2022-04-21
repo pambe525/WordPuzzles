@@ -10,7 +10,7 @@ class PuzzlesListTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
 
     def test_Page_title_and_sort_form(self):
         self.get('/puzzles_list')

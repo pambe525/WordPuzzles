@@ -28,7 +28,7 @@ class DraftPuzzlesTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
 
     def test_New_Puzzle_button_creates_puzzle_and_loads_edit_puzzle_page(self):
         self.get('/')
@@ -92,7 +92,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
 
     def test_Recent_puzzles_section_offers_button_to_all_puzzles_page(self):
         self.get('/')
@@ -134,4 +134,3 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.do_click("//a[text()='SHOW ALL PUZZLES']")
         self.assert_current_url("/puzzles_list")
         self.assert_text_equals("//div/h2", 'All Published Puzzles')
-

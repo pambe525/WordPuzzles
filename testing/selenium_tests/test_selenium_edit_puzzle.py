@@ -10,7 +10,7 @@ class EditPuzzleTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
 
     def test_New_Puzzle_creates_puzzle_and_loads_edit_page(self):
         self.get('/new_puzzle')
@@ -76,7 +76,7 @@ class EditClueTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
         puzzle_data = {'editor': self.user, 'type': 0, 'desc': 'Instructions'}
         self.puzzle = WordPuzzle.objects.create(**puzzle_data)
 
@@ -150,7 +150,7 @@ class DeletePuzzleTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
         self.puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
 
     def test_Delete_Clue_button_redirects_to_delete_confirmation(self):

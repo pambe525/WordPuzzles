@@ -14,6 +14,6 @@ if __name__ == "__main__":
     singleton_driver = SingletonWebDriver()
     singleton_driver.start_webdriver()
     singleton_driver.is_persistent = True
-    failures = test_runner.run_tests(['testing.selenium_tests.test_selenium_dashboard'])
+    failures = test_runner.run_tests(['testing.selenium_tests'])
     singleton_driver.active_webdriver.quit()
     sys.exit(bool(failures))

@@ -11,7 +11,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
         self.other_user = User.objects.create_user(username="other_user", password=self.password)
 
     def test_Draft_puzzle_editor_can_preview_with_no_desc_and_no_clues(self):
@@ -192,5 +192,3 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//a[text()='SOLVE NOW']")               # NO SOLVE NOW button
         self.assert_not_exists("//a[text()='DONE']")                    # No DONE button
         self.assert_exists("//a[text()='FINISH LATER']")                # Only FINISH LATER button
-
-

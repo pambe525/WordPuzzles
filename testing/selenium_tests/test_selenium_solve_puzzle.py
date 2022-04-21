@@ -12,7 +12,7 @@ class SolvePuzzleTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
         self.other_user = User.objects.create_user(username="other_user", password=self.password)
 
     def test_loads_existing_session(self):
