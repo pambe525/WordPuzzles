@@ -1,56 +1,14 @@
-from os import name as os_name
-
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
-# This class is required to run all selenium tests in a single browser instance
-class SingletonWebDriver(object):
-    _instance = None
-    _browser = 'Chrome'
-
-    webdriver = None
-    is_persistent = False
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(SingletonWebDriver, cls).__new__(cls)
-        return cls._instance
-
-    def _create_webdriver(self):
-        if os_name == 'nt':
-            if self._browser == 'Chrome':
-                webdriver_path = 'C:\\Users\Prashant\Documents\PyCharmProjects\chromedriver.exe'
-                driver = webdriver.Chrome(executable_path=webdriver_path)
-            else:
-                webdriver_path = 'C:\\Users\Prashant\Documents\PyCharmProjects\geckodriver.exe'
-                driver = webdriver.Firefox(executable_path=webdriver_path)
-        else:
-            path = '/Library/Frameworks/Python.framework/Versions/3.8/bin/'
-            if self._browser == 'Firefox':
-                webdriver_path = path + 'geckodriver'
-                driver = webdriver.Firefox(executable_path=webdriver_path)
-            else:
-                webdriver_path = path + 'chromedriver'
-                driver = webdriver.Chrome(executable_path=webdriver_path)
-        return driver
-
-    def start_webdriver(self):
-        if self.webdriver is None:
-            self.webdriver = self._create_webdriver()
-        return self.webdriver
-
-    def quit_webdriver(self):
-        if not self.is_persistent:
-            self.webdriver.quit()
-            self.webdriver = None
+from testing.selenium_tests.singleton_webdriver import SingletonWebDriver
 
 
 class HelperMixin:
@@ -136,7 +94,8 @@ class HelperMixin:
     def wait_until_visible(self, xpath):
         WebDriverWait(self.selenium, 10).until(EC.visibility_of((By.XPATH, xpath)))
 
-### Parent class from which all selenium test cases will be derived
+
+# Parent class from which all selenium test cases will be derived
 class SeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):

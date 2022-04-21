@@ -4,20 +4,16 @@ import sys
 import django
 from django.conf import settings
 from django.test.utils import get_runner
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'WordPuzzles.settings'
-django.setup()
-
-from testing.selenium_tests.selenium_helper_mixin import SingletonWebDriver
+from testing.selenium_tests.singleton_webdriver import SingletonWebDriver
 
 if __name__ == "__main__":
-#    os.environ['DJANGO_SETTINGS_MODULE'] = 'WordPuzzles.settings'
-#    django.setup()
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'WordPuzzles.settings'
+    django.setup()
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
-    webdriver = SingletonWebDriver()
-    webdriver.start_webdriver()
-    webdriver.is_persistent = True
-    failures = test_runner.run_tests(['testing.selenium_tests'])
-    webdriver.webdriver.quit()
+    singleton_driver = SingletonWebDriver()
+    singleton_driver.start_webdriver()
+    singleton_driver.is_persistent = True
+    failures = test_runner.run_tests(['testing.selenium_tests.test_selenium_dashboard'])
+    singleton_driver.active_webdriver.quit()
     sys.exit(bool(failures))
