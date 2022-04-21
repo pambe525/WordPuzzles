@@ -37,6 +37,7 @@ class HelperMixin:
 
     def login_user(self, username, password):
         self.get('/login')
+        if '/login' not in self.selenium.current_url: return
         self.set_input_text("//input[@id='id_username']", username)
         self.set_input_text("//input[@id='id_password']", password)
         self.do_click("//button[@id='btnSignIn']")
