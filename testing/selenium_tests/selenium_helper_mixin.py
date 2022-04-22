@@ -31,7 +31,7 @@ class HelperMixin:
         SingletonWebDriver().quit_webdriver()
 
     @staticmethod
-    def create_session_cookie(self, user):
+    def create_session_cookie(user):
         session = SessionStore()
         session[SESSION_KEY] = user.pk
         session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]

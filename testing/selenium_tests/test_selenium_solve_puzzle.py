@@ -1,3 +1,5 @@
+import time
+
 from django.contrib.auth.models import User
 from selenium.webdriver import Keys
 
@@ -28,7 +30,6 @@ class SolvePuzzleTests(SeleniumTestCase):
         self.verify_answer_state_for_clue(clues[1], 'unsolved')  # UNSOLVED clue #2
         self.verify_score(6)
         self.verify_progress_bars(46, 15)
-        self.verify_timer("01:23:20s")
 
     def test_answer_grid_cells_editing(self):
         puzzle = WordPuzzle.objects.create(editor=self.other_user)
@@ -104,6 +105,17 @@ class SolvePuzzleTests(SeleniumTestCase):
         self.assert_is_not_displayed("//div[@id='id-answer-msg']")
         answer = self.get_element("//div[@id='id-answer']").text
         self.assertEqual(answer, "-")
+
+    def test_timer_is_saved_on_page_unload(self):
+        puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[3, 4, 2, 3])
+        session = create_session(solver=self.user, puzzle=puzzle, solved_clues='1', revealed_clues='4')
+        self.get('/solve_puzzle/' + str(puzzle.id) + '/')
+        time.sleep(2)
+        self.verify_timer("00:00:02s")
+        self.do_click("//a[@id='id-finish-later']")
+        self.get('/solve_puzzle/' + str(puzzle.id) + '/')
+        time.sleep(2)
+        self.verify_timer("00:00:04s")
 
 
     ##==============================================================================================================
