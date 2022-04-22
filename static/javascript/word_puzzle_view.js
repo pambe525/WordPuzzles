@@ -14,8 +14,9 @@ window.onfocus = function() {
     intervalTimer = setInterval(setTimer, 1000);
 }
 
-window.onunload = function() {
-
+window.onbeforeunload = function() {
+    saveTimer();
+    return "";
 }
 
 function getFullClueDesc(clue) {
@@ -27,6 +28,7 @@ function loadPuzzleSessionState() {
     setScore();
     setProgress();
     elapsedSecs = activeSession['elapsed_secs'];
+    alert("HERE")
 }
 
 function setClueButtonStates() {
@@ -146,7 +148,6 @@ function shiftCellLeft(cell, pixels) {
     cell.css('margin-left', '-' + pixels + 'px').css('margin-right', pixels + 'px')
 }
 
-
 onKeyDown = (event) => {
     let key = event.keyCode || event.which;
     let keyChar = String.fromCharCode(key);
@@ -200,6 +201,15 @@ function submitClicked() {
     });
     request.done(updateAnswerState);
     request.fail(answerIncorrect);
+}
+
+function saveTimer() {
+    let context = {'session_id': activeSession.puzzle_id, 'elapsed_secs': elapsedSecs};
+    $.ajax({
+        method: "POST",
+        dataType: "json",
+        data: {'action': 'timer', 'data': JSON.stringify(context)},
+    });
 }
 
 function updateAnswerState(json_data) {

@@ -241,18 +241,24 @@ class SolvePuzzleView(PreviewPuzzleView):
 
     def post(self, request, *args, **kwargs):
         request_data = json.loads(request.POST['data'])
-        self.puzzle = WordPuzzle.objects.get(id=request_data['puzzle_id'])
-        clue = Clue.objects.get(puzzle_id=request_data['puzzle_id'], clue_num=request_data['clue_num'])
-        self.solve_session = PuzzleSession.objects.get(solver=request.user, puzzle=self.puzzle)
-        if request.POST['action'] == 'solve':
-            answer_input = request_data['answer_input']
-            if clue.answer == answer_input:
-                self.solve_session.add_solved_clue_num(clue.clue_num)
-            else:
-                raise AssertionError("Incorrect answer")
-        elif request.POST['action'] == 'reveal':
-            self.solve_session.add_revealed_clue_num(clue.clue_num)
-        return self.get_json_response()
+        if request.POST['action'] == 'timer':
+            self.solve_session = PuzzleSession.objects.get(id=request_data['session_id'])
+            self.solve_session.elapsed_seconds = request_data['elapsed_secs']
+            self.solve_session.save(update_fields=['elapsed_seconds'])
+            return redirect('/')
+        else:
+            self.puzzle = WordPuzzle.objects.get(id=request_data['puzzle_id'])
+            clue = Clue.objects.get(puzzle_id=request_data['puzzle_id'], clue_num=request_data['clue_num'])
+            self.solve_session = PuzzleSession.objects.get(solver=request.user, puzzle=self.puzzle)
+            if request.POST['action'] == 'solve':
+                answer_input = request_data['answer_input']
+                if clue.answer == answer_input:
+                    self.solve_session.add_solved_clue_num(clue.clue_num)
+                else:
+                    raise AssertionError("Incorrect answer")
+            elif request.POST['action'] == 'reveal':
+                self.solve_session.add_revealed_clue_num(clue.clue_num)
+            return self.get_json_response()
 
     def get_json_response(self):
         self.active_session = self.get_session_as_dict()

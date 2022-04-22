@@ -4,7 +4,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from puzzles.models import WordPuzzle
+from puzzles.models import WordPuzzle, PuzzleSession
 from testing.django_unit_tests.unit_test_helpers import create_published_puzzle, create_draft_puzzle, create_session
 
 
@@ -234,3 +234,12 @@ class SolvePuzzleViewTest(TestCase):
             self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", post_data,
                              HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(str(e.exception), "Incorrect answer")
+
+    def test_ajax_post_with_timer_saves_elapsed_secs(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 1, 5])
+        session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
+        data = json.dumps({'session_id':session.id, 'elapsed_secs':1234})
+        post_data = {'action':'timer', 'data': data}
+        self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", post_data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        session = PuzzleSession.objects.get(id=session.id)
+        self.assertEqual(session.elapsed_seconds, 1234)
