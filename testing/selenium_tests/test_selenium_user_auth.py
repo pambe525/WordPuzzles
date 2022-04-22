@@ -111,7 +111,7 @@ class UserAuthTests(SeleniumTestCase):
         self.assert_current_url('/login?next=/account')
 
     def test_Account_page_has_readonly_user_fields_with_existing_data(self):
-        self.login_user(self.user.username, self.password)
+        self.auto_login_user(self.user)
         self.get("/account")
         username = self.selenium.find_element(By.ID, 'id_username')
         first_name = self.selenium.find_element(By.ID, 'id_first_name')
@@ -127,7 +127,7 @@ class UserAuthTests(SeleniumTestCase):
         self.assertFalse(last_name.is_enabled())
 
     def test_Account_page_on_edit_btn_click_redirects_to_Account_Edit(self):
-        self.login_user(self.user.username, self.password)
+        self.auto_login_user(self.user)
         self.get("/account")
         self.do_click("//a[@id='lnkEditAccount']")
         self.assert_current_url('/account/edit/')
@@ -137,7 +137,7 @@ class UserAuthTests(SeleniumTestCase):
         self.assertIn('/login', self.selenium.current_url)
 
     def test_Account_Edit_page_has_editable_user_fields_with_existing_data(self):
-        self.login_user(self.user.username, self.password)
+        self.auto_login_user(self.user)
         self.get("/account/edit/")
         username = self.selenium.find_element(By.ID, 'id_username')
         email = self.selenium.find_element(By.ID, 'id_email')
@@ -153,13 +153,13 @@ class UserAuthTests(SeleniumTestCase):
         self.assertTrue(last_name.is_enabled())
 
     def test_Account_Edit_page_cancel_btn_redirects_to_Accounts_page(self):
-        self.login_user(self.user.username, self.password)
+        self.auto_login_user(self.user)
         self.get("/account/edit/")
         self.do_click("//a[@id='lnkAccount']")
         self.assert_current_url('/account')
 
     def test_Account_Edit_page_has_errors_if_data_is_bad(self):
-        self.login_user(self.user.username, self.password)
+        self.auto_login_user(self.user)
         User.objects.create_user("testuser2", "user2@test.com", self.password)
         self.get("/account/edit/")
         self.set_input_text("//input[@id='id_username']", "testuser2")
@@ -167,7 +167,7 @@ class UserAuthTests(SeleniumTestCase):
         self.assert_text_equals("//*[contains(@class,'errorlist')]", "A user with that username already exists.")
 
     def test_Account_Edit_page_saves_data_and_redirects_to_accounts_page(self):
-        self.login_user(self.user.username, self.password)
+        self.auto_login_user(self.user)
         self.get("/account/edit/")
         self.set_input_text("//input[@id='id_username']", "testuser2")
         self.set_input_text("//input[@id='id_first_name']", "Django")
@@ -189,7 +189,7 @@ class UserAuthTests(SeleniumTestCase):
         self.assertIn('/login', self.selenium.current_url)
 
     def test_Change_Password_page_has_validation_errors_with_bad_input(self):
-        self.login_user(self.user.username, self.password)
+        self.auto_login_user(self.user)
         self.get("/change_password")
         self.set_input_text("//input[@id='id_old_password']", "secrekey")
         self.set_input_text("//input[@id='id_new_password1']", "secretkey1")
@@ -199,7 +199,7 @@ class UserAuthTests(SeleniumTestCase):
         self.assert_text_equals("//*[contains(@class,'errorlist')]", error_msg)
 
     def test_Change_Password_page_changes_password_and_redirects_to_confirmation(self):
-        self.login_user(self.user.username, self.password)
+        self.auto_login_user(self.user)
         self.get("/change_password")
         self.set_input_text("//input[@id='id_old_password']", "secretkey1")
         self.set_input_text("//input[@id='id_new_password1']", "secretkey2")
