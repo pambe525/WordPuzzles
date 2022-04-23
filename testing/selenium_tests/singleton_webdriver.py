@@ -8,7 +8,7 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 class SingletonWebDriver(object):
     _instance = None
-    _browser = 'Firefox'
+    _browser = 'Chrome'
 
     active_webdriver = None
     is_persistent = True
