@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.utils.timezone import now
 
 from puzzles.models import WordPuzzle
 from testing.django_unit_tests.unit_test_helpers import create_published_puzzle
@@ -11,7 +10,7 @@ class DashboardTests(SeleniumTestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
-        self.login_user(username=self.user.username, password=self.password)
+        self.auto_login_user(self.user)
 
     def test_Unpopulated_dashboard(self):
         self.get('/')
