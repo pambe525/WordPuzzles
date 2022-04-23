@@ -99,6 +99,12 @@
                 </div>
                 <hr class="mb-1">
                 <a id="id-finish-later" class="ml-auto btn btn-primary" href="/">FINISH LATER</a>
+                <div id="id-completed" class="m-0 row align-items-center">
+                    <i class="fa fa-flag-checkered fa-2x" style="color:black;"></i>&nbsp;
+                    <b>Puzzle completed!</b>
+                    <button class="ml-auto btn btn-dark" id="id-done">DONE</button>
+                </div>
+
             {% endif %}
             {% if object.size != 0 and not object.is_published and request.user == object.editor %}
                 <div class="notetext pt-2">

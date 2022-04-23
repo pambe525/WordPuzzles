@@ -25,11 +25,12 @@ class SolvePuzzleTests(SeleniumTestCase):
         self.get('/solve_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Solve Puzzle")
         self.verify_all_clue_btns_states(session)
-        self.verify_answer_state_for_clue(clues[0], 'solved')  # SOLVED clue #1
+        self.verify_answer_state_for_clue(clues[0], 'solved')    # SOLVED clue #1
         self.verify_answer_state_for_clue(clues[4], 'revealed')  # REVEALED clue #5
         self.verify_answer_state_for_clue(clues[1], 'unsolved')  # UNSOLVED clue #2
         self.verify_score(6)
         self.verify_progress_bars(46, 15)
+        self.assert_is_not_displayed("//div[@id='id-completed']")
 
     def test_answer_grid_cells_editing(self):
         puzzle = WordPuzzle.objects.create(editor=self.other_user)
@@ -116,6 +117,25 @@ class SolvePuzzleTests(SeleniumTestCase):
         self.get('/solve_puzzle/' + str(puzzle.id) + '/')
         time.sleep(2)
         self.verify_timer("00:00:04s")
+
+    def test_completing_puzzle_updates_status_saves_and_freezes_timer(self):
+        puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[3, 4])
+        self.get('/solve_puzzle/' + str(puzzle.id) + '/')
+        self.set_answer_input("WORD-A")
+        self.do_click("//button[@id='id-submit-btn']")
+        # Wait before completing puzzle so timer advances
+        time.sleep(2)
+        clue_btn_2 = self.get_element("//button[@id='clue-btn-2']")
+        clue_btn_2.click()
+        self.set_answer_input("WORD-B")
+        self.do_click("//button[@id='id-submit-btn']")
+        time.sleep(1)
+        # Puzzle completed with correct answers
+        self.verify_score(7)
+        self.verify_progress_bars(100, 0)
+        self.verify_timer("00:00:03s")
+        self.assert_is_displayed("//div[@id='id-completed']")
+        self.assert_is_not_displayed("//a[@id='id-finish-later']")
 
 
     ##==============================================================================================================

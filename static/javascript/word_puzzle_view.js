@@ -3,7 +3,6 @@
 $(document).ready(function () {
     if (activeSession) loadPuzzleSessionState();
     $("#clue-btn-1").click();
-    intervalTimer = setInterval(setTimer, 1000);
 })
 
 window.onblur = function() {
@@ -23,10 +22,14 @@ function getFullClueDesc(clue) {
 }
 
 function loadPuzzleSessionState() {
+    elapsedSecs = activeSession['elapsed_secs'];
+    setTimer();
+    intervalTimer = setInterval(setTimer, 1000);
+
     setClueButtonStates();
     setScore();
     setProgress();
-    elapsedSecs = activeSession['elapsed_secs'];
+    setCompletionStatus();
 }
 
 function setClueButtonStates() {
@@ -52,10 +55,20 @@ function setProgress() {
     $("#id-revealed-pts").width(revealedBarWidth).text(revealedPoints+" pts");
 }
 
+function setCompletionStatus() {
+    let completedSection = $("#id-completed");
+    if (activeSession['total_points'] === (activeSession['solved_points'] + activeSession['revealed_points'])) {
+        completedSection.show();
+        $("#id-finish-later").hide();
+        clearInterval(intervalTimer);
+        saveTimer();
+    } else completedSection.hide();
+}
+
 function setTimer() {
     elapsedSecs++;
     let timerFormat = new Date(elapsedSecs*1000).toISOString().slice(11, 19);
-    $('#id-timer').text(timerFormat+'s');
+    $('#id-timer').empty().text(timerFormat+'s');
 }
 
 function showClueAndAnswer(clickedClueNum) {
@@ -217,6 +230,7 @@ function updateAnswerState(json_data) {
     showClueAndAnswer(activeClueNum);
     setScore();
     setProgress();
+    setCompletionStatus();
 }
 
 function answerIncorrect() {
