@@ -1,3 +1,5 @@
+import atexit
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
@@ -9,7 +11,7 @@ class SingletonWebDriver(object):
     _browser = 'Chrome'
 
     active_webdriver = None
-    is_persistent = False
+    is_persistent = True
 
     def __new__(cls):
         if cls._instance is None:
@@ -32,3 +34,8 @@ class SingletonWebDriver(object):
         if not self.is_persistent:
             self.active_webdriver.quit()
             self.active_webdriver = None
+
+@atexit.register
+def cleanup_driver():
+    driver = SingletonWebDriver().active_webdriver
+    if driver is not None: driver.quit()
