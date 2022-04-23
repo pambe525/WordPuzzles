@@ -241,15 +241,14 @@ class SolvePuzzleView(PreviewPuzzleView):
 
     def post(self, request, *args, **kwargs):
         request_data = json.loads(request.POST['data'])
+        self.solve_session = PuzzleSession.objects.get(id=request_data['session_id'])
         if request.POST['action'] == 'timer':
-            self.solve_session = PuzzleSession.objects.get(id=request_data['session_id'])
             self.solve_session.elapsed_seconds = request_data['elapsed_secs']
             self.solve_session.save(update_fields=['elapsed_seconds'])
             return redirect('/')
         else:
-            self.puzzle = WordPuzzle.objects.get(id=request_data['puzzle_id'])
-            clue = Clue.objects.get(puzzle_id=request_data['puzzle_id'], clue_num=request_data['clue_num'])
-            self.solve_session = PuzzleSession.objects.get(solver=request.user, puzzle=self.puzzle)
+            self.puzzle = WordPuzzle.objects.get(id=self.solve_session.puzzle.id)
+            clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
             if request.POST['action'] == 'solve':
                 answer_input = request_data['answer_input']
                 if clue.answer == answer_input:
@@ -266,8 +265,7 @@ class SolvePuzzleView(PreviewPuzzleView):
         return JsonResponse({'clues': json.dumps(self.clues), 'active_session': self.active_session})
 
     def get_session_as_dict(self):
-        return {'solver_id': self.solve_session.solver.id,
-                'puzzle_id': self.solve_session.puzzle.id,
+        return {'session_id': self.solve_session.id,
                 'elapsed_secs': self.solve_session.elapsed_seconds,
                 'total_points': self.solve_session.puzzle.total_points,
                 'solved_points': self.solve_session.get_solved_points(),

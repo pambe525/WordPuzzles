@@ -144,8 +144,7 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(response.context['object'], puzzle)
         self.assertIsNotNone(response.context['active_session'])
         json_session = json.loads(response.context['active_session'])
-        self.assertEqual(json_session['puzzle_id'], puzzle.id)
-        self.assertEqual(json_session['solver_id'], self.user.id)
+        self.assertEqual(json_session['session_id'], 1)
         self.assertEqual(json_session['elapsed_secs'], 0)
         self.assertEqual(json_session['total_points'], 15)
         self.assertEqual(json_session['solved_points'], 0)
@@ -156,8 +155,7 @@ class SolvePuzzleViewTest(TestCase):
         create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
         response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
         json_session = json.loads(response.context['active_session'])
-        self.assertEqual(json_session['puzzle_id'], puzzle.id)
-        self.assertEqual(json_session['solver_id'], self.user.id)
+        self.assertEqual(json_session['session_id'], 1)
         self.assertEqual(json_session['elapsed_secs'], 0)
         self.assertEqual(json_session['total_points'], 16)
         self.assertEqual(json_session['solved_points'], 7)
@@ -194,8 +192,8 @@ class SolvePuzzleViewTest(TestCase):
 
     def test_ajax_post_with_correct_answer_returns_updated_response(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 3, 1, 5])
-        create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='3,4')
-        data = json.dumps({'puzzle_id':puzzle.id, 'clue_num':2, 'answer_input':'WORD-B'})
+        session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='3,4')
+        data = json.dumps({'session_id':session.id, 'clue_num':2, 'answer_input':'WORD-B'})
         post_data = {'action':'solve', 'data': data}
         response = self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", post_data,
                                     HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -211,8 +209,8 @@ class SolvePuzzleViewTest(TestCase):
 
     def test_ajax_post_with_reveal_answer_returns_updated_response(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 2, 3, 1, 5])
-        create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='3')
-        data = json.dumps({'puzzle_id':puzzle.id, 'clue_num':2})
+        session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='3')
+        data = json.dumps({'session_id':session.id, 'clue_num':2})
         response = self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", {'action':'reveal', 'data': data},
                                     HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         json_data = json.loads(response.content)
@@ -227,8 +225,8 @@ class SolvePuzzleViewTest(TestCase):
 
     def test_ajax_post_with_wrong_answer_raises_error(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 3, 1, 5])
-        create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
-        data = json.dumps({'puzzle_id':puzzle.id, 'clue_num':2, 'answer_input': 'WORD-C'})
+        session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
+        data = json.dumps({'session_id':session.id, 'clue_num':2, 'answer_input': 'WORD-C'})
         post_data = {'action':'solve', 'data': data}
         with self.assertRaises(AssertionError) as e:
             self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", post_data,

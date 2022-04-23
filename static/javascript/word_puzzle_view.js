@@ -16,7 +16,6 @@ window.onfocus = function() {
 
 window.onbeforeunload = function() {
     saveTimer();
-    return "";
 }
 
 function getFullClueDesc(clue) {
@@ -28,7 +27,6 @@ function loadPuzzleSessionState() {
     setScore();
     setProgress();
     elapsedSecs = activeSession['elapsed_secs'];
-    alert("HERE")
 }
 
 function setClueButtonStates() {
@@ -193,7 +191,7 @@ clearAllCells = () => {
 function submitClicked() {
     let answer_input = $("#id-answer").text();
     if (answer_input.length !== clueSet[activeClueNum-1].answer.length) return;
-    let context = {'puzzle_id': activeSession.puzzle_id, 'clue_num': activeClueNum, 'answer_input': answer_input};
+    let context = {'session_id': activeSession.session_id, 'clue_num': activeClueNum, 'answer_input': answer_input};
     let request = $.ajax({
         method: "POST",
         dataType: "json",
@@ -204,7 +202,7 @@ function submitClicked() {
 }
 
 function saveTimer() {
-    let context = {'session_id': activeSession.puzzle_id, 'elapsed_secs': elapsedSecs};
+    let context = {'session_id': activeSession.session_id, 'elapsed_secs': elapsedSecs};
     $.ajax({
         method: "POST",
         dataType: "json",
@@ -227,7 +225,7 @@ function answerIncorrect() {
 }
 
 function revealClicked() {
-    let context = {'puzzle_id': activeSession.puzzle_id, 'clue_num': activeClueNum};
+    let context = {'session_id': activeSession.session_id, 'clue_num': activeClueNum};
     let request = $.ajax({
         method: "POST",
         dataType: "json",
