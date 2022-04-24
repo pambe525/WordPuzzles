@@ -4,18 +4,27 @@ from django.contrib.auth.models import User
 from selenium.webdriver import Keys
 
 from puzzles.models import WordPuzzle
-from testing.django_unit_tests.unit_test_helpers import create_published_puzzle, create_session, get_full_clue_desc
+from testing.data_setup_utils import create_published_puzzle, create_session, get_full_clue_desc, create_user
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 
 
-class SolvePuzzleTests(SeleniumTestCase):
-    user = None
-    password = 'secret_key'
-
+class NewSolveSessionTests(SeleniumTestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
+        self.user = create_user()
         self.auto_login_user(self.user)
-        self.other_user = User.objects.create_user(username="other_user", password=self.password)
+        self.other_user = create_user(username="other_user")
+        self.puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[5, 2, 3, 1, 2])
+        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
+
+    def test_new_solve_session_is_created_if_it_does_not_exist(self):
+        pass
+
+
+class SolveSessionTests(SeleniumTestCase):
+    def setUp(self):
+        self.user = create_user()
+        self.auto_login_user(self.user)
+        self.other_user = create_user(username="other_user")
 
     def test_loads_existing_session(self):
         puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[5, 2, 3, 1, 2])

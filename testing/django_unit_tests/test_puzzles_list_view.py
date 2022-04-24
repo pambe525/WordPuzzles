@@ -5,8 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.timezone import now
 
-from puzzles.models import WordPuzzle
-from testing.django_unit_tests.unit_test_helpers import create_published_puzzle
+from testing.data_setup_utils import create_published_puzzle
 
 
 class PuzzlesListViewTest(TestCase):

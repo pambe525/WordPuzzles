@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 
 from puzzles.models import WordPuzzle, PuzzleSession
-from testing.django_unit_tests.unit_test_helpers import create_published_puzzle, create_draft_puzzle, create_session
+from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_session
 
 
 class PreviewPuzzleViewTest(TestCase):

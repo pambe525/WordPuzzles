@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.test import TestCase
 from datetime import datetime
 from puzzles.models import Puzzle, WordPuzzle, Clue, PuzzleSession
-from testing.django_unit_tests.unit_test_helpers import create_published_puzzle
+from testing.data_setup_utils import create_published_puzzle
 
 class UserNameTest(TestCase):
     def setUp(self):
