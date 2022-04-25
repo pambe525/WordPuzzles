@@ -128,12 +128,12 @@
         var clueSet = {{ clues | safe }};
         var activeSession = {{ active_session | default_if_none:'null' | safe }};
         var activeClueNum = 0;
-        var intervalTimerId = null;
-        var elapsedSecs = 0;
+        var sessionTimer = null;
 
         $.ajaxSetup({
             data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-}       );
+        });
+
     </script>
     {% load static %}
     <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>

@@ -6,45 +6,29 @@ $(document).ready(function () {
 })
 
 window.onfocus = function() {
-    startTimer();
+    sessionTimer.resume();
 }
 
 window.onblur = function() {
-    clearTimer();
+    sessionTimer.pause();
 }
 
 window.onbeforeunload = function() {
-    clearTimer();
-    saveTimer();
+    stopAndSaveTimer();
 }
 
 function getFullClueDesc(clue) {
     return clue.clue_num + ". " + clue.clue_text + " [" + clue.points + " pts]";
 }
 
-function startTimer() {
-    if ( !isSessionComplete() && intervalTimerId == null) intervalTimerId = setInterval(displayTimer, 1000);
-}
-
-function clearTimer() {
-    if (intervalTimerId != null) clearInterval(intervalTimerId);
-    intervalTimerId = null;
-}
-
-function displayTimer() {
-    let timerFormat = new Date(elapsedSecs*1000).toISOString().slice(11, 19);
-    $('#id-timer').text(timerFormat+'s');
-    elapsedSecs++;
-}
-
 function loadPuzzleSessionState() {
-    elapsedSecs = activeSession['elapsed_secs'];
-    displayTimer();
+    sessionTimer = new SessionTimer("id-timer", activeSession['elapsed_secs']);
+    sessionTimer.start();
     setClueButtonStates();
     setScore();
     setProgress();
     setCompletionStatus();
-    startTimer();
+    if ( isSessionComplete() ) sessionTimer.stop();
 }
 
 function setClueButtonStates() {
@@ -75,8 +59,6 @@ function setCompletionStatus() {
     if (isSessionComplete()) {
         completedSection.show();
         $("#id-finish-later-btn").hide();
-        saveTimer();
-        clearTimer();
     } else completedSection.hide();
 }
 
@@ -223,12 +205,17 @@ function submitClicked() {
     request.fail(answerIncorrect);
 }
 
-function saveTimer() {
+function stopAndSaveTimer() {
+    let elapsedSecs = sessionTimer.stop();
     let context = {'session_id': activeSession.session_id, 'elapsed_secs': elapsedSecs};
+    postAjax("timer", context);
+}
+
+function postAjax(action, data) {
     $.ajax({
         method: "POST",
         dataType: "json",
-        data: {'action': 'timer', 'data': JSON.stringify(context)},
+        data: {'action': action, 'data': JSON.stringify(data)},
     });
 }
 
@@ -240,6 +227,7 @@ function updateAnswerState(json_data) {
     setScore();
     setProgress();
     setCompletionStatus();
+    if ( isSessionComplete() ) stopAndSaveTimer();
 }
 
 function answerIncorrect() {
@@ -265,4 +253,48 @@ function clearClicked() {
 
 function isSessionComplete() {
     return (activeSession['total_points'] === activeSession['solved_points'] + activeSession['revealed_points'])
+}
+
+
+class SessionTimer {
+
+    constructor(displayId, startingSecs) {
+        this.elapsedSecs = startingSecs;
+        this.timerDisplayId = "#"+displayId;
+        this.intervalTimerId = null;
+        this.timerOn = false;
+    }
+
+    start() {
+        this._showTime();
+        if ( this.intervalTimerId == null ) this.intervalTimerId = setInterval(this._incrementTimer, 1000);
+        this.timerOn = true;
+    }
+
+    resume() {
+        if ( this.intervalTimerId == null && this.timerOn )
+            this.intervalTimerId = setInterval(this._incrementTimer, 1000);
+    }
+
+    pause() {
+        if ( this.intervalTimerId != null ) clearInterval(this.intervalTimerId);
+        this.intervalTimerId = null;
+    }
+
+    stop() {
+        this.pause();
+        this.timerOn = false;
+        this._showTime();
+        return this.elapsedSecs;
+    }
+
+    _showTime() {
+        let timerFormat = new Date(this.elapsedSecs*1000).toISOString().slice(11, 19);
+        $(this.timerDisplayId).text(timerFormat+'s');
+    }
+
+    _incrementTimer = () => {
+        this.elapsedSecs++;
+        this._showTime();
+    }
 }

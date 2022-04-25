@@ -1,11 +1,11 @@
 import time
 
-from django.contrib.auth.models import User
 from selenium.webdriver import Keys
 
 from puzzles.models import WordPuzzle
 from testing.data_setup_utils import create_published_puzzle, create_session, get_full_clue_desc, create_user
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
+
 
 class SolveSessionTests(SeleniumTestCase):
     def setUp(self):
@@ -67,20 +67,21 @@ class SolveSessionTests(SeleniumTestCase):
         self.assertEqual(answer, "-")
 
     def test_session_timer_is_initialized_from_saved_session_and_advances(self):
-        seconds = self.selenium.execute_script("return elapsedSecs;")
-        self.assertEqual(seconds, 301)
         self.verify_timer("00:05:00s")
         time.sleep(2)
         self.verify_timer("00:05:02s")
 
-    def test_session_timer_is_stopped_on_page_unload(self):
+    def test_session_timer_is_stopped_and_saved_on_page_unload(self):
         self.verify_timer("00:05:00s")
+        time.sleep(2)
+        # FINISH LATER button unloads page and saves timer @ 00:05:02s
         self.do_click("//button[@id='id-finish-later-btn']")
         time.sleep(2)
         self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
-        self.verify_timer("00:05:01s")
+        # Saved value should be relaoded
+        self.verify_timer("00:05:02s")
         time.sleep(2)
-        self.verify_timer("00:05:03s")
+        self.verify_timer("00:05:04s")
 
     def test_completing_puzzle_updates_status_saves_and_freezes_timer(self):
         self.do_click("//button[@id='clue-btn-2']")
@@ -129,9 +130,16 @@ class SolveSessionTests(SeleniumTestCase):
         self.verify_cell_has_focus_and_hilite(cells[5])  # Cell with N (6th) now has focus and hilite
         self.assertEqual(self.get_answer_from_cells(), "HYPHEN--")
 
+
+
     ##==============================================================================================================
-    # HELPER FUNCTIONS
+    # PAGE HELPER FUNCTIONS
     #
+    def set_answer_input(self, input_text):
+        cell = self.get_element("//div[@contenteditable='true']")
+        cell.click()
+        cell.send_keys(input_text)
+
     def verify_all_clue_btns_states(self, session):
         solved_clues = session.get_solved_clue_nums()
         revealed_clues = session.get_revealed_clue_nums()
@@ -240,11 +248,6 @@ class SolveSessionTests(SeleniumTestCase):
 
     def do_backspace(self, cell):
         cell.send_keys(Keys.BACKSPACE)
-
-    def set_answer_input(self, input_text):
-        cell = self.get_element("//div[@contenteditable='true']")
-        cell.click()
-        cell.send_keys(input_text)
 
     def verify_cells_empty(self):
         cells = self.selenium.find_elements_by_xpath("//div[@contenteditable='true']")
