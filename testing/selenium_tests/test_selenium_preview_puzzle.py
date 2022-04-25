@@ -26,7 +26,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//a[text()='SOLVE NOW']")               # No Solve button
         self.assert_text_equals("//div[contains(@class,'notetext')]", "No clues exist.")
         self.assert_item_count("//div[contains(@class,'notetext')]", 1)
-        self.do_click("//a[text()='DONE']")
+        self.do_click("//button[text()='NO THANKS']")
         self.assert_current_url("/")
 
     def test_Draft_puzzle_editor_can_preview_puzzle_with_desc_and_clue(self):
@@ -41,7 +41,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//a[text()='UNPUBLISH']")               # No Unpublish button
         self.assert_not_exists("//a[text()='SOLVE NOW']")               # No Solve button
         self.assert_not_exists("//div[contains(text, 'No clues exist')]")
-        self.do_click("//a[text()='DONE']")
+        self.do_click("//button[text()='NO THANKS']")
         self.assert_current_url("/")
 
     def test_Draft_puzzle_editor_can_publish_puzzle(self):
@@ -191,4 +191,4 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//a[text()='UNPUBLISH']")               # No UNPUBLISH button
         self.assert_not_exists("//a[text()='SOLVE NOW']")               # NO SOLVE NOW button
         self.assert_not_exists("//a[text()='DONE']")                    # No DONE button
-        self.assert_exists("//a[text()='FINISH LATER']")                # Only FINISH LATER button
+        self.assert_is_displayed("//button[@id='id-finish-later-btn']")     # Only FINISH LATER button

@@ -83,7 +83,7 @@
                         <a class="btn btn-primary" href="{% url 'solve_puzzle' object.id %}">SOLVE NOW</a>
                     {% endif %}
                 {% endif %}
-                <a class="ml-auto btn btn-dark" href="/">DONE</a>
+                <button id="id-no-thanks-btn" class="ml-auto btn btn-dark" onclick="history.back();">NO THANKS</button>
             </div>
             {% else %}
                 <div class="m-0 row mt-2 font-weight-bold h5 align-items-center">
@@ -98,13 +98,16 @@
                     </div>
                 </div>
                 <hr class="mb-1">
-                <a id="id-finish-later" class="ml-auto btn btn-primary" href="/">FINISH LATER</a>
                 <div id="id-completed" class="m-0 row align-items-center">
                     <i class="fa fa-flag-checkered fa-2x" style="color:black;"></i>&nbsp;
                     <b>Puzzle completed!</b>
-                    <button class="ml-auto btn btn-dark" id="id-done">DONE</button>
+                    <button class="ml-auto btn btn-dark" id="id-done-btn"
+                            onclick="history.back();">DONE
+                    </button>
                 </div>
-
+                <button id="id-finish-later-btn" class="ml-auto btn btn-primary"
+                        onclick="history.back();">FINISH LATER
+                </button>
             {% endif %}
             {% if object.size != 0 and not object.is_published and request.user == object.editor %}
                 <div class="notetext pt-2">
@@ -125,7 +128,7 @@
         var clueSet = {{ clues | safe }};
         var activeSession = {{ active_session | default_if_none:'null' | safe }};
         var activeClueNum = 0;
-        var intervalTimer = null;
+        var intervalTimerId = null;
         var elapsedSecs = 0;
 
         $.ajaxSetup({

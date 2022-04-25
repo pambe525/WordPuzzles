@@ -234,8 +234,8 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(str(e.exception), "Incorrect answer")
 
     def test_ajax_post_with_timer_saves_elapsed_secs(self):
-        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 1, 5])
-        session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 1, 5, 4])
+        session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,4', revealed_clues='2')
         data = json.dumps({'session_id':session.id, 'elapsed_secs':1234})
         post_data = {'action':'timer', 'data': data}
         self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", post_data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')

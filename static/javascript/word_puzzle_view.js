@@ -5,15 +5,16 @@ $(document).ready(function () {
     $("#clue-btn-1").click();
 })
 
-window.onblur = function() {
-    clearInterval(intervalTimer);
+window.onfocus = function() {
+    startTimer();
 }
 
-window.onfocus = function() {
-    intervalTimer = setInterval(setTimer, 1000);
+window.onblur = function() {
+    clearTimer();
 }
 
 window.onbeforeunload = function() {
+    clearTimer();
     saveTimer();
 }
 
@@ -21,15 +22,29 @@ function getFullClueDesc(clue) {
     return clue.clue_num + ". " + clue.clue_text + " [" + clue.points + " pts]";
 }
 
+function startTimer() {
+    if ( !isSessionComplete() && intervalTimerId == null) intervalTimerId = setInterval(displayTimer, 1000);
+}
+
+function clearTimer() {
+    if (intervalTimerId != null) clearInterval(intervalTimerId);
+    intervalTimerId = null;
+}
+
+function displayTimer() {
+    let timerFormat = new Date(elapsedSecs*1000).toISOString().slice(11, 19);
+    $('#id-timer').text(timerFormat+'s');
+    elapsedSecs++;
+}
+
 function loadPuzzleSessionState() {
     elapsedSecs = activeSession['elapsed_secs'];
-    setTimer();
-    intervalTimer = setInterval(setTimer, 1000);
-
+    displayTimer();
     setClueButtonStates();
     setScore();
     setProgress();
     setCompletionStatus();
+    startTimer();
 }
 
 function setClueButtonStates() {
@@ -57,18 +72,12 @@ function setProgress() {
 
 function setCompletionStatus() {
     let completedSection = $("#id-completed");
-    if (activeSession['total_points'] === (activeSession['solved_points'] + activeSession['revealed_points'])) {
+    if (isSessionComplete()) {
         completedSection.show();
-        $("#id-finish-later").hide();
-        clearInterval(intervalTimer);
+        $("#id-finish-later-btn").hide();
         saveTimer();
+        clearTimer();
     } else completedSection.hide();
-}
-
-function setTimer() {
-    elapsedSecs++;
-    let timerFormat = new Date(elapsedSecs*1000).toISOString().slice(11, 19);
-    $('#id-timer').empty().text(timerFormat+'s');
 }
 
 function showClueAndAnswer(clickedClueNum) {
@@ -252,4 +261,8 @@ function clearClicked() {
     clearAllCells();
     $("#id-wrong-icon").hide();
     $("#id-answer-msg").empty().hide();
+}
+
+function isSessionComplete() {
+    return (activeSession['total_points'] === activeSession['solved_points'] + activeSession['revealed_points'])
 }
