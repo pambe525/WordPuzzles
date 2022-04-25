@@ -1,3 +1,5 @@
+import time
+
 from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle
@@ -124,15 +126,17 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.assert_not_exists("//button[@id='clue-btn-1'][contains(@class,'active')]")
 
     def test_Draft_puzzle_editor_can_preview_answer_and_parsing_for_each_clue(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4], has_parsing=True)
+        puzzle = create_draft_puzzle(editor=self.user, clues_pts=[1, 2, 3, 4], has_parsing=True)
         clues = puzzle.get_clues()
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Preview Puzzle & Publish")
         self.do_click("//button[@id='clue-btn-3']")
+        time.sleep(3)
         answer = self.get_element("//div[@id='id-answer']").text.replace('\n',"")
         self.assertEqual(answer, clues[2].answer)
         self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[2].parsing)
         self.do_click("//div/button[@id='id-right-caret']")
+        time.sleep(3)
         answer = self.get_element("//div[@id='id-answer']").text.replace('\n',"")
         self.assertEqual(answer, clues[3].answer)
         self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[3].parsing)

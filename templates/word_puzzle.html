@@ -128,7 +128,6 @@
         var clueSet = {{ clues | safe }};
         var activeSession = {{ active_session | default_if_none:'null' | safe }};
         var activeClueNum = 0;
-        var sessionTimer = null;
 
         $.ajaxSetup({
             data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
