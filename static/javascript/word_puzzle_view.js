@@ -7,8 +7,8 @@ $(document).ready(function () {
     $("#clue-btn-1").click();
 })
 
-window.onfocus = function() { sessionTimer.resume(); }
-window.onblur = function() { sessionTimer.pause(); }
+window.onfocus = function() { if (sessionTimer) sessionTimer.resume(); }
+window.onblur = function() { if (sessionTimer) sessionTimer.pause(); }
 window.onbeforeunload = function() { stopAndSaveTimer(); }
 
 function getFullClueDesc(clue) {
@@ -130,9 +130,11 @@ function submitClicked() {
 }
 
 function stopAndSaveTimer() {
-    let elapsedSecs = sessionTimer.stop();
-    let context = {'session_id': activeSession.session_id, 'elapsed_secs': elapsedSecs};
-    postAjax("timer", context);
+    if (sessionTimer) {
+        let elapsedSecs = sessionTimer.stop();
+        let context = {'session_id': activeSession.session_id, 'elapsed_secs': elapsedSecs};
+        postAjax("timer", context);
+    }
 }
 
 function postAjax(action, data) {
