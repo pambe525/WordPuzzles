@@ -7,134 +7,11 @@ from testing.data_setup_utils import create_published_puzzle, create_session, ge
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 
 
-class SolveSessionTests(SeleniumTestCase):
-    def setUp(self):
-        self.user = create_user()
-        self.auto_login_user(self.user)
-        self.other_user = create_user(username="other_user")
-        self.puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[5, 2, 3, 1, 2])
-        self.session = create_session(solver=self.user, puzzle=self.puzzle, solved_clues='1,4',
-                                      revealed_clues='5', elapsed_secs=300)
-        self.clues = self.puzzle.get_clues()
-        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
+# ======================================================================================================================
+# HELPER FUNCTIONS FOR SolveSession Test Cases cast as a derived class (of SeleneiumTestCase
+# Test cases for Solve Session should derive from this class.
+class SolveSessionTestCase(SeleniumTestCase):
 
-    def test_loads_existing_session(self):
-        self.assert_text_equals("//h2", "Solve Puzzle")
-        self.verify_all_clue_btns_states(self.session)
-        self.verify_answer_state_for_clue(self.clues[0], 'solved')    # SOLVED clue #1
-        self.verify_answer_state_for_clue(self.clues[4], 'revealed')  # REVEALED clue #5
-        self.verify_answer_state_for_clue(self.clues[1], 'unsolved')  # UNSOLVED clue #2
-        self.verify_score(6)
-        self.verify_progress_bars(46, 15)
-        self.assert_is_displayed("//button[@id='id-finish-later-btn']")
-        self.assert_is_not_displayed("//div[@id='id-completed']")
-
-    def test_correct_answer_submit_sets_solved_state(self):
-        self.do_click("//button[@id='clue-btn-2']")  # Click on 2nd clue btn
-        self.set_answer_input(self.clues[1].answer)
-        self.do_click("//button[@id='id-submit-btn']")
-        self.wait_until_invisible("//button[@id='id-submit-btn']")
-        self.verify_clue_btn_has_state(2, "solved")
-        self.verify_answer_state_as_solved(self.clues[1])
-        self.verify_score(8)
-        self.verify_progress_bars(62, 15)
-        self.assert_is_not_displayed("//div[@id='id-completed']")
-
-    def test_reveal_answer_submit_sets_revealed_state(self):
-        self.do_click("//button[@id='clue-btn-2']")     # Click on 2nd clue btn
-        self.do_click("//button[@id='id-reveal-btn']")  # Reveal first clue (default)
-        self.wait_until_invisible("//button[@id='id-reveal-btn']")
-        self.verify_clue_btn_has_state(2, "revealed")
-        self.verify_answer_state_as_revealed(self.clues[1])
-        self.verify_score(6)
-        self.verify_progress_bars(46, 31)
-        self.assert_is_not_displayed("//div[@id='id-completed']")
-
-    def test_incorrect_answer_submit_sets_incorrect_state(self):
-        self.do_click("//button[@id='clue-btn-2']")     # Click on 2nd clue btn
-        self.set_answer_input("WORD-X")                 # Wrong answer
-        self.do_click("//button[@id='id-submit-btn']")
-        self.verify_clue_btn_has_state(2, "unsolved")
-        self.verify_answer_state_as_incorrect()
-        self.verify_score(6)
-        self.verify_progress_bars(46, 15)
-        self.assert_is_not_displayed("//div[@id='id-completed']")
-        # Clear btn clears incorrect answer state
-        self.do_click("//button[@id='id-clear-btn']")
-        self.assert_is_not_displayed("//div[@id='id-wrong-icon']")
-        self.assert_is_not_displayed("//div[@id='id-answer-msg']")
-        answer = self.get_element("//div[@id='id-answer']").text
-        self.assertEqual(answer, "-")
-
-    def test_session_timer_is_initialized_from_saved_session_and_advances(self):
-        self.verify_timer("00:05:00s")
-        time.sleep(2)
-        self.verify_timer("00:05:02s")
-
-    def test_session_timer_is_stopped_and_saved_on_page_unload(self):
-        self.verify_timer("00:05:00s")
-        time.sleep(2)
-        # FINISH LATER button unloads page and saves timer @ 00:05:02s
-        self.do_click("//button[@id='id-finish-later-btn']")
-        time.sleep(2)
-        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
-        # Saved value should be relaoded
-        self.verify_timer("00:05:02s")
-        time.sleep(2)
-        self.verify_timer("00:05:04s")
-
-    def test_completing_puzzle_updates_status_saves_and_freezes_timer(self):
-        self.do_click("//button[@id='clue-btn-2']")
-        self.do_click("//button[@id='id-reveal-btn']")
-        # Wait before completing puzzle so timer advances
-        time.sleep(2)
-        self.do_click("//button[@id='clue-btn-3']")
-        self.do_click("//button[@id='id-reveal-btn']")
-        time.sleep(3)
-        # Puzzle completed
-        self.verify_score(6)
-        self.verify_progress_bars(46, 54)
-        self.verify_timer("00:05:02s")
-        self.assert_is_displayed("//div[@id='id-completed']")
-        self.assert_is_not_displayed("//button[@id='id-finish-later-btn']")
-        # Final timer setting is saved
-        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
-        self.verify_timer("00:05:02s")
-        time.sleep(3)
-        self.verify_timer("00:05:02s")
-
-    def test_answer_grid_cells_editing(self):
-        puzzle = WordPuzzle.objects.create(editor=self.other_user)
-        clue = puzzle.add_clue({'answer': 'HYPHEN-AT-D WORD', 'clue_text': 'Clue for complex answer', 'points': 2})
-        # puzzle.add_clue({'answer': 'SINGLEWORD', 'clue_text': 'Clue for single word', 'points': 1})
-        puzzle.publish()
-        # create_session(solver=self.user, puzzle=puzzle)  # All clues UNSOLVED
-        self.get('/solve_puzzle/' + str(puzzle.id) + '/')
-        cells = self.get_editable_cells()
-        self.assertEqual(len(cells), 13)  # Only letter cells are content editable
-        self.verify_cell_has_focus_and_hilite(cells[0])  # First answer cell has focus and hilite by default
-        cells[1].click()
-        self.verify_cell_has_focus_and_hilite(cells[1])  # Clicked cell has focus and hilite
-        self.set_answer_input("A12BC@7def#ghijkl,mN")
-        self.assertEqual(self.get_answer_from_cells(), "ABCDEF-GH-I JKLN")  # Non-alphabets ignored
-        self.verify_cell_has_focus_and_hilite(cells[12])  # Last cell has focus and hilite
-        self.get_element("//button[text()='CLEAR']").click()  # Click CLEAR btn
-        self.verify_cells_empty()
-        self.verify_cell_has_focus_and_hilite(cells[0])
-        self.set_answer_input("HYPHENA")
-        self.verify_cell_has_focus_and_hilite(cells[7])  # Cell after A (8th) has focus and hilite
-        self.do_backspace(cells[7])
-        self.verify_cell_has_focus_and_hilite(cells[6])  # Cell with A (7th) now has focus and hilite
-        self.assertEqual(self.get_answer_from_cells(), "HYPHEN-A-")
-        self.do_backspace(cells[6])  # Delete A and shift left
-        self.verify_cell_has_focus_and_hilite(cells[5])  # Cell with N (6th) now has focus and hilite
-        self.assertEqual(self.get_answer_from_cells(), "HYPHEN--")
-
-
-
-    ##==============================================================================================================
-    # PAGE HELPER FUNCTIONS
-    #
     def set_answer_input(self, input_text):
         cell = self.get_element("//div[@contenteditable='true']")
         cell.click()
@@ -145,11 +22,11 @@ class SolveSessionTests(SeleniumTestCase):
         revealed_clues = session.get_revealed_clue_nums()
         for index, clue in enumerate(session.puzzle.get_clues()):
             if clue.clue_num in solved_clues:
-                self.verify_clue_btn_has_state(index+1, 'solved')
+                self.verify_clue_btn_has_state(index + 1, 'solved')
             elif clue.clue_num in revealed_clues:
-                self.verify_clue_btn_has_state(index+1, 'revealed')
+                self.verify_clue_btn_has_state(index + 1, 'revealed')
             else:
-                self.verify_clue_btn_has_state(index+1, 'unsolved')
+                self.verify_clue_btn_has_state(index + 1, 'unsolved')
 
     def verify_answer_state_for_clue(self, clue, state):
         self.do_click("//div/button[@id='clue-btn-" + str(clue.clue_num) + "']")  # Click on Clue btn
@@ -253,3 +130,127 @@ class SolveSessionTests(SeleniumTestCase):
         cells = self.selenium.find_elements_by_xpath("//div[@contenteditable='true']")
         for cell in cells:
             self.assertEquals(cell.text, "")
+
+
+class SolveSessionTests(SolveSessionTestCase):
+    def setUp(self):
+        self.user = create_user()
+        self.auto_login_user(self.user)
+        self.other_user = create_user(username="other_user")
+        self.puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[5, 2, 3, 1, 2])
+        self.session = create_session(solver=self.user, puzzle=self.puzzle, solved_clues='1,4',
+                                      revealed_clues='5', elapsed_secs=300)
+        self.clues = self.puzzle.get_clues()
+        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
+
+    def test_loads_existing_session(self):
+        self.assert_text_equals("//h2", "Solve Puzzle")
+        self.verify_all_clue_btns_states(self.session)
+        self.verify_answer_state_for_clue(self.clues[0], 'solved')  # SOLVED clue #1
+        self.verify_answer_state_for_clue(self.clues[4], 'revealed')  # REVEALED clue #5
+        self.verify_answer_state_for_clue(self.clues[1], 'unsolved')  # UNSOLVED clue #2
+        self.verify_score(6)
+        self.verify_progress_bars(46, 15)
+        self.assert_is_displayed("//button[@id='id-finish-later-btn']")
+        self.assert_is_not_displayed("//div[@id='id-completed']")
+
+    def test_correct_answer_submit_sets_solved_state(self):
+        self.do_click("//button[@id='clue-btn-2']")  # Click on 2nd clue btn
+        self.set_answer_input(self.clues[1].answer)
+        self.do_click("//button[@id='id-submit-btn']")
+        self.wait_until_invisible("//button[@id='id-submit-btn']")
+        self.verify_clue_btn_has_state(2, "solved")
+        self.verify_answer_state_as_solved(self.clues[1])
+        self.verify_score(8)
+        self.verify_progress_bars(62, 15)
+        self.assert_is_not_displayed("//div[@id='id-completed']")
+
+    def test_reveal_answer_submit_sets_revealed_state(self):
+        self.do_click("//button[@id='clue-btn-2']")  # Click on 2nd clue btn
+        self.do_click("//button[@id='id-reveal-btn']")  # Reveal first clue (default)
+        self.wait_until_invisible("//button[@id='id-reveal-btn']")
+        self.verify_clue_btn_has_state(2, "revealed")
+        self.verify_answer_state_as_revealed(self.clues[1])
+        self.verify_score(6)
+        self.verify_progress_bars(46, 31)
+        self.assert_is_not_displayed("//div[@id='id-completed']")
+
+    def test_incorrect_answer_submit_sets_incorrect_state(self):
+        self.do_click("//button[@id='clue-btn-2']")  # Click on 2nd clue btn
+        self.set_answer_input("WORD-X")  # Wrong answer
+        self.do_click("//button[@id='id-submit-btn']")
+        self.verify_clue_btn_has_state(2, "unsolved")
+        self.verify_answer_state_as_incorrect()
+        self.verify_score(6)
+        self.verify_progress_bars(46, 15)
+        self.assert_is_not_displayed("//div[@id='id-completed']")
+        # Clear btn clears incorrect answer state
+        self.do_click("//button[@id='id-clear-btn']")
+        self.assert_is_not_displayed("//div[@id='id-wrong-icon']")
+        self.assert_is_not_displayed("//div[@id='id-answer-msg']")
+        answer = self.get_element("//div[@id='id-answer']").text
+        self.assertEqual(answer, "-")
+
+    def test_session_timer_is_initialized_from_saved_session_and_advances(self):
+        self.verify_timer("00:05:00s")
+        time.sleep(2)
+        self.verify_timer("00:05:02s")
+
+    def test_session_timer_is_stopped_and_saved_on_page_unload(self):
+        self.verify_timer("00:05:00s")
+        time.sleep(2)
+        # FINISH LATER button unloads page and saves timer @ 00:05:02s
+        self.do_click("//button[@id='id-finish-later-btn']")
+        time.sleep(2)
+        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
+        # Saved value should be relaoded
+        self.verify_timer("00:05:02s")
+        time.sleep(2)
+        self.verify_timer("00:05:04s")
+
+    def test_completing_puzzle_updates_status_saves_and_freezes_timer(self):
+        self.do_click("//button[@id='clue-btn-2']")
+        self.do_click("//button[@id='id-reveal-btn']")
+        # Wait before completing puzzle so timer advances
+        time.sleep(2)
+        self.do_click("//button[@id='clue-btn-3']")
+        self.do_click("//button[@id='id-reveal-btn']")
+        time.sleep(3)
+        # Puzzle completed
+        self.verify_score(6)
+        self.verify_progress_bars(46, 54)
+        self.verify_timer("00:05:02s")
+        self.assert_is_displayed("//div[@id='id-completed']")
+        self.assert_is_not_displayed("//button[@id='id-finish-later-btn']")
+        # Final timer setting is saved
+        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
+        self.verify_timer("00:05:02s")
+        time.sleep(3)
+        self.verify_timer("00:05:02s")
+
+    def test_answer_grid_cells_editing(self):
+        puzzle = WordPuzzle.objects.create(editor=self.other_user)
+        clue = puzzle.add_clue({'answer': 'HYPHEN-AT-D WORD', 'clue_text': 'Clue for complex answer', 'points': 2})
+        # puzzle.add_clue({'answer': 'SINGLEWORD', 'clue_text': 'Clue for single word', 'points': 1})
+        puzzle.publish()
+        # create_session(solver=self.user, puzzle=puzzle)  # All clues UNSOLVED
+        self.get('/solve_puzzle/' + str(puzzle.id) + '/')
+        cells = self.get_editable_cells()
+        self.assertEqual(len(cells), 13)  # Only letter cells are content editable
+        self.verify_cell_has_focus_and_hilite(cells[0])  # First answer cell has focus and hilite by default
+        cells[1].click()
+        self.verify_cell_has_focus_and_hilite(cells[1])  # Clicked cell has focus and hilite
+        self.set_answer_input("A12BC@7def#ghijkl,mN")
+        self.assertEqual(self.get_answer_from_cells(), "ABCDEF-GH-I JKLN")  # Non-alphabets ignored
+        self.verify_cell_has_focus_and_hilite(cells[12])  # Last cell has focus and hilite
+        self.get_element("//button[text()='CLEAR']").click()  # Click CLEAR btn
+        self.verify_cells_empty()
+        self.verify_cell_has_focus_and_hilite(cells[0])
+        self.set_answer_input("HYPHENA")
+        self.verify_cell_has_focus_and_hilite(cells[7])  # Cell after A (8th) has focus and hilite
+        self.do_backspace(cells[7])
+        self.verify_cell_has_focus_and_hilite(cells[6])  # Cell with A (7th) now has focus and hilite
+        self.assertEqual(self.get_answer_from_cells(), "HYPHEN-A-")
+        self.do_backspace(cells[6])  # Delete A and shift left
+        self.verify_cell_has_focus_and_hilite(cells[5])  # Cell with N (6th) now has focus and hilite
+        self.assertEqual(self.get_answer_from_cells(), "HYPHEN--")
