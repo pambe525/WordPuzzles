@@ -8,9 +8,15 @@ $(document).ready(function () {
     if (activeSession) loadPuzzleSessionState();
 })
 
-window.onfocus = function() { if (sessionTimer) sessionTimer.resume(); }
-window.onblur = function() { if (sessionTimer) sessionTimer.pause(); }
-window.onbeforeunload = function() { stopAndSaveTimer(); }
+window.onfocus = function () {
+    if (sessionTimer) sessionTimer.resume();
+}
+window.onblur = function () {
+    if (sessionTimer) sessionTimer.pause();
+}
+window.onbeforeunload = function () {
+    stopAndSaveTimer();
+}
 
 function getFullClueDesc(clue) {
     return clue.clue_num + ". " + clue.clue_text + " [" + clue.points + " pts]";
@@ -22,7 +28,7 @@ function loadPuzzleSessionState() {
     setScore();
     setProgress();
     setCompletionStatus();
-    if ( isSessionComplete() ) sessionTimer.stop();
+    if (isSessionComplete()) sessionTimer.stop();
 }
 
 function setScore() {
@@ -33,10 +39,10 @@ function setProgress() {
     let totalPoints = activeSession['total_points'];
     let solvedPoints = activeSession['solved_points'];
     let revealedPoints = activeSession['revealed_points'];
-    let solvedBarWidth = Math.round(100*solvedPoints/totalPoints) + "%";
-    let revealedBarWidth = Math.round(100*revealedPoints/totalPoints) + "%";
-    $("#id-solved-pts").width(solvedBarWidth).text(solvedPoints+" pts");
-    $("#id-revealed-pts").width(revealedBarWidth).text(revealedPoints+" pts");
+    let solvedBarWidth = Math.round(100 * solvedPoints / totalPoints) + "%";
+    let revealedBarWidth = Math.round(100 * revealedPoints / totalPoints) + "%";
+    $("#id-solved-pts").width(solvedBarWidth).text(solvedPoints + " pts");
+    $("#id-revealed-pts").width(revealedBarWidth).text(revealedPoints + " pts");
 }
 
 function setCompletionStatus() {
@@ -55,13 +61,13 @@ function showClueAndAnswer(clickedClueNum) {
 }
 
 function showAnswerByClueMode(clue) {
-    if ( clue.mode === 'PRESOLVE' ) $("#id-answer-section").hide();
+    if (clue.mode === 'PRESOLVE') $("#id-answer-section").hide();
     else {
         setAnswerIcons(clue);
         showAnswerWithParsing(clue);
         setAnswerBtns(clue);
     }
-    if ( clue.mode === 'UNSOLVED') $("#id-answer div div:first-child").click();
+    if (clue.mode === 'UNSOLVED') $("#id-answer div div:first-child").click();
 }
 
 function setAnswerIcons(clue) {
@@ -69,8 +75,7 @@ function setAnswerIcons(clue) {
     if (clue.mode === "SOLVED") {
         $("#id-check-icon").show();
         $("#id-answer-msg").text("[" + clue.points + " pts]").show();
-    }
-    else if (clue.mode === "REVEALED") {
+    } else if (clue.mode === "REVEALED") {
         $("#id-eye-icon").show();
         $("#id-answer-msg").text("[0 pts]").show();
     }
@@ -99,7 +104,7 @@ function prevClue() {
 
 function submitClicked() {
     let answer_input = $("#id-answer").text();
-    if (answer_input.length !== clueSet[activeClueNum-1].answer.length) return;
+    if (answer_input.length !== clueSet[activeClueNum - 1].answer.length) return;
     let context = {'session_id': activeSession.session_id, 'clue_num': activeClueNum, 'answer_input': answer_input};
     let request = $.ajax({
         method: "POST",
@@ -134,7 +139,7 @@ function updateAnswerState(json_data) {
     setScore();
     setProgress();
     setCompletionStatus();
-    if ( isSessionComplete() ) stopAndSaveTimer();
+    if (isSessionComplete()) stopAndSaveTimer();
 }
 
 function answerIncorrect() {
@@ -162,15 +167,67 @@ function isSessionComplete() {
     return (activeSession['total_points'] === activeSession['solved_points'] + activeSession['revealed_points'])
 }
 
+/**--------------------------------------------------------------------------------------------------------------------
+ * ClueRotator
+ */
+class ClueRotator {
+    constructor(containerId, clueSet, activeSession) {
+        this.containerId = containerId;
+        this._build();
+    }
+
+    _build() {
+
+    }
+
+    _getLeftArrowButton() {
+        $("<button>").addClass("pr-2 p-0 btn").title("Previous Clue").attr("id", "id-left-caret")
+    }
+
+                    //
+                    //     <!-- LEFT ARROW -->
+                    // <button class="pr-2 p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
+                    //     <i class="fa fa-caret-left fa-3x"></i>
+                    // </button>
+                    // <!-- CLUE & ANSWER BOX -->
+                    // <div class="col p-2 border border-dark rounded-3" style="line-height:18px">
+                    //     <div class="font-weight-bold mb-2" id="id-clue"></div>
+                    //     <div id="id-answer-section">
+                    //         <div class="m-0 row align-items-center">
+                    //             Answer:
+                    //             {% if active_session != None %}
+                    //                 <div class="m-0 row ml-1" id="id-answer-icons">
+                    //                     <div id="id-check-icon"><i class="fa fa-check text-success"></i></div>
+                    //                     <div id="id-eye-icon"><i class="fa fa-eye text-secondary"></i></div>
+                    //                     <div id="id-wrong-icon"><i class="fa fa-times text-danger"></i></div>
+                    //                     <div class="ml-1" id="id-answer-msg">[2 pts]</div>
+                    //                 </div>
+                    //             {% endif %}
+                    //         </div>
+                    //         <div id="id-answer"></div>
+                    //         {% if active_session != None %}
+                    //             <div class="m-0 row mt-2" id="id-answer-btns">
+                    //                 <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn"
+                    //                         onclick='submitClicked();'>SUBMIT</button>
+                    //                 <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn"
+                    //                         onclick='clearClicked();'>CLEAR</button>
+                    //                 <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn"
+                    //                         onclick='revealClicked();'>REVEAL</button>
+                    //             </div>
+                    //         {% endif %}
+                    //         <div class="mt-1" id="id-parsing"></div>
+                    //     </div>
+                    //
+}
 
 /**--------------------------------------------------------------------------------------------------------------------
  * ClueButtonsGroup
  */
 class ClueButtonsGroup {
-    constructor(displayId, clues, clickHandler) {
+    constructor(containerId, clues, clickHandler) {
         this.onclickHandler = clickHandler;
         this.clueSet = clues;
-        this.containerId = "#"+displayId;
+        this.containerId = "#" + containerId;
         this.btnList = this._createButtons();
         this.activeClueNum = 0;
     }
@@ -183,11 +240,11 @@ class ClueButtonsGroup {
     }
 
     click(clueNum) {
-        this.btnList[clueNum-1].click();
+        this.btnList[clueNum - 1].click();
     }
 
     clickNext() {
-        let nextClueNum = (this.activeClueNum < this.clueSet.length) ? this.activeClueNum + 1: 1;
+        let nextClueNum = (this.activeClueNum < this.clueSet.length) ? this.activeClueNum + 1 : 1;
         this.click(nextClueNum);
     }
 
@@ -230,7 +287,7 @@ class ClueButtonsGroup {
             clueText = clue.clue_text + " [" + clue.points + " pts]";
             btn = $("<button>");
             btn.addClass("btn-sm btn-light border border-dark pt-0 pb-0 mr-1");
-            btn.attr('id', "clue-btn-" + clue.clue_num).attr('title',clueText).text(clue.clue_num);
+            btn.attr('id', "clue-btn-" + clue.clue_num).attr('title', clueText).text(clue.clue_num);
             btn.on('click', this._buttonClicked).on('focus', this._setActive).on('blur', this._removeActive);
             this._setButtonState(btn, clue.mode);
             list.push(btn);
@@ -244,8 +301,8 @@ class ClueButtonsGroup {
  * AnswerGrid
  */
 class AnswerGrid {
-    constructor(displayId, answerText, isEditable) {
-        this.gridDisplayId = "#" + displayId;
+    constructor(containerId, answerText, isEditable) {
+        this.gridDisplayId = "#" + containerId;
         this.answer = answerText;
         this.isEditable = isEditable;
         this.grid = this._createGrid();
@@ -266,7 +323,7 @@ class AnswerGrid {
         for (const letter of this.answer) {
             hasBorder = (!(letter === '-' || letter === ' '));
             cell = this._getCellAsDiv(hasBorder);
-            if ( !this.isEditable || !hasBorder ) cell.text(letter);
+            if (!this.isEditable || !hasBorder) cell.text(letter);
             else this._setEditable(cell);
             this._shiftCellToLeft(cell, index++);
             $(grid).append(cell);
@@ -308,8 +365,8 @@ class AnswerGrid {
         let key = event.keyCode || event.which;
         let keyChar = String.fromCharCode(key);
         event.preventDefault();
-        if (/[a-zA-Z]/.test(keyChar)) this._setTextAndMoveToNextCell( $(event.target), keyChar );
-        else if (key === 8) this._setTextAndMoveToPrevCell( $(event.target), keyChar );
+        if (/[a-zA-Z]/.test(keyChar)) this._setTextAndMoveToNextCell($(event.target), keyChar);
+        else if (key === 8) this._setTextAndMoveToPrevCell($(event.target), '');
         else if (key === 13) $("#id-submit-btn").click();
     }
 
@@ -328,7 +385,7 @@ class AnswerGrid {
     }
 
     _setTextAndMoveToPrevCell(cell, keyChar) {
-        cell.text('');
+        cell.text(keyChar);
         let prevCell = this._getPrevCell(cell);
         if (prevCell) prevCell.focus();
     }
@@ -339,26 +396,26 @@ class AnswerGrid {
  * SessionTimer
  */
 class SessionTimer {
-    constructor(displayId, startingSecs) {
+    constructor(containerId, startingSecs) {
         this.elapsedSecs = startingSecs;
-        this.timerDisplayId = "#"+displayId;
+        this.timerDisplayId = "#" + containerId;
         this.intervalTimerId = null;
         this.timerOn = false;
     }
 
     start() {
         this._showTime();
-        if ( this.intervalTimerId == null ) this.intervalTimerId = setInterval(this._incrementTimer, 1000);
+        if (this.intervalTimerId == null) this.intervalTimerId = setInterval(this._incrementTimer, 1000);
         this.timerOn = true;
     }
 
     resume() {
-        if ( this.intervalTimerId == null && this.timerOn )
+        if (this.intervalTimerId == null && this.timerOn)
             this.intervalTimerId = setInterval(this._incrementTimer, 1000);
     }
 
     pause() {
-        if ( this.intervalTimerId != null ) clearInterval(this.intervalTimerId);
+        if (this.intervalTimerId != null) clearInterval(this.intervalTimerId);
         this.intervalTimerId = null;
     }
 
@@ -370,8 +427,8 @@ class SessionTimer {
     }
 
     _showTime() {
-        let timerFormat = new Date(this.elapsedSecs*1000).toISOString().slice(11, 19);
-        $(this.timerDisplayId).text(timerFormat+'s');
+        let timerFormat = new Date(this.elapsedSecs * 1000).toISOString().slice(11, 19);
+        $(this.timerDisplayId).text(timerFormat + 's');
     }
 
     _incrementTimer = () => {
