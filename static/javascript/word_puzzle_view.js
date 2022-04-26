@@ -1,10 +1,11 @@
 /** Calling script must define variables clueSet and showAnswers */
 
-var activeClueNum = 0, sessionTimer = null, answerGrid = null;
+var activeClueNum = 0, sessionTimer = null, answerGrid = null, btnGroup = null;
 
 $(document).ready(function () {
+    btnGroup = new ClueButtonsGroup("id-clue-btns-group", clueSet, showClueAndAnswer).show();
+    btnGroup.click(1);
     if (activeSession) loadPuzzleSessionState();
-    $("#clue-btn-1").click();
 })
 
 window.onfocus = function() { if (sessionTimer) sessionTimer.resume(); }
@@ -18,20 +19,10 @@ function getFullClueDesc(clue) {
 function loadPuzzleSessionState() {
     sessionTimer = new SessionTimer("id-timer", activeSession['elapsed_secs']);
     sessionTimer.start();
-    setClueButtonStates();
     setScore();
     setProgress();
     setCompletionStatus();
     if ( isSessionComplete() ) sessionTimer.stop();
-}
-
-function setClueButtonStates() {
-    for (let i = 1; i <= clueSet.length; i++) {
-        if (clueSet[i-1].mode === 'SOLVED')
-            $('#clue-btn-' + i).addClass('btn-success').removeClass('btn-light');
-        else if (clueSet[i-1].mode === 'REVEALED')
-            $('#clue-btn-' + i).addClass('btn-secondary').removeClass('btn-light');
-    }
 }
 
 function setScore() {
@@ -58,9 +49,8 @@ function setCompletionStatus() {
 
 function showClueAndAnswer(clickedClueNum) {
     activeClueNum = clickedClueNum;
-    let clue = clueSet[parseInt(clickedClueNum) - 1]
+    let clue = clueSet[clickedClueNum - 1];
     $('#id-clue').text(getFullClueDesc(clue));
-    setActiveClueBtn(clickedClueNum);
     showAnswerByClueMode(clue);
 }
 
@@ -99,21 +89,12 @@ function setAnswerBtns(clue) {
     else $("#id-answer-btns").hide();
 }
 
-function setActiveClueBtn(clueNum) {
-    $("[id^=clue-btn-]").removeClass('active');
-    $("#clue-btn-" + clueNum).addClass('active').focus();
-}
-
 function nextClue() {
-    var currentClueNum = parseInt($('.active').text());
-    var nextClueNum = (currentClueNum < clueSet.length) ? currentClueNum + 1 : 1
-    $("#clue-btn-" + nextClueNum).click()
+    btnGroup.clickNext();
 }
 
 function prevClue() {
-    var currentClueNum = parseInt($('.active').text());
-    var prevClueNum = (currentClueNum > 1) ? currentClueNum - 1 : clueSet.length
-    $("#clue-btn-" + prevClueNum).click()
+    btnGroup.clickPrev();
 }
 
 function submitClicked() {
@@ -148,7 +129,7 @@ function postAjax(action, data) {
 function updateAnswerState(json_data) {
     activeSession = json_data['active_session'];
     clueSet = JSON.parse(json_data['clues']);
-    setClueButtonStates();
+    btnGroup.update(clueSet);
     showClueAndAnswer(activeClueNum);
     setScore();
     setProgress();
@@ -180,6 +161,84 @@ function clearClicked() {
 function isSessionComplete() {
     return (activeSession['total_points'] === activeSession['solved_points'] + activeSession['revealed_points'])
 }
+
+
+/**--------------------------------------------------------------------------------------------------------------------
+ * ClueButtonsGroup
+ */
+class ClueButtonsGroup {
+    constructor(displayId, clues, clickHandler) {
+        this.onclickHandler = clickHandler;
+        this.clueSet = clues;
+        this.containerId = "#"+displayId;
+        this.btnList = this._createButtons();
+        this.activeClueNum = 0;
+    }
+
+    show() {
+        let group = $("<div>");
+        for (const btn of this.btnList) group.append(btn);
+        $(this.containerId).empty().append(group);
+        return this;
+    }
+
+    click(clueNum) {
+        this.btnList[clueNum-1].click();
+    }
+
+    clickNext() {
+        let nextClueNum = (this.activeClueNum < this.clueSet.length) ? this.activeClueNum + 1: 1;
+        this.click(nextClueNum);
+    }
+
+    clickPrev() {
+        let prevClueNum = (this.activeClueNum > 1) ? this.activeClueNum - 1 : this.clueSet.length;
+        this.click(prevClueNum);
+    }
+
+    update(clueSet) {
+        this.clueSet = clueSet
+        for (const clue of clueSet) {
+            let btn = this.btnList[clue.clue_num - 1];
+            this._setButtonState(btn, clue.mode);
+        }
+    }
+
+    _setButtonState(btn, state) {
+        if (state === 'SOLVED') btn.addClass('btn-success').removeClass('btn-light');
+        else if (state === 'REVEALED') btn.addClass('btn-secondary').removeClass('btn-light');
+    }
+
+    _setActive = (event) => {
+        $(event.target).addClass('active');
+        this.activeClueNum = parseInt($(event.target).text());
+    }
+
+    _removeActive = (event) => {
+        $(event.target).removeClass('active');
+    }
+
+    _buttonClicked = (event) => {
+        $(event.target).focus();
+        let clueNum = parseInt($(event.target).text());
+        this.onclickHandler(clueNum);
+    }
+
+    _createButtons() {
+        let list = [], btn, clueText;
+        for (const clue of this.clueSet) {
+            clueText = clue.clue_text + " [" + clue.points + " pts]";
+            btn = $("<button>");
+            btn.addClass("btn-sm btn-light border border-dark pt-0 pb-0 mr-1");
+            btn.attr('id', "clue-btn-" + clue.clue_num).attr('title',clueText).text(clue.clue_num);
+            btn.on('click', this._buttonClicked).on('focus', this._setActive).on('blur', this._removeActive);
+            this._setButtonState(btn, clue.mode);
+            list.push(btn);
+        }
+        return list;
+    }
+}
+
 
 /**--------------------------------------------------------------------------------------------------------------------
  * AnswerGrid
@@ -249,17 +308,9 @@ class AnswerGrid {
         let key = event.keyCode || event.which;
         let keyChar = String.fromCharCode(key);
         event.preventDefault();
-        if (/[a-zA-Z]/.test(keyChar)) {
-            $(event.target).text(keyChar);
-            let nextCell = this._getNextCell( $(event.target) );
-            if (nextCell) nextCell.focus();
-        } else if (key === 8) {
-            $(event.target).text('');
-            let prevCell = this._getPrevCell( $(event.target) );
-            if (prevCell) prevCell.focus();
-        } else if (key === 13) {
-            $("#id-submit-btn").click();
-        }
+        if (/[a-zA-Z]/.test(keyChar)) this._setTextAndMoveToNextCell( $(event.target), keyChar );
+        else if (key === 8) this._setTextAndMoveToPrevCell( $(event.target), keyChar );
+        else if (key === 13) $("#id-submit-btn").click();
     }
 
     _removeHilite = (event) => {
@@ -268,6 +319,18 @@ class AnswerGrid {
 
     _setHilite = (event) => {
         $(event.target).css('background', 'yellow');
+    }
+
+    _setTextAndMoveToNextCell(cell, keyChar) {
+        cell.text(keyChar);
+        let nextCell = this._getNextCell(cell);
+        if (nextCell) nextCell.focus();
+    }
+
+    _setTextAndMoveToPrevCell(cell, keyChar) {
+        cell.text('');
+        let prevCell = this._getPrevCell(cell);
+        if (prevCell) prevCell.focus();
     }
 }
 

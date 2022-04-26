@@ -15,19 +15,11 @@
             {% if object.size == 0 %}
                 <div class="mt-2 notetext">No clues exist.</div>
             {% else %}
-                <h5 class="mb-0"><b>Clues</b></h5>
+                <hr>
+                <h5 class="mb-0 mt-2"><b>Clues</b></h5>
                 <div class="notetext">Click on a clue number button below to view the clue.</div>
                 <!-- CLUE BUTTONS -->
-                <div class="mt-1 mb-2">
-                    {% for clue in object.get_clues %}
-                        <button class="btn-sm btn-light border border-secondary pt-0 pb-0"
-                                id = "clue-btn-{{ clue.clue_num }}"
-                                onclick = "showClueAndAnswer(this.innerText);"
-                                title="{{ clue.get_decorated_clue_text }} [{{ clue.points }} pts]">
-                                {{ clue.clue_num }}
-                        </button>
-                    {% endfor %}
-                </div>
+                <div class="mt-1 mb-2" id="id-clue-btns-group"></div>
                 <!-- CLUE ROTATOR -->
                 <div class="m-0 row align-items-center">
                     <!-- LEFT ARROW -->
@@ -71,7 +63,8 @@
                 </div>
             {% endif %}
             {% if active_session == None %}
-            <div class="m-0 row mt-2">
+                <hr>
+            <div class="m-0 row mt-3">
                 {% if object.size != 0 %}
                     {% if not object.is_published and request.user == object.editor %}
                         <a class="btn btn-primary" href="{% url 'publish_puzzle' object.id %}">PUBLISH</a>
