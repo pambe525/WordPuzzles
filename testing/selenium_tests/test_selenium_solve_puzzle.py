@@ -10,7 +10,7 @@ from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 # ======================================================================================================================
 # HELPER FUNCTIONS FOR SolveSession Test Cases cast as a derived class (of SeleneiumTestCase
 # Test cases for Solve Session should derive from this class.
-class SolveSessionTestCase(SeleniumTestCase):
+class SolveSessionTestCaseHelper(SeleniumTestCase):
 
     def set_answer_input(self, input_text):
         cell = self.get_element("//div[@contenteditable='true']")
@@ -132,7 +132,7 @@ class SolveSessionTestCase(SeleniumTestCase):
             self.assertEquals(cell.text, "")
 
 
-class SolveSessionTests(SolveSessionTestCase):
+class SolveSessionTests(SolveSessionTestCaseHelper):
     def setUp(self):
         self.user = create_user()
         self.auto_login_user(self.user)
@@ -191,7 +191,16 @@ class SolveSessionTests(SolveSessionTestCase):
         answer = self.get_element("//div[@id='id-answer']").text
         self.assertEqual(answer, "-")
 
-    def test_session_timer_is_initialized_from_saved_session_and_advances(self):
+class SessionTimerTests(SolveSessionTestCaseHelper):
+    def setUp(self):
+        self.user = create_user()
+        self.auto_login_user(self.user)
+        self.other_user = create_user(username="other_user")
+        self.puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[3, 2])
+        self.session = create_session(solver=self.user, puzzle=self.puzzle, solved_clues='1', elapsed_secs=300)
+        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
+
+    def test_session_timer_is_initialized_from_exisitng_session_and_advances(self):
         self.verify_timer("00:05:00s")
         time.sleep(2)
         self.verify_timer("00:05:02s")
@@ -209,40 +218,46 @@ class SolveSessionTests(SolveSessionTestCase):
         self.verify_timer("00:05:04s")
 
     def test_completing_puzzle_updates_status_saves_and_freezes_timer(self):
+        # Wait before completing puzzle so timer advances (Clue #2 unsolved)
+        time.sleep(2)
         self.do_click("//button[@id='clue-btn-2']")
         self.do_click("//button[@id='id-reveal-btn']")
-        # Wait before completing puzzle so timer advances
-        time.sleep(2)
-        self.do_click("//button[@id='clue-btn-3']")
-        self.do_click("//button[@id='id-reveal-btn']")
+        # Puzzle completed! Below time wait should not advance timer
         time.sleep(3)
-        # Puzzle completed
-        self.verify_score(6)
-        self.verify_progress_bars(46, 54)
         self.verify_timer("00:05:02s")
         self.assert_is_displayed("//div[@id='id-completed']")
         self.assert_is_not_displayed("//button[@id='id-finish-later-btn']")
-        # Final timer setting is saved
+        # Page reload should retrieve last saved timer setting
         self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
         self.verify_timer("00:05:02s")
         time.sleep(3)
         self.verify_timer("00:05:02s")
 
-    def test_answer_grid_cells_editing(self):
-        puzzle = WordPuzzle.objects.create(editor=self.other_user)
-        clue = puzzle.add_clue({'answer': 'HYPHEN-AT-D WORD', 'clue_text': 'Clue for complex answer', 'points': 2})
-        # puzzle.add_clue({'answer': 'SINGLEWORD', 'clue_text': 'Clue for single word', 'points': 1})
-        puzzle.publish()
-        # create_session(solver=self.user, puzzle=puzzle)  # All clues UNSOLVED
-        self.get('/solve_puzzle/' + str(puzzle.id) + '/')
+class AnswerGridEditingTests(SolveSessionTestCaseHelper):
+    def setUp(self):
+        self.user = create_user()
+        self.auto_login_user(self.user)
+        self.other_user = create_user(username="other_user")
+        self.puzzle = WordPuzzle.objects.create(editor=self.other_user)
+        self.puzzle.add_clue({'answer': 'HYPHEN-AT-D WORD', 'clue_text': 'Clue for complex answer', 'points': 2})
+        self.puzzle.add_clue({'answer': 'SINGLEWORD', 'clue_text': 'Clue for single word', 'points': 1})
+        self.puzzle.publish()
+        create_session(solver=self.user, puzzle=self.puzzle)  # All clues UNSOLVED
+        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
+
+    def test_grid_properties_and_input(self):
         cells = self.get_editable_cells()
-        self.assertEqual(len(cells), 13)  # Only letter cells are content editable
+        self.assertEqual(len(cells), 13)                 # Only letter cells are content editable
         self.verify_cell_has_focus_and_hilite(cells[0])  # First answer cell has focus and hilite by default
         cells[1].click()
         self.verify_cell_has_focus_and_hilite(cells[1])  # Clicked cell has focus and hilite
         self.set_answer_input("A12BC@7def#ghijkl,mN")
         self.assertEqual(self.get_answer_from_cells(), "ABCDEF-GH-I JKLN")  # Non-alphabets ignored
         self.verify_cell_has_focus_and_hilite(cells[12])  # Last cell has focus and hilite
+
+    def test_clearing_grid_and_backspace(self):
+        cells = self.get_editable_cells()
+        self.set_answer_input("HYPHENATION")
         self.get_element("//button[text()='CLEAR']").click()  # Click CLEAR btn
         self.verify_cells_empty()
         self.verify_cell_has_focus_and_hilite(cells[0])
