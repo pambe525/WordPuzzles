@@ -1,54 +1,13 @@
 /** Calling script must define variables clueSet and showAnswers */
 
-var sessionTimer = null, btnGroup = null, clueBox = null;
+var btnGroup = null, clueBox = null, sessionProgress = null;
 
 $(document).ready(function () {
     btnGroup = new ClueButtonsGroup("id-clue-btns-group", clueSet, clueBtnClicked).show();
     clueBox = new ClueBox(clueSet, submitClicked, revealClicked);
     btnGroup.click(1);
-    if (activeSession) loadPuzzleSessionState();
+    if (activeSession) sessionProgress = new SessionProgress(activeSession, saveTimer);
 })
-
-window.onfocus = function () {
-    if (sessionTimer) sessionTimer.resume();
-}
-window.onblur = function () {
-    if (sessionTimer) sessionTimer.pause();
-}
-window.onbeforeunload = function () {
-    stopAndSaveTimer();
-}
-
-function loadPuzzleSessionState() {
-    sessionTimer = new SessionTimer("id-timer", activeSession['elapsed_secs']);
-    sessionTimer.start();
-    setScore();
-    setProgress();
-    setCompletionStatus();
-    if (isSessionComplete()) sessionTimer.stop();
-}
-
-function setScore() {
-    $('#id-score').text("Score: " + activeSession['solved_points'] + ' pts')
-}
-
-function setProgress() {
-    let totalPoints = activeSession['total_points'];
-    let solvedPoints = activeSession['solved_points'];
-    let revealedPoints = activeSession['revealed_points'];
-    let solvedBarWidth = Math.round(100 * solvedPoints / totalPoints) + "%";
-    let revealedBarWidth = Math.round(100 * revealedPoints / totalPoints) + "%";
-    $("#id-solved-pts").width(solvedBarWidth).text(solvedPoints + " pts");
-    $("#id-revealed-pts").width(revealedBarWidth).text(revealedPoints + " pts");
-}
-
-function setCompletionStatus() {
-    let completedSection = $("#id-completed");
-    if (isSessionComplete()) {
-        completedSection.show();
-        $("#id-finish-later-btn").hide();
-    } else completedSection.hide();
-}
 
 function clueBtnClicked(clueNum) {
     clueBox.showClue(clueNum);
@@ -67,12 +26,9 @@ function revealClicked(clueNum) {
     request.done(updateAnswerState);
 }
 
-function stopAndSaveTimer() {
-    if (sessionTimer) {
-        let elapsedSecs = sessionTimer.stop();
-        let context = {'session_id': activeSession.session_id, 'elapsed_secs': elapsedSecs};
-        postAjax("timer", context);
-    }
+function saveTimer(elapsedSecs) {
+    let context = {'session_id': activeSession.session_id, 'elapsed_secs': elapsedSecs};
+    postAjax("timer", context);
 }
 
 function postAjax(action, data) {
@@ -88,18 +44,70 @@ function updateAnswerState(json_data) {
     clueSet = JSON.parse(json_data['clues']);
     btnGroup.update(clueSet);
     clueBox.updateClueSet(clueSet);
-    setScore();
-    setProgress();
-    setCompletionStatus();
-    if (isSessionComplete()) stopAndSaveTimer();
+    sessionProgress.update(activeSession);
 }
 
 function answerIncorrect() {
     clueBox.showAnswerIsWrong();
 }
 
-function isSessionComplete() {
-    return (activeSession['total_points'] === activeSession['solved_points'] + activeSession['revealed_points'])
+
+/**--------------------------------------------------------------------------------------------------------------------
+ * SessionProgress
+ */
+class SessionProgress {
+    constructor(activeSession, saveTimerHandler) {
+        this.session = activeSession;
+        this.saveTimerHandler = saveTimerHandler;
+        this.ID = {
+            timer: "#id-timer", score: "#id-score", completedSection: "#id-completed",
+            progress: "#id-progress", solvedPts: "#id-solved-pts", revealedPts: "#id-revealed-pts",
+            finishLaterBtn: "#id-finish-later-btn"
+        };
+        this.timer = new SessionTimer(this.ID.timer, activeSession['elapsed_secs']);
+        this.timer.start();
+        this._setWindowEventHandlers();
+        this.update(activeSession);
+    }
+
+    update(activeSession) {
+        this.session = activeSession;
+        this._setScore();
+        this._setProgressBar();
+        this._setCompletionStatus();
+    }
+
+    _setScore() {
+        this.score = $(this.ID.score).text("Score: " + this.session['solved_points'] + ' pts');
+    }
+
+    _setProgressBar() {
+        let totalPoints = this.session['total_points'];
+        let solvedPoints = this.session['solved_points'];
+        let revealedPoints = this.session['revealed_points'];
+        let solvedBarWidth = Math.round(100 * solvedPoints / totalPoints) + "%";
+        let revealedBarWidth = Math.round(100 * revealedPoints / totalPoints) + "%";
+        $(this.ID.solvedPts).width(solvedBarWidth).text(solvedPoints + " pts");
+        $(this.ID.revealedPts).width(revealedBarWidth).text(revealedPoints + " pts");
+    }
+
+    _setCompletionStatus() {
+        if (this._isSessionComplete()) {
+            $(this.ID.completedSection).show();
+            $(this.ID.finishLaterBtn).hide();
+            this.timer.stop();
+        } else $(this.ID.completedSection).hide();
+    }
+
+    _isSessionComplete() {
+        return (this.session['total_points'] === this.session['solved_points'] + this.session['revealed_points']);
+    }
+
+    _setWindowEventHandlers() {
+        window.onfocus = () => { this.timer.resume(); };
+        window.onblur =  () => { this.timer.pause(); };
+        window.onbeforeunload = () => { this.saveTimerHandler( this.timer.stop() ); };
+    }
 }
 
 /**--------------------------------------------------------------------------------------------------------------------
@@ -148,7 +156,6 @@ class ClueBox {
             this._showAnswerWithParsing(clue);
             this._setAnswerBtns(clue);
         }
-        //if (clue.mode === 'UNSOLVED') this.answerGrid.hiliteFirstCell();
     }
 
     _setAnswerIcons(clue) {
@@ -377,9 +384,9 @@ class AnswerGrid {
  * SessionTimer
  */
 class SessionTimer {
-    constructor(containerId, startingSecs) {
+    constructor(jqContainerId, startingSecs) {
         this.elapsedSecs = startingSecs;
-        this.timerDisplayId = "#" + containerId;
+        this.timerDisplayId = jqContainerId;
         this.intervalTimerId = null;
         this.timerOn = false;
     }
