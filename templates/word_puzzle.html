@@ -18,48 +18,50 @@
                 <hr>
                 <h5 class="mb-0 mt-2"><b>Clues</b></h5>
                 <div class="notetext">Click on a clue number button below to view the clue.</div>
-                <!-- CLUE BUTTONS -->
-                <div class="mt-1 mb-2" id="id-clue-btns-group"></div>
-                <!-- CLUE ROTATOR -->
                 <div class="m-0 row align-items-center">
-                    <!-- LEFT ARROW -->
-                    <button class="pr-2 p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
-                        <i class="fa fa-caret-left fa-3x"></i>
-                    </button>
-                    <!-- CLUE & ANSWER BOX -->
-                    <div class="col p-2 border border-dark rounded-3" style="line-height:18px">
-                        <div class="font-weight-bold mb-2" id="id-clue"></div>
-                        <div id="id-answer-section">
-                            <div class="m-0 row align-items-center">
-                                Answer:
-                                {% if active_session != None %}
-                                    <div class="m-0 row ml-1" id="id-answer-icons">
-                                        <div id="id-check-icon"><i class="fa fa-check text-success"></i></div>
-                                        <div id="id-eye-icon"><i class="fa fa-eye text-secondary"></i></div>
-                                        <div id="id-wrong-icon"><i class="fa fa-times text-danger"></i></div>
-                                        <div class="ml-1" id="id-answer-msg">[2 pts]</div>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div id="id-answer"></div>
+                    <!-- CLUE BUTTONS -->
+                    <div class="col mt-1 mb-2 p-0" id="id-clue-btns-group">
+
+                    </div>
+                    <div class="align-items-top">
+                        <!-- LEFT ARROW -->
+                        <button class="p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
+                            <i class="fa fa-arrow-circle-left fa-lg"></i>
+                        </button>
+                        <!-- RIGHT ARROW -->
+                        <button class="p-0 btn" title="Next clue" id="id-right-caret" onclick="nextClue();">
+                            <i class="fa fa-arrow-circle-right fa-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- CLUE & ANSWER BOX -->
+                <div class="col p-2 border border-secondary mt-1" style="line-height:18px">
+                    <div class="font-weight-bold mb-2" id="id-clue"></div>
+                    <div id="id-answer-section">
+                        <div class="m-0 row align-items-center">
+                            Answer:
                             {% if active_session != None %}
-                                <div class="m-0 row mt-2" id="id-answer-btns">
-                                    <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn"
-                                            onclick='submitClicked();'>SUBMIT</button>
-                                    <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn"
-                                            onclick='clearClicked();'>CLEAR</button>
-                                    <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn"
-                                            onclick='revealClicked();'>REVEAL</button>
+                                <div class="m-0 row ml-1" id="id-answer-icons">
+                                    <div id="id-check-icon"><i class="fa fa-check text-success"></i></div>
+                                    <div id="id-eye-icon"><i class="fa fa-eye text-secondary"></i></div>
+                                    <div id="id-wrong-icon"><i class="fa fa-times text-danger"></i></div>
+                                    <div class="ml-1" id="id-answer-msg">[2 pts]</div>
                                 </div>
                             {% endif %}
-                            <div class="mt-1" id="id-parsing"></div>
                         </div>
+                        <div id="id-answer"></div>
+                        {% if active_session != None %}
+                            <div class="m-0 row mt-2" id="id-answer-btns">
+                                <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn"
+                                        onclick='submitClicked();'>SUBMIT</button>
+                                <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn"
+                                        onclick='clearClicked();'>CLEAR</button>
+                                <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn"
+                                        onclick='revealClicked();'>REVEAL</button>
+                            </div>
+                        {% endif %}
+                        <div class="mt-1" id="id-parsing"></div>
                     </div>
-
-                    <!-- RIGHT ARROW -->
-                    <button class="pl-2 p-0 btn" title="Next clue" id="id-right-caret" onclick="nextClue();">
-                        <i class="fa fa-caret-right fa-3x"></i>
-                    </button>
                 </div>
             {% endif %}
             {% if active_session == None %}

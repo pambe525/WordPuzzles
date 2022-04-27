@@ -53,6 +53,8 @@ function setCompletionStatus() {
     } else completedSection.hide();
 }
 
+//======
+
 function showClueAndAnswer(clickedClueNum) {
     activeClueNum = clickedClueNum;
     let clue = clueSet[clickedClueNum - 1];
@@ -68,30 +70,6 @@ function showAnswerByClueMode(clue) {
         setAnswerBtns(clue);
     }
     if (clue.mode === 'UNSOLVED') $("#id-answer div div:first-child").click();
-}
-
-function setAnswerIcons(clue) {
-    $("#id-answer-icons").children().hide();
-    if (clue.mode === "SOLVED") {
-        $("#id-check-icon").show();
-        $("#id-answer-msg").text("[" + clue.points + " pts]").show();
-    } else if (clue.mode === "REVEALED") {
-        $("#id-eye-icon").show();
-        $("#id-answer-msg").text("[0 pts]").show();
-    }
-}
-
-function showAnswerWithParsing(clue) {
-    let isEditable = (clue.mode === 'UNSOLVED');
-    answerGrid = new AnswerGrid("id-answer", clue.answer, isEditable);
-    answerGrid.show();
-    if (clue.parsing === '' || clue.parsing === null) $('#id-parsing').hide();
-    else $('#id-parsing').empty().text("Parsing: " + clue.parsing).show();
-}
-
-function setAnswerBtns(clue) {
-    if (clue.mode === 'UNSOLVED') $("#id-answer-btns").show();
-    else $("#id-answer-btns").hide();
 }
 
 function nextClue() {
@@ -157,67 +135,77 @@ function revealClicked() {
     request.done(updateAnswerState);
 }
 
-function clearClicked() {
-    answerGrid.clear();
-    $("#id-wrong-icon").hide();
-    $("#id-answer-msg").empty().hide();
-}
-
 function isSessionComplete() {
     return (activeSession['total_points'] === activeSession['solved_points'] + activeSession['revealed_points'])
 }
 
 /**--------------------------------------------------------------------------------------------------------------------
- * ClueRotator
+ * ClueBox
  */
-class ClueRotator {
-    constructor(containerId, clueSet, activeSession) {
-        this.containerId = containerId;
-        this._build();
+class ClueBox {
+    constructor(clueSet, activeSession) {
+        this.clueSet = clueSet;
+        this.activeSession = activeSession;
+        this.answerGrid = null;
+        this.ID = { clueText: "#id-clue", answerSection: "#id-answer-section", answerIcons: "#id-answer-icons",
+            checkIcon: "#id-check-icon", eyeIcon: "#id-eye-icon", wrongIcon: "#id-wrong-icon", answerMsg: "#id-answer-msg",
+            answerText: "#id-answer", parsing: "#id-parsing", submitBtn: "#id-submit-btn", clearBtn: "#id-clear-btn",
+            revealBtn: "#id-reveal-btn", answerBtns: "#id-answer-btns" };
+        if ( $(this.ID.submitBtn) ) $(this.ID.submitBtn).on('click', this._submitBtnClicked);
+        if ( $(this.ID.clearBtn) ) $(this.ID.clearBtn).on('click', this._clearBtnClicked);
+        if ( $(this.ID.revealBtn) ) $(this.ID.revealBtn).on('click', this._revealBtnClicked);
     }
 
-    _build() {
-
+    showClue(clueNum) {
+        let clue = this.clueSet[clueNum-1];
+        this.ID.clueText.text(this._getFullClueDesc(clue));
+        this._showAnswerByClueMode(clue);
     }
 
-    _getLeftArrowButton() {
-        $("<button>").addClass("pr-2 p-0 btn").title("Previous Clue").attr("id", "id-left-caret")
+    _showAnswerByClueMode(clue) {
+        if (clue.mode === 'PRESOLVE') $(this.ID.answerSection).hide();
+        else {
+            this._setAnswerIcons(clue);
+            this._showAnswerWithParsing(clue);
+            this._setAnswerBtns(clue);
+        }
+        //if (clue.mode === 'UNSOLVED') this.answerGrid.click();
     }
 
-                    //
-                    //     <!-- LEFT ARROW -->
-                    // <button class="pr-2 p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
-                    //     <i class="fa fa-caret-left fa-3x"></i>
-                    // </button>
-                    // <!-- CLUE & ANSWER BOX -->
-                    // <div class="col p-2 border border-dark rounded-3" style="line-height:18px">
-                    //     <div class="font-weight-bold mb-2" id="id-clue"></div>
-                    //     <div id="id-answer-section">
-                    //         <div class="m-0 row align-items-center">
-                    //             Answer:
-                    //             {% if active_session != None %}
-                    //                 <div class="m-0 row ml-1" id="id-answer-icons">
-                    //                     <div id="id-check-icon"><i class="fa fa-check text-success"></i></div>
-                    //                     <div id="id-eye-icon"><i class="fa fa-eye text-secondary"></i></div>
-                    //                     <div id="id-wrong-icon"><i class="fa fa-times text-danger"></i></div>
-                    //                     <div class="ml-1" id="id-answer-msg">[2 pts]</div>
-                    //                 </div>
-                    //             {% endif %}
-                    //         </div>
-                    //         <div id="id-answer"></div>
-                    //         {% if active_session != None %}
-                    //             <div class="m-0 row mt-2" id="id-answer-btns">
-                    //                 <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn"
-                    //                         onclick='submitClicked();'>SUBMIT</button>
-                    //                 <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn"
-                    //                         onclick='clearClicked();'>CLEAR</button>
-                    //                 <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn"
-                    //                         onclick='revealClicked();'>REVEAL</button>
-                    //             </div>
-                    //         {% endif %}
-                    //         <div class="mt-1" id="id-parsing"></div>
-                    //     </div>
-                    //
+    _setAnswerIcons(clue) {
+        $(this.ID.answerIcons).children().hide();
+        if (clue.mode === "SOLVED") {
+            $(this.ID.checkIcon).show();
+            $(this.ID.answerMsg).text("[" + clue.points + " pts]").show();
+        } else if (clue.mode === "REVEALED") {
+            $(this.ID.eyeIcon).show();
+            $(this.ID.answerMsg).text("[0 pts]").show();
+        }
+    }
+
+    _showAnswerWithParsing(clue) {
+        let isEditable = (clue.mode === 'UNSOLVED');
+        this.answerGrid = new AnswerGrid(clue.answer, isEditable).show(this.ID.answerText);
+        if (clue.parsing === '' || clue.parsing === null) $(this.ID.parsing).hide();
+        else $(this.ID.parsing).empty().text("Parsing: " + clue.parsing).show();
+    }
+
+    _setAnswerBtns(clue) {
+        if (clue.mode === 'UNSOLVED') $(this.ID.answerBtns).show();
+        else $(this.ID.answerBtns).hide();
+    }
+
+    _getFullClueDesc(clue) {
+        return clueNum + ". " + clue['clue_text'] + " [" + clue['points'] + " pts]";
+    }
+
+    _submitBtnClicked = () => {}
+    _clearBtnClicked = () => {
+        this.answerGrid.clear();
+        $(this.ID.wrongIcon).hide();
+        $(this.ID.answerMsg).empty().hide();
+    }
+    _revealBtnClicked = () => {}
 }
 
 /**--------------------------------------------------------------------------------------------------------------------
@@ -301,16 +289,16 @@ class ClueButtonsGroup {
  * AnswerGrid
  */
 class AnswerGrid {
-    constructor(containerId, answerText, isEditable) {
-        this.gridDisplayId = "#" + containerId;
+    constructor(answerText, isEditable) {
         this.answer = answerText;
         this.isEditable = isEditable;
         this.grid = this._createGrid();
     }
 
-    show() {
-        $(this.gridDisplayId).empty().append(this.grid).show();
+    show(jqContainerId) {
+        $(jqContainerId).empty().append(this.grid).show();
         this._setEditFocusOnFirstCell();
+        return this;
     }
 
     clear() {
@@ -333,7 +321,7 @@ class AnswerGrid {
 
     _getCellAsDiv(hasBorder) {
         let cell = $("<div>").addClass('d-inline-block text-center').width('18px').height('18px');
-        cell.css('font-size', '13px').css('font-weight', 'bold').css('caret-color', 'transparent');
+        cell.css('font-size', '13px').css('caret-color', 'transparent');
         if (hasBorder) cell.addClass('border border-secondary');
         return cell;
     }
