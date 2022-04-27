@@ -25,11 +25,11 @@
                     </div>
                     <div class="align-items-top">
                         <!-- LEFT ARROW -->
-                        <button class="p-0 btn" title="Previous clue" id="id-left-caret" onclick="prevClue();">
+                        <button class="p-0 btn" title="Previous clue" id="id-left-caret">
                             <i class="fa fa-arrow-circle-left fa-lg"></i>
                         </button>
                         <!-- RIGHT ARROW -->
-                        <button class="p-0 btn" title="Next clue" id="id-right-caret" onclick="nextClue();">
+                        <button class="p-0 btn" title="Next clue" id="id-right-caret">
                             <i class="fa fa-arrow-circle-right fa-lg"></i>
                         </button>
                     </div>
@@ -52,12 +52,9 @@
                         <div id="id-answer"></div>
                         {% if active_session != None %}
                             <div class="m-0 row mt-2" id="id-answer-btns">
-                                <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn"
-                                        onclick='submitClicked();'>SUBMIT</button>
-                                <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn"
-                                        onclick='clearClicked();'>CLEAR</button>
-                                <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn"
-                                        onclick='revealClicked();'>REVEAL</button>
+                                <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn">SUBMIT</button>
+                                <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn">CLEAR</button>
+                                <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn">REVEAL</button>
                             </div>
                         {% endif %}
                         <div class="mt-1" id="id-parsing"></div>
