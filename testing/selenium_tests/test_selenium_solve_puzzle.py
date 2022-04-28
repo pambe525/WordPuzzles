@@ -2,7 +2,7 @@ import time
 
 from selenium.webdriver import Keys
 
-from puzzles.models import WordPuzzle
+from puzzles.models import WordPuzzle, PuzzleSession
 from testing.data_setup_utils import create_published_puzzle, create_session, get_full_clue_desc, create_user
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 
@@ -154,26 +154,34 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.assert_is_displayed("//a[@id='id-finish-later-btn']")
         self.assert_is_not_displayed("//div[@id='id-completed']")
 
-    def test_correct_answer_submit_sets_solved_state(self):
+    def test_correct_answer_submit_sets_solved_state_and_saves_timer(self):
         self.do_click("//button[@id='clue-btn-2']")  # Click on 2nd clue btn
         self.set_answer_input(self.clues[1].answer)
+        time.sleep(1)
         self.do_click("//button[@id='id-submit-btn']")
+        self.verify_timer("00:05:01s")                 # Timer snapshot saved when answer is submited
         self.wait_until_invisible("//button[@id='id-submit-btn']")
         self.verify_clue_btn_has_state(2, "solved")
         self.verify_answer_state_as_solved(self.clues[1])
         self.verify_score(8)
         self.verify_progress_bars(62, 15)
         self.assert_is_not_displayed("//div[@id='id-completed']")
+        saved_secs = PuzzleSession.objects.get(puzzle=self.puzzle, solver=self.user).elapsed_seconds
+        self.assertEqual(saved_secs, 301)
 
-    def test_reveal_answer_submit_sets_revealed_state(self):
+    def test_reveal_answer_submit_sets_revealed_state_and_saves_timer(self):
         self.do_click("//button[@id='clue-btn-2']")  # Click on 2nd clue btn
+        time.sleep(1)
         self.do_click("//button[@id='id-reveal-btn']")  # Reveal first clue (default)
+        self.verify_timer("00:05:01s")                 # Timer snapshot saved when answer is submited
         self.wait_until_invisible("//button[@id='id-reveal-btn']")
         self.verify_clue_btn_has_state(2, "revealed")
         self.verify_answer_state_as_revealed(self.clues[1])
         self.verify_score(6)
         self.verify_progress_bars(46, 31)
         self.assert_is_not_displayed("//div[@id='id-completed']")
+        saved_secs = PuzzleSession.objects.get(puzzle=self.puzzle, solver=self.user).elapsed_seconds
+        self.assertEqual(saved_secs, 301)
 
     def test_incorrect_answer_submit_sets_incorrect_state(self):
         self.do_click("//button[@id='clue-btn-2']")  # Click on 2nd clue btn
@@ -232,6 +240,7 @@ class SessionTimerTests(SolveSessionTestCaseHelper):
         self.verify_timer("00:05:02s")
         time.sleep(3)
         self.verify_timer("00:05:02s")
+
 
 class AnswerGridEditingTests(SolveSessionTestCaseHelper):
     def setUp(self):

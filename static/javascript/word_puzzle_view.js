@@ -44,6 +44,7 @@ class WordPuzzlePageView {
         this.btnGroup.update(this.clueSet);
         this.clueBox.updateClueSet(this.clueSet);
         this.sessionProgress.update(this.session);
+        this._saveTimer(this.sessionProgress.getElapsedSecs());
     }
 
     _answerIncorrect = () => {
@@ -75,6 +76,10 @@ class SessionProgress {
         this._setScore();
         this._setProgressBar();
         this._setCompletionStatus();
+    }
+
+    getElapsedSecs() {
+        return this.timer.elapsedSecs;
     }
 
     _setScore() {
