@@ -151,7 +151,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.verify_answer_state_for_clue(self.clues[1], 'unsolved')  # UNSOLVED clue #2
         self.verify_score(6)
         self.verify_progress_bars(46, 15)
-        self.assert_is_displayed("//button[@id='id-finish-later-btn']")
+        self.assert_is_displayed("//a[@id='id-finish-later-btn']")
         self.assert_is_not_displayed("//div[@id='id-completed']")
 
     def test_correct_answer_submit_sets_solved_state(self):
@@ -209,7 +209,7 @@ class SessionTimerTests(SolveSessionTestCaseHelper):
         self.verify_timer("00:05:00s")
         time.sleep(2)
         # FINISH LATER button unloads page and saves timer @ 00:05:02s
-        self.do_click("//button[@id='id-finish-later-btn']")
+        self.do_click("//a[@id='id-finish-later-btn']")
         time.sleep(2)
         self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
         # Saved value should be relaoded
@@ -226,7 +226,7 @@ class SessionTimerTests(SolveSessionTestCaseHelper):
         time.sleep(3)
         self.verify_timer("00:05:02s")
         self.assert_is_displayed("//div[@id='id-completed']")
-        self.assert_is_not_displayed("//button[@id='id-finish-later-btn']")
+        self.assert_is_not_displayed("//a[@id='id-finish-later-btn']")
         # Page reload should retrieve last saved timer setting
         self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
         self.verify_timer("00:05:02s")

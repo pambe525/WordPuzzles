@@ -107,13 +107,13 @@ class SessionProgress {
     _setWindowEventHandlers() {
         window.onfocus = () => {
             this.timer.resume();
-        };
+        }
         window.onblur = () => {
             this.timer.pause();
-        };
+        }
         window.onbeforeunload = () => {
             this.saveTimerHandler(this.timer.stop());
-        };
+        }
     }
 }
 
