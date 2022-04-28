@@ -1,56 +1,55 @@
-/** Calling script must define variables clueSet and showAnswers */
+class WordPuzzlePageView {
+    constructor(clueSet, activeSession) {
+        this.clueSet = clueSet;
+        this.session = activeSession;
+        this.btnGroup = new ClueButtonsGroup("id-clue-btns-group", clueSet, this._clueBtnClicked).show();
+        this.clueBox = new ClueBox(clueSet, this._submitClicked, this._revealClicked);
+        this.btnGroup.click(1);
+        if (activeSession) this.sessionProgress = new SessionProgress(activeSession, this._saveTimer);
+    }
 
-var btnGroup = null, clueBox = null, sessionProgress = null;
+    _clueBtnClicked = (clueNum) => {
+        this.clueBox.showClue(clueNum);
+    }
 
-$(document).ready(function () {
-    btnGroup = new ClueButtonsGroup("id-clue-btns-group", clueSet, clueBtnClicked).show();
-    clueBox = new ClueBox(clueSet, submitClicked, revealClicked);
-    btnGroup.click(1);
-    if (activeSession) sessionProgress = new SessionProgress(activeSession, saveTimer);
-})
+    _submitClicked = (clueNum, answerInput) => {
+        let context = {'session_id': this.session.session_id, 'clue_num': clueNum, 'answer_input': answerInput};
+        let request = this._postAjax('solve', context);
+        request.done(this._updateAnswerState);
+        request.fail(this._answerIncorrect);
+    }
 
-function clueBtnClicked(clueNum) {
-    clueBox.showClue(clueNum);
+    _revealClicked = (clueNum) => {
+        let context = {'session_id': this.session.session_id, 'clue_num': clueNum};
+        let request = this._postAjax('reveal', context);
+        request.done(this._updateAnswerState);
+    }
+
+    _saveTimer = (elapsedSecs) => {
+        let context = {'session_id': this.session.session_id, 'elapsed_secs': elapsedSecs};
+        this._postAjax("timer", context);
+    }
+
+    _postAjax(action, data) {
+        return $.ajax({
+            method: "POST",
+            dataType: "json",
+            data: {'action': action, 'data': JSON.stringify(data)},
+        });
+    }
+
+    _updateAnswerState = (json_data) => {
+        this.session = json_data['active_session'];
+        this.clueSet = JSON.parse(json_data['clues']);
+        this.btnGroup.update(this.clueSet);
+        this.clueBox.updateClueSet(this.clueSet);
+        this.sessionProgress.update(this.session);
+    }
+
+    _answerIncorrect = () => {
+        this.clueBox.showAnswerIsWrong();
+    }
 }
-
-function submitClicked(clueNum, answerInput) {
-    let context = {'session_id': activeSession.session_id, 'clue_num': clueNum, 'answer_input': answerInput};
-    let request = postAjax('solve', context);
-    request.done(updateAnswerState);
-    request.fail(answerIncorrect);
-}
-
-function revealClicked(clueNum) {
-    let context = {'session_id': activeSession.session_id, 'clue_num': clueNum};
-    let request =postAjax('reveal', context);
-    request.done(updateAnswerState);
-}
-
-function saveTimer(elapsedSecs) {
-    let context = {'session_id': activeSession.session_id, 'elapsed_secs': elapsedSecs};
-    postAjax("timer", context);
-}
-
-function postAjax(action, data) {
-    return $.ajax({
-        method: "POST",
-        dataType: "json",
-        data: {'action': action, 'data': JSON.stringify(data)},
-    });
-}
-
-function updateAnswerState(json_data) {
-    activeSession = json_data['active_session'];
-    clueSet = JSON.parse(json_data['clues']);
-    btnGroup.update(clueSet);
-    clueBox.updateClueSet(clueSet);
-    sessionProgress.update(activeSession);
-}
-
-function answerIncorrect() {
-    clueBox.showAnswerIsWrong();
-}
-
 
 /**--------------------------------------------------------------------------------------------------------------------
  * SessionProgress
@@ -104,9 +103,15 @@ class SessionProgress {
     }
 
     _setWindowEventHandlers() {
-        window.onfocus = () => { this.timer.resume(); };
-        window.onblur =  () => { this.timer.pause(); };
-        window.onbeforeunload = () => { this.saveTimerHandler( this.timer.stop() ); };
+        window.onfocus = () => {
+            this.timer.resume();
+        };
+        window.onblur = () => {
+            this.timer.pause();
+        };
+        window.onbeforeunload = () => {
+            this.saveTimerHandler(this.timer.stop());
+        };
     }
 }
 
@@ -279,7 +284,6 @@ class ClueButtonsGroup {
         return list;
     }
 }
-
 
 /**--------------------------------------------------------------------------------------------------------------------
  * AnswerGrid

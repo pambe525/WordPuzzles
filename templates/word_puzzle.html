@@ -116,6 +116,8 @@
             {% endif %}
         </div>
     </div>
+    {% load static %}
+    <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>
     <script>
         var clueSet = {{ clues | safe }};
         var activeSession = {{ active_session | default_if_none:'null' | safe }};
@@ -124,7 +126,8 @@
             data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
         });
 
+        $(document).ready(function () {
+            new WordPuzzlePageView(clueSet, activeSession);
+        })
     </script>
-    {% load static %}
-    <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>
 {% endblock %}
