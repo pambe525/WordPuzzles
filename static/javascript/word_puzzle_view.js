@@ -63,6 +63,7 @@ class SessionProgress {
             progress: "#id-progress", solvedPts: "#id-solved-pts", revealedPts: "#id-revealed-pts",
             finishLaterBtn: "#id-finish-later-btn"
         };
+        this.isCompleteOnLoad = this._isSessionComplete();
         this.timer = new SessionTimer(this.ID.timer, activeSession['elapsed_secs']);
         this.timer.start();
         this._setWindowEventHandlers();
@@ -94,7 +95,8 @@ class SessionProgress {
         if (this._isSessionComplete()) {
             $(this.ID.completedSection).show();
             $(this.ID.finishLaterBtn).hide();
-            this.timer.stop();
+            let elapsedSecs = this.timer.stop();
+            if (!this.isCompleteOnLoad) this.saveTimerHandler(elapsedSecs);
         } else $(this.ID.completedSection).hide();
     }
 
