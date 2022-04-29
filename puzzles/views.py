@@ -300,8 +300,6 @@ class PuzzleScoreView(LoginRequiredMixin, View):
         else:
             if not puzzle.is_published():
                 err_msg = "This puzzle is not published."
-            elif len(sessions) == 0:
-                err_msg = "This puzzle has no solve sessions."
             else:
                 score_data = self.get_session_score_data(sessions)
         if err_msg is not None:

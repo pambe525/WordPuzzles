@@ -30,9 +30,9 @@ class PuzzleScoreViewTests(TestCase):
         response = self.client.get("/puzzle_score/" + str(unpublished_puzzle.id) + "/")
         self.verify_error_msg_in_response(response, unpublished_puzzle.id, "This puzzle is not published.")
 
-    def test_shows_error_if_puzzle_has_no_sessions(self):
+    def test_response_contains_empty_scores_list_if_puzzle_has_no_sessions(self):
         response = self.client.get("/puzzle_score/" + str(self.puzzle.id) + "/")
-        self.verify_error_msg_in_response(response, self.puzzle.id, "This puzzle has no solve sessions.")
+        self.assertIsNone(response.context['scores'])
 
     def test_response_contains_session_score_data_in_desc_order_of_scores(self):
         session1 = create_session(solver=self.user, puzzle=self.puzzle, solved_clues="1,2,4",
