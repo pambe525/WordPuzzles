@@ -36,7 +36,6 @@ class Puzzle(models.Model):
 
 class WordPuzzle(models.Model):
     TYPE_CHOICES = [(0, "Non-cryptic Clues"), (1, "Cryptic Clues")]
-    # INTEGER_CHOICES = [tuple([x, x]) for x in range(5, 26)]clear
     editor = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=1)
     desc = models.TextField(null=True, blank=True)
@@ -142,6 +141,7 @@ class PuzzleSession(models.Model):
     solver = models.ForeignKey(User, on_delete=models.CASCADE)
     solved_clue_nums = models.CharField(null=True, validators=[validate_comma_separated_integer_list], max_length=100)
     revealed_clue_nums = models.CharField(null=True, validators=[validate_comma_separated_integer_list], max_length=100)
+    score = models.IntegerField(default=0)
     elapsed_seconds = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     modified_at = models.DateTimeField(auto_now=True, editable=False)
@@ -175,7 +175,7 @@ class PuzzleSession(models.Model):
         points = self.get_clue_points()
         sum = 0
         for clue_num in solved:
-            sum += points[clue_num-1]
+            sum += points[clue_num - 1]
         return sum
 
     def get_revealed_points(self):
@@ -183,18 +183,25 @@ class PuzzleSession(models.Model):
         points = self.get_clue_points()
         sum = 0
         for clue_num in revealed:
-            sum += points[clue_num-1]
+            sum += points[clue_num - 1]
         return sum
 
     def add_solved_clue_num(self, clue_num):
         if clue_num not in self.get_solved_clue_nums() and clue_num not in self.get_revealed_clue_nums():
-            if self.solved_clue_nums is None: self.solved_clue_nums = str(clue_num)
-            else: self.solved_clue_nums += ',' + str(clue_num)
+            if self.solved_clue_nums is None:
+                self.solved_clue_nums = str(clue_num)
+            else:
+                self.solved_clue_nums += ',' + str(clue_num)
             self.save(update_fields=['solved_clue_nums'])
 
     def add_revealed_clue_num(self, clue_num):
         if clue_num not in self.get_revealed_clue_nums() and clue_num not in self.get_solved_clue_nums():
-            if self.revealed_clue_nums is None: self.revealed_clue_nums = str(clue_num)
+            if self.revealed_clue_nums is None:
+                self.revealed_clue_nums = str(clue_num)
             else:
                 self.revealed_clue_nums += ',' + str(clue_num)
             self.save(update_fields=['revealed_clue_nums'])
+
+    def save(self, *args, **kwargs):
+        self.score = self.get_solved_points()
+        super(PuzzleSession, self).save(*args, **kwargs)

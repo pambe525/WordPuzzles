@@ -3,8 +3,10 @@ from django.utils.timezone import now
 
 from puzzles.models import WordPuzzle, PuzzleSession
 
+
 def create_user(username='test_user', password='secret_key', email='user@test.com'):
     return User.objects.create_user(username=username, email=email, password=password)
+
 
 def create_draft_puzzle(editor=None, desc=None, type=0, clues_pts=None, has_parsing=False):
     if clues_pts is None: clues_pts = [1]
@@ -18,13 +20,16 @@ def create_draft_puzzle(editor=None, desc=None, type=0, clues_pts=None, has_pars
              'parsing': parsing, 'points': clues_pts[n - 1]})
     return puzzle
 
+
 def create_published_puzzle(editor=None, desc=None, type=0, posted_on=now(), clues_pts=None, has_parsing=False):
     puzzle = create_draft_puzzle(editor=editor, desc=desc, type=type, clues_pts=clues_pts, has_parsing=has_parsing)
     puzzle.publish(time_stamp=posted_on)
     return puzzle
 
+
 def get_full_clue_desc(clue):
     return str(clue.clue_num) + ". " + clue.get_decorated_clue_text() + " [" + str(clue.points) + " pts]"
+
 
 def create_session(solver=None, puzzle=None, solved_clues=None, revealed_clues=None, elapsed_secs=0):
     return PuzzleSession.objects.create(solver=solver, puzzle=puzzle, solved_clue_nums=solved_clues,

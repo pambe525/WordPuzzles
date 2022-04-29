@@ -222,13 +222,12 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
         if mode == 'PREVIEW' or mode == 'SOLVED' or mode == 'REVEALED':
             clue_dict.update({'answer': clue.answer, 'parsing': clue.parsing, 'mode': mode})
         else:
-            masked_answer = re.sub("[a-zA-Z]","*", clue.answer)
-            clue_dict.update({'answer': masked_answer , 'parsing': '', 'mode': mode})
+            masked_answer = re.sub("[a-zA-Z]", "*", clue.answer)
+            clue_dict.update({'answer': masked_answer, 'parsing': '', 'mode': mode})
         return clue_dict
 
 
 class SolvePuzzleView(PreviewPuzzleView):
-
     solve_session = None
 
     def get(self, request, *args, **kwargs):
@@ -250,8 +249,10 @@ class SolvePuzzleView(PreviewPuzzleView):
             clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
             if request.POST['action'] == 'solve':
                 answer_input = request_data['answer_input']
-                if clue.answer == answer_input: self.solve_session.add_solved_clue_num(clue.clue_num)
-                else: raise AssertionError("Incorrect answer")
+                if clue.answer == answer_input:
+                    self.solve_session.add_solved_clue_num(clue.clue_num)
+                else:
+                    raise AssertionError("Incorrect answer")
             elif request.POST['action'] == 'reveal':
                 self.solve_session.add_revealed_clue_num(clue.clue_num)
         return self.get_json_response()
@@ -275,39 +276,45 @@ class SolvePuzzleView(PreviewPuzzleView):
         revealed_clue_nums = self.solve_session.get_revealed_clue_nums()
         clues_list = []
         for clue in clues:
-            if clue.clue_num in solved_clue_nums: mode = 'SOLVED'
-            elif clue.clue_num in revealed_clue_nums: mode = 'REVEALED'
-            else: mode = 'UNSOLVED'
+            if clue.clue_num in solved_clue_nums:
+                mode = 'SOLVED'
+            elif clue.clue_num in revealed_clue_nums:
+                mode = 'REVEALED'
+            else:
+                mode = 'UNSOLVED'
             clue_dict = self.get_clue_as_dict(clue, mode=mode)
             clues_list.append(clue_dict)
         return clues_list
+
 
 class PuzzleScoreView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
         err_msg = None
-        scores = None
+        score_data = None
         try:
             puzzle = WordPuzzle.objects.get(id=pk)
-            sessions = PuzzleSession.objects.filter(puzzle=puzzle)
-        except WordPuzzle.DoesNotExist: err_msg = "This puzzle does not exist."
+            sessions = PuzzleSession.objects.filter(puzzle=puzzle).order_by("-score")
+        except WordPuzzle.DoesNotExist:
+            err_msg = "This puzzle does not exist."
         else:
-            if not puzzle.is_published(): err_msg = "This puzzle is not published."
-            elif len(sessions) == 0: err_msg = "This puzzle has no solve sessions."
+            if not puzzle.is_published():
+                err_msg = "This puzzle is not published."
+            elif len(sessions) == 0:
+                err_msg = "This puzzle has no solve sessions."
             else:
-                scores = []
-                for session in sessions:
-                    total_points = session.puzzle.total_points
-                    solved_points = session.get_solved_points()
-                    revealed_points = session.get_revealed_points()
-                    scores.append({'user': str(session.solver), 'elapsed_secs': session.elapsed_seconds,
-                            'score': solved_points,
-                            'perc_solved': round(100*solved_points/total_points),
-                            'perc_revealed': round(100*revealed_points/total_points),
-                            'modified_at': session.modified_at
-                            })
-
+                score_data = self.get_session_score_data(sessions)
         if err_msg is not None:
-            return render(request, "puzzle_error.html", context={'err_msg':err_msg, 'id':pk})
+            return render(request, "puzzle_error.html", context={'err_msg': err_msg, 'id': pk})
         else:
-            return render(request, "puzzle_score.html", context={'err_msg':err_msg, 'id':pk, 'scores': scores})
+            return render(request, "puzzle_score.html", context={'err_msg': err_msg, 'id': pk, 'scores': score_data})
+
+    def get_session_score_data(self, sessions):
+        scores = []
+        for session in sessions:
+            total_points = session.puzzle.total_points
+            perc_solved = round(100 * session.score / total_points)
+            perc_revealed = round(100 * session.get_revealed_points() / total_points)
+            scores.append({'user': str(session.solver), 'elapsed_secs': session.elapsed_seconds, 'score': session.score,
+                    'perc_solved': perc_solved, 'perc_revealed': perc_revealed,'modified_at': session.modified_at})
+            return scores
