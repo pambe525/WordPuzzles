@@ -145,7 +145,7 @@ class DeletePuzzleViewTests(TestCase):
         new_puzzle = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get("/delete_puzzle_confirm/" + str(new_puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("delete_confirm.html")
+        self.assertTemplateUsed(response, "delete_confirm.html")
         self.assertContains(response, "Delete Puzzle #1")
         self.assertContains(response, "This puzzle and all associated clues will be permanently")
         self.assertContains(response, "DELETE")
@@ -156,7 +156,7 @@ class DeletePuzzleViewTests(TestCase):
         new_puzzle = WordPuzzle.objects.create(editor=other_user)
         response = self.client.get("/delete_puzzle_confirm/" + str(new_puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #1")
         self.assertContains(response, "This operation is not permitted")
         self.assertContains(response, "OK")
@@ -172,7 +172,7 @@ class DeletePuzzleViewTests(TestCase):
         WordPuzzle.objects.create(editor=self.user)
         response = self.client.post("/delete_puzzle_confirm/1/")
         self.assertEqual(response.status_code, 302)
-        self.assertTemplateUsed("home.html")
+        self.assertEqual(response.url, "/")
         self.assertFalse(WordPuzzle.objects.filter(id=1).exists())
 
 
@@ -196,7 +196,7 @@ class EditClueViewTests(TestCase):
         puzzle = WordPuzzle.objects.create(editor=other_user)
         response = self.client.get("/new_clue/" + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
         self.assertContains(response, "This operation is not permitted since you are not the editor.")
         self.assertContains(response, "OK")
@@ -207,7 +207,7 @@ class EditClueViewTests(TestCase):
         puzzle.add_clue({'answer': 'TEST', 'clue_text': 'Clue text desc', 'parsing': '', 'points': 1})
         response = self.client.get("/edit_clue/" + str(puzzle.id) + "/1/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Clue 1 for Puzzle #" + str(puzzle.id))
         self.assertContains(response, "This operation is not permitted since you are not the editor.")
         self.assertContains(response, "OK")
@@ -215,7 +215,7 @@ class EditClueViewTests(TestCase):
     def test_GET_new_clue_raises_error_message_if_puzzle_id_does_not_exist(self):
         response = self.client.get("/new_clue/5/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #5")
         self.assertContains(response, "This puzzle does not exist.")
         self.assertContains(response, "OK")
@@ -223,7 +223,7 @@ class EditClueViewTests(TestCase):
     def test_GET_edit_clue_raises_error_message_if_puzzle_id_does_not_exist(self):
         response = self.client.get("/edit_clue/5/1/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #5")
         self.assertContains(response, "This puzzle does not exist.")
         self.assertContains(response, "OK")
@@ -232,7 +232,7 @@ class EditClueViewTests(TestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get("/edit_clue/" + str(puzzle.id) + "/1/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
         self.assertContains(response, "This clue does not exist.")
         self.assertContains(response, "OK")
@@ -318,7 +318,7 @@ class DeleteClueViewTests(TestCase):
         clue = puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
         response = self.client.get("/delete_clue_confirm/" + str(puzzle.id) + '/' + str(clue.clue_num) + '/')
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("delete_confirm.html")
+        self.assertTemplateUsed(response, "delete_confirm.html")
         self.assertContains(response, "Delete Clue 1 for Puzzle #1")
         self.assertContains(response, "This clue will be permanently deleted")
         self.assertContains(response, "DELETE")
@@ -330,7 +330,7 @@ class DeleteClueViewTests(TestCase):
         puzzle.add_clue({'answer': 'SECRET', 'clue_text': 'some clue', 'parsing': '', 'points': 1})
         response = self.client.get("/delete_clue_confirm/" + str(puzzle.id) + "/1/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Clue 1 for Puzzle #1")
         self.assertContains(response, "This operation is not permitted since you are not the editor.")
         self.assertContains(response, "OK")
@@ -338,7 +338,7 @@ class DeleteClueViewTests(TestCase):
     def test_GET_shows_error_if_puzzle_or_clue_does_not_exist(self):
         response = self.client.get("/delete_clue_confirm/1/1/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Clue 1 for Puzzle #1")
         self.assertContains(response, "This puzzle does not exist.")
         self.assertContains(response, "OK")
@@ -397,7 +397,7 @@ class PublishPuzzleViewTest(TestCase):
     def test_GET_shows_error_if_puzzle_does_not_exist(self):
         response = self.client.get("/publish_puzzle/50/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #50")
         self.assertContains(response, "This puzzle does not exist.")
         self.assertContains(response, "OK")
@@ -426,7 +426,7 @@ class PublishPuzzleViewTest(TestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("/puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
         self.assertContains(response, "No clues to publish.  Add clues before publishing.")
         self.assertContains(response, "OK")
@@ -437,7 +437,7 @@ class PublishPuzzleViewTest(TestCase):
         self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
         response = self.client.get("/edit_puzzle/" + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("/puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
         self.assertContains(response, "Published puzzle cannot be edited. Unpublish to edit.")
         self.assertContains(response, "OK")
@@ -447,7 +447,7 @@ class PublishPuzzleViewTest(TestCase):
         puzzle.add_clue({'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
         self.client.get("/publish_puzzle/" + str(puzzle.id) + "/")  # Publish puzzle
         response = self.client.get("/preview_puzzle/" + str(puzzle.id) + "/")
-        self.assertTemplateUsed("/word_puzzle.html")
+        self.assertTemplateUsed(response, "word_puzzle.html")
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
 
 
@@ -474,7 +474,7 @@ class UnpublishPuzzleViewTest(TestCase):
     def test_GET_shows_error_if_puzzle_does_not_exist(self):
         response = self.client.get("/unpublish_puzzle/50/")
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed("puzzle_error.html")
+        self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle #50")
         self.assertContains(response, "This puzzle does not exist.")
         self.assertContains(response, "OK")

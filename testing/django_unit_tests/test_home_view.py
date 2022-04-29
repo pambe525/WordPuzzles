@@ -34,7 +34,7 @@ class DashboardViewTests(TestCase):
         puzzle1 = WordPuzzle.objects.create(editor=self.user)
         puzzle2 = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get(reverse("home"))
-        self.assertTemplateUsed("home.html")
+        self.assertTemplateUsed(response, "home.html")
 
     def test_Draft_puzzles_filtered_for_current_user(self):
         user2 = User.objects.create_user("testuser2")

@@ -87,6 +87,11 @@
             $('li.active').removeClass('active');
             $('a[href="' + location.pathname + '"]').closest('li').addClass('active');
         });
+
+        function goBack() {
+            if (back === "") back = "/";
+            window.location.href = back;
+        }
     </script>
 </body>
 </html>

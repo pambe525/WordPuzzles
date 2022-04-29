@@ -281,3 +281,33 @@ class SolvePuzzleView(PreviewPuzzleView):
             clue_dict = self.get_clue_as_dict(clue, mode=mode)
             clues_list.append(clue_dict)
         return clues_list
+
+class PuzzleScoreView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        err_msg = None
+        scores = None
+        try:
+            puzzle = WordPuzzle.objects.get(id=pk)
+            sessions = PuzzleSession.objects.filter(puzzle=puzzle)
+        except WordPuzzle.DoesNotExist: err_msg = "This puzzle does not exist."
+        else:
+            if not puzzle.is_published(): err_msg = "This puzzle is not published."
+            elif len(sessions) == 0: err_msg = "This puzzle has no solve sessions."
+            else:
+                scores = []
+                for session in sessions:
+                    total_points = session.puzzle.total_points
+                    solved_points = session.get_solved_points()
+                    revealed_points = session.get_revealed_points()
+                    scores.append({'user': str(session.solver), 'elapsed_secs': session.elapsed_seconds,
+                            'score': solved_points,
+                            'perc_solved': round(100*solved_points/total_points),
+                            'perc_revealed': round(100*revealed_points/total_points),
+                            'modified_at': session.modified_at
+                            })
+
+        if err_msg is not None:
+            return render(request, "puzzle_error.html", context={'err_msg':err_msg, 'id':pk})
+        else:
+            return render(request, "puzzle_score.html", context={'err_msg':err_msg, 'id':pk, 'scores': scores})
