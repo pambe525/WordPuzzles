@@ -293,19 +293,20 @@ class PuzzleScoreView(LoginRequiredMixin, View):
         err_msg = None
         score_data = None
         try:
-            puzzle = WordPuzzle.objects.get(id=pk)
-            sessions = PuzzleSession.objects.filter(puzzle=puzzle).order_by("-score")
+            self.puzzle = WordPuzzle.objects.get(id=pk)
+            sessions = PuzzleSession.objects.filter(puzzle=self.puzzle).order_by("-score")
         except WordPuzzle.DoesNotExist:
             err_msg = "This puzzle does not exist."
         else:
-            if not puzzle.is_published():
+            if not self.puzzle.is_published():
                 err_msg = "This puzzle is not published."
             else:
                 score_data = self.get_session_score_data(sessions)
         if err_msg is not None:
             return render(request, "puzzle_error.html", context={'err_msg': err_msg, 'id': pk})
         else:
-            return render(request, "puzzle_score.html", context={'err_msg': err_msg, 'id': pk, 'scores': score_data})
+            context = {'object': self.puzzle, 'id': pk, 'scores': score_data}
+            return render(request, "puzzle_score.html", context=context)
 
     def get_session_score_data(self, sessions):
         scores = []

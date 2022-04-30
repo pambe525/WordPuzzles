@@ -34,7 +34,7 @@ class PuzzleScoreViewTests(TestCase):
         response = self.client.get("/puzzle_score/" + str(self.puzzle.id) + "/")
         self.assertIsNone(response.context['scores'])
 
-    def test_response_contains_session_score_data_in_desc_order_of_scores(self):
+    def test_get_response_contains_session_score_data_in_desc_order_of_scores(self):
         session1 = create_session(solver=self.user, puzzle=self.puzzle, solved_clues="1,2,4",
                                   revealed_clues="5", elapsed_secs=280)
         session2 = create_session(solver=self.other_user, puzzle=self.puzzle, solved_clues="3,5", elapsed_secs=150)
@@ -52,6 +52,11 @@ class PuzzleScoreViewTests(TestCase):
             self.assertEqual(session_score['perc_revealed'], perc_revealed)
             self.assertEqual(session_score['elapsed_secs'], session.elapsed_seconds)
             self.assertEqual(session_score['modified_at'], session.modified_at)
+
+    def test_get_response_contains_puzzle_object(self):
+        response = self.client.get("/puzzle_score/" + str(self.puzzle.id) + "/")
+        self.assertEqual(self.puzzle, response.context['object'])
+
 
     # ==================================================================================================================
     # HELPER METHODS
