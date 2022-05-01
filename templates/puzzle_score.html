@@ -10,11 +10,12 @@
             {% if scores == None %}
                 <div class="mt-2 notetext">No sessions found for this puzzle.</div>
             {% else %}
+                <hr>
                 <table class="table table-sm">
                     <thead>
-                        <tr class="bg-secondary text-light">
+                        <tr class="bg-dark text-light">
                             <th class="p-1">Puzzler</th>
-                            <th class="p-1 text-right">Progress</th>
+                            <th class="p-1">Progress</th>
                             <th class="p-1 text-right">Score</th>
                             <th class="p-1 text-right">Time</th>
                         </tr>
@@ -37,8 +38,9 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                <hr>
             {% endif %}
+            <a class="mt-1 btn btn-dark" id="id-done-btn" onclick="goBack();">BACK</a>
         </div>
-        <a class="m-1 btn btn-dark" id="id-done-btn" onclick="goBack();">BACK</a>
     </div>
 {% endblock %}

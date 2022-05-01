@@ -288,24 +288,28 @@ class SolvePuzzleView(PreviewPuzzleView):
 
 
 class PuzzleScoreView(LoginRequiredMixin, View):
+
+    err_msg = None
+    score_data = None
+    puzzle = None
+    sessions = None
+
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
-        err_msg = None
-        score_data = None
         try:
             self.puzzle = WordPuzzle.objects.get(id=pk)
-            sessions = PuzzleSession.objects.filter(puzzle=self.puzzle).order_by("-score")
+            self.sessions = PuzzleSession.objects.filter(puzzle=self.puzzle).order_by("-score")
         except WordPuzzle.DoesNotExist:
-            err_msg = "This puzzle does not exist."
+            self.err_msg = "This puzzle does not exist."
         else:
             if not self.puzzle.is_published():
-                err_msg = "This puzzle is not published."
+                self.err_msg = "This puzzle is not published."
             else:
-                score_data = self.get_session_score_data(sessions)
-        if err_msg is not None:
-            return render(request, "puzzle_error.html", context={'err_msg': err_msg, 'id': pk})
+               self. score_data = self.get_session_score_data(self.sessions)
+        if self.err_msg is not None:
+            return render(request, "puzzle_error.html", context={'err_msg': self.err_msg, 'id': pk})
         else:
-            context = {'object': self.puzzle, 'id': pk, 'scores': score_data}
+            context = {'object': self.puzzle, 'id': pk, 'scores': self.score_data}
             return render(request, "puzzle_score.html", context=context)
 
     def get_session_score_data(self, sessions):

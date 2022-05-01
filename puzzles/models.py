@@ -192,7 +192,7 @@ class PuzzleSession(models.Model):
                 self.solved_clue_nums = str(clue_num)
             else:
                 self.solved_clue_nums += ',' + str(clue_num)
-            self.save(update_fields=['solved_clue_nums'])
+            self.save(update_fields=['solved_clue_nums', 'score'])
 
     def add_revealed_clue_num(self, clue_num):
         if clue_num not in self.get_revealed_clue_nums() and clue_num not in self.get_solved_clue_nums():

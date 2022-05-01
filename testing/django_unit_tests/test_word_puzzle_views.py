@@ -206,6 +206,9 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(active_session['total_points'], 13)
         self.assertEqual(active_session['solved_points'], 9)
         self.assertEqual(active_session['revealed_points'], 4)
+        # Ensure score is re-calculated on save of correct answer
+        session = PuzzleSession.objects.get(id=session.id)
+        self.assertEqual(session.score, 9)
 
     def test_ajax_post_with_reveal_answer_returns_updated_response(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 2, 3, 1, 5])

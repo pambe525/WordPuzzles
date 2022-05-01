@@ -241,6 +241,13 @@ class SessionTimerTests(SolveSessionTestCaseHelper):
         time.sleep(3)
         self.verify_timer("00:05:02s")
 
+    def test_completing_puzzle_shows_scores_button(self):
+        self.do_click("//button[@id='clue-btn-2']")
+        self.do_click("//button[@id='id-reveal-btn']")
+        self.assert_is_displayed("//a[text()='SCORES']")
+        self.do_click("//a[text()='SCORES']")
+        self.assert_current_url('/puzzle_score/'+str(self.puzzle.id)+'/')
+
 
 class AnswerGridEditingTests(SolveSessionTestCaseHelper):
     def setUp(self):
