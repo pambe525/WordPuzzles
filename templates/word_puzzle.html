@@ -117,7 +117,6 @@
     <script>
         var clueSet = {{ clues | safe }};
         var activeSession = {{ active_session | default_if_none:'null' | safe }};
-        var back = "{{ request.META.HTTP_REFERER }}"
 
         $.ajaxSetup({
             data: {csrfmiddlewaretoken: '{{ csrf_token }}' },

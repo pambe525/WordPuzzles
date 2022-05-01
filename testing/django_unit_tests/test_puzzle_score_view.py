@@ -42,6 +42,7 @@ class PuzzleScoreViewTests(TestCase):
         response = self.client.get("/puzzle_score/" + str(self.puzzle.id) + "/")
         self.assertTemplateUsed(response, "puzzle_score.html")
         session_scores = response.context['scores']
+        elapsed_time = ["0:02:30s", "0:04:40s"]
         for index, session_score in enumerate(session_scores):
             session = sessions[index]
             perc_solved = round(100 * session.score / session.puzzle.total_points)
@@ -50,7 +51,7 @@ class PuzzleScoreViewTests(TestCase):
             self.assertEqual(session_score['score'], session.score)
             self.assertEqual(session_score['perc_solved'], perc_solved)
             self.assertEqual(session_score['perc_revealed'], perc_revealed)
-            self.assertEqual(session_score['elapsed_secs'], session.elapsed_seconds)
+            self.assertEqual(session_score['elapsed_time'], elapsed_time[index])
             self.assertEqual(session_score['modified_at'], session.modified_at)
 
     def test_get_response_contains_puzzle_object(self):

@@ -89,6 +89,7 @@
         });
 
         function goBack() {
+            var back = "{{ request.META.HTTP_REFERER }}";
             if (back === "") back = "/";
             window.location.href = back;
         }
