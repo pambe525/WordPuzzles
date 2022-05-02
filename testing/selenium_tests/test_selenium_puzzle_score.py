@@ -16,27 +16,28 @@ class PuzzleScoreTests(SeleniumTestCase):
     def test_page_title_and_headers(self):
         self.assert_text_equals("//h2", "Scores for Puzzle #" + str(self.puzzle.id))
         self.assert_text_equals("//h4", str(self.puzzle))
-        posted_by_str = 'Posted by: ' + str(self.puzzle.editor) + ' on ' + self.puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
+        posted_by_str = 'Posted by: ' + str(self.puzzle.editor) + ' on ' + self.puzzle.shared_at.strftime(
+            '%b %d, %Y') + ' (GMT)'
         self.assert_text_equals("//h6[@id='id-posted-by']", posted_by_str)
         self.assert_text_equals("//div[contains(@class,'notetext')]", "No sessions found for this puzzle.")
 
     def test_shows_scores_in_a_table(self):
         session1 = create_session(solver=self.user2, puzzle=self.puzzle, solved_clues='1,4', revealed_clues='5',
-                                   elapsed_secs=200)
+                                  elapsed_secs=200)
         session2 = create_session(solver=self.user3, puzzle=self.puzzle, solved_clues='2,5', elapsed_secs=300)
+        self.get('/puzzle_score/' + str(self.puzzle.id) + '/')
         sessions = [session1, session2]
         elapsed_time = ["0:03:20s", "0:05:00s"]
-        perc_solved = ['46%', '31%']
-        perc_revealed = ['16%', '0%']
-        self.get('/puzzle_score/' + str(self.puzzle.id) + '/')
+        perc_solved = ['width: 46%;', 'width: 31%;']
+        perc_revealed = ['width: 15%;', 'width: 0%;']
         self.assert_not_exists("//div[contains(@class,'notetext')]")
         self.assert_text_equals("//table/thead/tr", "Puzzler Progress Score Time")
         for index, session in enumerate(sessions):
             self.assert_text_equals("//table/tbody/tr/td[1]", str(session.solver), index=index)
             self.assert_text_equals("//table/tbody/tr/td[3]", str(session.score), index=index)
-            solved_width = str(self.get_element("//div[@title='Solved']", index=index).size['width'])+"%"
+            solved_width = self.get_element("//div[@title='Solved']", index=index).get_attribute('style')
+            revealed_width = self.get_element("//div[@title='Revealed']", index=index).get_attribute('style')
             self.assertEqual(solved_width, perc_solved[index])
-            revealed_width = str(self.get_element("//div[@title='Revealed']", index=index).size['width'])+"%"
             self.assertEqual(revealed_width, perc_revealed[index])
             self.assert_text_equals("//table/tbody/tr/td[4]", elapsed_time[index], index=index)
 

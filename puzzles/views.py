@@ -288,7 +288,6 @@ class SolvePuzzleView(PreviewPuzzleView):
 
 
 class PuzzleScoreView(LoginRequiredMixin, View):
-
     err_msg = None
     score_data = None
     puzzle = None
@@ -305,7 +304,7 @@ class PuzzleScoreView(LoginRequiredMixin, View):
             if not self.puzzle.is_published():
                 self.err_msg = "This puzzle is not published."
             else:
-               self. score_data = self.get_session_score_data(self.sessions)
+                self.score_data = self.get_session_score_data(self.sessions)
         if self.err_msg is not None:
             return render(request, "puzzle_error.html", context={'err_msg': self.err_msg, 'id': pk})
         else:
@@ -316,12 +315,13 @@ class PuzzleScoreView(LoginRequiredMixin, View):
         scores = []
         for session in sessions:
             total_points = session.puzzle.total_points
-            perc_solved = round(100 * session.score / total_points)
-            perc_revealed = round(100 * session.get_revealed_points() / total_points)
+            perc_solved = str(round(100 * session.score / total_points)) + "%"
+            perc_revealed = str(round(100 * session.get_revealed_points() / total_points)) + "%"
             elapsed_time = self.get_elapsed_time(session.elapsed_seconds)
             scores.append({'user': str(session.solver), 'elapsed_time': elapsed_time, 'score': session.score,
-                    'perc_solved': perc_solved, 'perc_revealed': perc_revealed,'modified_at': session.modified_at})
+                           'perc_solved': perc_solved, 'perc_revealed': perc_revealed,
+                           'modified_at': session.modified_at})
         return scores if len(scores) > 0 else None
 
     def get_elapsed_time(self, seconds):
-        return str(timedelta(seconds=seconds))+"s"
+        return str(timedelta(seconds=seconds)) + "s"

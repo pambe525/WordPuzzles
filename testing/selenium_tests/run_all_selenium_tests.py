@@ -13,6 +13,9 @@ if __name__ == "__main__":
     test_runner = TestRunner()
     singleton_driver = SingletonWebDriver()
     singleton_driver.start_webdriver()
-    failures = test_runner.run_tests(['testing.selenium_tests'])
+    failures = test_runner.run_tests([
+        'testing.selenium_tests.test_selenium_dashboard',
+        'testing.selenium_tests.test_selenium_puzzle_score'
+    ])
     singleton_driver.active_webdriver.quit()
     sys.exit(bool(failures))
