@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="m-2 bg-light p-4 d-inline-block">
+    <div class="bg-light p-3 d-inline-block">
         <h2 class="pb-2">Sign Up as New User</h2>
         <form action="{% url 'signup' %}" method="post">
             {% csrf_token %}

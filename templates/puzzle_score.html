@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
+    <h2 class="pb-0 mb-2 mt-2">Scores for Puzzle #{{ object.id }}</h2>
     <div class="d-inline-block">
-        <h2 class="pl-2 pb-0 mb-2 mt-2">Scores for Puzzle #{{ object.id }}</h2>
-        <div class="m-1 bg-light p-3">
+        <div class="bg-light p-3">
             <h4 class="mb-0"><b>{{ object }}</b></h4>
             <h6 class="mb-2 mt-1 text-secondary" id="id-posted-by">
                 Posted by: <b>{{ object.editor }}</b> on {{ object.shared_at|date:'M d, Y' }} (GMT)
