@@ -1,26 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
     <h2>Dashboard</h2>
-    <div class="d-inline-block">
+    <div class="d-block">
         <!-- RECENTLY PUBLISHED PUZZLES -->
         <div class="bg-light p-3 shadow rounded">
-            <div class="row m-0">
-                <h3 class="mb-0">Recently Published Puzzles</h3>
-            </div>
+            <h3 class="mb-0">Recently Published Puzzles</h3>
             {% if recent_puzzles|length == 0 %}
                 <div class="notetext pt-2">No puzzles have been posted in last 7 days</div>
             {% else %}
                 <div class="notetext pt-1 pb-1">
-                    Puzzles published within the last 7 days.
-                    Click on the title to solve the puzzle.
+                    Puzzles published within the last 7 days. Click on the title to solve the puzzle.
                 </div>
                 {% for puzzle in recent_puzzles %}
+                    <!-- PUZZLE BADGE -->
                     <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
+                        <!-- PUZZLE TITLE -->
                         <a class="h5" href="{% url 'preview_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
-                            {{ puzzle }}
+                            <b>{{ puzzle }}</b>
                         </a>
+                        <!-- PUZZLE DESCRIPTION -->
                         {% if puzzle.desc != None %}
-                            <div class="h6 text-left text-truncate text-secondary mb-1" title="{{ puzzle.desc }}">
+                            <div class="h6 text-left text-truncate mb-1" title="{{ puzzle.desc }}">
                                 <b>{{ puzzle.desc }}</b>
                             </div>
                         {% endif %}
@@ -33,9 +33,9 @@
                             {% endif %}
                             on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                         </div>
-                        <div class="d-block text-right">
-                            <a href="{% url 'preview_puzzle' puzzle.id %}" title="Preview">
-                                <i class="fa fa-eye fa-2x ml-2"></i>
+                        <div class="row m-0">
+                            <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
+                               title="PREVIEW" style="width:25px"><i class="fa fa-eye"></i>
                             </a>
                         </div>
                     </div>
@@ -46,12 +46,9 @@
             </div>
         </div>
 
-        <!-- MY UNPUBLISHED PUZZLES -->
+        <!-- MY DRAFT PUZZLES -->
         <div class="mt-4 bg-light p-3 shadow rounded">
-            <div class="row m-0">
-                <h3 class="mb-0">My Draft Puzzles</h3>
-                <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="ml-auto btn-sm btn-dark mt-1">NEW PUZZLE</a>
-            </div>
+            <h3 class="mb-0">My Draft Puzzles</h3>
             {% if draft_puzzles|length == 0 %}
                 <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>
             {% else %}
@@ -59,34 +56,41 @@
                     To edit a puzzle click on its title. Hover on the title to view full description.
                 </div>
                 {% for puzzle in draft_puzzles %}
-                    <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
+                    <!-- PUZZLE BADGE -->
+                    <div class="badge badge-light p-2 mt-3 shadow-sm border border-secondary d-block text-left">
+                        <!-- PUZZLE TITLE -->
                         <a class="h5" href="{% url 'edit_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
-                            {{ puzzle }}
+                            <b>{{ puzzle }}</b>
                         </a>
+                        <!-- PUZZLE DESCRIPTION -->
                         {% if puzzle.desc != None %}
-                            <div class="h6 text-left text-truncate text-secondary mb-1" title="{{ puzzle.desc }}">
+                            <div class="h6 text-left text-truncate mb-1" title="{{ puzzle.desc }}">
                                 <b>{{ puzzle.desc }}</b>
                             </div>
                         {% endif %}
-                        <div class="text-left h6 text-muted pt-0">
-                            Last edited: {{ puzzle.modified_at|date:'M d, Y h:i A' }} (GMT)
-                        </div>
-                        <div class="d-block text-right">
-                            <a href="{% url 'edit_puzzle' puzzle.id %}" title="Edit">
-                                <i class="fa fa-edit fa-2x ml-2"></i>
+                        <!-- PUZZLE ICON BUTTONS -->
+                        <div class="row m-0 align-items-center">
+                            <a class="btn border-secondary p-0" href="{% url 'edit_puzzle' puzzle.id %}"
+                               title="EDIT" style="width:25px"><i class="fa fa-pencil"></i>
                             </a>
                             {% if puzzle.size != 0 %}
-                            <a href="{% url 'preview_puzzle' puzzle.id %}" title="Preview & Publish">
-                                <i class="fa fa-eye fa-2x ml-2"></i>
+                            <a class="btn border-secondary p-0 ml-1" href="{% url 'preview_puzzle' puzzle.id %}"
+                               title="PREVIEW & PUBLISH" style="width:25px"><i class="fa fa-eye"></i>
                             </a>
                             {% endif %}
-                            <a href="{% url 'delete_puzzle_confirm' puzzle.id %}" title="Delete">
-                                <i class="fa fa-trash fa-2x ml-2"></i>
+                            <a class="btn border-secondary p-0 ml-1" href="{% url 'delete_puzzle_confirm' puzzle.id %}"
+                               title="DELETE" style="width:25px"><i class="fa fa-trash" style="color:red"></i>
                             </a>
+                            <div class="text-left ml-2 h6 text-muted d-inline pt-1">
+                                Last edited: {{ puzzle.modified_at|date:'M d, Y h:i A' }} (GMT)
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
             {% endif %}
+            <div class="mt-4">
+                <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="p-2 btn-sm btn-dark">NEW PUZZLE</a>
+            </div>
         </div>
     </div>
 {% endblock %}

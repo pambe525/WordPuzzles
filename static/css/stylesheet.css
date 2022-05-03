@@ -25,9 +25,10 @@ button, .btn {
     font-size: 14px;
 }
 .notetext {
-    font-size: 14px;
+    font-size: 12px;
     font-style: italic;
     color: gray;
+    line-height: 13px;
 }
 
 .header-badge {
