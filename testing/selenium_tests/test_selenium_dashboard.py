@@ -118,14 +118,16 @@ class RecentPuzzlesTests(SeleniumTestCase):
     def test_Puzzle_title_links_to_preview_page_if_editor_is_current_user(self):
         puzzle = create_published_puzzle(editor=self.user)
         self.get('/')
-        self.do_click("//div[contains(@class,'badge badge')]/a[1]")
+        view_icon_btn = self.get_element("//a[@title='VIEW']/i[contains(@class,'fa-eye')]")
+        view_icon_btn.click()
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
 
     def test_Puzzle_title_links_to_solve_puzzle_page_if_user_is_not_editor(self):
         other_user = User.objects.create_user(username="other_user")
         puzzle = create_published_puzzle(editor=other_user)
         self.get('/')
-        self.do_click("//div[contains(@class,'badge badge')]/a[1]")
+        solve_icon_btn = self.get_element("//a[@title='SOLVE']/i[contains(@class,'fa-hourglass-2')]")
+        solve_icon_btn.click()
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
 
     def test_All_Puzzles_button_links_to_all_puzzles_page(self):
