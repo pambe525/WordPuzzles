@@ -49,6 +49,7 @@ ul {
 li {
     padding-left: 5px;
 }
+i.fa { color: navy; !important; }
 
 /*** TABS ***/
 .tabgroup {

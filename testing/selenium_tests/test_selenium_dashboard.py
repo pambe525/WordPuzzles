@@ -93,11 +93,11 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
         self.auto_login_user(self.user)
 
-    def test_Recent_puzzles_section_offers_button_to_all_puzzles_page(self):
+    def test_recent_puzzles_section_offers_button_to_all_puzzles_page(self):
         self.get('/')
         self.assert_exists("//div/a[text()='SHOW ALL PUZZLES']")
 
-    def test_Recent_puzzles_show_title_desc_and_posted_by_with_date(self):
+    def test_recent_puzzles_show_title_desc_and_posted_by_with_date(self):
         other_user = User.objects.create_user(username="other_user", password="secretkey")
         puzzle = create_published_puzzle(editor=other_user, desc="Puzzle description")
         self.get('/')
@@ -115,22 +115,24 @@ class RecentPuzzlesTests(SeleniumTestCase):
         posted_by_str = 'Posted by: ME on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_text_equals("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
 
-    def test_Puzzle_title_links_to_preview_page_if_editor_is_current_user(self):
+    def test_puzzle_title_links_to_preview_page_if_editor_is_current_user(self):
         puzzle = create_published_puzzle(editor=self.user)
         self.get('/')
+        self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
         view_icon_btn = self.get_element("//a[@title='VIEW']/i[contains(@class,'fa-eye')]")
         view_icon_btn.click()
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
 
-    def test_Puzzle_title_links_to_solve_puzzle_page_if_user_is_not_editor(self):
+    def test_puzzle_title_links_to_solve_puzzle_page_if_user_is_not_editor(self):
         other_user = User.objects.create_user(username="other_user")
         puzzle = create_published_puzzle(editor=other_user)
         self.get('/')
+        self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
         solve_icon_btn = self.get_element("//a[@title='SOLVE']/i[contains(@class,'fa-hourglass-2')]")
         solve_icon_btn.click()
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
 
-    def test_All_Puzzles_button_links_to_all_puzzles_page(self):
+    def test_all_Puzzles_button_links_to_all_puzzles_page(self):
         self.get('/')
         self.do_click("//a[text()='SHOW ALL PUZZLES']")
         self.assert_current_url("/puzzles_list")

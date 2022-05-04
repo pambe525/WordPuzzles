@@ -14,13 +14,13 @@
             <thead class="thead-dark">
                 <tr>
                     <th class="pl-1">Puzzle Details</th>
-                    <th style="width:3px;"></th>
+                    <th style="width:65px;"></th>
                 </tr>
             </thead>
             <tbody>
             {% for puzzle in object_list %}
                 <tr>
-                    <td style="line-height:18px" class="p-1">
+                    <td style="line-height:18px;" class="p-2">
                         <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>
                             <b>{{ puzzle }}</b>
                         </a><br />
@@ -31,21 +31,23 @@
                                 <span class="bg-secondary p-1 rounded text-white">ME</span>
                             {% endif %} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                         </span>
+                    </td>
+                    <td>
                         <div class="d-block">
-                        {% if puzzle.editor == request.user %}
-                            <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
-                                title="VIEW" style="width:25px"><i class="fa fa-eye"></i>
+                            {% if puzzle.editor == request.user %}
+                                <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
+                                    title="VIEW" style="width:25px"><i class="fa fa-eye"></i>
+                                </a>
+                            {% else %}
+                                <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
+                                    title="SOLVE" style="width:25px"><i class="fa fa-hourglass-2"></i>
+                                </a>
+                            {% endif %}
+                            <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
+                                title="SCORES" style="width:25px"><i class="fa fa-crown"></i>
                             </a>
-                        {% else %}
-                            <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
-                                title="SOLVE" style="width:25px"><i class="fa fa-hourglass-2"></i>
-                            </a>
-                        {% endif %}
                         </div>
                     </td>
-                    {% if puzzle.editor == request.user %}
-                        <td class="bg-secondary" title="MY PUZZLE"></td>
-                    {% endif %}
                 </tr>
             {% endfor %}
             </tbody>

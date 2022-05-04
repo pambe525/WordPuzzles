@@ -35,14 +35,17 @@
                         </div>
                         <div class="row m-0">
                             {% if puzzle.editor == request.user %}
-                                <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
+                                <a class="btn border-secondary p-0 mr-1" href="{% url 'preview_puzzle' puzzle.id %}"
                                     title="VIEW" style="width:25px"><i class="fa fa-eye"></i>
                                 </a>
                             {% else %}
-                                <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
+                                <a class="btn border-secondary p-0 mr-1" href="{% url 'preview_puzzle' puzzle.id %}"
                                     title="SOLVE" style="width:25px"><i class="fa fa-hourglass-2"></i>
                                 </a>
                             {% endif %}
+                            <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
+                                title="SCORES" style="width:25px"><i class="fa fa-crown"></i>
+                            </a>
                         </div>
                     </div>
                 {% endfor %}

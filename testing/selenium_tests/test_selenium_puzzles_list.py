@@ -45,6 +45,7 @@ class PuzzlesListTests(SeleniumTestCase):
     def test_puzzle_view_icon_links_to_preview_page_if_editor_is_current_user(self):
         puzzle = create_published_puzzle(editor=self.user, type=0, desc="Puzzle description", clues_pts=[1])
         self.get('/puzzles_list')
+        self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
         view_icon_btn = self.get_element("//a[@title='VIEW']/i[contains(@class,'fa-eye')]")
         view_icon_btn.click()
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
@@ -58,9 +59,11 @@ class PuzzlesListTests(SeleniumTestCase):
     def test_puzzle_solve_icon_links_to_preview_page_if_editor_is_not_current_user(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2])
         self.get('/puzzles_list')
+        self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
         solve_icon_btn = self.get_element("//a[@title='SOLVE']/i[contains(@class,'fa-hourglass-2')]")
         solve_icon_btn.click()
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
+
 
     def test_sort_form_reflects_get_parameters_in_url(self):
         self.get('/puzzles_list?sort_by=total_points&order=')
