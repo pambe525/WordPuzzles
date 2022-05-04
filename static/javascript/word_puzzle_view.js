@@ -282,9 +282,9 @@ class ClueButtonsGroup {
         for (const clue of this.clueSet) {
             clueText = clue.clue_text + " [" + clue.points + " pts]";
             btn = $("<button>");
-            btn.addClass("btn-sm btn-light border border-dark pt-0 pb-0 mr-1");
+            btn.addClass("btn-sm btn-light border border-dark p-0 mr-1");
             btn.attr('id', "clue-btn-" + clue.clue_num).attr('title', clueText).text(clue.clue_num);
-            btn.css('style','width:25px');
+            btn.attr('style','width:25px');
             btn.on('click', this._buttonClicked).on('focus', this._setActive).on('blur', this._removeActive);
             this._setButtonState(btn, clue.mode);
             list.push(btn);
