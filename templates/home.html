@@ -47,7 +47,7 @@
                                 <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
                                     title="SCORES" style="width:22px; height:22px"><i class="fa fa-crown"></i>
                                 </a>
-                            {% else %}
+                            {% elif puzzle.editor != request.user %}
                                 <span class="h6 text-danger pt-1">Be the first to solve this puzzle</span>
                             {% endif %}
                             <div class="bg-primary text-light text-center rounded-circle py-1 ml-auto h6"
