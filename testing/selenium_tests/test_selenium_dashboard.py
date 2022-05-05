@@ -15,10 +15,10 @@ class DashboardTests(SeleniumTestCase):
     def test_Unpopulated_dashboard(self):
         self.get('/')
         self.assert_item_count("//h3", 2)
-        self.assert_text_equals("//h3", "Recently Published Puzzles", 0)
+        self.assert_text_equals("//h3", "Recent Activity", 0)
         self.assert_text_equals("//h3", "My Draft Puzzles", 1)
         self.assert_item_count("//div[contains(@class, 'notetext')]", 2)
-        self.assert_text_contains("//div[contains(@class, 'notetext')]", "No puzzles have been posted", 0)
+        self.assert_text_contains("//div[contains(@class, 'notetext')]", "No activity in last 7 days", 0)
         self.assert_text_contains("//div[contains(@class, 'notetext')]", "no draft puzzles", 1)
 
 

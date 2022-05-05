@@ -2,14 +2,15 @@
 {% block content %}
     <h2>Dashboard</h2>
     <div class="d-block">
-        <!-- RECENTLY PUBLISHED PUZZLES -->
+        <!-- RECENT ACTIVITY SECTION -->
         <div class="bg-light p-3 shadow rounded">
-            <h3 class="mb-0">Recently Published Puzzles</h3>
+            <h3 class="mb-0">Recent Activity</h3>
             {% if recent_puzzles|length == 0 %}
-                <div class="notetext pt-2">No puzzles have been posted in last 7 days</div>
+                <div class="notetext pt-2">No activity in last 7 days</div>
             {% else %}
                 <div class="notetext pt-1 pb-1">
-                    Puzzles published within the last 7 days. Click on the title to solve the puzzle.
+                    Recently solved puzzles by you or newly published puzzles (within last 7 days).
+                    Click on the title to solve the puzzle.
                 </div>
                 {% for puzzle in recent_puzzles %}
                     <!-- PUZZLE BADGE -->
