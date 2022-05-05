@@ -332,8 +332,9 @@ class AnswerGrid {
     }
 
     _getCellAsDiv(hasBorder) {
-        let cell = $("<div>").addClass('d-inline-block text-center').width('18px').height('18px');
-        cell.css('font-size', '13px').css('caret-color', 'transparent');
+        let size = (hasBorder) ? '16px' : '12px';
+        let cell = $("<div>").addClass('d-inline-block text-center').width(size).height('18px');
+        cell.css('font-size', '12px').css('caret-color', 'transparent');
         if (hasBorder) cell.addClass('border border-secondary');
         return cell;
     }
