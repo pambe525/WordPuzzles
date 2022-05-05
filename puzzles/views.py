@@ -17,9 +17,11 @@ def utc_date_to_local_format(utc_date):
     dt_format = '%b %d, %Y at %H:%M:%S'
     return utc_date.astimezone().strftime(dt_format)
 
-def add_session_counts(puzzles):
+def add_session_data(puzzles, user):
     for puzzle in puzzles:
         puzzle.session_count = len(PuzzleSession.objects.filter(puzzle=puzzle))
+        current_user_session = PuzzleSession.objects.filter(puzzle=puzzle, solver=user)
+        puzzle.user_session = None if len(current_user_session) == 0 else current_user_session[0]
 
 class ReleaseNotesView(TemplateView):
     template_name = "release_notes.html"
@@ -34,7 +36,7 @@ class HomeView(LoginRequiredMixin, View):
         draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
         recent_puzzles = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago).order_by(
             '-shared_at')
-        add_session_counts(recent_puzzles)
+        add_session_data(recent_puzzles, request.user)
         ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recent_puzzles}
         return render(request, "home.html", context=ctx)
 
@@ -186,7 +188,7 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
         sort_by = self.request.GET.get('sort_by', 'shared_at')
         order = self.request.GET.get('order', '-')
         query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
-        add_session_counts(query_set)
+        add_session_data(query_set, self.request.user)
         return query_set
 
 

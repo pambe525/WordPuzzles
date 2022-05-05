@@ -20,7 +20,7 @@
             <tbody>
             {% for puzzle in object_list %}
                 <tr>
-                    <td style="line-height:18px;" class="p-2">
+                    <td style="line-height:18px; border-top:1px black solid" class="p-2">
                         <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>
                             <b>{{ puzzle }}</b>
                         </a><br />
@@ -32,8 +32,8 @@
                             {% endif %} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                         </span>
                     </td>
-                    <td>
-                        <div class="d-block">
+                    <td style="border-top:1px black solid" class="p-2">
+                        <div class="row m-0">
                             {% if puzzle.editor == request.user %}
                                 <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
                                     title="VIEW" style="width:22px;height:22px"><i class="fa fa-eye"></i>
@@ -44,13 +44,24 @@
                                 </a>
                             {% endif %}
                             {% if puzzle.session_count != 0 %}
-                                <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
+                                <a class="ml-1 btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
                                     title="SCORES" style="width:22px;height:22px"><i class="fa fa-crown"></i>
                                 </a>
                             {% endif %}
+                        </div>
+                        <div class="row m-0">
                             <div class="bg-primary text-light text-center rounded-circle py-1 mr-1 h6"
                                  title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}
                             </div>
+                            {% if puzzle.user_session != None %}
+                                <div class="ml-1 mb-2 text-right">
+                                    {% if puzzle.user_session.is_complete %}
+                                        <i title="Completed" class="fa fa-flag text-success"></i>
+                                    {% else %}
+                                        <i title="Incomplete" class="fa fa-flag text-danger"></i>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>

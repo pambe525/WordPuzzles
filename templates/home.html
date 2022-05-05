@@ -53,6 +53,15 @@
                             <div class="bg-primary text-light text-center rounded-circle py-1 ml-auto h6"
                                  title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}
                             </div>
+                            {% if puzzle.user_session != None %}
+                                <div class="ml-2 mb-2 text-right">
+                                    {% if puzzle.user_session.is_complete %}
+                                        <i title="Completed" class="fa fa-check-circle text-success fa-lg"></i>
+                                    {% else %}
+                                        <i title="Incomplete" class="fa fa-flag text-danger fa-lg"></i>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}

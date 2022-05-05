@@ -127,3 +127,27 @@ class PuzzlesListTests(SeleniumTestCase):
         self.assert_text_equals("//tr[1]/td[2]/div/div[contains(@class,'rounded-circle')]", '0')
         self.assert_text_equals("//tr[2]/td[2]/div/div[contains(@class,'rounded-circle')]", '2')
         self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
+
+    def test_puzzle_shows_no_flag_if_current_user_session_has_no_session(self):
+        other_user = create_user(username="other_user")
+        puzzle = create_published_puzzle(editor=self.user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        create_session(solver=other_user, puzzle=puzzle)
+        self.get('/puzzles_list')
+        self.assert_not_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag')]")
+        self.assert_text_equals("//tr[1]/td[2]/div/div[contains(@class,'rounded-circle')]", '1')
+
+    def test_puzzle_shows_red_flag_if_current_user_session_has_incomplete_session(self):
+        other_user = create_user(username="other_user")
+        puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        create_session(solver=self.user, puzzle=puzzle)
+        self.get('/puzzles_list')
+        self.assert_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag text-danger')]")
+        self.assert_text_equals("//tr[1]/td[2]/div/div[contains(@class,'rounded-circle')]", '1')
+
+    def test_puzzle_shows_green_flag_if_current_user_session_has_complete_session(self):
+        other_user = create_user(username="other_user")
+        puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        create_session(solver=self.user, puzzle=puzzle, solved_clues='1,2,3')
+        self.get('/puzzles_list')
+        self.assert_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag text-success')]")
+        self.assert_text_equals("//tr[1]/td[2]/div/div[contains(@class,'rounded-circle')]", '1')

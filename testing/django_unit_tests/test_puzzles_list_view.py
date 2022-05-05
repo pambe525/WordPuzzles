@@ -82,13 +82,15 @@ class PuzzlesListViewTest(TestCase):
         self.assertEqual(objects[1].id, puzzle1.id)
         self.assertEqual(objects[2].id, puzzle2.id)
 
-    def test_Recently_posted_puzzles_include_count_of_sessions(self):
+    def test_posted_puzzles_include_session_data(self):
+        user1 = create_user(username="user1")
         user2 = create_user(username="user2")
-        user3 = create_user(username="user3")
         create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1,2,1])
-        puzzle2 = create_published_puzzle(editor=user3, desc="Daily Puzzle 2", clues_pts=[1,1])
-        create_session(solver=self.user, puzzle=puzzle2)
+        puzzle2 = create_published_puzzle(editor=user2, desc="Daily Puzzle 2", clues_pts=[1,1])
+        session1 = create_session(solver=self.user, puzzle=puzzle2)
         create_session(solver=user2, puzzle=puzzle2)
         response = self.client.get('/puzzles_list')
         self.assertEqual(response.context['object_list'][0].session_count, 0)
         self.assertEqual(response.context['object_list'][1].session_count, 2)
+        self.assertIsNone(response.context['object_list'][0].user_session)
+        self.assertEqual(response.context['object_list'][1].user_session, session1)

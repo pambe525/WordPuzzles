@@ -107,7 +107,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
         posted_by_str = 'Posted by: ' + str(puzzle.editor) + ' on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_text_equals("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
 
-    def test_recent_puzzles_shows_rounded_badge_containing_session_count(self):
+    def test_recent_puzzles_shows_rounded_badge_for_session_count(self):
         user2 = create_user(username="user2")
         user3 = create_user(username="user3")
         puzzle1 = create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1,2,2])
@@ -119,6 +119,29 @@ class RecentPuzzlesTests(SeleniumTestCase):
         self.assert_text_equals("//div/div/div[contains(@class,'rounded-circle')]", '2', 1)
         self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
 
+    def test_recent_puzzle_shows_no_flag_if_current_user_session_has_no_session(self):
+        other_user = create_user(username="other_user")
+        puzzle = create_published_puzzle(editor=self.user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        create_session(solver=other_user, puzzle=puzzle)
+        self.get('/')
+        self.assert_not_exists("//div/div/div/i[contains(@class,'fa-flag')]")
+        self.assert_text_equals("//div/div/div[contains(@class,'rounded-circle')]", '1')
+
+    def test_recent_puzzle_shows_red_flag_if_current_user_session_has_incomplete_session(self):
+        other_user = create_user(username="other_user")
+        puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        create_session(solver=self.user, puzzle=puzzle)
+        self.get('/')
+        self.assert_exists("//div/div/div/i[contains(@class,'fa-flag text-danger')]")
+        self.assert_text_equals("//div/div/div[contains(@class,'rounded-circle')]", '1')
+
+    def test_recent_puzzle_shows_green_flag_if_current_user_session_has_complete_session(self):
+        other_user = create_user(username="other_user")
+        puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        create_session(solver=self.user, puzzle=puzzle, solved_clues='1,2,3')
+        self.get('/')
+        self.assert_exists("//div/div/div/i[contains(@class,'fa-flag text-success')]")
+        self.assert_text_equals("//div/div/div[contains(@class,'rounded-circle')]", '1')
 
     def test_shows_ME_for_posted_by_if_editor_is_current_user(self):
         puzzle = create_published_puzzle(editor=self.user, desc="Puzzle description")
