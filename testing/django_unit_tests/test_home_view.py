@@ -6,6 +6,9 @@ from puzzles.models import WordPuzzle
 from django.utils.timezone import now
 from datetime import timedelta
 
+from testing.data_setup_utils import create_published_puzzle, create_session, create_user
+
+
 class DashboardViewTests(TestCase):
 
     def setUp(self):
@@ -96,4 +99,15 @@ class DashboardViewTests(TestCase):
         self.assertEqual(len(response.context['recent_puzzles']), 2)
         self.assertEqual(response.context['recent_puzzles'][1].desc, puzzle1.desc)
         self.assertEqual(response.context['recent_puzzles'][0].desc, puzzle3.desc)
+
+    def test_Recently_posted_puzzles_include_count_of_sessions(self):
+        user2 = create_user(username="user2")
+        user3 = create_user(username="user3")
+        create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1,2,1])
+        puzzle2 = create_published_puzzle(editor=user3, desc="Daily Puzzle 2", clues_pts=[1,1])
+        create_session(solver=self.user, puzzle=puzzle2)
+        create_session(solver=user2, puzzle=puzzle2)
+        response = self.client.get('/')
+        self.assertEqual(response.context['recent_puzzles'][0].session_count, 0)
+        self.assertEqual(response.context['recent_puzzles'][1].session_count, 2)
 

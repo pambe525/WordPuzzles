@@ -33,19 +33,26 @@
                             {% endif %}
                             on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
                         </div>
-                        <div class="row m-0">
+                        <div class="row m-0 align-items-center">
                             {% if puzzle.editor == request.user %}
                                 <a class="btn border-secondary p-0 mr-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                                    title="VIEW" style="width:25px"><i class="fa fa-eye"></i>
+                                    title="VIEW" style="width:22px; height:22px;"><i class="fa fa-eye"></i>
                                 </a>
                             {% else %}
                                 <a class="btn border-secondary p-0 mr-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                                    title="SOLVE" style="width:25px"><i class="fa fa-hourglass-2"></i>
+                                    title="SOLVE" style="width:22px; height:22px"><i class="fa fa-hourglass-2"></i>
                                 </a>
                             {% endif %}
-                            <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
-                                title="SCORES" style="width:25px"><i class="fa fa-crown"></i>
-                            </a>
+                            {% if puzzle.session_count != 0 %}
+                                <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
+                                    title="SCORES" style="width:22px; height:22px"><i class="fa fa-crown"></i>
+                                </a>
+                            {% else %}
+                                <span class="h6 text-danger pt-1">Be the first to solve this puzzle</span>
+                            {% endif %}
+                            <div class="bg-primary text-light text-center rounded-circle py-1 ml-auto h6"
+                                 title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -77,22 +84,22 @@
                                 <b>{{ puzzle.desc }}</b>
                             </div>
                         {% endif %}
+                        <div class="text-left h6 text-muted pt-1">
+                            Last edited: {{ puzzle.modified_at|date:'M d, Y h:i A' }} (GMT)
+                        </div>
                         <!-- PUZZLE ICON BUTTONS -->
-                        <div class="row m-0 align-items-center">
+                        <div class="row m-0 align-items-center mt-1">
                             <a class="btn border-secondary p-0" href="{% url 'edit_puzzle' puzzle.id %}"
-                               title="EDIT" style="width:25px"><i class="fa fa-pencil"></i>
+                               title="EDIT" style="width:22px; height:22px"><i class="fa fa-pencil"></i>
                             </a>
                             {% if puzzle.size != 0 %}
                             <a class="btn border-secondary p-0 ml-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                               title="PREVIEW & PUBLISH" style="width:25px"><i class="fa fa-eye"></i>
+                               title="PREVIEW & PUBLISH" style="width:22px;height:22px"><i class="fa fa-eye"></i>
                             </a>
                             {% endif %}
                             <a class="btn border-secondary p-0 ml-1" href="{% url 'delete_puzzle_confirm' puzzle.id %}"
-                               title="DELETE" style="width:25px"><i class="fa fa-trash" style="color:red"></i>
+                               title="DELETE" style="width:22px;height:22px"><i class="fa fa-trash" style="color:red"></i>
                             </a>
-                            <div class="text-left ml-2 h6 text-muted d-inline pt-1">
-                                Last edited: {{ puzzle.modified_at|date:'M d, Y h:i A' }} (GMT)
-                            </div>
                         </div>
                     </div>
                 {% endfor %}

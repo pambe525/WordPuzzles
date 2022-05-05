@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle
-from testing.data_setup_utils import create_published_puzzle
+from testing.data_setup_utils import create_published_puzzle, create_user, create_session
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 
 
@@ -107,6 +107,19 @@ class RecentPuzzlesTests(SeleniumTestCase):
         posted_by_str = 'Posted by: ' + str(puzzle.editor) + ' on ' + puzzle.shared_at.strftime('%b %d, %Y') + ' (GMT)'
         self.assert_text_equals("//div[contains(@class,'badge badge')]/div[2]", posted_by_str)
 
+    def test_recent_puzzles_shows_rounded_badge_containing_session_count(self):
+        user2 = create_user(username="user2")
+        user3 = create_user(username="user3")
+        puzzle1 = create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        puzzle2 = create_published_puzzle(editor=user3, desc="Daily Puzzle 2", clues_pts=[1,1])
+        create_session(solver=self.user, puzzle=puzzle2)
+        create_session(solver=user2, puzzle=puzzle2)
+        self.get('/')
+        self.assert_text_equals("//div/div/div[contains(@class,'rounded-circle')]", '0', 0)
+        self.assert_text_equals("//div/div/div[contains(@class,'rounded-circle')]", '2', 1)
+        self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
+
+
     def test_shows_ME_for_posted_by_if_editor_is_current_user(self):
         puzzle = create_published_puzzle(editor=self.user, desc="Puzzle description")
         self.get('/')
@@ -118,7 +131,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
     def test_puzzle_title_links_to_preview_page_if_editor_is_current_user(self):
         puzzle = create_published_puzzle(editor=self.user)
         self.get('/')
-        self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
+        self.assert_not_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
         view_icon_btn = self.get_element("//a[@title='VIEW']/i[contains(@class,'fa-eye')]")
         view_icon_btn.click()
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
@@ -127,7 +140,7 @@ class RecentPuzzlesTests(SeleniumTestCase):
         other_user = User.objects.create_user(username="other_user")
         puzzle = create_published_puzzle(editor=other_user)
         self.get('/')
-        self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
+        self.assert_not_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
         solve_icon_btn = self.get_element("//a[@title='SOLVE']/i[contains(@class,'fa-hourglass-2')]")
         solve_icon_btn.click()
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")

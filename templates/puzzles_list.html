@@ -35,17 +35,22 @@
                     <td>
                         <div class="d-block">
                             {% if puzzle.editor == request.user %}
-                                <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
-                                    title="VIEW" style="width:25px"><i class="fa fa-eye"></i>
+                                <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
+                                    title="VIEW" style="width:22px;height:22px"><i class="fa fa-eye"></i>
                                 </a>
                             {% else %}
-                                <a class="btn border-secondary p-0" href="{% url 'preview_puzzle' puzzle.id %}"
-                                    title="SOLVE" style="width:25px"><i class="fa fa-hourglass-2"></i>
+                                <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
+                                    title="SOLVE" style="width:22px;height:22px"><i class="fa fa-hourglass-2"></i>
                                 </a>
                             {% endif %}
-                            <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
-                                title="SCORES" style="width:25px"><i class="fa fa-crown"></i>
-                            </a>
+                            {% if puzzle.session_count != 0 %}
+                                <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
+                                    title="SCORES" style="width:22px;height:22px"><i class="fa fa-crown"></i>
+                                </a>
+                            {% endif %}
+                            <div class="bg-primary text-light text-center rounded-circle py-1 mr-1 h6"
+                                 title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}
+                            </div>
                         </div>
                     </td>
                 </tr>

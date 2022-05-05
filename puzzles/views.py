@@ -17,6 +17,9 @@ def utc_date_to_local_format(utc_date):
     dt_format = '%b %d, %Y at %H:%M:%S'
     return utc_date.astimezone().strftime(dt_format)
 
+def add_session_counts(puzzles):
+    for puzzle in puzzles:
+        puzzle.session_count = len(PuzzleSession.objects.filter(puzzle=puzzle))
 
 class ReleaseNotesView(TemplateView):
     template_name = "release_notes.html"
@@ -24,12 +27,14 @@ class ReleaseNotesView(TemplateView):
 
 class HomeView(LoginRequiredMixin, View):
     model = WordPuzzle
+    recent_puzzles = None
 
     def get(self, request):
         seven_days_ago = now() - timedelta(days=7)
         draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
         recent_puzzles = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago).order_by(
             '-shared_at')
+        add_session_counts(recent_puzzles)
         ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recent_puzzles}
         return render(request, "home.html", context=ctx)
 
@@ -181,6 +186,7 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
         sort_by = self.request.GET.get('sort_by', 'shared_at')
         order = self.request.GET.get('order', '-')
         query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
+        add_session_counts(query_set)
         return query_set
 
 
