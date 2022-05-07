@@ -34,11 +34,19 @@ class HomeView(LoginRequiredMixin, View):
     def get(self, request):
         seven_days_ago = now() - timedelta(days=7)
         draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
-        recent_puzzles = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago).order_by(
-            '-shared_at')
+        recently_published = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago)\
+                .order_by('-shared_at')
+        in_recent_sessions = self.get_puzzles_in_recent_sessions()
+        recent_puzzles = in_recent_sessions | recently_published  # Union of 2 sets
         add_session_data(recent_puzzles, request.user)
         ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recent_puzzles}
         return render(request, "home.html", context=ctx)
+
+    def get_puzzles_in_recent_sessions(self):
+        seven_days_ago = now()-timedelta(days=7)
+        puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user,
+                puzzlesession__modified_at__gte=seven_days_ago).order_by('-puzzlesession__modified_at')
+        return puzzles_in_recent_sessions
 
 
 class NewPuzzleView(LoginRequiredMixin, View):

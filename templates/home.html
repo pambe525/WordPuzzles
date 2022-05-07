@@ -49,7 +49,12 @@
                                     title="SCORES" style="width:22px; height:22px"><i class="fa fa-crown"></i>
                                 </a>
                             {% elif puzzle.editor != request.user %}
-                                <span class="h6 text-danger pt-1">Be the first to solve this puzzle</span>
+                                <span class="h6 text-danger pt-1 pl-1">Be the first to solve this puzzle</span>
+                            {% endif %}
+                            {% if puzzle.user_session != None %}
+                                <span class="h6 text-secondary pt-1 pl-1">
+                                    Last solve: {{ puzzle.user_session.modified_at|date:'M d, Y' }} (GMT)
+                                </span>
                             {% endif %}
                             <div class="bg-primary text-light text-center rounded-circle py-1 ml-auto h6"
                                  title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}
