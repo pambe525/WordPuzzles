@@ -44,8 +44,8 @@ class HomeView(LoginRequiredMixin, View):
 
     def get_puzzles_in_recent_sessions(self):
         seven_days_ago = now()-timedelta(days=7)
-        puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user,
-                puzzlesession__modified_at__gte=seven_days_ago).order_by('-puzzlesession__modified_at')
+        puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user)\
+                .filter(puzzlesession__modified_at__gte=seven_days_ago).order_by('-puzzlesession__modified_at')
         return puzzles_in_recent_sessions
 
 
