@@ -39,7 +39,7 @@ class HomeView(LoginRequiredMixin, View):
         in_recent_sessions = self.get_puzzles_in_recent_sessions()
         recent_puzzles = in_recent_sessions | recently_published  # Union of 2 sets
         add_session_data(recent_puzzles, request.user)
-        ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recent_puzzles}
+        ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recently_published}
         return render(request, "home.html", context=ctx)
 
     def get_puzzles_in_recent_sessions(self):
