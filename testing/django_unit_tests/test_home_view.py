@@ -131,3 +131,15 @@ class DashboardViewTests(TestCase):
         self.assertEqual(response.context['recent_puzzles'][0], new_puzzle2)
         self.assertEqual(response.context['recent_puzzles'][1], new_puzzle1)
         self.assertEqual(response.context['recent_puzzles'][2], old_puzzle2)
+
+    def test_recent_puzzles_does_not_include_same_puzzle_multiple_times(self):
+        user2 = create_user(username="user2")
+        user3 = create_user(username='user3')
+        user4 = create_user(username='user4')
+        # Single puzzle, multiple sessions
+        puzzle = create_published_puzzle(editor=self.user, clues_pts=[1,2,1,2,1])
+        new_session1 = create_session(solver=user2, puzzle=puzzle)
+        new_session2 = create_session(solver=user3, puzzle=puzzle)
+        new_session3 = create_session(solver=user4, puzzle=puzzle)
+        response = self.client.get('/')
+        self.assertEqual(len(response.context['recent_puzzles']), 1)
