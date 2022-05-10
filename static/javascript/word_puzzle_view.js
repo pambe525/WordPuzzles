@@ -364,7 +364,7 @@ class AnswerGrid {
 
     _onKeyDown = (event) => {
         let key = event.keyCode || event.which;
-        let keyChar = String.fromCharCode(key);
+        let keyChar = (key != 0) ? String.fromCharCode(key) : $(event.targer).text();
         event.preventDefault();
         if (/[a-zA-Z]/.test(keyChar)) this._setTextAndMoveToNextCell($(event.target), keyChar);
         else if (key === 8) this._setTextAndMoveToPrevCell($(event.target), '');
