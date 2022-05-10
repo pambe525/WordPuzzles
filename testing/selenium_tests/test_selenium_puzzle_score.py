@@ -28,8 +28,8 @@ class PuzzleScoreTests(SeleniumTestCase):
         self.get('/puzzle_score/' + str(self.puzzle.id) + '/')
         sessions = [session1, session2]
         elapsed_time = ["0:03:20s", "0:05:00s"]
-        perc_solved = ['width: 46%;', 'width: 31%;']
-        perc_revealed = ['width: 15%;', 'width: 0%;']
+        perc_solved = ['width: 40%;', 'width: 40%;']
+        perc_revealed = ['width: 20%;', 'width: 0%;']
         self.assert_not_exists("//div[contains(@class,'notetext')]")
         self.assert_text_equals("//table/thead/tr", "Puzzler Progress Score Time")
         for index, session in enumerate(sessions):

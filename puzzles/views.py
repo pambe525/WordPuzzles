@@ -330,13 +330,16 @@ class PuzzleScoreView(LoginRequiredMixin, View):
     def get_session_score_data(self, sessions):
         scores = []
         for session in sessions:
-            total_points = session.puzzle.total_points
-            perc_solved = str(round(100 * session.score / total_points)) + "%"
-            perc_revealed = str(round(100 * session.get_revealed_points() / total_points)) + "%"
+            num_clues = session.puzzle.size
+            num_solved = len(session.get_solved_clue_nums())
+            num_revealed = len(session.get_revealed_clue_nums())
+            perc_solved = str(round(100 * num_solved / num_clues)) + "%"
+            perc_revealed = str(round(100 * num_revealed / num_clues)) + "%"
+            is_complete = (num_solved + num_revealed == num_clues)
             elapsed_time = self.get_elapsed_time(session.elapsed_seconds)
             scores.append({'user': str(session.solver), 'elapsed_time': elapsed_time, 'score': session.score,
-                           'perc_solved': perc_solved, 'perc_revealed': perc_revealed,
-                           'modified_at': session.modified_at})
+                           'perc_solved': perc_solved, 'perc_revealed': perc_revealed, 'is_complete': is_complete,
+                           'num_solved': num_solved, 'num_revealed': num_revealed, 'modified_at': session.modified_at})
         return scores if len(scores) > 0 else None
 
     def get_elapsed_time(self, seconds):

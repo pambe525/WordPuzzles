@@ -60,7 +60,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
         for index, clue in enumerate(puzzle.get_clues()):
             clue_btn = self.get_element("//div/button[@id='clue-btn-" + str(index + 1) + "']")
             self.assertEqual(clue_btn.text, str(clue.clue_num))
-            tooltip = clue.get_decorated_clue_text() + " [" + str(clue.points) + " pts]"
+            tooltip = clue.get_decorated_clue_text() # + " [" + str(clue.points) + " pts]"
             self.assertEqual(clue_btn.get_attribute('title'), tooltip)
 
     def test_first_clue_is_shown_in_clue_box_and_first_clue_btn_is_activated(self):

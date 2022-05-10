@@ -28,7 +28,7 @@ def create_published_puzzle(editor=None, desc=None, type=0, posted_on=now(), clu
 
 
 def get_full_clue_desc(clue):
-    return str(clue.clue_num) + ". " + clue.get_decorated_clue_text() + " [" + str(clue.points) + " pts]"
+    return str(clue.clue_num) + ". " + clue.get_decorated_clue_text() # + " [" + str(clue.points) + " pts]"
 
 
 def create_session(solver=None, puzzle=None, solved_clues=None, revealed_clues=None, elapsed_secs=0):

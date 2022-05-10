@@ -27,12 +27,17 @@
                             <td>
                                <div class="progress col mt-1 border border-secondary p-0" style="width:100%; height:12px">
                                    <div class="progress-bar bg-success" role="progressbar" title="Solved"
-                                        style="width:{{ score_record.perc_solved }};"></div>
+                                        style="width:{{ score_record.perc_solved }};">{{ score_record.num_solved }}</div>
                                    <div class="progress-bar bg-secondary" role="progressbar" title="Revealed"
-                                        style="width:{{ score_record.perc_revealed }};"></div>
+                                        style="width:{{ score_record.perc_revealed }};">{{ score_record.num_revealed }}</div>
                                 </div>
                             </td>
-                            <td class="text-right text-primary"><b>{{ score_record.score }}</b></td>
+                            <td class="text-right text-primary">
+                                {% if score_record.is_complete %}
+                                    <i class="fa fa-check-circle text-success"></i>
+                                {% endif %}
+                                <b>{{ score_record.score }}</b>
+                            </td>
                             <td class="text-right"><b>{{ score_record.elapsed_time }}</b></td>
                         </tr>
                         {% endfor %}

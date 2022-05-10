@@ -194,7 +194,7 @@ class ClueBox {
     }
 
     _getFullClueDesc(clue) {
-        return clue['clue_num'] + ". " + clue['clue_text'] + " [" + clue['points'] + " pts]";
+        return clue['clue_num'] + ". " + clue['clue_text']; // + " [" + clue['points'] + " pts]";
     }
 
     _submitBtnClicked = () => {
@@ -280,7 +280,7 @@ class ClueButtonsGroup {
     _createButtons() {
         let list = [], btn, clueText;
         for (const clue of this.clueSet) {
-            clueText = clue.clue_text + " [" + clue.points + " pts]";
+            clueText = clue.clue_text; // + " [" + clue.points + " pts]";
             btn = $("<button>");
             btn.addClass("btn-sm btn-light border border-dark p-0 mr-1");
             btn.attr('id', "clue-btn-" + clue.clue_num).attr('title', clueText).text(clue.clue_num);
@@ -364,7 +364,7 @@ class AnswerGrid {
 
     _onKeyDown = (event) => {
         let key = event.keyCode || event.which;
-        let keyChar = (key != 0) ? String.fromCharCode(key) : $(event.targer).text();
+        let keyChar = (key !== 0) ? String.fromCharCode(key) : $(event.targer).text();
         event.preventDefault();
         if (/[a-zA-Z]/.test(keyChar)) this._setTextAndMoveToNextCell($(event.target), keyChar);
         else if (key === 8) this._setTextAndMoveToPrevCell($(event.target), '');
@@ -436,4 +436,14 @@ class SessionTimer {
         this.elapsedSecs++;
         this._showTime();
     }
+}
+
+/**--------------------------------------------------------------------------------------------------------------------
+ * CluesList
+ */
+class CluesList {
+    constructor(jqContainerId, clues, clickHandler) {
+
+    }
+
 }
