@@ -280,7 +280,7 @@ class ClueButtonsGroup {
     _createButtons() {
         let list = [], btn, clueText;
         for (const clue of this.clueSet) {
-            clueText = clue.clue_text; // + " [" + clue.points + " pts]";
+            clueText = clue.clue_text;
             btn = $("<button>");
             btn.addClass("btn-sm btn-light border border-dark p-0 mr-1");
             btn.attr('id', "clue-btn-" + clue.clue_num).attr('title', clueText).text(clue.clue_num);
@@ -340,7 +340,7 @@ class AnswerGrid {
     }
 
     _setEditable(cell) {
-        cell.attr('contenteditable', 'true').on('keydown', this._onKeyDown);
+        cell.attr('contenteditable', 'true').on('keyup', this._onKeyDown);
         cell.on('blur', this._removeHilite).on('focus', this._setHilite);
     }
 
