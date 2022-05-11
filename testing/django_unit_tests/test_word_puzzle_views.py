@@ -146,9 +146,10 @@ class SolvePuzzleViewTest(TestCase):
         json_session = json.loads(response.context['active_session'])
         self.assertEqual(json_session['session_id'], 1)
         self.assertEqual(json_session['elapsed_secs'], 0)
-        self.assertEqual(json_session['total_points'], 15)
-        self.assertEqual(json_session['solved_points'], 0)
-        self.assertEqual(json_session['revealed_points'], 0)
+        self.assertEqual(json_session['score'], 0)
+        self.assertEqual(json_session['num_clues'], 5)
+        self.assertEqual(json_session['num_solved'], 0)
+        self.assertEqual(json_session['num_revealed'], 0)
 
     def test_loads_existing_session_and_renders_solve_puzzle_page(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 2, 4, 5])
@@ -157,9 +158,10 @@ class SolvePuzzleViewTest(TestCase):
         json_session = json.loads(response.context['active_session'])
         self.assertEqual(json_session['session_id'], 1)
         self.assertEqual(json_session['elapsed_secs'], 0)
-        self.assertEqual(json_session['total_points'], 16)
-        self.assertEqual(json_session['solved_points'], 7)
-        self.assertEqual(json_session['revealed_points'], 5)
+        self.assertEqual(json_session['score'], 7)
+        self.assertEqual(json_session['num_clues'], 5)
+        self.assertEqual(json_session['num_solved'], 2)
+        self.assertEqual(json_session['num_revealed'], 2)
 
     def test_with_existing_session_response_contains_clue_details(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 1, 5], has_parsing=True)
@@ -203,9 +205,10 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(len(clues), 5)
         self.assertEqual(clues[1]['mode'], 'SOLVED')
         self.assertEqual(clues[1]['answer'], 'WORD-B')
-        self.assertEqual(active_session['total_points'], 13)
-        self.assertEqual(active_session['solved_points'], 9)
-        self.assertEqual(active_session['revealed_points'], 4)
+        self.assertEqual(active_session['score'], 9)
+        self.assertEqual(active_session['num_clues'], 5)
+        self.assertEqual(active_session['num_solved'], 3)
+        self.assertEqual(active_session['num_revealed'], 2)
         # Ensure score is re-calculated on save of correct answer
         session = PuzzleSession.objects.get(id=session.id)
         self.assertEqual(session.score, 9)
@@ -222,9 +225,10 @@ class SolvePuzzleViewTest(TestCase):
         self.assertEqual(len(clues), 5)
         self.assertEqual(clues[1]['mode'], 'REVEALED')
         self.assertEqual(clues[1]['answer'], 'WORD-B')
-        self.assertEqual(active_session['total_points'], 12)
-        self.assertEqual(active_session['solved_points'], 6)
-        self.assertEqual(active_session['revealed_points'], 5)
+        self.assertEqual(active_session['score'], 6)
+        self.assertEqual(active_session['num_clues'], 5)
+        self.assertEqual(active_session['num_solved'], 2)
+        self.assertEqual(active_session['num_revealed'], 2)
 
     def test_ajax_post_with_wrong_answer_raises_error(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 3, 1, 5])

@@ -281,9 +281,10 @@ class SolvePuzzleView(PreviewPuzzleView):
     def get_session_as_dict(self):
         return {'session_id': self.solve_session.id,
                 'elapsed_secs': self.solve_session.elapsed_seconds,
-                'total_points': self.solve_session.puzzle.total_points,
-                'solved_points': self.solve_session.get_solved_points(),
-                'revealed_points': self.solve_session.get_revealed_points(),
+                'score': self.solve_session.score,
+                'num_clues': self.solve_session.puzzle.size,
+                'num_solved': len(self.solve_session.get_solved_clue_nums()),
+                'num_revealed': len(self.solve_session.get_revealed_clue_nums())
                 }
 
     def get_clues_list(self, **kwargs):

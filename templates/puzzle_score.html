@@ -16,34 +16,34 @@
                         <tr class="bg-dark text-light">
                             <th class="p-1">Puzzler</th>
                             <th class="p-1">Progress</th>
-                            <th class="p-1 text-right">Score</th>
-                            <th class="p-1 text-right">Time</th>
+                            <th class="p-1 text-right">Score [Time]</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for score_record in scores %}
                         <tr>
-                            <td>{{ score_record.user }}</td>
-                            <td>
+                            <td class="pb-0">{{ score_record.user }}</td>
+                            <td class="pb-0">
                                <div class="progress col mt-1 border border-secondary p-0" style="width:100%; height:12px">
                                    <div class="progress-bar bg-success" role="progressbar" title="Solved"
                                         style="width:{{ score_record.perc_solved }}; font-size:8px;">
-                                       {{ score_record.num_solved }}
                                    </div>
                                    <div class="progress-bar bg-secondary" role="progressbar" title="Revealed"
                                         style="width:{{ score_record.perc_revealed }}; font-size:8px;">
-                                       {{ score_record.num_revealed }}
                                    </div>
                                 </div>
                             </td>
-                            <td class="text-right text-primary">
+                            <td class="text-right pb-0">
                                 {% if score_record.is_complete %}
                                     <i class="fa fa-check-circle text-success"></i>
                                 {% endif %}
-                                <b>{{ score_record.score }}</b>
+                                <b>{{ score_record.score }}</b> [<b>{{ score_record.elapsed_time }}</b>]
                             </td>
-                            <td class="text-right" title="{{ score_record.modified_at|date:'M d, Y' }} (GMT)">
-                                <b>{{ score_record.elapsed_time }}</b>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="m-0 p-0 text-right pr-1" style="border:0; font-size:9px;">
+                                Solved:{{ score_record.num_solved }} | Revealed:{{ score_record.num_revealed }} |
+                                Last seen:{{ score_record.modified_at|date:'M d, Y h:i:s A' }} (GMT)
                             </td>
                         </tr>
                         {% endfor %}
