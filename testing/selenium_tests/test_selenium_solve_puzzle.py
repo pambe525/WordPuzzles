@@ -97,8 +97,8 @@ class SolveSessionTestCaseHelper(SeleniumTestCase):
         self.assert_text_equals("//div[@id='id-score']", "Score: " + str(points) + " pts")
 
     def verify_progress_bars(self, solved_percent, revealed_percent):
-        solved_bar = self.get_element("//div[@id='id-solved-pts']")
-        revealed_bar = self.get_element("//div[@id='id-revealed-pts']")
+        solved_bar = self.get_element("//div[@id='id-num-solved']")
+        revealed_bar = self.get_element("//div[@id='id-num-revealed']")
         self.assertEqual(solved_bar.get_attribute('style'), 'width: ' + str(solved_percent) + '%;')
         self.assertEqual(revealed_bar.get_attribute('style'), 'width: ' + str(revealed_percent) + '%;')
 
@@ -150,7 +150,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.verify_answer_state_for_clue(self.clues[4], 'revealed')  # REVEALED clue #5
         self.verify_answer_state_for_clue(self.clues[1], 'unsolved')  # UNSOLVED clue #2
         self.verify_score(6)
-        self.verify_progress_bars(46, 15)
+        self.verify_progress_bars(40, 20)
         self.assert_is_displayed("//a[@id='id-finish-later-btn']")
         self.assert_is_not_displayed("//div[@id='id-completed']")
 
@@ -164,7 +164,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.verify_clue_btn_has_state(2, "solved")
         self.verify_answer_state_as_solved(self.clues[1])
         self.verify_score(8)
-        self.verify_progress_bars(62, 15)
+        self.verify_progress_bars(60, 20)
         self.assert_is_not_displayed("//div[@id='id-completed']")
         saved_secs = PuzzleSession.objects.get(puzzle=self.puzzle, solver=self.user).elapsed_seconds
         self.assertEqual(saved_secs, 301)
@@ -178,7 +178,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.verify_clue_btn_has_state(2, "revealed")
         self.verify_answer_state_as_revealed(self.clues[1])
         self.verify_score(6)
-        self.verify_progress_bars(46, 31)
+        self.verify_progress_bars(40, 40)
         self.assert_is_not_displayed("//div[@id='id-completed']")
         saved_secs = PuzzleSession.objects.get(puzzle=self.puzzle, solver=self.user).elapsed_seconds
         self.assertEqual(saved_secs, 301)
@@ -190,7 +190,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.verify_clue_btn_has_state(2, "unsolved")
         self.verify_answer_state_as_incorrect()
         self.verify_score(6)
-        self.verify_progress_bars(46, 15)
+        self.verify_progress_bars(40, 20)
         self.assert_is_not_displayed("//div[@id='id-completed']")
         # Clear btn clears incorrect answer state
         self.do_click("//button[@id='id-clear-btn']")

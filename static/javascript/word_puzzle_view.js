@@ -61,7 +61,7 @@ class SessionProgress {
         this.saveTimerHandler = saveTimerHandler;
         this.ID = {
             timer: "#id-timer", score: "#id-score", completedSection: "#id-completed",
-            progress: "#id-progress", solvedPts: "#id-solved-pts", revealedPts: "#id-revealed-pts",
+            progress: "#id-progress", numSolved: "#id-num-solved", numRevealed: "#id-num-revealed",
             finishLaterBtn: "#id-finish-later-btn"
         };
         this.isCompleteOnLoad = this._isSessionComplete();
@@ -83,17 +83,17 @@ class SessionProgress {
     }
 
     _setScore() {
-        this.score = $(this.ID.score).text("Score: " + this.session['solved_points'] + ' pts');
+        this.score = $(this.ID.score).text("Score: " + this.session['score'] + ' pts');
     }
 
     _setProgressBar() {
-        let totalPoints = this.session['total_points'];
-        let solvedPoints = this.session['solved_points'];
-        let revealedPoints = this.session['revealed_points'];
-        let solvedBarWidth = Math.round(100 * solvedPoints / totalPoints) + "%";
-        let revealedBarWidth = Math.round(100 * revealedPoints / totalPoints) + "%";
-        $(this.ID.solvedPts).width(solvedBarWidth).text(solvedPoints + " pts");
-        $(this.ID.revealedPts).width(revealedBarWidth).text(revealedPoints + " pts");
+        let num_clues = this.session['num_clues'];
+        let num_solved = this.session['num_solved'];
+        let num_revealed = this.session['num_revealed'];
+        let solvedBarWidth = Math.round(100 * num_solved / num_clues) + "%";
+        let revealedBarWidth = Math.round(100 * num_revealed / num_clues) + "%";
+        $(this.ID.numSolved).width(solvedBarWidth).text(num_solved);
+        $(this.ID.numRevealed).width(revealedBarWidth).text(num_revealed);
     }
 
     _setCompletionStatus() {
@@ -106,7 +106,7 @@ class SessionProgress {
     }
 
     _isSessionComplete() {
-        return (this.session['total_points'] === this.session['solved_points'] + this.session['revealed_points']);
+        return (this.session['num_clues'] === this.session['num_solved'] + this.session['num_revealed']);
     }
 
     _setWindowEventHandlers() {

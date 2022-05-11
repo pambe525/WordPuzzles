@@ -31,15 +31,15 @@ class PuzzleScoreTests(SeleniumTestCase):
         perc_solved = ['width: 40%;', 'width: 40%;']
         perc_revealed = ['width: 20%;', 'width: 0%;']
         self.assert_not_exists("//div[contains(@class,'notetext')]")
-        self.assert_text_equals("//table/thead/tr", "Puzzler Progress Score Time")
+        self.assert_text_equals("//table/thead/tr", "Puzzler Progress Score [Time]")
         for index, session in enumerate(sessions):
-            self.assert_text_equals("//table/tbody/tr/td[1]", str(session.solver), index=index)
-            self.assert_text_equals("//table/tbody/tr/td[3]", str(session.score), index=index)
+            self.assert_text_equals("//table/tbody/tr/td[1]", str(session.solver), index=index*2)
+            score_time = str(session.score) + " [" + elapsed_time[index] + "]"
+            self.assert_text_equals("//table/tbody/tr/td[3]", score_time, index=index)
             solved_width = self.get_element("//div[@title='Solved']", index=index).get_attribute('style')
             revealed_width = self.get_element("//div[@title='Revealed']", index=index).get_attribute('style')
-            self.assertEqual(solved_width, perc_solved[index])
-            self.assertEqual(revealed_width, perc_revealed[index])
-            self.assert_text_equals("//table/tbody/tr/td[4]", elapsed_time[index], index=index)
+            self.assertIn(perc_solved[index], solved_width)
+            self.assertIn(perc_revealed[index], revealed_width)
 
     def test_shows_back_button_to_go_back(self):
         self.assert_exists("//a[text()='BACK']")
