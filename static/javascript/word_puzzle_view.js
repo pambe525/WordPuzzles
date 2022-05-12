@@ -183,7 +183,7 @@ class ClueBox {
 
     _showAnswerWithParsing(clue) {
         let isEditable = (clue.mode === 'UNSOLVED');
-        this.answerGrid = new AnswerGrid(clue.answer, isEditable).show(this.ID.answerText);
+        this.answerGrid = new AnswerGrid2(clue.answer, isEditable).show(this.ID.answerText);
         if (clue.parsing === '' || clue.parsing === null) $(this.ID.parsing).hide();
         else $(this.ID.parsing).empty().text("Parsing: " + clue.parsing).show();
     }
@@ -439,11 +439,44 @@ class SessionTimer {
 }
 
 /**--------------------------------------------------------------------------------------------------------------------
- * CluesList
+ * New Answer grid
  */
-class CluesList {
-    constructor(jqContainerId, clues, clickHandler) {
-
+class AnswerGrid2 {
+       constructor(answerText, isEditable) {
+        this.answer = answerText;
+        this.isEditable = isEditable;
+        this.grid = this._createGrid();
     }
 
+    show(jqContainerId) {
+        $(jqContainerId).empty().append(this.grid).show();
+        this.grid.focus();
+        return this;
+    }
+
+    clear() {
+        this.grid.empty().focus();
+    }
+
+    readInput() {
+        return this.grid.text();
+    }
+
+    _createGrid() {
+        let grid = $("<input/>").attr('type','text');
+        grid.css('border','1px solid #ccc');
+        grid.css('background','linear-gradient(to left, #ccc 1px, transparent 0');
+        grid.css('background-size', '14px 1px');
+        grid.css('text-transform','uppercase');
+        grid.prop('maxlength', this.answer.length);
+        grid.css('letter-spacing','6px');
+        grid.css('font', '13px monaco, monospace');
+        grid.css('width', 14*this.answer.length + 1 + 'px');
+        grid.css('text-indent','15px');
+        if (!this.isEditable) {
+            grid.prop('readonly', true);
+            grid.val(this.answer);
+        }
+        return grid;
+    }
 }
