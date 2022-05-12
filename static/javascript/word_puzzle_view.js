@@ -183,7 +183,7 @@ class ClueBox {
 
     _showAnswerWithParsing(clue) {
         let isEditable = (clue.mode === 'UNSOLVED');
-        this.answerGrid = new AnswerGrid2(clue.answer, isEditable).show(this.ID.answerText);
+        this.answerGrid = new AnswerGrid(clue.answer, isEditable).show(this.ID.answerText);
         if (clue.parsing === '' || clue.parsing === null) $(this.ID.parsing).hide();
         else $(this.ID.parsing).empty().text("Parsing: " + clue.parsing).show();
     }
@@ -194,7 +194,7 @@ class ClueBox {
     }
 
     _getFullClueDesc(clue) {
-        return clue['clue_num'] + ". " + clue['clue_text']; // + " [" + clue['points'] + " pts]";
+        return clue['clue_num'] + ". " + clue['clue_text'];
     }
 
     _submitBtnClicked = () => {
@@ -294,106 +294,6 @@ class ClueButtonsGroup {
 }
 
 /**--------------------------------------------------------------------------------------------------------------------
- * AnswerGrid
- */
-class AnswerGrid {
-    constructor(answerText, isEditable) {
-        this.answer = answerText;
-        this.isEditable = isEditable;
-        this.grid = this._createGrid();
-    }
-
-    show(jqContainerId) {
-        $(jqContainerId).empty().append(this.grid).show();
-        this._setEditFocusOnFirstCell();
-        return this;
-    }
-
-    clear() {
-        $("div[contenteditable=true]").empty();
-        this._setEditFocusOnFirstCell();
-    }
-
-    readInput() {
-        return this.grid.text();
-    }
-
-    _createGrid() {
-        let grid = $("<div>"), index = 0, cell, hasBorder;
-        for (const letter of this.answer) {
-            hasBorder = (!(letter === '-' || letter === ' '));
-            cell = this._getCellAsDiv(hasBorder);
-            if (!this.isEditable || !hasBorder) cell.text(letter);
-            else this._setEditable(cell);
-            this._shiftCellToLeft(cell, index++);
-            $(grid).append(cell);
-        }
-        return grid;
-    }
-
-    _getCellAsDiv(hasBorder) {
-        let size = (hasBorder) ? '16px' : '12px';
-        let cell = $("<div>").addClass('d-inline-block text-center').width(size).height('18px');
-        cell.css('font-size', '12px').css('caret-color', 'transparent');
-        if (hasBorder) cell.addClass('border border-secondary');
-        return cell;
-    }
-
-    _setEditable(cell) {
-        cell.attr('contenteditable', 'true').on('keyup', this._onKeyDown);
-        cell.on('blur', this._removeHilite).on('focus', this._setHilite);
-    }
-
-    _setEditFocusOnFirstCell() {
-        if (this.isEditable) this.grid.children(":first-child").focus();
-    }
-
-    _getNextCell(currentCell) {
-        let nextCell = currentCell.nextAll("div[contenteditable=true]:first");
-        return (nextCell.length > 0) ? nextCell : null;
-    }
-
-    _getPrevCell(currentCell) {
-        let prevCell = currentCell.prevAll("div[contenteditable=true]:first");
-        return (prevCell.length > 0) ? prevCell : null;
-    }
-
-    _shiftCellToLeft(cell, pixels) {
-        cell.css('margin-left', '-' + pixels + 'px').css('margin-right', pixels + 'px')
-    }
-
-    _onKeyDown = (event) => {
-        let key = event.keyCode || event.which;
-        let keyChar = (key !== 0) ? String.fromCharCode(key) : $(event.targer).text();
-        event.preventDefault();
-        if (/[a-zA-Z]/.test(keyChar)) this._setTextAndMoveToNextCell($(event.target), keyChar);
-        else if (key === 8) this._setTextAndMoveToPrevCell($(event.target), '');
-        else if (key === 13) $("#id-submit-btn").click();
-    }
-
-    _removeHilite = (event) => {
-        $(event.target).css('background', '');
-    }
-
-    _setHilite = (event) => {
-        $(event.target).css('background', 'yellow');
-    }
-
-    _setTextAndMoveToNextCell(cell, keyChar) {
-        cell.text(keyChar);
-        let nextCell = this._getNextCell(cell);
-        if (nextCell) nextCell.focus();
-    }
-
-    _setTextAndMoveToPrevCell(cell, keyChar) {
-        cell.text(keyChar);
-        let prevCell = this._getPrevCell(cell);
-        if (prevCell) prevCell.focus();
-    }
-}
-
-
-/**--------------------------------------------------------------------------------------------------------------------
  * SessionTimer
  */
 class SessionTimer {
@@ -441,7 +341,7 @@ class SessionTimer {
 /**--------------------------------------------------------------------------------------------------------------------
  * New Answer grid
  */
-class AnswerGrid2 {
+class AnswerGrid {
        constructor(answerText, isEditable) {
         this.answer = answerText;
         this.isEditable = isEditable;
@@ -450,33 +350,26 @@ class AnswerGrid2 {
 
     show(jqContainerId) {
         $(jqContainerId).empty().append(this.grid).show();
-        this.grid.focus();
+        if (this.isEditable) this.grid.focus();
         return this;
     }
 
     clear() {
-        this.grid.empty().focus();
+        this.grid.val('').focus();
     }
 
     readInput() {
-        return this.grid.text();
+        return this.grid.val();
     }
 
     _createGrid() {
         let grid = $("<input/>").attr('type','text');
-        grid.css('border','1px solid #ccc');
-        grid.css('background','linear-gradient(to left, #ccc 1px, transparent 0');
-        grid.css('background-size', '14px 1px');
-        grid.css('text-transform','uppercase');
+        grid.css('border','1px solid #ccc').css('background','linear-gradient(to right, #ccc 1px, transparent 0');
+        grid.css('background-size', '14px 1px').css('text-transform','uppercase').css('text-align', 'left');
         grid.prop('maxlength', this.answer.length);
-        grid.css('letter-spacing','6px');
-        grid.css('font', '13px monaco, monospace');
-        grid.css('width', 14*this.answer.length + 1 + 'px');
-        grid.css('text-indent','15px');
-        if (!this.isEditable) {
-            grid.prop('readonly', true);
-            grid.val(this.answer);
-        }
+        grid.css('letter-spacing','6.2px').css('font', '14px consolas, monospace');
+        grid.css('width', 14*this.answer.length + 2 + 'px').css('text-indent','2px');
+        if (!this.isEditable) grid.prop('readonly', true).val(this.answer);
         return grid;
     }
 }

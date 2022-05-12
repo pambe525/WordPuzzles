@@ -1,3 +1,5 @@
+import time
+
 from puzzles.models import WordPuzzle
 from testing.data_setup_utils import create_draft_puzzle, get_full_clue_desc, create_published_puzzle, create_user
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
@@ -112,11 +114,11 @@ class PreviewPuzzleTests(SeleniumTestCase):
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Preview Puzzle & Publish")
         self.do_click("//button[@id='clue-btn-3']")
-        answer = self.get_element("//div[@id='id-answer']").text.replace('\n', "")
+        answer = self.get_element("//div[@id='id-answer']/input").get_attribute('value')
         self.assertEqual(answer, clues[2].answer)
         self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[2].parsing)
         self.do_click("//div/button[@id='id-right-caret']")
-        answer = self.get_element("//div[@id='id-answer']").text.replace('\n', "")
+        answer = self.get_element("//div[@id='id-answer']/input").get_attribute('value')
         self.assertEqual(answer, clues[3].answer)
         self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[3].parsing)
         self.assert_not_exists("//div[@id='id-answer-icons']")
