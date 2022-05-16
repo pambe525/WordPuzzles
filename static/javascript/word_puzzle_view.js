@@ -147,9 +147,9 @@ class AnswerGrid {
         let grid = $("<input/>").attr('type','text');
         grid.css('border','1px solid #ccc').css('background','linear-gradient(to right, #ccc 1px, transparent 0');
         grid.css('background-size', '14px 1px').css('text-transform','uppercase').css('text-align', 'left');
-        grid.prop('maxlength', this.answer.length);
+        grid.prop('maxlength', this.answer.length).css('padding-left', '0px');
         grid.css('letter-spacing','6.2px').css('font', '14px consolas, monospace');
-        grid.css('width', 14*this.answer.length + 6 + 'px').css('text-indent','2px');
+        grid.css('width', 14*this.answer.length + 6 + 'px').css('text-indent','4px');
         if (!this.isEditable) grid.prop('readonly', true).val(this.answer);
         return grid;
     }
@@ -291,6 +291,7 @@ class AnswerDialog {
         let answerInput = this.answerGrid.readInput();
         if (answerInput.length === this.activeClue.answer.length)
             this.submitHandler(this.activeClue.clue_num, answerInput);
+        else this.showErrorMsg("Incomplete answer");
     }
 
     _revealClicked = () => {
