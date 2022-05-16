@@ -38,6 +38,7 @@ class HomeView(LoginRequiredMixin, View):
                 .order_by('-shared_at')
         in_recent_sessions = self.get_puzzles_in_recent_sessions()
         recent_puzzles = (in_recent_sessions | recently_published).distinct()  # Union of 2 sets
+
         add_session_data(recent_puzzles, request.user)
         ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recent_puzzles}
         return render(request, "home.html", context=ctx)
@@ -260,7 +261,7 @@ class SolvePuzzleView(PreviewPuzzleView):
         self.puzzle = WordPuzzle.objects.get(id=self.solve_session.puzzle.id)
         if request.POST['action'] == 'timer':
             self.solve_session.elapsed_seconds = request_data['elapsed_secs']
-            self.solve_session.save(update_fields=['elapsed_seconds'])
+            self.solve_session.save()
         else:
             clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
             if request.POST['action'] == 'solve':
