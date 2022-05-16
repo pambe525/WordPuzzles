@@ -135,7 +135,6 @@ class AnswerGrid {
         return this._grid;
     }
 
-
     clear() {
         this._grid.val('').focus();
     }
@@ -150,7 +149,7 @@ class AnswerGrid {
         grid.css('background-size', '14px 1px').css('text-transform','uppercase').css('text-align', 'left');
         grid.prop('maxlength', this.answer.length);
         grid.css('letter-spacing','6.2px').css('font', '14px consolas, monospace');
-        grid.css('width', 14*this.answer.length + 2 + 'px').css('text-indent','2px');
+        grid.css('width', 14*this.answer.length + 6 + 'px').css('text-indent','2px');
         if (!this.isEditable) grid.prop('readonly', true).val(this.answer);
         return grid;
     }
