@@ -115,11 +115,13 @@ class SessionProgress {
         window.onblur = () => {
             this.saveTimerHandler(this.timer.pause());
         }
-        window.onbeforeunload = () => {
-            this.saveTimerHandler(this.timer.stop());
-        }
+        // window.onunload = () => {
+        //     this.saveTimerHandler(this.timer.stop());
+        // }
         window.onpagehide = () => {
+            alert("onpagehide called");
             this.saveTimerHandler(this.timer.stop());
+            return null;
         }
     }
 }
@@ -153,7 +155,7 @@ class AnswerGrid {
         grid.css('text-align', 'left').css('text-transform','uppercase');
         grid.prop('maxlength', this.answer.length).css('padding-left', '0px');
         grid.css('letter-spacing','2px').css('font', '14px consolas, monospace');
-        grid.css('width', 12*this.answer.length + 'px').css('text-indent','4px');
+        grid.css('width', 12*this.answer.length + 'px').css('text-indent','2px');
         if (!this.isEditable) grid.prop('readonly', true).val(this.answer);
         return grid;
     }
