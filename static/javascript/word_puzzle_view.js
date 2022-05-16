@@ -118,6 +118,9 @@ class SessionProgress {
         window.onbeforeunload = () => {
             this.saveTimerHandler(this.timer.stop());
         }
+        window.onpagehide = () => {
+            this.saveTimerHandler(this.timer.stop());
+        }
     }
 }
 
@@ -145,11 +148,12 @@ class AnswerGrid {
 
     _createGrid() {
         let grid = $("<input/>").attr('type','text');
-        grid.css('border','1px solid #ccc').css('background','linear-gradient(to right, #ccc 1px, transparent 0');
-        grid.css('background-size', '14px 1px').css('text-transform','uppercase').css('text-align', 'left');
+//       grid.css('border','1px solid #ccc').css('background','linear-gradient(to right, #ccc 1px, transparent 0');
+//       grid.css('background-size', '14px 1px')
+        grid.css('text-align', 'left').css('text-transform','uppercase');
         grid.prop('maxlength', this.answer.length).css('padding-left', '0px');
-        grid.css('letter-spacing','6.2px').css('font', '14px consolas, monospace');
-        grid.css('width', 14*this.answer.length + 6 + 'px').css('text-indent','4px');
+        grid.css('letter-spacing','2px').css('font', '14px consolas, monospace');
+        grid.css('width', 12*this.answer.length + 'px').css('text-indent','4px');
         if (!this.isEditable) grid.prop('readonly', true).val(this.answer);
         return grid;
     }
