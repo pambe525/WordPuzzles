@@ -265,7 +265,7 @@ class SolvePuzzleView(PreviewPuzzleView):
             clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
             if request.POST['action'] == 'solve':
                 answer_input = request_data['answer_input']
-                if clue.answer == answer_input:
+                if clue.answer.upper() == answer_input.upper():
                     self.solve_session.add_solved_clue_num(clue.clue_num)
                 else:
                     raise AssertionError("Incorrect answer")
