@@ -1,9 +1,9 @@
-import time
+from selenium.webdriver.support.wait import WebDriverWait
 
 from puzzles.models import WordPuzzle
-from testing.data_setup_utils import create_draft_puzzle, get_full_clue_desc, create_published_puzzle, create_user
+from testing.data_setup_utils import create_draft_puzzle, create_published_puzzle, create_user
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
-
+from selenium.webdriver.support import expected_conditions as EC
 
 class PreviewPuzzleTests(SeleniumTestCase):
 
@@ -44,85 +44,34 @@ class PreviewPuzzleTests(SeleniumTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue text 1', 'parsing': 'p1', 'points': 1})
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_text_contains("//div[contains(@class,'notetext')][2]", "NOTE: Publish your puzzle only")
+        self.assert_text_contains("//div[contains(@class,'notetext')][1]", "NOTE: Publish your puzzle only")
         self.do_click("//a[text()='PUBLISH']")
         updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
         self.assertTrue(updated_puzzle.is_published())
         self.assert_current_url('/')
 
-    def test_shows_clue_button_for_each_clue(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4])
+    def test_draft_puzzle_preview_shows_each_clue_with_answer_and_parsing(self):
+        puzzle = create_draft_puzzle(editor=self.user, clues_pts=[2, 1, 3, 4], has_parsing=True)
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//div/div/div//h5", "Clues")
-        self.assert_item_count("//div//button[contains(@id,'clue-btn-')]", 4)
+        self.assert_text_equals("//table/thead/tr", "# Description Pts")
+        self.assert_not_exists("//div[contains(text(),'Click on a clue below')]")
+        for index, clue in enumerate(puzzle.get_clues()):
+            tr_xpath = "//table/tbody/tr/"
+            self.assert_text_equals(tr_xpath+"td[1]", "", index)
+            self.assert_text_equals(tr_xpath+"td[2]", str(clue.clue_num) + ".", index)
+            self.assert_text_equals(tr_xpath+"td[3]/div[1]", clue.get_decorated_clue_text(), index)
+            self.assert_text_equals(tr_xpath+"td[4]", str(clue.points), index)
+            self.assert_text_equals(tr_xpath+"td[3]/div[2]", "["+clue.parsing+"]", index)
+            self.assert_value_equals(tr_xpath+"td[3]/input", clue.answer, index)
 
-    def test_clue_button_details(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4])
+    def test_draft_puzzle_preview_clues_are_not_clickable(self):
+        puzzle = create_draft_puzzle(editor=self.user, clues_pts=[2, 1, 4])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         for index, clue in enumerate(puzzle.get_clues()):
-            clue_btn = self.get_element("//div/button[@id='clue-btn-" + str(index + 1) + "']")
-            self.assertEqual(clue_btn.text, str(clue.clue_num))
-            tooltip = clue.get_decorated_clue_text() # + " [" + str(clue.points) + " pts]"
-            self.assertEqual(clue_btn.get_attribute('title'), tooltip)
-
-    def test_first_clue_is_shown_in_clue_box_and_first_clue_btn_is_activated(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[3, 1, 2, 4])
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        first_clue = puzzle.get_clues()[0]
-        self.verify_clue_is_active(first_clue)
-
-    def test_clicking_on_a_clue_button_activates_it_and_shows_clue_text_in_clue_box(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4, 5])
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.do_click("//div/button[@id='clue-btn-4']")
-        fourth_clue = puzzle.get_clues()[3]
-        self.verify_clue_is_active(fourth_clue)
-
-    def test_clicking_on_right_caret_advances_to_next_clue(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4, 5])
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.do_click("//div/button[@id='id-right-caret']")
-        next_clue = puzzle.get_clues()[1]
-        self.verify_clue_is_active(next_clue)
-
-    def test_clicking_on_right_caret_on_last_clue_advances_to_first_clue(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4])
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.do_click("//button[@id='clue-btn-4']")
-        self.do_click("//div/button[@id='id-right-caret']")
-        next_clue = puzzle.get_clues()[0]
-        self.verify_clue_is_active(next_clue)
-
-    def test_clicking_on_left_caret_advances_to_previous_clue(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[2, 1, 3, 4, 5])
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.do_click("//button[@id='clue-btn-4']")  # Click on 4th clue btn
-        self.do_click("//div/button[@id='id-left-caret']")
-        prev_clue = puzzle.get_clues()[2]  # 3rd clue
-        self.verify_clue_is_active(prev_clue)
-
-    def test_clicking_on_left_caret_on_first_clue_advances_to_last_clue(self):
-        puzzle = create_draft_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3, 4])
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.do_click("//div/button[@id='id-left-caret']")
-        next_clue = puzzle.get_clues()[3]
-        self.verify_clue_is_active(next_clue)
-
-    def test_draft_puzzle_editor_can_preview_answer_and_parsing_for_each_clue(self):
-        puzzle = create_draft_puzzle(editor=self.user, clues_pts=[1, 2, 3, 4], has_parsing=True)
-        clues = puzzle.get_clues()
-        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_text_equals("//h2", "Preview Puzzle & Publish")
-        self.do_click("//button[@id='clue-btn-3']")
-        answer = self.get_element("//div[@id='id-answer']/input").get_attribute('value')
-        self.assertEqual(answer, clues[2].answer)
-        self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[2].parsing)
-        self.do_click("//div/button[@id='id-right-caret']")
-        answer = self.get_element("//div[@id='id-answer']/input").get_attribute('value')
-        self.assertEqual(answer, clues[3].answer)
-        self.assert_text_equals("//div[@id='id-parsing']", "Parsing: " + clues[3].parsing)
-        self.assert_not_exists("//div[@id='id-answer-icons']")
-        self.assert_not_exists("//div[@id='id-answer-btns']")
+            tr_xpath = "//table/tbody/tr/"
+            element = self.get_element(tr_xpath+"td[3]", index)
+            self.assertIsNone(element.get_attribute('onclick'))
 
     def test_draft_puzzle_preview_shows_error_for_non_editor(self):
         puzzle = create_draft_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[1, 2, 3])
@@ -141,7 +90,7 @@ class PreviewPuzzleTests(SeleniumTestCase):
     def test_published_puzzle_editor_can_unpublish_puzzle(self):
         puzzle = create_published_puzzle(editor=self.user, desc="Puzzle description", clues_pts=[1, 2, 3])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_text_contains("//div[contains(@class,'notetext')][2]", "NOTE: Unpublish your puzzle")
+        self.assert_text_contains("//div[contains(@class,'notetext')][1]", "NOTE: Unpublish your puzzle")
         self.do_click("//a[text()='UNPUBLISH']")
         updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
         self.assertIsNone(updated_puzzle.shared_at)
@@ -157,15 +106,27 @@ class PreviewPuzzleTests(SeleniumTestCase):
             '%b %d, %Y') + ' (GMT)'
         self.assert_text_equals("//h6[@id='id-posted-by']", posted_by_str)
         self.verify_button_states_for_non_editor_mode()
-        self.assert_not_exists("//div[@id='id-answer-icons']")
-        self.assert_not_exists("//div[@id='id-answer-btns']")
 
-    def test_published_puzzle_preview_by_non_editor_hides_answers(self):
-        puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[2, 2, 3])
+    def test_published_puzzle_preview_by_non_editor_hides_points_and_answers(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 2, 3])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
-        self.assert_text_equals("//h2", "Preview Puzzle & Solve")
-        self.assert_is_not_displayed("//div[@id='id-answer']")
-        self.assert_is_not_displayed("//div[@id='id-parsing']")
+        self.assert_not_exists("//div[contains(text(),'Click on a clue below')]")
+        for index, clue in enumerate(puzzle.get_clues()):
+            tr_xpath = "//table/tbody/tr/"
+            self.assert_text_equals(tr_xpath+"td[1]", "", index)
+            self.assert_text_equals(tr_xpath+"td[2]", str(clue.clue_num) + ".", index)
+            self.assert_text_equals(tr_xpath+"td[3]/div[1]", clue.get_decorated_clue_text(), index)
+            self.assert_exists(tr_xpath+"td[4]/i[@class='fa fa-eye-slash']")
+            self.assert_not_exists(tr_xpath+"td[3]/div[2]")
+            self.assert_not_exists(tr_xpath+"td[3]/input")
+
+    def test_published_puzzle_preview_clues_are_not_clickable_by_non_editor(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 1, 4])
+        self.get('/preview_puzzle/' + str(puzzle.id) + '/')
+        for index, clue in enumerate(puzzle.get_clues()):
+            tr_xpath = "//table/tbody/tr/"
+            element = self.get_element(tr_xpath+"td[3]", index)
+            self.assertIsNone(element.get_attribute('onclick'))
 
     def test_solve_button_starts_solve_session(self):
         puzzle = create_published_puzzle(editor=self.other_user, desc="Puzzle description", clues_pts=[1, 2, 3])
@@ -176,13 +137,6 @@ class PreviewPuzzleTests(SeleniumTestCase):
 
     #==================================================================================================================
     # HELPER METHODS
-    def verify_clue_is_active(self, clue):
-        btn_id = 'clue-btn-' + str(clue.clue_num)
-        self.assert_text_equals("//div[@id='id-clue']", get_full_clue_desc(clue))
-        self.assert_exists("//button[@id='"+btn_id+"'][contains(@class,'active')]")
-        btns = self.selenium.find_elements_by_xpath("//button[starts-with(@id,'clue-btn-')][contains(@class,'active')]")
-        self.assertEqual(len(btns), 1)  # Only 1 clue btn is active
-
     def verify_button_states_for_solve_mode(self):
         self.assert_not_exists("//a[text()='PUBLISH']")    # No PUBLISH button
         self.assert_not_exists("//a[text()='UNPUBLISH']")  # No UNPUBLISH button

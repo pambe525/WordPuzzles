@@ -2,10 +2,14 @@ class WordPuzzlePageView {
     constructor(clueSet, activeSession) {
         this.clueSet = clueSet;
         this.session = activeSession;
-        this.btnGroup = new ClueButtonsGroup("id-clue-btns-group", clueSet, this._clueBtnClicked).show();
-        this.clueBox = new ClueBox(clueSet, this._submitClicked, this._revealClicked);
-        this.btnGroup.click(1);
+        this.cluesList = new CluesList(clueSet, "id-clues-list", this._clueClicked).show();
+        this.answerDialog = new AnswerDialog("id-modal-answer-box", null, null);
         if (activeSession) this.sessionProgress = new SessionProgress(activeSession, this._saveTimer);
+    }
+
+    _clueClicked = (clueNum) => {
+        this.answerDialog.show(this.clueSet[clueNum-1]);
+        this.answerDialog.grid.focus();
     }
 
     _clueBtnClicked = (clueNum) => {
@@ -121,6 +125,166 @@ class SessionProgress {
         }
     }
 }
+
+/**--------------------------------------------------------------------------------------------------------------------
+ * Answer grid
+ */
+class AnswerGrid {
+       constructor(answerText, isEditable) {
+        this.answer = answerText;
+        this.isEditable = isEditable;
+        this._grid = this._createGrid();
+    }
+
+    show(jqContainerId) {
+        $(jqContainerId).empty().append(this._grid).show();
+        if (this.isEditable) this.grid.focus();
+        return this;
+    }
+
+    get grid() {
+           return this._grid;
+    }
+
+    clear() {
+        this._grid.val('').focus();
+    }
+
+    readInput() {
+        return this._grid.val();
+    }
+
+    _createGrid() {
+        let grid = $("<input/>").attr('type','text');
+        grid.css('border','1px solid #ccc').css('background','linear-gradient(to right, #ccc 1px, transparent 0');
+        grid.css('background-size', '14px 1px').css('text-transform','uppercase').css('text-align', 'left');
+        grid.prop('maxlength', this.answer.length);
+        grid.css('letter-spacing','6.2px').css('font', '14px consolas, monospace');
+        grid.css('width', 14*this.answer.length + 2 + 'px').css('text-indent','2px');
+        if (!this.isEditable) grid.prop('readonly', true).val(this.answer);
+        return grid;
+    }
+}
+
+/**--------------------------------------------------------------------------------------------------------------------
+ * Clues List
+ */
+class CluesList {
+    constructor(clues, tableId, clickHandler) {
+        this.clues = clues;
+        this.tableID = "#"+tableId;
+        this.clickhandler = clickHandler;
+        this._setClickHandler();
+    }
+
+    show() {
+        for (const clue of this.clues) {
+            this._setClueRowDetails(clue);
+        }
+    }
+
+    _clueCell(clue, colNum) {
+        let cells = $(this.tableID + ">tbody>tr").eq(clue.clue_num-1).children();
+        return cells.eq(colNum-1);
+    }
+
+    _setClickHandler() {
+        for (const clue of this.clues)
+            if (clue.mode !== 'PREVIEW' && clue.mode !== 'PRESOLVE') {
+                this._clueCell(clue, 3).on('click', this._clueClicked);
+            }
+    }
+
+    _setClueRowDetails(clue) {
+        this._clueCell(clue,1).html(this._icon(clue))
+        this._clueCell(clue,2).text(clue.clue_num + ".");
+        this._clueCell(clue,3).html(this._clueDesc(clue));
+        this._clueCell(clue,4).html(this._points(clue));
+    }
+
+    _icon(clue) {
+        let icon = $("<i>");
+        if (clue.mode === 'SOLVED') icon.addClass("fa fa-check-circle text-success");
+        else if (clue.mode === 'REVEALED') icon.addClass("fa fa-eye");
+        return (clue.mode !== 'SOLVED' && clue.mode !== 'REVEALED') ? null : icon;
+    }
+
+    _clueDesc(clue) {
+        let div = $("<div>").text(clue.clue_text);
+        if (clue.mode === 'SOLVED' || clue.mode === 'REVEALED') div.addClass("text-secondary");
+        else div.addClass("font-weight-bold");
+        return div;
+    }
+
+    _answer(clue) {
+        return new AnswerGrid(clue.answer, false).grid;
+    }
+
+    _parsing(clue) {
+        let parsing = $("<div>").addClass("h6 text-secondary");
+        return (clue.parsing) ? parsing.text("["+clue.parsing+"]") : null;
+    }
+
+    _points(clue) {
+        let hidden_icon = $("<i>").addClass("fa fa-eye-slash").attr('title','Hidden');
+        let points = (clue.mode === "REVEALED") ? 0 : clue.points;
+        return (this._isDetailHidden(clue)) ? hidden_icon : points;
+    }
+
+    _isDetailHidden(clue) {
+        return (clue.mode === 'UNSOLVED' || clue.mode === 'PRESOLVE');
+    }
+
+    _clueClicked = (event) => {
+        let clueNum = parseInt($(event.target).closest("tr").find("td:nth-child(2)").text());
+        let clue = this.clues[clueNum-1];
+        let clueCell = this._clueCell(clue, 3);
+        if (!this._isDetailHidden(clue))
+            if (clueCell.children().length > 1) clueCell.children().not(":first").remove()
+            else this._clueCell(clue,3).append(this._answer(clue)).append(this._parsing(clue));
+        if (this.clues[clueNum-1].mode === "UNSOLVED") this.clickhandler(clueNum);
+    }
+}
+
+/**--------------------------------------------------------------------------------------------------------------------
+ * ClueBox
+ */
+class AnswerDialog {
+    constructor(modalDialogID, submitAnswerHandler, revealAnswerHandler) {
+        this.modalDialog = "#"+modalDialogID;
+        this.submitHandler = submitAnswerHandler;
+        this.revealHandler = revealAnswerHandler;
+        this.answerGrid = null;
+        $("#id-submit-btn").on('click', this._submitClicked);
+        $("#id-reveal-btn").on('click', this._revealClicked);
+        $("#id-clear-btn").on('click', this._clearClicked);
+    }
+
+    show(clue) {
+        this.answerGrid = new AnswerGrid(clue.answer, true);
+        $(this.modalDialog).find(".modal-title").text("Clue #" + clue.clue_num);
+        $(this.modalDialog).find("#id-clue-text").empty().html(clue.clue_text);
+        $(this.modalDialog).find("#id-answer").empty().append(this.answerGrid.grid);
+        $(this.modalDialog).find("#id-err-msg").empty();
+        $(this.modalDialog).modal('show');
+    }
+
+    _submitClicked = () => {
+
+    }
+
+    _revealClicked = () => {
+
+    }
+
+    _clearClicked = () => {
+        this.answerGrid.clear();
+        $(this.modalDialog).find("#id-err-msg").empty();
+        $(this.answerGrid.grid).focus()
+    }
+}
+
+
 
 /**--------------------------------------------------------------------------------------------------------------------
  * ClueBox
@@ -335,41 +499,5 @@ class SessionTimer {
     _incrementTimer = () => {
         this.elapsedSecs++;
         this._showTime();
-    }
-}
-
-/**--------------------------------------------------------------------------------------------------------------------
- * New Answer grid
- */
-class AnswerGrid {
-       constructor(answerText, isEditable) {
-        this.answer = answerText;
-        this.isEditable = isEditable;
-        this.grid = this._createGrid();
-    }
-
-    show(jqContainerId) {
-        $(jqContainerId).empty().append(this.grid).show();
-        if (this.isEditable) this.grid.focus();
-        return this;
-    }
-
-    clear() {
-        this.grid.val('').focus();
-    }
-
-    readInput() {
-        return this.grid.val();
-    }
-
-    _createGrid() {
-        let grid = $("<input/>").attr('type','text');
-        grid.css('border','1px solid #ccc').css('background','linear-gradient(to right, #ccc 1px, transparent 0');
-        grid.css('background-size', '14px 1px').css('text-transform','uppercase').css('text-align', 'left');
-        grid.prop('maxlength', this.answer.length);
-        grid.css('letter-spacing','6.2px').css('font', '14px consolas, monospace');
-        grid.css('width', 14*this.answer.length + 2 + 'px').css('text-indent','2px');
-        if (!this.isEditable) grid.prop('readonly', true).val(this.answer);
-        return grid;
     }
 }
