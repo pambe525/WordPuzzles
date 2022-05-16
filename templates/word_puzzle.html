@@ -110,49 +110,6 @@
                           </div>
                       </div>
                 </div>
-
-{#                <div class="m-0 row align-items-center">#}
-{#                    <!-- CLUE BUTTONS -->#}
-{#                    <div class="col mt-1 mb-2 p-0" id="id-clue-btns-group">#}
-{##}
-{#                    </div>#}
-{#                    <div class="align-items-top">#}
-{#                        <!-- LEFT ARROW -->#}
-{#                        <button class="p-0 btn" title="Previous clue" id="id-left-caret">#}
-{#                            <i class="fa fa-arrow-circle-left fa-lg"></i>#}
-{#                        </button>#}
-{#                        <!-- RIGHT ARROW -->#}
-{#                        <button class="p-0 btn" title="Next clue" id="id-right-caret">#}
-{#                            <i class="fa fa-arrow-circle-right fa-lg"></i>#}
-{#                        </button>#}
-{#                    </div>#}
-{#                </div>#}
-{#                <!-- CLUE & ANSWER BOX -->#}
-{#                <div class="col p-2 border border-secondary mt-1" style="line-height:18px">#}
-{#                    <div class="font-weight-bold mb-2" id="id-clue"></div>#}
-{#                    <div id="id-answer-section">#}
-{#                        <div class="m-0 row align-items-center">#}
-{#                            Answer:#}
-{#                            {% if active_session != None %}#}
-{#                                <div class="m-0 row ml-1" id="id-answer-icons">#}
-{#                                    <div id="id-check-icon"><i class="fa fa-check text-success"></i></div>#}
-{#                                    <div id="id-eye-icon"><i class="fa fa-eye text-secondary"></i></div>#}
-{#                                    <div id="id-wrong-icon"><i class="fa fa-times text-danger"></i></div>#}
-{#                                    <div class="ml-1" id="id-answer-msg">[2 pts]</div>#}
-{#                                </div>#}
-{#                            {% endif %}#}
-{#                        </div>#}
-{#                        <div id="id-answer"></div>#}
-{#                        {% if active_session != None %}#}
-{#                            <div class="m-0 row mt-2" id="id-answer-btns">#}
-{#                                <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn">SUBMIT</button>#}
-{#                                <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn">CLEAR</button>#}
-{#                                <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn">REVEAL</button>#}
-{#                            </div>#}
-{#                        {% endif %}#}
-{#                        <div class="mt-1" id="id-parsing"></div>#}
-{#                    </div>#}
-{#                </div>#}
             {% endif %}
         </div>
     </div>
@@ -167,7 +124,8 @@
         });
 
         $(document).ready(function () {
-            new WordPuzzlePageView(clueSet, activeSession);
+            try { new WordPuzzlePageView(clueSet, activeSession); }
+            catch(e) { alert(e); }
         })
     </script>
 {% endblock %}
