@@ -115,7 +115,7 @@ class HelperMixin:
 
     def wait_until_visible(self, xpath):
         # element = self.selenium.find_element(By.XPATH, xpath)
-        WebDriverWait(self.selenium, 5).until(EC.visibility_of((By.XPATH, xpath)))
+        WebDriverWait(self.selenium, 5).until(EC.visibility_of_element_located((By.XPATH, xpath)))
 
 
 # Parent class from which all selenium test cases will be derived
