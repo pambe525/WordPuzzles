@@ -21,8 +21,8 @@ class PuzzlesListTests(SeleniumTestCase):
         self.assert_value_equals("//select[2]", '-')
 
     def test_each_published_puzzle_detail_is_listed(self):
-        puzzle = create_published_puzzle(editor=self.other_user, desc="puzzle desc")
         create_draft_puzzle(editor=self.user)
+        puzzle = create_published_puzzle(editor=self.other_user, desc="puzzle desc")
         self.get('/puzzles_list')
         self.assert_item_count("//table/tbody/tr", 1)
         self.assert_text_contains("//table/tbody/tr[1]/td[1]", str(puzzle))

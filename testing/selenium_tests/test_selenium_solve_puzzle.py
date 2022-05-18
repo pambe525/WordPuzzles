@@ -4,7 +4,6 @@ from puzzles.models import PuzzleSession
 from testing.data_setup_utils import create_published_puzzle, create_session, create_user
 from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
 
-
 # ======================================================================================================================
 # HELPER FUNCTIONS FOR SolveSession Test Cases cast as a derived class (of SeleneiumTestCase
 # Test cases for Solve Session should derive from this class.
@@ -18,7 +17,7 @@ class SolveSessionTestCaseHelper(SeleniumTestCase):
     SUBMIT_BTN = "//div[@class='modal-footer']/button[@id='id-submit-btn']"
     CLEAR_BTN = "//div[@class='modal-footer']/button[@id='id-clear-btn']"
     ERR_MSG = "//div[@class='modal-body']//div[@id='id-err-msg']"
-    SCORES = "//a[text()='SCORES']"
+    SCORES_BTN = "//a[text()='SCORES']"
     CLUE_TEXT = "//div[@id='id-clue-text']"
     MODAL_TITLE = "//h4[@class='modal-title']"
 
@@ -114,6 +113,9 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.clues = self.puzzle.get_clues()
         self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
 
+    def test_safari_test(self):
+        self.auto_login_user(self.user)
+
     def test_loads_existing_session_state(self):
         self.assert_text_equals("//h2", "Solve Puzzle")
         self.assert_exists("//div[contains(text(),'Click on a clue below')]")
@@ -191,9 +193,10 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
 
     def test_incorrect_answer_submit_sets_incorrect_state(self):
         self.click_on_clue(2)  # Click on 2nd clue
+        self.wait_until_visible(self.MODAL_DIALOG)
         self.set_answer_input("WORD-X")  # Wrong answer
         self.do_click(self.SUBMIT_BTN)
-        self.assert_is_displayed(self.MODAL_DIALOG)
+        self.wait_until_visible(self.ERR_MSG)
         self.assert_text_equals(self.ERR_MSG, "Incorrect answer")
         self.verify_score(6)
         self.verify_progress_bars(40, 20)
@@ -251,8 +254,8 @@ class SessionTimerTests(SolveSessionTestCaseHelper):
 
     def test_completing_puzzle_shows_scores_button(self):
         self.click_on_clue(2)
-        self.wait_until_visible(self.MODAL_DIALOG)
+        time.sleep(1)
         self.do_click(self.REVEAL_BTN)
-        self.assert_is_displayed(self.SCORES)
-        self.do_click(self.SCORES)
+        time.sleep(1)
+        self.do_click(self.SCORES_BTN)
         self.assert_current_url('/puzzle_score/' + str(self.puzzle.id) + '/')

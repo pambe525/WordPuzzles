@@ -24,7 +24,7 @@ class WordPuzzlePageView {
 
     _saveTimer = (elapsedSecs) => {
         let context = {'session_id': this.session.session_id, 'elapsed_secs': elapsedSecs};
-        this._postAjax("timer", context);
+        this._postAjax("timer", context, null);
     }
 
     _postAjax(action, data, successHandler) {
@@ -115,13 +115,8 @@ class SessionProgress {
         window.onblur = () => {
             this.saveTimerHandler(this.timer.pause());
         }
-        // window.onunload = () => {
-        //     this.saveTimerHandler(this.timer.stop());
-        // }
         window.onpagehide = () => {
-            alert("onpagehide called");
             this.saveTimerHandler(this.timer.stop());
-            return null;
         }
     }
 }
