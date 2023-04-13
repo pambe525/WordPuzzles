@@ -111,11 +111,11 @@ class HelperMixin:
         self.testcase.assertTrue(self, self.selenium.find_elements(By.XPATH, xpath)[index].is_displayed())
 
     def wait_until_invisible(self, xpath):
-        WebDriverWait(self.selenium, 10).until(EC.invisibility_of_element((By.XPATH, xpath)))
+        WebDriverWait(self.selenium, 5).until(EC.invisibility_of_element((By.XPATH, xpath)))
 
     def wait_until_visible(self, xpath):
-        element = self.selenium.find_element(By.XPATH, xpath)
-        WebDriverWait(self.selenium, 10).until(EC.visibility_of(element))
+        # element = self.selenium.find_element(By.XPATH, xpath)
+        WebDriverWait(self.selenium, 5).until(EC.visibility_of_element_located((By.XPATH, xpath)))
 
 
 # Parent class from which all selenium test cases will be derived

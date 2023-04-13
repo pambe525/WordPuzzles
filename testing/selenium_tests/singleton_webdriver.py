@@ -21,8 +21,10 @@ class SingletonWebDriver(object):
     def _create_webdriver(self):
         if self._browser == 'Chrome':
             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        else:
+        elif self._browser == 'Firefox':
             driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()))
+        else:
+            driver = webdriver.Safari()
         return driver
 
     def start_webdriver(self):

@@ -3,7 +3,7 @@ import re
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from django.views import View
@@ -22,6 +22,7 @@ def add_session_data(puzzles, user):
         puzzle.session_count = len(PuzzleSession.objects.filter(puzzle=puzzle))
         current_user_session = PuzzleSession.objects.filter(puzzle=puzzle, solver=user)
         puzzle.user_session = None if len(current_user_session) == 0 else current_user_session[0]
+
 
 class ReleaseNotesView(TemplateView):
     template_name = "release_notes.html"
@@ -262,6 +263,7 @@ class SolvePuzzleView(PreviewPuzzleView):
         if request.POST['action'] == 'timer':
             self.solve_session.elapsed_seconds = request_data['elapsed_secs']
             self.solve_session.save()
+            return HttpResponse(status=204)
         else:
             clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
             if request.POST['action'] == 'solve':

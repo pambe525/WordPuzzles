@@ -115,10 +115,11 @@ class SessionProgress {
         window.onblur = () => {
             this.saveTimerHandler(this.timer.pause());
         }
-        window.onunload = () => {
-            this.saveTimerHandler(this.timer.stop());
-        }
+        // window.onunload = () => {
+        //     this.saveTimerHandler(this.timer.stop());
+        // }
         window.onpagehide = () => {
+            alert("onpagehide called");
             this.saveTimerHandler(this.timer.stop());
             return null;
         }
