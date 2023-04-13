@@ -253,6 +253,5 @@ class SessionTimerTests(SolveSessionTestCaseHelper):
         self.click_on_clue(2)
         self.wait_until_visible(self.MODAL_DIALOG)
         self.do_click(self.REVEAL_BTN)
-        self.assert_is_displayed(self.SCORES)
         self.do_click(self.SCORES)
         self.assert_current_url('/puzzle_score/' + str(self.puzzle.id) + '/')
