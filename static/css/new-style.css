@@ -22,7 +22,7 @@
 }
 
 /**--------------------------------------------------------
- CSS Reset
+ CSS Reset by Josh Comeau
  */
 /* Use a more-intuitive box-sizing model */
 *, *::before, *::after {
@@ -54,7 +54,7 @@ input, button, textarea, select {
 p, h1, h2, h3, h4, h5, h6 {
     overflow-wrap: break-word;
 }
-/* Create a root stacking context */
-#root, #__next {
-    isolation: isolate;
+
+body {
+    font-family: sans-serif;
 }
