@@ -1,3 +1,6 @@
+/*--------------------------------------------------------
+ CSS GLOBAL VARIABLES
+----------------------------------------------------------*/
 :root {
     /* Primary color variables */
     --clr-lightblue: #d5dff0;
@@ -21,9 +24,9 @@
     --icon-team:\f830;
 }
 
-/**--------------------------------------------------------
- CSS Reset by Josh Comeau
- */
+/*--------------------------------------------------------
+ CSS RESET by Josh Comeau
+---------------------------------------------------------*/
 /* Use a more-intuitive box-sizing model */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -57,4 +60,5 @@ p, h1, h2, h3, h4, h5, h6 {
 
 body {
     font-family: sans-serif;
+    font-size: 1em;
 }
