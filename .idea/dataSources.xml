@@ -7,5 +7,19 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:C:\Users\Prashant\Documents\PyCharmProjects\WordPuzzles\db.sqlite3</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="MySQL80" uuid="990a6899-779e-4bd6-9885-2f0c17625b7b">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306/wordpuzzles</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="Django default" uuid="030c9dc1-367b-4e35-a4bf-f94c4ca3aa65">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <imported>true</imported>
+      <remarks>$PROJECT_DIR$/WordPuzzles/settings.py</remarks>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://127.0.0.1:3306/wordpuzzles</jdbc-url>
+    </data-source>
   </component>
 </project>

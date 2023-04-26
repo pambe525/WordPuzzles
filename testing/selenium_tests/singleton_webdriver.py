@@ -8,7 +8,7 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 class SingletonWebDriver(object):
     _instance = None
-    _browser = 'Firefox'
+    _browser = 'Chrome'
 
     active_webdriver = None
     is_persistent = True
@@ -20,7 +20,11 @@ class SingletonWebDriver(object):
 
     def _create_webdriver(self):
         if self._browser == 'Chrome':
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+            chrome_options = webdriver.ChromeOptions()
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--disable-gpu")
+            driver = webdriver.Chrome(options=chrome_options, service=Service(ChromeDriverManager().install()))
         elif self._browser == 'Firefox':
             driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()))
         else:

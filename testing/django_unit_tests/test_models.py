@@ -2,7 +2,7 @@ from django.db.utils import IntegrityError
 
 from django.contrib.auth.models import User
 from django.utils import timezone
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from datetime import datetime
 from puzzles.models import Puzzle, WordPuzzle, Clue, PuzzleSession
 from testing.data_setup_utils import create_published_puzzle
@@ -29,7 +29,9 @@ class UserNameTest(TestCase):
         self.assertEqual(str(self.user), "Joe Smith")
 
 
-class PuzzleModelTest(TestCase):
+class PuzzleModelTest(TransactionTestCase):
+    reset_sequences = True
+
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='12345')
 
@@ -61,7 +63,9 @@ class PuzzleModelTest(TestCase):
         self.assertEqual("Puzzle #2: Word Puzzle (20 clues)", str(puzzle))
 
 
-class WordPuzzleModelTest(TestCase):
+class WordPuzzleModelTest(TransactionTestCase):
+    reset_sequences = True
+
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='secretkey')
 

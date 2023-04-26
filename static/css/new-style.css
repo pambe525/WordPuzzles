@@ -1,18 +1,15 @@
-/*--------------------------------------------------------
+/**----------------------------------------------------------------------------
  CSS GLOBAL VARIABLES
-----------------------------------------------------------*/
+ */
 :root {
+
     /* Primary color variables */
-    --clr-lightblue: #d5dff0;
-    --clr-navyblue: #052354;
-    --clr-dark: #050e1f;
-    --clr-light: white;
-    --clr-blue: #0c42a8;
-    --clr-orange: #eb7013;
-    --clr-lightgray: #e4eaeb;
+    --clr-blue: #3c78d8;
+    --clr-orange: #f29400;
+    --clr-gray: #b7b7b7;
     --clr-red: #a83232;
     --clr-green: #13660b;
-    --clr-black: black;
+
     /* Font awesome icons */
     --icon-home: \f015;
     --icon-create: \f004;
@@ -24,40 +21,36 @@
     --icon-team:\f830;
 }
 
-/*--------------------------------------------------------
+/**----------------------------------------------------------------------------
  CSS RESET by Josh Comeau
----------------------------------------------------------*/
-/* Use a more-intuitive box-sizing model */
-*, *::before, *::after {
+ */
+*, *::before, *::after {            /* Use a more-intuitive box-sizing model */
     box-sizing: border-box;
 }
-/* Remove default margin */
-* {
+* {                                 /* Remove default margin */
     margin: 0;
 }
-/* Allow percentage-based heights in the application */
-html, body {
+html, body {  /* Allow percentage-based heights in the application */
     height: 100%;
 }
-/* Typographic tweaks: Add accessible line-height and Improve text rendering */
-body {
+body {   /* Typographic tweaks: Add accessible line-height; improve text rendering */
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
 }
-/* Improve media defaults */
-img, picture, video, canvas, svg {
+img, picture, video, canvas, svg {  /* Improve media defaults */
     display: block;
     max-width: 100%;
 }
-/* Remove built-in form typography styles */
-input, button, textarea, select {
+input, button, textarea, select {   /* Remove built-in form typography styles */
     font: inherit;
 }
-/* Avoid text overflows */
-p, h1, h2, h3, h4, h5, h6 {
+p, h1, h2, h3, h4, h5, h6 {         /* Avoid text overflows */
     overflow-wrap: break-word;
 }
 
+/**----------------------------------------------------------------------------
+ CSS Element styles
+ */
 body {
     font-family: sans-serif;
     font-size: 1em;

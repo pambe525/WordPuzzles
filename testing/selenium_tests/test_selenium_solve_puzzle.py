@@ -194,6 +194,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.set_answer_input("WORD-X")  # Wrong answer
         self.do_click(self.SUBMIT_BTN)
         self.assert_is_displayed(self.MODAL_DIALOG)
+        time.sleep(1)
         self.assert_text_equals(self.ERR_MSG, "Incorrect answer")
         self.verify_score(6)
         self.verify_progress_bars(40, 20)
@@ -253,6 +254,7 @@ class SessionTimerTests(SolveSessionTestCaseHelper):
         self.click_on_clue(2)
         self.wait_until_visible(self.MODAL_DIALOG)
         self.do_click(self.REVEAL_BTN)
+        self.wait_until_visible(self.SCORES)
         self.assert_is_displayed(self.SCORES)
         self.do_click(self.SCORES)
         self.assert_current_url('/puzzle_score/' + str(self.puzzle.id) + '/')

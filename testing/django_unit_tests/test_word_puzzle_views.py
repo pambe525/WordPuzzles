@@ -2,13 +2,15 @@ import json
 
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from puzzles.models import WordPuzzle, PuzzleSession
 from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_session
 
 
-class PreviewPuzzleViewTest(TestCase):
+class PreviewPuzzleViewTest(TransactionTestCase):
+    reset_sequences = True
+
     def setUp(self):
         self.user = User.objects.create(username="tester", password="scretkey")
         self.other_user = User.objects.create(username="other_user", password="secretkey2")
@@ -91,7 +93,9 @@ class PreviewPuzzleViewTest(TestCase):
         self.assertRedirects(response, "/solve_puzzle/" + str(puzzle.id) + "/", 302)
 
 
-class SolvePuzzleViewTest(TestCase):
+class SolvePuzzleViewTest(TransactionTestCase):
+    reset_sequences = True
+
     def setUp(self):
         self.user = User.objects.create(username="tester", password="scretkey")
         self.other_user = User.objects.create(username="other_user", password="secretkey2")

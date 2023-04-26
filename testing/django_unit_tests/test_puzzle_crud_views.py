@@ -1,6 +1,6 @@
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 
 from puzzles.models import WordPuzzle, Clue
 
@@ -29,7 +29,9 @@ class NewPuzzleViewTests(TestCase):
         self.assertEqual(response.url, "/edit_puzzle/" + str(new_puzzle.id) + "/")
 
 
-class EditPuzzleViewTests(TestCase):
+class EditPuzzleViewTests(TransactionTestCase):
+    reset_sequences = True
+
     def setUp(self):
         # Create a logged in user
         self.user = User.objects.get_or_create(username="test_user")[0]
@@ -129,7 +131,9 @@ class EditPuzzleViewTests(TestCase):
         self.assertEqual(response.context['clues'][0].points, 2)
 
 
-class DeletePuzzleViewTests(TestCase):
+class DeletePuzzleViewTests(TransactionTestCase):
+    reset_sequences = True
+
     def setUp(self):
         self.user = User.objects.create(username="test_user")
         self.client.force_login(self.user)
@@ -300,7 +304,9 @@ class EditClueViewTests(TestCase):
         self.assertEqual(puzzle.total_points, 2)
 
 
-class DeleteClueViewTests(TestCase):
+class DeleteClueViewTests(TransactionTestCase):
+    reset_sequences = True
+
     def setUp(self):
         self.user = User.objects.create(username="tester")
         self.client.force_login(self.user)

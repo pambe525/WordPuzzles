@@ -119,7 +119,6 @@ class SessionProgress {
         //     this.saveTimerHandler(this.timer.stop());
         // }
         window.onpagehide = () => {
-            alert("onpagehide called");
             this.saveTimerHandler(this.timer.stop());
             return null;
         }
