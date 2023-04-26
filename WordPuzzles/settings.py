@@ -82,12 +82,9 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': str(BASE_DIR / 'db.sqlite3'),
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wordpuzzles',
-        'USER': 'root',
-        'PASSWORD': 'crypticlive',
-        'HOST': 'localhost',
         'OPTIONS': {
-            "init_command": "SET foreign_key_checks = 0;",
+            'read_default_file': str(BASE_DIR / 'database.cnf'),
+            'init_command': "SET foreign_key_checks = 0;",
         },
     }
 }

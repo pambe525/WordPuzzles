@@ -1,4 +1,3 @@
-/db.sqlite3
 /venv/
 /testing/selenium_tests/geckodriver.log
 .idea/dataSources/
@@ -13,3 +12,4 @@ user_auth/__pycache__/
 user_auth/migrations/__pycache__/
 /geckodriver.log
 .idea/
+!/database.cnf
