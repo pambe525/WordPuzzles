@@ -86,6 +86,9 @@ DATABASES = {
             'read_default_file': str(BASE_DIR / 'database.cnf'),
             'init_command': "SET foreign_key_checks = 0;",
         },
+        'TEST': {
+            'NAME': 'test_wordpuzzles'
+        },
     }
 }
 
