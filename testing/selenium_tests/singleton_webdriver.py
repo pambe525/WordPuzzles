@@ -24,9 +24,9 @@ class SingletonWebDriver(object):
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--disable-gpu")
-            driver = webdriver.Chrome(options=chrome_options, service=Service(ChromeDriverManager().install()))
+            driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
         elif self._browser == 'Firefox':
-            driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()))
+            driver = webdriver.Firefox(GeckoDriverManager().install())
         else:
             driver = webdriver.Safari()
         return driver
