@@ -1,0 +1,6 @@
+[client]
+database = mysql
+user = root
+password = crypticlive
+host = localhost
+default-character-set = utf8

@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="db" uuid="58be1448-a649-4bf4-80f8-3f31623a81e7">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:C:\Users\Prashant\Documents\PyCharmProjects\WordPuzzles\db.sqlite3</jdbc-url>
-    </data-source>
     <data-source source="LOCAL" name="MySQL80" uuid="990a6899-779e-4bd6-9885-2f0c17625b7b">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>

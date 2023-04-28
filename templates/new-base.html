@@ -12,17 +12,15 @@
     <link type="text/css" rel="stylesheet" href="{% static '/css/new-style.css' %}">
 </head>
 <body>
-    <div class="container-fluid p-0">
-        <div class="row m-0 pt-2 bg-dark">
-            <a class="header-badge ml-2 pr-2" href="{% url 'home' %}">Home of the Puzzlers</a>
-            <h5><a href='{% url 'release_notes' %}' class="badge badge-secondary ml-3 mt-2">v1.2</a></h5>
+        <header>
+            <img src="{% static '/images/crypticlive-black-logo.png' %}"  alt="Cryptic Live"/>
             {% if user.is_authenticated %}
-                <div class="ml-2 pt-2 pr-2" >
+                <div>
                     <i class="fa fa-user fa-lg" style="color:silver"></i>
                     <span class="text-light">{{ user.username }} </span>&nbsp;
                 </div>
             {% endif %}
-        </div>
+        </header>
 
         <!-- NAVBAR -->
         <nav class="navbar navbar-expand navbar-dark bg-dark pl-1">
