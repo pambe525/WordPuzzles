@@ -12,4 +12,4 @@ user_auth/__pycache__/
 user_auth/migrations/__pycache__/
 /geckodriver.log
 .idea/
-!/database.cnf
+/database.cnf
