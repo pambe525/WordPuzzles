@@ -1,6 +1,14 @@
 [client]
+<<<<<<< HEAD
 database = mysql
 user = root
 password = crypticlive
 host = localhost
 default-character-set = utf8
+=======
+database=wordpuzzles
+username=root
+password=crypticlive
+host=localhost
+default-character-set = utf8
+>>>>>>> 710f65e (database.cnf changes)
