@@ -24,7 +24,7 @@ class HelperMixin:
 
     @staticmethod
     def get_selenium_webdriver():
-        return SingletonWebDriver().start_webdriver()
+        return SingletonWebDriver().start_webdriver(False)
 
     @staticmethod
     def quit_selenium_webdriver():

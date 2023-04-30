@@ -18,22 +18,25 @@ class SingletonWebDriver(object):
             cls._instance = super(SingletonWebDriver, cls).__new__(cls)
         return cls._instance
 
-    def _create_webdriver(self):
+    def _create_webdriver(self, headless):
         if self._browser == 'Chrome':
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--disable-gpu")
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+            if headless is True:
+                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+            else:
+                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
         elif self._browser == 'Firefox':
             driver = webdriver.Firefox(GeckoDriverManager().install())
         else:
             driver = webdriver.Safari()
         return driver
 
-    def start_webdriver(self):
+    def start_webdriver(self, headless=True):
         if self.active_webdriver is None:
-            self.active_webdriver = self._create_webdriver()
+            self.active_webdriver = self._create_webdriver(headless)
         return self.active_webdriver
 
     def quit_webdriver(self):

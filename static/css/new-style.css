@@ -2,23 +2,24 @@
  CSS GLOBAL VARIABLES
  */
 :root {
-
     /* Primary color variables */
-    --clr-blue: #3c78d8;
+    --clr-blue: #0213c9;
     --clr-orange: #f29400;
-    --clr-gray: #b7b7b7;
+    --clr-gray: #c8c8c8;
     --clr-red: #a83232;
     --clr-green: #13660b;
-
     /* Font awesome icons */
-    --icon-home: \f015;
-    --icon-create: \f004;
-    --icon-exit: \f2f5;
-    --icon-user: \f007;
-    --icon-list: \f03a;
-    --icon-gear: \f013;
-    --icon-trophy: \f2eb;
-    --icon-team:\f830;
+    --fa-family: "Font Awesome 6 Free";
+    --icon-dashboard: "\f015";
+    --icon-editor: '\f044';
+    --icon-logout: '\f2f5';
+    --icon-user: '\f007';
+    --icon-puzzles: '\f03a';
+    --icon-leaderboard: '\f091';
+    --icon-sessions:'\e533';
+    --icon-pswd: '\f084';
+    --icon-notes: '\f15b';
+    --icon-menu: '\f0c9';
 }
 
 /**----------------------------------------------------------------------------
@@ -45,13 +46,128 @@ input, button, textarea, select {   /* Remove built-in form typography styles */
     font: inherit;
 }
 p, h1, h2, h3, h4, h5, h6 {         /* Avoid text overflows */
+    font-weight: normal;
     overflow-wrap: break-word;
 }
+strong, b {
+    font-weight: bolder;
+}
 
+th {
+    font-weight: normal;
+}
 /**----------------------------------------------------------------------------
  CSS Element styles
  */
 body {
-    font-family: sans-serif;
+    font-family: 'Roboto', 'Arial', sans-serif;
     font-size: 1em;
+}
+header {
+    display: flex;
+    background-color: black;
+    border-bottom: 4px solid var(--clr-orange);
+    align-items: center;
+}
+.header-group {
+    margin-left: auto;
+    display: flex;
+}
+.glasspane {
+    display: none;
+}
+.logo {
+    height: 4.5rem;
+    padding: 1rem;
+}
+.current-user, .menu-toggle-button {
+    color: white;
+    margin-right: 1rem;
+}
+.navbar {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--clr-gray);
+    min-width: 13rem;
+    border-bottom: 1px solid black;
+    box-shadow: 1px 1px 3px 2px #888;
+    clip-path: inset(0px -15px 0px 0px);
+    padding: 1rem;
+    min-height: calc(100vh - 70px);
+}
+.navbar-links {
+    padding-left: 0;
+}
+.navbar-links li {
+    list-style: none;
+    padding-top: 0.5rem;
+}
+.navbar-links li a {
+    text-decoration: none;
+    color: black;
+    display: block;
+    padding-bottom: 0.5rem;
+}
+.navbar-links li :hover {
+    color: var(--clr-blue);
+}
+.menu-toggle-button {
+    display: none;
+    text-decoration: none;
+}
+.menu-toggle-button:hover {
+    color: var(--clr-gray);
+}
+.has-icon::before {
+    font-family: var(--fa-family);
+    font-weight: 900;
+    display: inline-block;
+    width: 1.6rem;
+}
+/* Icons */
+.nav-link-home::before { content: var(--icon-dashboard); }
+.nav-link-editor::before { content: var(--icon-editor); }
+.nav-link-puzzles::before { content: var(--icon-puzzles); }
+.nav-link-sessions::before { content: var(--icon-sessions); }
+.nav-link-leaderboard::before { content: var(--icon-leaderboard); }
+.nav-link-notes::before { content: var(--icon-notes); }
+.nav-link-account::before { content: var(--icon-user); }
+.nav-link-pswd::before { content: var(--icon-pswd); }
+.nav-link-logout::before { content: var(--icon-logout); }
+.current-user::before{ content: var(--icon-user); }
+.menu-toggle-button::before{ content: var(--icon-menu); }
+
+.container {
+    display: flex;
+    margin-left: 0;
+    padding-left: 0;
+}
+.content {
+    margin: 1.2rem;
+}
+@media (max-width: 40rem) {
+    .menu-toggle-button { display:flex; }
+    .navbar {
+        z-index:100;
+        position: fixed;
+        top: 0;
+        left: 0;
+        min-height: auto;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        display:block;
+    }
+    .navbar.active {
+        transform: translateX(0);
+    }
+    .glasspane.active {
+        z-index: 10;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.5;
+        display: block;
+    }
 }
