@@ -2,13 +2,13 @@ import time
 
 from puzzles.models import PuzzleSession
 from testing.data_setup_utils import create_published_puzzle, create_session, create_user
-from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
+from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
 # ======================================================================================================================
 # HELPER FUNCTIONS FOR SolveSession Test Cases cast as a derived class (of SeleneiumTestCase
 # Test cases for Solve Session should derive from this class.
-class SolveSessionTestCaseHelper(SeleniumTestCase):
+class SolveSessionTestCaseHelper(BaseSeleniumTestCase):
     
     MODAL_DIALOG = "//div[@id='id-modal-answer-box']"
     ANSWER_INPUT = "//div[@id='id-modal-answer-box']//div[@id='id-answer']/input"

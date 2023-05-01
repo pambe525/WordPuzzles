@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle, Clue
-from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
+from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
-class EditPuzzleTests(SeleniumTestCase):
+class EditPuzzleTests(BaseSeleniumTestCase):
     user = None
     password = 'secret_key'
 
@@ -71,7 +71,7 @@ class EditPuzzleTests(SeleniumTestCase):
             self.assert_text_equals("//div/span[@title='" + clues[index].parsing + "']", clues[index].parsing)
 
 
-class EditClueTests(SeleniumTestCase):
+class EditClueTests(BaseSeleniumTestCase):
     password = 'secret_key'
 
     def setUp(self):
@@ -145,7 +145,7 @@ class EditClueTests(SeleniumTestCase):
         self.assertEqual(clues[0].points, 1)
 
 
-class DeletePuzzleTests(SeleniumTestCase):
+class DeletePuzzleTests(BaseSeleniumTestCase):
     password = 'secret_key'
 
     def setUp(self):

@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 from selenium.webdriver.common.by import By
 
-from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
+from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
-class UserAuthTests(SeleniumTestCase):
+class UserAuthTests(BaseSeleniumTestCase):
     user = None
     password = 'secretkey1'
 

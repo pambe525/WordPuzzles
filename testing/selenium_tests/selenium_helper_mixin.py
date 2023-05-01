@@ -23,8 +23,8 @@ class HelperMixin:
     cookie_path = os.getcwd() + '/cookies.pkl'
 
     @staticmethod
-    def get_selenium_webdriver():
-        return SingletonWebDriver().start_webdriver(False)
+    def get_selenium_webdriver(headless=False):
+        return SingletonWebDriver().start_webdriver(headless)
 
     @staticmethod
     def quit_selenium_webdriver():
@@ -119,11 +119,14 @@ class HelperMixin:
 
 
 # Parent class from which all selenium test cases will be derived
-class SeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
+class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
+    SPAN_USERNAME = "//span[contains(@class,'current-user')]"
+    NAV_MENU = "//nav[contains(@class,'navbar')]"
+    MENU_TOGGLE = "//a[contains(@class,'menu-toggle-button')]"
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.selenium = cls.get_selenium_webdriver()
+        cls.selenium = cls.get_selenium_webdriver(False)
         cls.server_url = cls.live_server_url
         cls.testcase = cls
 
@@ -131,3 +134,9 @@ class SeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     def tearDownClass(cls):
         cls.quit_selenium_webdriver()
         super().tearDownClass()
+
+    def set_mobile_size(self, flag=True):
+        if flag:
+            self.selenium.set_window_size(390, 840)
+        else:
+            self.selenium.set_window_size(800, 1080)

@@ -1,10 +1,10 @@
 import time
 
 from testing.data_setup_utils import create_user, create_published_puzzle, create_session
-from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
+from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
-class PuzzleScoreTests(SeleniumTestCase):
+class PuzzleScoreTests(BaseSeleniumTestCase):
     def setUp(self):
         self.user = create_user()
         self.auto_login_user(self.user)

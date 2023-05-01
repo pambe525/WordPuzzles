@@ -2,10 +2,10 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from puzzles.models import WordPuzzle
 from testing.data_setup_utils import create_draft_puzzle, create_published_puzzle, create_user
-from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
+from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 from selenium.webdriver.support import expected_conditions as EC
 
-class PreviewPuzzleTests(SeleniumTestCase):
+class PreviewPuzzleTests(BaseSeleniumTestCase):
 
     def setUp(self):
         self.user = create_user()

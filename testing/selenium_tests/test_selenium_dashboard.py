@@ -2,15 +2,16 @@ from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle
 from testing.data_setup_utils import create_published_puzzle, create_user, create_session
-from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
+from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
-class DashboardTests(SeleniumTestCase):
+class DashboardTests(BaseSeleniumTestCase):
     password = 'secretkey'
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
         self.auto_login_user(self.user)
+        self.set_mobile_size(True)
 
     def test_Unpopulated_dashboard(self):
         self.get('/')
@@ -22,7 +23,7 @@ class DashboardTests(SeleniumTestCase):
         self.assert_text_contains("//div[contains(@class, 'notetext')]", "no draft puzzles", 1)
 
 
-class DraftPuzzlesTests(SeleniumTestCase):
+class DraftPuzzlesTests(BaseSeleniumTestCase):
     password = 'secretkey'
 
     def setUp(self):
@@ -86,7 +87,7 @@ class DraftPuzzlesTests(SeleniumTestCase):
         self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + '/')
 
 
-class RecentPuzzlesTests(SeleniumTestCase):
+class RecentPuzzlesTests(BaseSeleniumTestCase):
     password = 'secretkey'
 
     def setUp(self):

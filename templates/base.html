@@ -19,10 +19,10 @@
 </head>
 <body>
     <header>
-        <img class=logo src="{% static '/images/crypticlive-black-logo.png' %}"  alt="Cryptic Live" />
+        <img class="logo" src="{% static '/images/crypticlive-black-logo.png' %}"  alt="Cryptic Live" />
         {% if user.is_authenticated %}
             <div class="header-group">
-                <span class="current-user has-icon">{{ user.username }} </span>
+                <span class="current-user has-icon">{{ user.username }}</span>
                 <a class="menu-toggle-button has-icon"></a>
             </div>
         {% endif %}

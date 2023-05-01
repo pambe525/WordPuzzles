@@ -1,10 +1,10 @@
 from django.contrib.auth.models import User
 
 from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_user, create_session
-from testing.selenium_tests.selenium_helper_mixin import SeleniumTestCase
+from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
-class PuzzlesListTests(SeleniumTestCase):
+class PuzzlesListTests(BaseSeleniumTestCase):
     password = 'secretkey'
 
     def setUp(self):
