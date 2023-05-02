@@ -8,6 +8,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from selenium.common import ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
@@ -49,7 +50,11 @@ class HelperMixin:
         element.send_keys(input_text)
 
     def do_click(self, xpath):
-        self.selenium.find_element(By.XPATH, xpath).click()
+        try:
+            self.selenium.find_element(By.XPATH, xpath).click()
+            return True
+        except ElementNotInteractableException:
+            return False
 
     def auto_login_user(self, user):
         session_cookie = self.create_session_cookie(user)
@@ -123,6 +128,9 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     SPAN_USERNAME = "//span[contains(@class,'current-user')]"
     NAV_MENU = "//nav[contains(@class,'navbar')]"
     MENU_TOGGLE = "//a[contains(@class,'menu-toggle-button')]"
+    MENUITEM_HOME = "//nav/ul/li[1]/a"
+
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
