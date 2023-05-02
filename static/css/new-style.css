@@ -3,7 +3,7 @@
  */
 :root {
     /* Primary color variables */
-    --clr-blue: #0213c9;
+    --clr-blue: #0275d8;
     --clr-orange: #f29400;
     --clr-gray: #c8c8c8;
     --clr-red: #a83232;
@@ -49,15 +49,8 @@ p, h1, h2, h3, h4, h5, h6 {         /* Avoid text overflows */
     font-weight: normal;
     overflow-wrap: break-word;
 }
-strong, b {
-    font-weight: bolder;
-}
-
-th {
-    font-weight: normal;
-}
 /**----------------------------------------------------------------------------
- CSS Element styles
+ BASE TEMPLATE STYLE
  */
 body {
     font-family: 'Roboto', 'Arial', sans-serif;
@@ -143,7 +136,7 @@ header {
     padding-left: 0;
 }
 .content {
-    margin: 1.2rem;
+    margin: 1.3rem;
 }
 @media (max-width: 40rem) {
     .menu-toggle-button { display:flex; }
@@ -170,4 +163,36 @@ header {
         opacity: 0.5;
         display: block;
     }
+}
+/**
+    PAGE CONTENT STYLE
+ */
+.page-title {
+    font-size: 1.6rem;
+    font-weight: 400;
+}
+form th {
+    font-weight: normal;
+    vertical-align: top;
+    padding-right: 0.5rem;
+}
+form .helptext {
+    color: darkgray;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+.blue-btn {
+    background-color: var(--clr-blue);
+    color: white;
+    font-size: 1rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 5px;
+}
+form {
+    padding: 1rem;
+}
+.dark-line {
+    border: 1px solid darkgray;
+    margin: 0.5rem 0;
 }

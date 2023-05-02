@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="bg-light p-3 d-inline-block">
-        <h2 class="pb-2">Sign Up as New User</h2>
-        <form action="{% url 'signup' %}" method="post">
-            {% csrf_token %}
-            <table>{{ form.as_table }}</table>
-            <div class="ml-0 mt-2">
-                <button type="submit" id="btnSignUp" class="btn btn-primary">SIGN UP</button>
-            </div>
-        </form>
-        <hr>
-        Already signed up?
-        <a href="{% url 'login' %}" id="lnkSignIn" class="btn-sm btn-dark">Log In</a>
-    </div>
+    <div class="page-title">Sign Up as New User</div>
+    <hr class="dark-line">
+    <form action="{% url 'signup' %}" method="post">
+        {% csrf_token %}
+
+        <table>{{ form.as_table }}</table>
+        <button type="submit" id="btnSignUp" class="blue-btn">SIGN UP</button>
+    </form>
+    <hr class="dark-line">
+    Already signed up?
+    <a href="{% url 'login' %}" id="lnkSignIn">Log In</a>
 {% endblock %}
