@@ -176,11 +176,14 @@ form th {
     vertical-align: top;
     padding-right: 0.5rem;
 }
+form td {
+    padding-bottom: 0;
+}
 form .helptext {
     color: darkgray;
     font-size: 0.8rem;
     display: block;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 .blue-btn {
     background-color: var(--clr-blue);
@@ -189,7 +192,7 @@ form .helptext {
     padding: 0.3rem 0.6rem;
     border-radius: 5px;
 }
-form {
+form table {
     padding: 1rem;
 }
 .dark-line {
