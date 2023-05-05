@@ -1,25 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="bg-light p-3 d-inline-block">
-        <h2 class="pb-2">Account Settings</h2>
+    <div class="page-title">Account Settings</div>
+    <hr>
+    {% url 'account' as account_url %}
+    {% if request.path == account_url %}
+        <fieldset disabled="disabled">
+            <table>{{ form.as_table }}</table>
+        </fieldset>
         <hr>
-        {% url 'account' as account_url %}
-        {% if request.path == account_url %}
-            <fieldset disabled="disabled">
-                <table>{{ form.as_table }}</table>
-            </fieldset>
+        <a href="{% url 'account_edit' %}" id="lnkEditAccount" class="blue-btn">EDIT</a>
+    {% else %}
+        <form action="{% url 'account_edit' %}" method="post">
+            {% csrf_token %}
+            <table>{{ form.as_table }}</table>
             <hr>
-            <a href="{% url 'account_edit' %}" id="lnkEditAccount" class="btn btn-primary">EDIT</a>
-        {% else %}
-            <form action="{% url 'account_edit' %}" method="post">
-                {% csrf_token %}
-                <table>{{ form.as_table }}</table>
-                <hr>
-                <div class="ml-0 mt-2">
-                    <button type="submit" id="btnSave" class="btn btn-primary">SAVE</button>
-                    <a href="{% url 'account' %}" id="lnkAccount" class="btn btn-dark">CANCEL</a>
-                </div>
-            </form>
-        {% endif %}
-    </div>
+            <div class="ml-0 mt-2">
+                <button type="submit" id="btnSave" class="btn btn-primary">SAVE</button>
+                <a href="{% url 'account' %}" id="lnkAccount" class="btn btn-dark">CANCEL</a>
+            </div>
+        </form>
+    {% endif %}
 {% endblock %}
