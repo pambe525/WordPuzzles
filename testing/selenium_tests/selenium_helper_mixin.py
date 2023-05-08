@@ -134,7 +134,7 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.selenium = cls.get_selenium_webdriver(False)
+        cls.selenium = cls.get_selenium_webdriver(True)
         cls.server_url = cls.live_server_url
         cls.testcase = cls
 

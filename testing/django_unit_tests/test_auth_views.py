@@ -116,7 +116,7 @@ class PasswordResetViewTests(TestCase):
         response = self.client.get('/password_reset')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "password_reset.html")
-        self.assertContains(response, "SEND EMAIL")
+        self.assertContains(response, "Send Email")
         self.assertEqual(type(response.context['form']), PasswordResetForm)
         self.assertContains(response, "Reset Password")
         self.assertNotContains(response, "Password reset sent")
@@ -134,7 +134,7 @@ class PasswordResetViewTests(TestCase):
         response = self.client.get('/password_reset_done')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "password_reset.html")
-        self.assertContains(response, "RE-ENTER EMAIL")
+        self.assertContains(response, "Re-enter Email")
         self.assertContains(response, "Password reset sent")
         self.assertNotContains(response, "Reset Password")
 
