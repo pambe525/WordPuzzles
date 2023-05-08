@@ -7,17 +7,20 @@ from puzzles.models import WordPuzzle, Clue
 
 class NewUserFormTest(TestCase):
 
-    def test_form_has_email_as_required(self):
+    def test_form_has_all_fields_as_required(self):
         form = NewUserForm()
         self.assertEqual(form.fields["email"].required, True)
+        self.assertEqual(form.fields["username"].required, True)
+        self.assertEqual(form.fields["password1"].required, True)
+        self.assertEqual(form.fields["password2"].required, True)
 
-    def test_form_has_correct_fields(self):
+    def test_form_has_correct_meta_fields(self):
         form = NewUserForm()
         self.assertEqual(len(form.Meta.fields), 4)
-        self.assertEqual(form.Meta.fields[0], "username")
+        self.assertEqual(form.Meta.fields[0], "email")
         self.assertEqual(form.Meta.fields[1], "password1")
         self.assertEqual(form.Meta.fields[2], "password2")
-        self.assertEqual(form.Meta.fields[3], "email")
+        self.assertEqual(form.Meta.fields[3], "username")
 
     def test_form_saved_with_correct_data(self):
         data_dict = {
@@ -33,7 +36,7 @@ class NewUserFormTest(TestCase):
 
     def test_form_helptext_for_parent_fields(self):
         form = NewUserForm()
-        self.assertIn("Required. Use your first name (case-sensitive)", form.fields["username"].help_text)
+        self.assertIn("Required: Must be unique with no spaces. eq. JasonT", form.fields["username"].help_text)
         self.assertIn("Must contain at least 8 characters", form.fields["password1"].help_text)
         self.assertIn("Confirm Password", form.fields["password2"].help_text)
 
