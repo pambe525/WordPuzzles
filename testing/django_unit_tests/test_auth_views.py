@@ -54,6 +54,13 @@ class SignUpViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/")
 
+    def test_Validation_error_when_new_user_email_already_exists(self):
+        self.new_user_data['email'] = self.user.email
+        response = self.client.post('/signup', self.new_user_data)
+        self.assertEqual('signup.html', response.templates[0].name)
+        error_msg = 'User with this Email address already exists.'
+        self.assertEquals(error_msg, response.context['form'].errors['email'][0])
+
 
 # When url is /logout ...
 class LogoutViewTests(TestCase):
@@ -186,7 +193,7 @@ class UserAccountView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/login?next=/account')
 
-    def test_Account_shows_form_fields_has_exiting_user_data_and_readonly_fields(self):
+    def test_Account_shows_form_fields_has_existing_user_data_and_readonly_fields(self):
         self.client.force_login(self.user)
         response = self.client.get('/account')
         self.assertEqual(response.status_code, 200)

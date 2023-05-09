@@ -166,7 +166,7 @@ header {
     }
 }
 /**
-    PAGE CONTENT STYLE
+ PAGE CONTENT STYLE
  */
 .page-title {
     font-size: 1.5rem;
@@ -215,4 +215,23 @@ a.blue-btn, a.blue-btn:hover {
 .dark-line {
     border: 1px solid darkgray;
     margin: 0.5rem 0;
+}
+/**
+ RELEASE NOTES
+ */
+.epic-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--clr-blue);
+    margin-top: 0.7rem;
+}
+.feature-list {
+    padding: 0 1.5rem;
+    list-style: square;
+}
+.feature-list li {
+    font-size: 0.8rem;
+    color: var(--clr-darkgray);
+    line-height: 0.9rem;
+    padding: 0.2rem 0 0.2rem 0.3rem;
 }

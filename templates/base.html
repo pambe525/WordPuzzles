@@ -19,7 +19,9 @@
 </head>
 <body>
     <header>
-        <img class="logo" src="{% static '/images/crypticlive-black-logo.png' %}"  alt="Cryptic Live" />
+        <a href="{% url 'home' %}">
+            <img class="logo" src="{% static '/images/crypticlive-black-logo.png' %}"  alt="Cryptic Live" />
+        </a>
         {% if user.is_authenticated %}
             <div class="header-group">
                 <span class="current-user has-icon">{{ user.username }}</span>

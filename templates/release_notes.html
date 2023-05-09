@@ -1,111 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="bg-light p-3 d-inline-block">
-    <h2 class="pb-2">Release Notes</h2>
+<div class="page-title">Release Notes</div>
+<hr class="dark-line">
 
-    <h3>v1.2: [5/16/2022]</h3>
-    <b>Bug fixes</b>
-    <ul>
-        <li>Fixed issue where lower case letters in answer caused a correct answer to be rejected</li>
-        <li>Fixed issue where puzzles solved in the last seven days were not showing up on dashboard</li>
-        <li>Fixed issue where last solve activity time stamp was not shown correctly</li>
-    </ul>
-    <b>Enhancements</b>
-    <ul>
-        <li>Changed interface when solving puzzle to show a full clue list instead of clue buttons</li>
-        <li>Solved clues are shown with a green check icon; revealed clues are shown with an eye icon</li>
-        <li>Also, solved and revealed clues are shown in lighter colored font</li>
-        <li>Revealed clues will show zero earned points</li>
-        <li>Click on a solved or revealed clue to see the answer and parsing (if available); click again to hide answers</li>
-        <li>Click on an unsolved clue to enter the answer</li>
-        <li>Incorrect answers are indicated by an error message and can be re-submitted</li>
-    </ul>
-    <hr>
-
-    <h3>v1.1: [5/10/2022]</h3>
-    <b>Bug fixes</b>
-    <ul>
-        <li>Fixed issue where same puzzle shows multiple times in Dashboard Recent Activity section</li>
-        <li>Issue on Android mobile when entering answers fixed.</li>
-    </ul>
-    <b>Minor Enhancements</b>
-    <ul>
-        <li>Changed default width of screen to closely fit mobile phones</li>
-        <li>Clue pts for a clue are now suppressed to prevent detection of meta clues with higher pts</li>
-        <li>Total points for the word puzzle are still shown on the title so puzzler knows the goal</li>
-        <li>Progress bar now shows number of clues solved/revealed instead of points solved/revealed</li>
-        <li>More detail shown for puzzle scores for each puzzler on scores page</li>
-    </ul>
-    <hr>
-    <h3>v1.0: [5/8/2022]</h3>
-    <b>Recent Activity in Dashboard</b>
-    <ul>
-        <li>Shows newly published puzzles within the last 7 days</li>
-        <li>Shows puzzles with unfinished solve sessions by current user</li>
-        <li>Scores can be viewed for published puzzles with active sessions</li>
-        <li>A green flag on a puzzle indicates a completed puzzle</li>
-        <li>A red glag on a puzzle session indicates an incompletely solved puzzle</li>
-        <li>A number in a blue circle on a puzzle indicates the number of puzzlers solving the puzzle</li>
-    </ul>
-    <b>Puzzle Scores</b>
-    <ul>
-        <li>Scores are listed in descending order (highest to lowest)</li>
-        <li>The list of scores includes all puzzlers solving the puzzles</li>
-        <li>A progress bar for each puzzler shows solved, revealed and remaining clues</li>
-        <li>Scores also include the total time spent by each puzzler on solving the puzzle</li>
-    </ul>
-    <b>Solve a Puzzle</b>
-    <ul>
-        <li>Puzzlers can solve a published puzzle (not edited by them)</li>
-        <li>Solved clues are shown as green clue badges</li>
-        <li>Revealed answers are shown as gray clue badges</li>
-        <li>Scores are automatically incremented when correct answer is submitted</li>
-        <li>Progress bar indicates the solved pts, revealed pts, and remaining pts</li>
-        <li>An active timer clocks the time spent in solving the puzzle</li>
-        <li>A FINISH LATER button allows pausing the timer</li>
-    </ul>
-    <hr>
-    <h3>v0.8: [3/15/2022]</h3>
-    <b>All Puzzles List</b>
-    <ul>
-        <li>Shows all published puzzles in groups of 10 per page</li>
-        <li>Puzzles list can be sorted by various puzzle properties, in ascending or descending order.</li>
-        <li>Puzzlers can click on the puzzle title to solve or preview the puzzle.</li>
-        <li>This list can be accessed by the SHOW ALL PUZZLES button on Dashboard.</li>
-    </ul>
-    <hr>
-    <h3>v0.7: [3/12/2022]</h3>
-    <b>Dashboard</b>
-    <ul>
-        <li>Dashboard is the home page and shows <b>Recently Published</b> puzzles and user's <b>Draft Puzzles</b>.</li>
-        <li>Puzzlers can see puzzles published within the last 7 days in the <b>Recently Published</b> section.</li>
-        <li>Puzzle editor can <b>preview and unpublish</b> a puzzle by clicking on the puzzle title.</li>
-        <li>Puzzlers can see their unpublished draft puzzles in the <b>Draft Puzzles</b> section, last edited first.</li>
-        <li>Puzzle editors can <b>edit</b> their puzzle by clicking on the title of the puzzle in the draft section.</li>
-        <li>Each puzzle in the draft list offers icon buttons to <b>preview</b> or <b>delete</b> the puzzle.</li>
-    </ul>
-    <hr>
-    <h3>v0.5: [2/28/2022]</h3>
-    <b>Word Puzzle Management</b>
-    <ul>
-        <li>Puzzler can create a <b>New Puzzle</b> (crytic or non-cryptic clues).</li>
-        <li>Word puzzles can be edited and saved.</li>
-        <li>Puzzle editor can <b>Add Clue(s)</b> to the puzzle.</li>
-        <li><b>Points</b> and <b>parsing</b> note can also be added to each clue.</li>
-        <li>Puzzle editor can <b>delete</b> the puzzle (after confirmation).</li>
-        <li>Puzzle editor can <b>Preview and Publish</b> the puzzle (after clues are created).</li>
-        <li>Once published, a puzzle is available to all logged in puzzlers to solve. Published puzzles cannot be edited.</li>
-        <li><b>Unpublish</b> a puzzle to withdraw it from availibility to other puzzlers or to edit errors.</li>
-    </ul>
-    <hr>
-    <h3>v0.3: [2/10/2022]</h3>
-    <b>User Authentication</b>
-    <ul>
-        <li><b>New User</b> can create an account with username, password and email address.</li>
-        <li>Existing users can <b>login</b> with username and password.</li>
-        <li><b>Reset Password</b> if user has forgotten the password.</li>
+    <div class="epic-title">User Authentication [2023.05.09]</div>
+    <ul class="feature-list">
+        <li>New users can <b>Sign Up</b> using a username, password and email address. The username must be unique
+            and is not case-sensitive.  This will be visible to others, so use your name as a username (no spaces).
+            The email address must also be unique and will be used for notifications.</li>
+        <li>Registered users can <b>Log In</b> with their username and password. On successful login, users are
+            directed to the Dashboard page.</li>
+        <li>Users can <b>Reset Password</b> if they forgot the password.  An email is sent with a link which they
+            can use to reset the password.</li>
         <li>Once signed in, user can edit their <b>Account Settings</b> including username, email, first and last name.</li>
-        <li>Users can <b>Change Password.</b></li>
+        <li>Users can also <b>Change Password.</b> if needed.</li>
     </ul>
-</div>
+
+    <div class="epic-title">Responsive Web Interface [2023.05.09]</div>
+    <ul class="feature-list">
+        <li>A responsive web interface that adapts to the device's viewport including large monitors, laptops,
+            tablets and phones.</li>
+        <li>On larger devices, a side menu is displayed that provides access to all the features.</li>
+        <li>On smaller devices, the side menu can be accessed using the <i class="fa-solid fa-bars"></i> icon
+            on top right of the screen.</li>
+        <li>Clicking on the CrypticLive logo always navigates to the Home page (Dashboard)</li>
+    </ul>
+
+<hr class="dark-line">
 {% endblock %}

@@ -17,6 +17,7 @@ class NewUserForm(UserCreationForm):
 
     class Meta:
         model = User
+        model._meta.get_field('email')._unique = True
         fields = ['username', 'password1', 'password2', 'email']
 
     def save(self, commit=True):
