@@ -31,6 +31,13 @@ class NewUserForm(UserCreationForm):
 class UserAccountForm(UserChangeForm):
     password = None
     email = forms.EmailField(required=True, error_messages={'required':'Email is required.'})
+
+    def __init__(self, *args, **kwargs):
+        super(UserChangeForm, self).__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs['style'] = 'width:250px'
+        self.fields['first_name'].label = "FirstName"
+        self.fields['last_name'].label = "LastName"
+
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']

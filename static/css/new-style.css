@@ -135,9 +135,11 @@ header {
     display: flex;
     margin-left: 0;
     padding-left: 0;
+    min-width: 35rem;
 }
 .content {
     margin: 1.2rem;
+    flex-grow: 1;
 }
 @media (max-width: 35rem) {
     .menu-toggle-button { display:flex; }
