@@ -135,7 +135,6 @@ header {
     display: flex;
     margin-left: 0;
     padding-left: 0;
-    min-width: 35rem;
 }
 .content {
     margin: 1.2rem;
