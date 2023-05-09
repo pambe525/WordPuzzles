@@ -139,7 +139,6 @@ header {
 }
 .content {
     margin: 1.2rem;
-    flex-grow: 1;
 }
 @media (max-width: 35rem) {
     .menu-toggle-button { display:flex; }
