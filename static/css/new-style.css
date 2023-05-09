@@ -175,7 +175,12 @@ hr.separator {
  */
 .page-title {
     font-size: 1.5rem;
+    font-weight: 500;
+}
+.subtitle {
+    font-size: 1.2rem;
     font-weight: 400;
+    color: var(--clr-blue);
 }
 form table, fieldset table {
     margin: 0.8rem 0 0 0;
@@ -222,6 +227,14 @@ a.blue-btn:hover {
 hr.dark-line {
     border: 1px groove var(--clr-orange);
     margin: 0.5rem 0;
+}
+.note-text {
+    font-size: 0.9rem;
+    color: var(--clr-darkgray);
+    font-style: italic;
+}
+div.vspacer {
+    margin: 1rem 0;
 }
 /**
  RELEASE NOTES
