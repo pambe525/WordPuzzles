@@ -202,11 +202,11 @@ form .helptext {
     background-color: var(--clr-blue);
     color: white;
     font-size: 1rem;
-    padding: 0.3rem 1.0rem;
+    padding: 0.2rem 1.0rem;
     border-radius: 5px;
     margin-right: 1rem;
 }
-.blue-btn a, .blue-btn a:hover {
+a.blue-btn, a.blue-btn:hover {
     text-decoration: none;
     color: white;
 }
