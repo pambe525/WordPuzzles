@@ -139,7 +139,7 @@ header {
 .content {
     margin: 1.2rem;
 }
-@media (max-width: 40rem) {
+@media (max-width: 35rem) {
     .menu-toggle-button { display:flex; }
     .navbar {
         z-index:100;
@@ -178,7 +178,7 @@ form table, fieldset table {
 form table th, fieldset table th {
     font-weight: normal;
     vertical-align: top;
-    padding-right: 0.5rem;
+    padding-right: 0.3rem;
 }
 form table td, fieldset table td {
     padding-bottom: 0.8rem;

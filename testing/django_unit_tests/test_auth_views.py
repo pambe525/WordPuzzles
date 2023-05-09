@@ -149,7 +149,7 @@ class PasswordResetViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "password_reset.html")
         self.assertContains(response, "Re-enter Email")
-        self.assertContains(response, "Password reset sent")
+        self.assertContains(response, "Password Reset Email Sent")
         self.assertNotContains(response, "Reset Password")
 
 # When url is /password_reset_confirm or /password_reset_complete ...
@@ -164,7 +164,7 @@ class PasswordResetConfirmTests(TestCase):
         self.assertEqual(response.templates[0].name, "password_reset_confirm.html")
         self.assertContains(response, "window.location.replace")
         self.assertNotContains(response, "Enter new password")
-        self.assertNotContains(response, "Password reset complete")
+        self.assertNotContains(response, "Password Reset Complete")
 
     def test_Password_reset_complete_has_redirect_code_if_user_is_authenticated(self):
         self.client.force_login(self.user)
@@ -179,8 +179,8 @@ class PasswordResetConfirmTests(TestCase):
         response = self.client.get('/password_reset_complete')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "password_reset_confirm.html")
-        self.assertContains(response, "SIGN IN")
-        self.assertContains(response, "Password reset complete")
+        self.assertContains(response, "Sign In")
+        self.assertContains(response, "Password Reset Complete")
         self.assertNotContains(response, "Enter new password")
 
 # When url is /account or /account/edit
@@ -202,7 +202,7 @@ class UserAccountView(TestCase):
         self.assertEqual(response.context['form'].initial['first_name'], "")
         self.assertEqual(response.context['form'].initial['last_name'], "")
         self.assertEqual(response.context['form'].initial['email'], "abc@email.com")
-        self.assertContains(response, "EDIT")
+        self.assertContains(response, "Edit")
 
     def test_Account_Edit_redirects_to_login_if_user_is_not_authenticated(self):
         response = self.client.get('/account/edit/')
@@ -218,9 +218,9 @@ class UserAccountView(TestCase):
         self.assertEqual(response.context['form'].initial['username'], "testuser")
         self.assertEqual(response.context['form'].initial['first_name'], "")
         self.assertEqual(response.context['form'].initial['last_name'], "")
-        self.assertNotContains(response, "EDIT")
-        self.assertContains(response, "SAVE")
-        self.assertContains(response, "CANCEL")
+        self.assertNotContains(response, "Edit ")
+        self.assertContains(response, "Save")
+        self.assertContains(response, "Cancel")
 
     def test_Account_Edit_shows_form_errors_if_data_input_is_bad(self):
         self.client.force_login(self.user) # testuser
@@ -266,7 +266,7 @@ class PasswordChangeView(TestCase):
         self.assertTrue(response.context['form']['old_password'])
         self.assertTrue(response.context['form']['new_password1'])
         self.assertTrue(response.context['form']['new_password2'])
-        self.assertContains(response, "CHANGE PASSWORD")
+        self.assertContains(response, "Change Password")
 
     def test_Change_Password_shows_form_errors_if_data_input_is_bad(self):
         self.client.force_login(self.user) # testuser

@@ -99,7 +99,7 @@ class UserAuthTests(BaseSeleniumTestCase):
         self.set_input_text("//input[@id='id_new_password2']", "secretkey2")
         self.do_click("//button[@id='btnReset']")
         self.assert_current_url('/password_reset_complete')
-        self.assert_text_equals("//h2", "Password reset complete")
+        self.assert_text_equals("//div[@class='page-title']", "Password Reset Complete")
 
     def test_Password_reset_complete_links_to_login_page(self):
         self.get("/password_reset_complete")
