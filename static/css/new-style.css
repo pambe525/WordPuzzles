@@ -206,9 +206,12 @@ form .helptext {
     border-radius: 5px;
     margin-right: 1rem;
 }
-.blue-btn a {
+.blue-btn a, .blue-btn a:hover {
     text-decoration: none;
     color: white;
+}
+.blue-btn:hover {
+    opacity: 0.9;
 }
 .dark-line {
     border: 1px solid darkgray;

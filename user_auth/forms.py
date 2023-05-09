@@ -4,20 +4,20 @@ from django.contrib.auth.models import User
 
 
 class NewUserForm(UserCreationForm):
-    email = forms.EmailField(required=True, help_text="Required: Used for sign-in and password reset")
+    email = forms.EmailField(required=True, help_text="Required: Used for password reset")
 
     def __init__(self, *args, **kwargs):
         super(NewUserForm, self).__init__(*args, **kwargs)
         self.fields['password1'].help_text = "Must contain at least 8 characters."
         self.fields['password2'].label = "Confirm"
         self.fields['password2'].help_text = "Confirm Password"
-        self.fields['username'].label = "Nickname"
-        self.fields['username'].help_text = "Required: Must be unique with no spaces. eq. JasonT"
+        self.fields['username'].help_text = "Must be unique with no spaces. " \
+                                            "Use your first name or full name. e.g: Will_Smith"
         self.fields['email'].widget.attrs['style'] = 'width:250px'
 
     class Meta:
         model = User
-        fields = ['email', 'password1', 'password2', 'username']
+        fields = ['username', 'password1', 'password2', 'email']
 
     def save(self, commit=True):
         user = super(NewUserForm, self).save(commit=False)

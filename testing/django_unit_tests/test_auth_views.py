@@ -54,6 +54,7 @@ class SignUpViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/")
 
+
 # When url is /logout ...
 class LogoutViewTests(TestCase):
 
@@ -106,6 +107,12 @@ class LoginViewTests(TestCase):
         response = self.client.post('/login', data=data_dict)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/")
+
+    def test_Redirects_to_login_page_if_user_is_not_authenticated(self):
+        response = self.client.get('/account')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, "/login?next=/account")
+
 
 # When url is /password_reset or /password_reset_done ...
 class PasswordResetViewTests(TestCase):

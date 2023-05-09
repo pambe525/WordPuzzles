@@ -4,7 +4,6 @@
     <hr class="dark-line">
     <form action="{% url 'signup' %}" method="post">
         {% csrf_token %}
-
         <table>{{ form.as_table }}</table>
         <button type="submit" id="btnSignUp" class="blue-btn">Sign Up</button>
     </form>
