@@ -118,6 +118,11 @@ header {
     display: inline-block;
     width: 1.6rem;
 }
+hr.separator {
+    margin: 0;  !important;
+    padding: 0; !important;
+    border-top: 2px groove var(--clr-orange);
+}
 /* Icons */
 .nav-link-home::before { content: var(--icon-dashboard); }
 .nav-link-editor::before { content: var(--icon-editor); }
@@ -204,16 +209,18 @@ form .helptext, fieldset .helptext {
     padding: 0.2rem 1.0rem;
     border-radius: 5px;
     margin-right: 1rem;
+    font-size: 1rem;
+    display: inline-block;
 }
-a.blue-btn, a.blue-btn:hover {
+a.blue-btn:hover {
     text-decoration: none;
     color: white;
 }
 .blue-btn:hover {
     opacity: 0.9;
 }
-.dark-line {
-    border: 1px solid darkgray;
+hr.dark-line {
+    border: 1px groove var(--clr-orange);
     margin: 0.5rem 0;
 }
 /**

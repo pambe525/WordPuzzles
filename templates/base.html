@@ -38,6 +38,8 @@
                     <li>
                         <a href="{% url 'home' %}"><span class="nav-link-home has-icon"></span>Dashboard</a>
                     </li>
+                    <li><hr class="separator"></li>
+                    <!--
                     <li>
                         <a href="{% url 'home' %}"><span class="nav-link-editor has-icon"></span>Puzzle Editor</a>
                     </li>
@@ -50,16 +52,18 @@
                     <li>
                         <a href="{% url 'home' %}"><span class="nav-link-leaderboard has-icon"></span>Leaderboard</a>
                     </li>
+                    -->
                     <li>
-                        <a href="{% url 'release_notes' %}"><span class="nav-link-notes has-icon"></span>Release Notes</a>
-                    </li>
-                    <li><hr /></li>
-                    <li>
-                        <a href="{% url 'account' %}"><span class="nav-link-account has-icon"></span>Account</a>
+                        <a href="{% url 'account' %}"><span class="nav-link-account has-icon"></span>Account Settings</a>
                     </li>
                     <li>
                         <a href="{% url 'change_password' %}"><span class="nav-link-pswd has-icon"></span>Change Password</a>
                     </li>
+                    <li><hr class="separator"></li>
+                    <li>
+                        <a href="{% url 'release_notes' %}"><span class="nav-link-notes has-icon"></span>Release Notes</a>
+                    </li>
+                    <li><hr class="separator"></li>
                     <li>
                         <a href="{% url 'logout' %}"><span class="nav-link-logout has-icon"></span>Logout</a>
                     </li>
