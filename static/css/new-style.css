@@ -241,9 +241,7 @@ hr.dark-line {
     padding: 0.8rem;
     margin: 1rem 0;
     text-align: left;
-    min-width: 25rem;
     box-shadow: 1px 1px black;
-    align-content: top;
 }
 .bg-lemon {
     background-color: lightyellow;
@@ -252,21 +250,16 @@ hr.dark-line {
     background-color: #e8e8e8;
 }
 .rating-table {
-    margin: 1rem 0;
+    margin: 0.3rem 0;
 }
 .group-rating {
-    padding: 0.2rem 0.3rem;
-    text-align: center;
-    vertical-align: center;
-    line-height: 1.5rem;
-    border-right: 2px solid black;
     font-size: 0.9rem;
+    padding: 0.3rem 0;
 }
 .item-rating {
-    padding-left: 0.5rem;
-    font-size: 0.8rem;
-    line-height: 1.6rem;
-    text-align: right;
+    padding: 0.2rem 0 0.2rem 1rem;
+    font-weight: 400;
+    font-size: 0.9rem;
 }
 /**
  RELEASE NOTES
