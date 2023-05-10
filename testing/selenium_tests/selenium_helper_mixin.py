@@ -125,11 +125,13 @@ class HelperMixin:
 
 # Parent class from which all selenium test cases will be derived
 class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
+
     SPAN_USERNAME = "//span[contains(@class,'current-user')]"
     NAV_MENU = "//nav[contains(@class,'navbar')]"
     MENU_TOGGLE = "//a[contains(@class,'menu-toggle-button')]"
     MENUITEM_HOME = "//nav/ul/li[1]/a"
-
+    LOGO = "//img[@class='logo']"
+    PAGE_TITLE = "//div[@class='page-title']"
 
     @classmethod
     def setUpClass(cls):
@@ -148,3 +150,6 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
             self.selenium.set_window_size(390, 840)
         else:
             self.selenium.set_window_size(800, 1080)
+
+    def assert_page_title(self, title):
+        self.assert_text_equals(self.PAGE_TITLE, title)

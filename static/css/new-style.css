@@ -230,9 +230,10 @@ hr.dark-line {
     margin: 0.5rem 0;
 }
 .note-text {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--clr-gray);
-    font-style: italic;
+    font-weight: 400;
+    padding-top: 0.1rem;
 }
 .badge {
     display: block;

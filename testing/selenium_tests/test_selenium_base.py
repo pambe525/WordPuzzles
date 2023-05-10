@@ -46,3 +46,10 @@ class BaseTemplateTests(BaseSeleniumTestCase):
         self.do_click(self.MENU_TOGGLE)
         self.selenium.implicitly_wait(0.5)
         self.assertTrue(self.do_click(self.MENUITEM_HOME))
+
+    def test_Clicking_on_logo_in_authenticated_mode_redirects_to_home_page(self):
+        self.auto_login_user(self.user)
+        self.get('/account')
+        self.assert_page_title("Account Settings")
+        self.do_click(self.LOGO)
+        self.assert_page_title("Dashboard")
