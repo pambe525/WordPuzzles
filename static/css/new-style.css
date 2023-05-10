@@ -9,6 +9,7 @@
     --clr-red: #a83232;
     --clr-green: #13660b;
     --clr-darkgray: #646665;
+    --clr-darkblue: navy;
     /* Font awesome icons */
     --fa-family: "Font Awesome 6 Free";
     --icon-dashboard: "\f015";
@@ -180,7 +181,7 @@ hr.separator {
 .subtitle {
     font-size: 1.2rem;
     font-weight: 400;
-    color: var(--clr-blue);
+    color: var(--clr-darkblue);
 }
 form table, fieldset table {
     margin: 0.8rem 0 0 0;
@@ -230,11 +231,42 @@ hr.dark-line {
 }
 .note-text {
     font-size: 0.9rem;
-    color: var(--clr-darkgray);
+    color: var(--clr-gray);
     font-style: italic;
 }
-div.vspacer {
+.badge {
+    display: block;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 0.8rem;
     margin: 1rem 0;
+    text-align: left;
+    min-width: 25rem;
+    box-shadow: 1px 1px black;
+    align-content: top;
+}
+.bg-lemon {
+    background-color: lightyellow;
+}
+.bg-gray {
+    background-color: #e8e8e8;
+}
+.rating-table {
+    margin: 1rem 0;
+}
+.group-rating {
+    padding: 0.2rem 0.3rem;
+    text-align: center;
+    vertical-align: center;
+    line-height: 1.5rem;
+    border-right: 2px solid black;
+    font-size: 0.9rem;
+}
+.item-rating {
+    padding-left: 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1.6rem;
+    text-align: right;
 }
 /**
  RELEASE NOTES
