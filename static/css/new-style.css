@@ -54,6 +54,9 @@ p, h1, h2, h3, h4, h5, h6 {         /* Avoid text overflows */
 /**----------------------------------------------------------------------------
  BASE TEMPLATE STYLE
  */
+html {
+    background-color: black;
+}
 body {
     font-family: 'Roboto', 'Arial', sans-serif;
     font-size: 1em;
@@ -141,9 +144,12 @@ hr.separator {
     display: flex;
     margin: 0;
     padding: 0;
+    width: min(65ch, 100% - 4rem);
+    margin-inline: auto;
 }
 .content {
-    padding: 1rem;
+    padding: 1rem 2rem;
+
 }
 @media (max-width: 35rem) {
     .menu-toggle-button { display:flex; }
@@ -276,8 +282,8 @@ hr.dark-line {
     list-style: square;
 }
 .feature-list li {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: var(--clr-darkgray);
-    line-height: 0.9rem;
+    line-height: 1.0rem;
     padding: 0.2rem 0 0.2rem 0.3rem;
 }
