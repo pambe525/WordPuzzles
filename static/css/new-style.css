@@ -54,18 +54,30 @@ p, h1, h2, h3, h4, h5, h6 {         /* Avoid text overflows */
 /**----------------------------------------------------------------------------
  BASE TEMPLATE STYLE
  */
-html {
-    background-color: black;
-}
 body {
     font-family: 'Roboto', 'Arial', sans-serif;
     font-size: 1em;
+    background-color: #003366;
+}
+.container {
+    max-width: 75ch;
+    margin-inline: auto;
 }
 header {
     display: flex;
     background-color: black;
     border-bottom: 4px solid var(--clr-orange);
     align-items: center;
+}
+.main {
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+.content {
+    padding: 1rem 1rem;
+    background-color: white;
+    flex-basis: 100%;
 }
 .header-group {
     margin-left: auto;
@@ -83,28 +95,34 @@ header {
     margin-right: 1rem;
 }
 .navbar {
-    display: flex;
     flex-direction: column;
     background-color: var(--clr-gray);
-    min-width: 13rem;
+    min-width: 12rem;
     border-bottom: 1px solid black;
     box-shadow: 1px 1px 3px 2px #888;
-    clip-path: inset(0px -15px 0px 0px);
-    padding: 1rem;
+    /*clip-path: inset(0px -15px 0px 0px);*/
+    padding: 1rem 0 0 0;
     min-height: calc(100vh - 70px);
 }
 .navbar-links {
-    padding-left: 0;
+    padding: 0;  !important;
+    margin: 0;   !important;
+}
+.navbar-links .active {
+    background-color: white;
+    opacity: 0.8;
 }
 .navbar-links li {
     list-style: none;
-    padding-top: 0.5rem;
+    padding: 0; !important;
+    margin: 0; !important;
 }
 .navbar-links li a {
+    margin: 0;
     text-decoration: none;
+    padding: 0.1rem 0.5rem;
     color: black;
     display: block;
-    padding-bottom: 0.5rem;
 }
 .navbar-links li :hover {
     color: var(--clr-blue);
@@ -123,7 +141,7 @@ header {
     width: 1.6rem;
 }
 hr.separator {
-    margin: 0;  !important;
+    margin: 0.5rem 0 0.5rem 0;  !important;
     padding: 0; !important;
     border-top: 2px groove var(--clr-orange);
 }
@@ -140,19 +158,11 @@ hr.separator {
 .current-user::before{ content: var(--icon-user); }
 .menu-toggle-button::before{ content: var(--icon-menu); }
 
-.container {
-    display: flex;
-    margin: 0;
-    padding: 0;
-    width: min(65ch, 100% - 4rem);
-    margin-inline: auto;
-}
-.content {
-    padding: 1rem 2rem;
-
-}
 @media (max-width: 35rem) {
     .menu-toggle-button { display:flex; }
+    .main, .content {
+        width: 100%;
+    }
     .navbar {
         z-index:100;
         position: fixed;

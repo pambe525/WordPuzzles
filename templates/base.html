@@ -18,24 +18,25 @@
     <link type="text/css" rel="stylesheet" href="{% static '/css/new-style.css' %}">
 </head>
 <body>
-    <header>
-        <a href="{% url 'home' %}">
-            <img class="logo" src="{% static '/images/crypticlive-black-logo.png' %}"  alt="Cryptic Live" />
-        </a>
-        {% if user.is_authenticated %}
-            <div class="header-group">
-                <span class="current-user has-icon">{{ user.username }}</span>
-                <a class="menu-toggle-button has-icon"></a>
-            </div>
-        {% endif %}
-    </header>
-    <div class="glasspane"></div>
     <div class="container">
+        <header>
+            <a href="{% url 'dashboard' %}">
+                <img class="logo" src="{% static '/images/crypticlive-black-logo.png' %}"  alt="Cryptic Live" />
+            </a>
+            {% if user.is_authenticated %}
+                <div class="header-group">
+                    <span class="current-user has-icon">{{ user.username }}</span>
+                    <a class="menu-toggle-button has-icon"></a>
+                </div>
+            {% endif %}
+        </header>
+        <div class="glasspane"></div>
+        <div class="main">
         {% if user.is_authenticated %}
             <!-- NAVBAR -->
             <nav class="navbar">
                 <ul class="navbar-links">
-                    <li>
+                    <li class="active">
                         <a href="{% url 'home' %}"><span class="nav-link-home has-icon"></span>Dashboard</a>
                     </li>
                     <li><hr class="separator"></li>
@@ -70,7 +71,6 @@
                 </ul>
             </nav>
         {% endif %}
-
         {% if error_message %}
             <!-- FATAL ERROR MESSAGE -->
             <div id="flash-msg" class="alert alert-danger h4" role="alert">{{ error_message }}</div>
@@ -83,6 +83,7 @@
                 {% block content %}{% endblock %}
             </div>
         {%  endif %}
+        </div>
     </div>
     <script>
         $(document).ready(function() {
@@ -97,9 +98,16 @@
                 navbar.classList.toggle("active");
                 glasspane.classList.toggle("active");
             })
-            // $('li.active').removeClass('active');
-            // $('a[href="' + location.pathname + '"]').closest('li').addClass('active');
-        });
+            try {
+                const oldLink = document.querySelector('.navbar-links .active');
+                oldLink.classList.remove('active');
+                const newLink = document.querySelector('a[href="' + location.pathname + '"]');
+                newLink.parentElement.classList.add('active');
+            } catch(e) {
+                alert(e);
+            }
+
+            });
 
         function goBack() {
             {#var back = "{{ request.META.HTTP_REFERER }}";#}
