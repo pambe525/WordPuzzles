@@ -61,7 +61,7 @@ body {
 }
 .container {
     max-width: 75ch;
-    margin-inline: auto;
+    margin: auto;
 }
 header {
     display: flex;
@@ -78,7 +78,6 @@ header {
     padding: 1rem 1rem;
     background-color: white;
     flex-basis: 100%;
-    flex-shrink: 1;
 }
 .header-group {
     margin-left: auto;
@@ -165,7 +164,9 @@ hr.separator {
         width: 100%;
     }
     .container {
-        margin: 0; !important;
+        margin: 0;
+        padding: 0;
+        width: 100%;
     }
     .navbar {
         z-index:100;
