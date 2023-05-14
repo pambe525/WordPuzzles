@@ -132,11 +132,12 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     MENUITEM_HOME = "//nav/ul/li[1]/a"
     LOGO = "//img[@class='logo']"
     PAGE_TITLE = "//div[@class='page-title']"
+    ACTIVE_MENUITEM = "//nav/ul/li[@class='active']/a"
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.selenium = cls.get_selenium_webdriver(True)
+        cls.selenium = cls.get_selenium_webdriver(False)
         cls.server_url = cls.live_server_url
         cls.testcase = cls
 

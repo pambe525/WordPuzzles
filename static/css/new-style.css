@@ -100,7 +100,6 @@ header {
     min-width: 12rem;
     border-bottom: 1px solid black;
     box-shadow: 1px 1px 3px 2px #888;
-    /*clip-path: inset(0px -15px 0px 0px);*/
     padding: 1rem 0 0 0;
     min-height: calc(100vh - 70px);
 }
