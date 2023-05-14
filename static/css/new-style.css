@@ -160,8 +160,11 @@ hr.separator {
 
 @media (max-width: 35rem) {
     .menu-toggle-button { display:flex; }
-    .main, .content {
+    .content {
         width: 100%;
+    }
+    .container {
+        margin: 0;
     }
     .navbar {
         z-index:100;
