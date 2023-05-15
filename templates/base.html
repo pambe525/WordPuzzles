@@ -40,20 +40,10 @@
                         <a href="{% url 'home' %}"><span class="nav-link-home has-icon"></span>Dashboard</a>
                     </li>
                     <li><hr class="separator"></li>
-                    <!--
                     <li>
-                        <a href="{% url 'home' %}"><span class="nav-link-editor has-icon"></span>Puzzle Editor</a>
+                        <a href="{% url 'puzzle_builder' %}"><span class="nav-link-builder has-icon"></span>Puzzle Builder</a>
                     </li>
-                    <li>
-                        <a href="{% url 'puzzles_list' %}"><span class="nav-link-puzzles has-icon"></span>All Puzzles</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'home' %}"><span class="nav-link-sessions has-icon"></span>Sessions</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'home' %}"><span class="nav-link-leaderboard has-icon"></span>Leaderboard</a>
-                    </li>
-                    -->
+                    <li><hr class="separator"></li>
                     <li>
                         <a href="{% url 'account' %}"><span class="nav-link-account has-icon"></span>Account Settings</a>
                     </li>
@@ -88,12 +78,6 @@
     <script>
         $(document).ready(function() {
 
-            // Highlight active nav link
-            const activePage = window.location.href;
-            document.querySelectorAll(".navbar-links a").forEach(link => {
-                if (link.href === activePage) link.classList.add("active");
-            })
-
             const toggleButton = document.getElementsByClassName("menu-toggle-button")[0];
             const navbar = document.getElementsByClassName("navbar")[0];
             const glasspane = document.getElementsByClassName("glasspane")[0];
@@ -105,6 +89,13 @@
                 navbar.classList.toggle("active");
                 glasspane.classList.toggle("active");
             })
+
+            // Highlight active nav link
+            const activePage = window.location.href;
+            document.querySelectorAll(".navbar-links a").forEach(link => {
+                if (link.href === activePage) link.classList.add("active");
+            })
+
         });
 
         function goBack() {

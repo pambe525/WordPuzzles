@@ -1,119 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="page-title">Dashboard</div>
+    <div class="page-title">Puzzle Builder</div>
     <hr class="dark-line">
-    <!-- RECENT ACTIVITY SECTION -->
-        <div class="subtitle">Recent Activity</div>
-        {% if recent_puzzles|length == 0 %}
-            <div class="note-text">No activity in last 7 days</div>
-        {% else %}
-            <div class="note-text">
-                Recently solved puzzles by you or newly published puzzles (within last 7 days).
-                Click on the title to solve the puzzle.
-            </div>
-            {% for puzzle in recent_puzzles %}
-                <!-- PUZZLE BADGE -->
-                <div class="badge badge-light p-2 mt-3 shadow-sm border border-dark rounded-3 d-block text-left">
-                    <!-- PUZZLE TITLE -->
-                    <a class="h5" href="{% url 'preview_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
-                        <b>{{ puzzle }}</b>
-                    </a>
-                    <!-- PUZZLE DESCRIPTION -->
-                    {% if puzzle.desc != None %}
-                        <div class="h6 text-left text-truncate mb-1" title="{{ puzzle.desc }}">
-                            <b>{{ puzzle.desc }}</b>
-                        </div>
-                    {% endif %}
-                    <div class="text-left h6 text-muted pt-0">
-                        Posted by:
-                        {% if puzzle.editor != request.user %}
-                            {{ puzzle.editor }}
-                        {% else %}
-                            <span class="bg-secondary p-1 rounded text-white">ME</span>
-                        {% endif %}
-                        on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
-                    </div>
-                    <div class="row m-0 align-items-center">
-                        {% if puzzle.editor == request.user %}
-                            <a class="btn border-secondary p-0 mr-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                                title="VIEW" style="width:22px; height:22px;"><i class="fa fa-eye"></i>
-                            </a>
-                        {% else %}
-                            <a class="btn border-secondary p-0 mr-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                                title="SOLVE" style="width:22px; height:22px"><i class="fa fa-hourglass-2"></i>
-                            </a>
-                        {% endif %}
-                        {% if puzzle.session_count != 0 %}
-                            <a class="btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
-                                title="SCORES" style="width:22px; height:22px"><i class="fa fa-crown"></i>
-                            </a>
-                        {% elif puzzle.editor != request.user %}
-                            <span class="h6 text-danger pt-1 pl-1">Be the first to solve this puzzle</span>
-                        {% endif %}
-                        {% if puzzle.user_session != None %}
-                            <span class="h6 text-secondary pt-1 pl-1">
-                                Last solve: {{ puzzle.user_session.modified_at|date:'M d, Y' }} (GMT)
-                            </span>
-                        {% endif %}
-                        <div class="bg-primary text-light text-center rounded-circle py-1 ml-auto h6"
-                             title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}
-                        </div>
-                        {% if puzzle.user_session != None %}
-                            <div class="ml-2 mb-2 text-right">
-                                {% if puzzle.user_session.is_complete %}
-                                    <i title="Completed" class="fa fa-flag text-success fa-lg"></i>
-                                {% else %}
-                                    <i title="Incomplete" class="fa fa-flag text-danger fa-lg"></i>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endfor %}
-        {% endif %}
+    <!-- MY DRAFT PUZZLES -->
+    <div class="badge bg-lemon">
+        <div class="subtitle">My Draft Puzzles</div>
+        <div class="note-text"></div><br>
+        <button id="btnNewPuzzle" class="blue-btn">New Puzzle</button>
+    </div>
+    <div class="badge bg-lemon">
+        <div class="subtitle">My Scheduled Puzzles</div>
+        <div class="note-text">Puzzles scheduled for a live session</div>
+    </div>
 
-        <!-- MY DRAFT PUZZLES -->
-        <div class="subtitle">Overall Ranking</div>
-        {% if draft_puzzles|length == 0 %}
-            <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>
-        {% else %}
-            <div class="notetext pt-1 pb-1">
-                To edit a puzzle click on its title. Hover on the title to view full description.
-            </div>
-            {% for puzzle in draft_puzzles %}
-                <!-- PUZZLE BADGE -->
-                <div class="badge badge-light p-2 mt-3 shadow-sm border border-secondary d-block text-left">
-                    <!-- PUZZLE TITLE -->
-                    <a class="h5" href="{% url 'edit_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">
-                        <b>{{ puzzle }}</b>
-                    </a>
-                    <!-- PUZZLE DESCRIPTION -->
-                    {% if puzzle.desc != None %}
-                        <div class="h6 text-left text-truncate mb-1" title="{{ puzzle.desc }}">
-                            <b>{{ puzzle.desc }}</b>
-                        </div>
-                    {% endif %}
-                    <div class="text-left h6 text-muted pt-1">
-                        Last edited: {{ puzzle.modified_at|date:'M d, Y h:i A' }} (GMT)
-                    </div>
-                    <!-- PUZZLE ICON BUTTONS -->
-                    <div class="row m-0 align-items-center mt-1">
-                        <a class="btn border-secondary p-0" href="{% url 'edit_puzzle' puzzle.id %}"
-                           title="EDIT" style="width:22px; height:22px"><i class="fa fa-pencil"></i>
-                        </a>
-                        {% if puzzle.size != 0 %}
-                        <a class="btn border-secondary p-0 ml-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                           title="PREVIEW & PUBLISH" style="width:22px;height:22px"><i class="fa fa-eye"></i>
-                        </a>
-                        {% endif %}
-                        <a class="btn border-secondary p-0 ml-1" href="{% url 'delete_puzzle_confirm' puzzle.id %}"
-                           title="DELETE" style="width:22px;height:22px"><i class="fa fa-trash" style="color:red"></i>
-                        </a>
-                    </div>
-                </div>
-            {% endfor %}
-        {% endif %}
-        <div class="mt-4">
-            <a id="btnNewPuzzle" href="{% url 'new_puzzle' %}" class="p-2 btn-sm btn-dark">NEW PUZZLE</a>
-        </div>
+{#        {% if draft_puzzles|length == 0 %}#}
+{#            <div class="notetext mt-2">You have no draft puzzles. Click above button to draft a puzzle.</div>#}
+{#        {% else %}#}
+{#            <div class="notetext pt-1 pb-1">#}
+{#                To edit a puzzle click on its title. Hover on the title to view full description.#}
+{#            </div>#}
+{#            {% for puzzle in draft_puzzles %}#}
+{#                <!-- PUZZLE BADGE -->#}
+{#                <div class="badge badge-light p-2 mt-3 shadow-sm border border-secondary d-block text-left">#}
+{#                    <!-- PUZZLE TITLE -->#}
+{#                    <a class="h5" href="{% url 'edit_puzzle' puzzle.id %}" title="{{ puzzle.desc }}">#}
+{#                        <b>{{ puzzle }}</b>#}
+{#                    </a>#}
+{#                    <!-- PUZZLE DESCRIPTION -->#}
+{#                    {% if puzzle.desc != None %}#}
+{#                        <div class="h6 text-left text-truncate mb-1" title="{{ puzzle.desc }}">#}
+{#                            <b>{{ puzzle.desc }}</b>#}
+{#                        </div>#}
+{#                    {% endif %}#}
+{#                    <div class="text-left h6 text-muted pt-1">#}
+{#                        Last edited: {{ puzzle.modified_at|date:'M d, Y h:i A' }} (GMT)#}
+{#                    </div>#}
+{#                    <!-- PUZZLE ICON BUTTONS -->#}
+{#                    <div class="row m-0 align-items-center mt-1">#}
+{#                        <a class="btn border-secondary p-0" href="{% url 'edit_puzzle' puzzle.id %}"#}
+{#                           title="EDIT" style="width:22px; height:22px"><i class="fa fa-pencil"></i>#}
+{#                        </a>#}
+{#                        {% if puzzle.size != 0 %}#}
+{#                        <a class="btn border-secondary p-0 ml-1" href="{% url 'preview_puzzle' puzzle.id %}"#}
+{#                           title="PREVIEW & PUBLISH" style="width:22px;height:22px"><i class="fa fa-eye"></i>#}
+{#                        </a>#}
+{#                        {% endif %}#}
+{#                        <a class="btn border-secondary p-0 ml-1" href="{% url 'delete_puzzle_confirm' puzzle.id %}"#}
+{#                           title="DELETE" style="width:22px;height:22px"><i class="fa fa-trash" style="color:red"></i>#}
+{#                        </a>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endfor %}#}
+{#        {% endif %}#}
 {% endblock %}

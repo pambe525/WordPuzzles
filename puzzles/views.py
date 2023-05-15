@@ -28,6 +28,13 @@ class ReleaseNotesView(TemplateView):
     template_name = "release_notes.html"
 
 
+class PuzzleBuilderView(LoginRequiredMixin, View):
+    model = WordPuzzle
+
+    def get(self, request):
+        return render(request, "puzzle_builder.html", context=None)
+
+
 class HomeView(LoginRequiredMixin, View):
     model = WordPuzzle
     recent_puzzles = None

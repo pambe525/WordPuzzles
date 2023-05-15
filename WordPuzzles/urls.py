@@ -18,17 +18,18 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from puzzles.views import HomeView, EditPuzzleView, NewPuzzleView, EditClueView, DeleteClueView, PuzzlesListView, \
-    PuzzleScoreView
+    PuzzleScoreView, PuzzleBuilderView
 from puzzles.views import PreviewPuzzleView, DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView
 from puzzles.views import ReleaseNotesView, SolvePuzzleView
 from user_auth.views import SignUpView, UserAccountView, ChangePasswordView
 
 urlpatterns = [
-    # USER AUTH RELATED URLS
     path('admin/', admin.site.urls, name="admin"),
     path('', HomeView.as_view(), name="home"),
     path('dashboard', HomeView.as_view(), name='dashboard'),
     path('release_notes', ReleaseNotesView.as_view(), name='release_notes'),
+
+    # USER AUTH RELATED URLS
     path('signup', SignUpView.as_view(), name="signup"),
     path('login', auth_views.LoginView.as_view(template_name='login.html', redirect_authenticated_user=True),
          name='login'),
@@ -49,6 +50,7 @@ urlpatterns = [
     path('change_password_done', ChangePasswordView.as_view(), name="change_password_done"),
 
     # PUZZLE RELATED URL
+    path('puzzle_builder', PuzzleBuilderView.as_view(), name="puzzle_builder"),
     path('new_puzzle', NewPuzzleView.as_view(), name="new_puzzle"),
     path('edit_puzzle/<int:pk>/', EditPuzzleView.as_view(), name="edit_puzzle"),
     path('delete_puzzle_confirm/<int:pk>/', DeletePuzzleView.as_view(), name="delete_puzzle_confirm"),

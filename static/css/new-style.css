@@ -107,10 +107,6 @@ header {
     padding: 0;  !important;
     margin: 0;   !important;
 }
-.navbar-links a .active {
-    background-color: white;
-    opacity: 0.8;
-}
 .navbar-links li {
     list-style: none;
     padding: 0; !important;
@@ -125,6 +121,10 @@ header {
 }
 .navbar-links li :hover {
     color: var(--clr-blue);
+}
+.navbar-links a.active {
+    background-color: white;
+    opacity: 0.8;
 }
 .menu-toggle-button {
     display: none;
@@ -146,7 +146,7 @@ hr.separator {
 }
 /* Icons */
 .nav-link-home::before { content: var(--icon-dashboard); }
-.nav-link-editor::before { content: var(--icon-editor); }
+.nav-link-builder::before { content: var(--icon-editor); }
 .nav-link-puzzles::before { content: var(--icon-puzzles); }
 .nav-link-sessions::before { content: var(--icon-sessions); }
 .nav-link-leaderboard::before { content: var(--icon-leaderboard); }
@@ -232,11 +232,12 @@ form .helptext, fieldset .helptext {
 .blue-btn {
     background-color: var(--clr-blue);
     color: white;
-    padding: 0.2rem 1.0rem;
+    padding: 0.2rem 1rem 0.3rem 1rem;
     border-radius: 5px;
     margin-right: 1rem;
-    font-size: 1rem;
+    font-size: 0.9rem;
     display: inline-block;
+    font-weight: 500;
 }
 a.blue-btn:hover {
     text-decoration: none;
