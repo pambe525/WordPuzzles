@@ -44,7 +44,7 @@ class BaseTemplateTests(BaseSeleniumTestCase):
         self.set_mobile_size(True)    # In mobile mode
         self.get('/')
         self.do_click(self.MENU_TOGGLE)
-        self.selenium.implicitly_wait(0.5)
+        self.selenium.implicitly_wait(1)
         self.assertTrue(self.do_click(self.MENUITEM_HOME))
 
     def test_Clicking_on_logo_in_authenticated_mode_redirects_to_home_page(self):

@@ -129,7 +129,7 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     SPAN_USERNAME = "//span[contains(@class,'current-user')]"
     NAV_MENU = "//nav[contains(@class,'navbar')]"
     MENU_TOGGLE = "//a[contains(@class,'menu-toggle-button')]"
-    MENUITEM_HOME = "//nav/ul/li[1]/a"
+    MENUITEM_HOME = "//nav/ul/li[1]"
     LOGO = "//img[@class='logo']"
     PAGE_TITLE = "//div[@class='page-title']"
     ACTIVE_MENUITEM = "//nav/ul/li/a[@class='active']"

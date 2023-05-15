@@ -5,17 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cryptic Live</title>
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-    <!-- TODO: ELIMINATE THIS AFTER BOOTSTRAP DEPENDENCIES ARE REMOVED -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.css" />
     {% load static %}
-    <link type="text/css" rel="stylesheet" href="{% static '/css/new-style.css' %}">
+    <link type="text/css" rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
 </head>
 <body>
     <div class="container">
@@ -32,7 +24,7 @@
         </header>
         <div class="glasspane"></div>
         <div class="main">
-        {% if user.is_authenticated %}
+            {% if user.is_authenticated %}
             <!-- NAVBAR -->
             <nav class="navbar">
                 <ul class="navbar-links">
@@ -60,24 +52,15 @@
                     </li>
                 </ul>
             </nav>
-        {% endif %}
-        {% if error_message %}
-            <!-- FATAL ERROR MESSAGE -->
-            <div id="flash-msg" class="alert alert-danger h4" role="alert">{{ error_message }}</div>
-            <a href="{% url 'home' %}" class="btn btn-primary m-3">
-               <i class="mr-2 fa fa-backward fa-lg" style="color:white"></i> Back to Dashboard
-            </a>
-        {% else %}
+            {% endif %}
             <!-- MAIN CONTENT -->
             <div class="content">
                 {% block content %}{% endblock %}
             </div>
-        {%  endif %}
         </div>
     </div>
     <script>
-        $(document).ready(function() {
-
+        document.addEventListener("DOMContentLoaded", function() {
             const toggleButton = document.getElementsByClassName("menu-toggle-button")[0];
             const navbar = document.getElementsByClassName("navbar")[0];
             const glasspane = document.getElementsByClassName("glasspane")[0];
@@ -90,19 +73,12 @@
                 glasspane.classList.toggle("active");
             })
 
-            // Highlight active nav link
+            /* Highlight active nav link */
             const activePage = window.location.href;
             document.querySelectorAll(".navbar-links a").forEach(link => {
                 if (link.href === activePage) link.classList.add("active");
             })
-
         });
-
-        function goBack() {
-            {#var back = "{{ request.META.HTTP_REFERER }}";#}
-            {#if (back === "") back = "/";#}
-            window.location.href = '/';
-        }
     </script>
 </body>
 </html>
