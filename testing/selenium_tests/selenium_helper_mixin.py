@@ -8,7 +8,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from selenium.common import ElementNotInteractableException
+from selenium.common import ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
@@ -53,7 +53,7 @@ class HelperMixin:
         try:
             self.selenium.find_element(By.XPATH, xpath).click()
             return True
-        except ElementNotInteractableException:
+        except ElementClickInterceptedException:
             return False
 
     def auto_login_user(self, user):
@@ -132,7 +132,7 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     MENUITEM_HOME = "//nav/ul/li[1]/a"
     LOGO = "//img[@class='logo']"
     PAGE_TITLE = "//div[@class='page-title']"
-    ACTIVE_MENUITEM = "//nav/ul/li[@class='active']/a"
+    ACTIVE_MENUITEM = "//nav/ul/li/a[@class='active']"
 
     @classmethod
     def setUpClass(cls):
@@ -154,3 +154,8 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
 
     def assert_page_title(self, title):
         self.assert_text_equals(self.PAGE_TITLE, title)
+
+    def assert_active_page_nav_link_hilited(self, page_url, page_title):
+        self.get(page_url)
+        self.assert_page_title(page_title)
+        self.assert_text_equals(self.ACTIVE_MENUITEM, page_title)

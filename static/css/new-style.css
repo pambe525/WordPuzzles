@@ -107,7 +107,7 @@ header {
     padding: 0;  !important;
     margin: 0;   !important;
 }
-.navbar-links .active {
+.navbar-links a .active {
     background-color: white;
     opacity: 0.8;
 }

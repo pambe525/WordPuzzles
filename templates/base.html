@@ -36,7 +36,7 @@
             <!-- NAVBAR -->
             <nav class="navbar">
                 <ul class="navbar-links">
-                    <li class="active">
+                    <li>
                         <a href="{% url 'home' %}"><span class="nav-link-home has-icon"></span>Dashboard</a>
                     </li>
                     <li><hr class="separator"></li>
@@ -87,6 +87,13 @@
     </div>
     <script>
         $(document).ready(function() {
+
+            // Highlight active nav link
+            const activePage = window.location.href;
+            document.querySelectorAll(".navbar-links a").forEach(link => {
+                if (link.href === activePage) link.classList.add("active");
+            })
+
             const toggleButton = document.getElementsByClassName("menu-toggle-button")[0];
             const navbar = document.getElementsByClassName("navbar")[0];
             const glasspane = document.getElementsByClassName("glasspane")[0];
@@ -98,16 +105,7 @@
                 navbar.classList.toggle("active");
                 glasspane.classList.toggle("active");
             })
-            try {
-                const oldLink = document.querySelector('.navbar-links .active');
-                oldLink.classList.remove('active');
-                const newLink = document.querySelector('a[href="' + location.pathname + '"]');
-                newLink.parentElement.classList.add('active');
-            } catch(e) {
-                alert(e);
-            }
-
-            });
+        });
 
         function goBack() {
             {#var back = "{{ request.META.HTTP_REFERER }}";#}

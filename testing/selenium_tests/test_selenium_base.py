@@ -53,3 +53,10 @@ class BaseTemplateTests(BaseSeleniumTestCase):
         self.assert_page_title("Account Settings")
         self.do_click(self.LOGO)
         self.assert_page_title("Dashboard")
+
+    def test_Nav_link_is_hilited_for_active_page(self):
+        self.auto_login_user(self.user)
+        self.assert_active_page_nav_link_hilited("/", "Dashboard")
+        self.assert_active_page_nav_link_hilited("/account", "Account Settings")
+        self.assert_active_page_nav_link_hilited("/change_password", "Change Password")
+        self.assert_active_page_nav_link_hilited("/release_notes", "Release Notes")
