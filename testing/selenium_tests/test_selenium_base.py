@@ -60,3 +60,4 @@ class BaseTemplateTests(BaseSeleniumTestCase):
         self.assert_active_page_nav_link_hilited("/account", "Account Settings")
         self.assert_active_page_nav_link_hilited("/change_password", "Change Password")
         self.assert_active_page_nav_link_hilited("/release_notes", "Release Notes")
+        self.assert_active_page_nav_link_hilited("/my_puzzles", "My Puzzles")

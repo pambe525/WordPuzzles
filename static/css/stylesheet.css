@@ -94,6 +94,10 @@ header {
     color: white;
     margin-right: 1rem;
 }
+
+/**
+    MAIN NAVIGATION SIDE MENU
+ */
 .navbar {
     flex-direction: column;
     background-color: var(--clr-gray);
@@ -286,6 +290,22 @@ hr.dark-line {
     padding: 0.2rem 0 0.2rem 1rem;
     font-weight: 400;
     font-size: 0.9rem;
+}
+
+/**
+ MY PUZZLES TABS
+ */
+.mypuzzles-tabs ul {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    padding: 0;
+    gap: 1rem;
+    text-align: left;
+    font-weight: 500;
+}
+.mypuzzles-tabs li {
+    list-style: none;
 }
 /**
  RELEASE NOTES
