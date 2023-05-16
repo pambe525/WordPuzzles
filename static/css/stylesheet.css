@@ -295,17 +295,33 @@ hr.dark-line {
 /**
  MY PUZZLES TABS
  */
-.mypuzzles-tabs ul {
+.nav-tabs ul {
     display: flex;
     flex-direction: row;
-    margin: 0;
-    padding: 0;
-    gap: 1rem;
-    text-align: left;
+    margin-left: 0;
+}
+.nav-tabs li {
+    list-style: none;
+    padding: 0.1rem 0.6rem;
+    border: 1px solid gray;
+    border-radius: 6px 6px 0 0;
+    border-bottom: 2px solid black;
+    background-color: lightgray;
+    font-size: 0.9rem;
     font-weight: 500;
 }
-.mypuzzles-tabs li {
-    list-style: none;
+.nav-tabs li:hover {
+    color: var(--clr-blue);
+    cursor: pointer;
+}
+.nav-tabs li.active {
+    position: relative;
+    top: -2px;
+    background-color: white;
+    color: blue;
+    border: 2px solid gray;
+    border-bottom: 2px solid white;
+    font-weight: 600;
 }
 /**
  RELEASE NOTES
