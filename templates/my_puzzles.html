@@ -13,15 +13,42 @@
         </ul>
     </nav>
 
-    {#    <!-- MY DRAFT PUZZLES -->#}
-{#    <div class="badge bg-lemon">#}
-{#        <div class="subtitle">My Draft Puzzles</div>#}
-{#        <div class="note-text"></div><br>#}
-{#        <button id="btnNewPuzzle" class="blue-btn">New Puzzle</button>#}
-{#    </div>#}
-{#    <div class="badge bg-lemon">#}
-{#        <div class="subtitle">My Scheduled Puzzles</div>#}
-{#        <div class="note-text">Puzzles scheduled for a live session</div>#}
-{#    </div>#}
+    <!-- Draft Puzzles -->
+    <div class="tab-content active-tab drafts-tab">
+        <div class="subtitle">My Draft Puzzles</div><br>
+        <button id="btnNewPuzzle" class="blue-btn">New Puzzle</button>
+    </div>
 
+    <!-- Scheduled Puzzles -->
+    <div class="tab-content scheduled-tab">
+        <div class="subtitle">My Puzzles Scheduled for Live Session</div><br>
+    </div>
+
+    <!-- Published Puzzles -->
+    <div class="tab-content published-tab">
+        <div class="subtitle">My Published Puzzles</div><br>
+    </div>
+
+    <!-- Solving Puzzles -->
+    <div class="tab-content solving-tab">
+        <div class="subtitle">Currently Solving</div><br>
+    </div>
+
+    <!-- Solved Puzzles -->
+    <div class="tab-content solved-tab">
+        <div class="subtitle">Solved Puzzles</div><br>
+    </div>
+
+    <script>
+        const tabs = document.querySelectorAll(".nav-tabs li").forEach(tab => {
+            tab.addEventListener('click', (event) => { activateTab(event); });
+        });
+        function activateTab(event) {
+            document.querySelector(".nav-tabs li.active").classList.remove("active");
+            document.querySelector(".tab-content.active-tab").classList.remove("active-tab");
+            event.target.classList.add("active");
+            document.querySelector("." + event.target.id).classList.add("active-tab");
+        }
+t
+    </script>
 {% endblock %}

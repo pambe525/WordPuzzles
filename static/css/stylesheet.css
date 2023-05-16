@@ -324,6 +324,13 @@ hr.dark-line {
     border-bottom: 2px solid white;
     font-weight: 600;
 }
+.tab-content {
+    margin: 1rem 0.5rem;
+    display: none;
+}
+.tab-content.active-tab {
+    display: block;
+}
 /**
  RELEASE NOTES
  */
