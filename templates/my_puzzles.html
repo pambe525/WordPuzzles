@@ -8,8 +8,6 @@
             <li id="drafts-tab" class="active">Drafts</li>
             <li id="scheduled-tab">Scheduled</li>
             <li id="published-tab">Published</li>
-            <li id="solving-tab">Solving</li>
-            <li id="solved-tab">Solved</li>
         </ul>
     </nav>
 
@@ -21,22 +19,12 @@
 
     <!-- Scheduled Puzzles -->
     <div class="tab-content scheduled-tab">
-        <div class="subtitle">My Puzzles Scheduled for Live Session</div><br>
+        <div class="subtitle">My Puzzles in Live Sessions</div><br>
     </div>
 
     <!-- Published Puzzles -->
     <div class="tab-content published-tab">
         <div class="subtitle">My Published Puzzles</div><br>
-    </div>
-
-    <!-- Solving Puzzles -->
-    <div class="tab-content solving-tab">
-        <div class="subtitle">Currently Solving</div><br>
-    </div>
-
-    <!-- Solved Puzzles -->
-    <div class="tab-content solved-tab">
-        <div class="subtitle">Solved Puzzles</div><br>
     </div>
 
     <script>
@@ -49,6 +37,5 @@
             event.target.classList.add("active");
             document.querySelector("." + event.target.id).classList.add("active-tab");
         }
-t
     </script>
 {% endblock %}

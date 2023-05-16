@@ -303,7 +303,7 @@ hr.dark-line {
 }
 .nav-tabs li {
     list-style: none;
-    padding: 0.1rem 0.6rem;
+    padding: 0.1rem 1rem;
     border: 1px solid gray;
     border-radius: 6px 6px 0 0;
     border-bottom: 2px solid black;
