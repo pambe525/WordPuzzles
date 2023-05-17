@@ -198,7 +198,7 @@ hr.separator {
     position: absolute;
     top: 5rem;
     padding:1.2rem;
-    max-width: 35rem;
+    max-width: 40ch;
     margin-inline: auto;
     border: 2px solid gray;
     box-shadow: 2px 2px 2px black;
@@ -209,6 +209,9 @@ hr.separator {
 }
 .form-field {
     margin-top: 1rem;
+}
+textarea {
+    width: 100%;
 }
 /**
  PAGE CONTENT STYLE
