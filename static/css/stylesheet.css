@@ -198,7 +198,7 @@ hr.separator {
     position: absolute;
     top: 5rem;
     padding:1.2rem;
-    max-width: 75ch;
+    max-width: 35rem;
     margin-inline: auto;
     border: 2px solid gray;
     box-shadow: 2px 2px 2px black;
