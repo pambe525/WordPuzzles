@@ -33,21 +33,11 @@
     <dialog class="modal-dialog" id="new-puzzle-dialog">
         <div class="subtitle">New Puzzle</div>
         <hr>
-        <form method="dialog">
-            <div class="form-field">
-                <label for="puzzle-type">Type:</label>
-                <select id="puzzle-type">
-                    <option value="cryptic">Cryptic Clues</option>
-                    <option value="non-cryptic">Non-cryptic Clues</option>
-                    <option value="ortho">Orthogonal Neighbors</option>
-                    <option value="rebus">Rebus</option>
-                    <option value="crossword">Crossword</option>
-                </select>
-            </div>
-            <div class="form-field"><label for="description">Description:</label></div>
-            <div><textarea id="description" rows="5" cols="30"></textarea></div>
-            <button id="btnCreatePuzzle" class="blue-btn">Create Puzzle</button>
-            <button id="btnClose">Cancel</button>
+        <form action="{% url 'new_puzzle' %}" method="post">
+            {% csrf_token %}
+            <table>{{ form.as_table }}</table>
+            <button type="submit" class="blue-btn">Create Puzzle</button>
+            <button id="btnClose" formmethod="dialog">Cancel</button>
         </form>
     </dialog>
 

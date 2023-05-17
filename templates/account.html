@@ -7,13 +7,13 @@
         <fieldset disabled="disabled">
             <table>{{ form.as_table }}</table>
         </fieldset>
-        <a href="{% url 'account_edit' %}" id="lnkEditAccount" class="blue-btn">Edit</a>
+        <a href="{% url 'account_edit' %}" id="lnkEditAccount" class="blue-btn" role="button">Edit</a>
     {% else %}
         <form action="{% url 'account_edit' %}" method="post">
             {% csrf_token %}
             <table>{{ form.as_table }}</table>
             <button type="submit" id="btnSave" class="blue-btn">Save</button>
-            <a href="{% url 'account' %}" id="lnkAccount">Cancel</a>
+            <a href="{% url 'account' %}" id="lnkAccount" class="gray-btn" role="button">Cancel</a>
         </form>
     {% endif %}
     <hr class="dark-line">

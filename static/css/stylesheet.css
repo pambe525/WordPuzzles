@@ -147,6 +147,12 @@ hr.separator {
     padding: 0; !important;
     border-top: 1px groove var(--clr-orange);
 }
+.r-space {
+    margin-right: 0.5rem;
+}
+.l-space {
+    margin-left: 0.5rem;
+}
 /* Icons */
 .nav-link-home::before { content: var(--icon-dashboard); }
 .nav-link-builder::before { content: var(--icon-editor); }
@@ -194,11 +200,15 @@ hr.separator {
         display: block;
     }
 }
+
+/**
+ MODAL DIALOG
+ */
 .modal-dialog {
     position: absolute;
     top: 5rem;
     padding:1.2rem;
-    max-width: 40ch;
+    max-width: 50ch;
     margin-inline: auto;
     border: 2px solid gray;
     box-shadow: 2px 2px 2px black;
@@ -212,7 +222,9 @@ hr.separator {
 }
 textarea {
     width: 100%;
+    line-height: 1.1rem;
 }
+
 /**
  PAGE CONTENT STYLE
  */
@@ -256,21 +268,55 @@ form .helptext, fieldset .helptext {
     font-size: 0.8rem;
     color: var(--clr-red);
 }
-.blue-btn {
-    background-color: var(--clr-blue);
-    color: white;
+/**
+ WIDGET STYLES
+ */
+button, a[role=button] {
     padding: 0.2rem 1rem 0.3rem 1rem;
+    border: 0;
     border-radius: 5px;
-    margin-right: 1rem;
     font-size: 0.9rem;
     display: inline-block;
     font-weight: 500;
-}
-a.blue-btn:hover {
     text-decoration: none;
+}
+.blue-btn {
+    background-color: var(--clr-blue);
     color: white;
 }
-.blue-btn:hover {
+.gray-btn {
+    background-color: var(--clr-darkgray);
+    color: black;
+}
+.small-btn {
+    padding: 0.1rem 0.5rem;
+    border: 0;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-decoration: none;
+    background-color: black;
+    color: white;
+    height: 1.2rem;
+}
+.small-btn:hover {
+    opacity: 0.8;
+}
+.btn-bar {
+    display: flex;
+    margin: 0.3rem 0;
+    gap: 0.3rem;
+    justify-content: right;
+}
+.flex {
+    display: flex;
+    margin: 0.2rem 0;
+    align-items: center;
+}
+.r-float {
+    margin-left: auto;
+}
+button:hover, a[role=button]:hover {
     opacity: 0.9;
 }
 hr.dark-line {
@@ -279,9 +325,12 @@ hr.dark-line {
 }
 .note-text {
     font-size: 0.8rem;
-    color: var(--clr-gray);
+    color: var(--clr-darkgray);
     font-weight: 400;
-    padding-top: 0.1rem;
+}
+.small-text {
+    font-size: 0.7rem;
+    color: var(--clr-darkgray);
 }
 .badge {
     display: block;
@@ -322,12 +371,12 @@ hr.dark-line {
 }
 .nav-tabs li {
     list-style: none;
-    padding: 0.1rem 1rem;
+    padding: 0.1rem 0.7rem;
     border: 1px solid gray;
     border-radius: 6px 6px 0 0;
     border-bottom: 2px solid black;
     background-color: lightgray;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 500;
 }
 .nav-tabs li:hover {

@@ -32,7 +32,11 @@ class MyPuzzlesView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request):
-        return render(request, "my_puzzles.html", context=None)
+        ctx = {'form': WordPuzzleForm()}
+        return render(request, "my_puzzles.html", context=ctx)
+
+
+
 
 
 class HomeView(LoginRequiredMixin, View):
@@ -59,11 +63,12 @@ class HomeView(LoginRequiredMixin, View):
 
 
 class NewPuzzleView(LoginRequiredMixin, View):
-    model = WordPuzzle
-
-    def get(self, request):
-        puzzle = self.model.objects.create(editor=self.request.user)
-        return redirect('edit_puzzle', puzzle.id)
+    def post(self, request):
+        form = WordPuzzleForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            puzzle = WordPuzzle.objects.create(editor=request.user, type=data['type'], desc=data['desc'])
+            return redirect("edit_puzzle", puzzle.id)
 
 
 class EditorRequiredMixin(LoginRequiredMixin):

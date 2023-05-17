@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
@@ -13,8 +14,10 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     ACTIVE_CONTENT = "//div[contains(@class,'active-tab')]"
     MODAL_DIALOG = "//dialog"
     NEW_PUZZLE_BTN = "//button[@id='btnNewPuzzle']"
-    CREATE_PUZZLE_BTN = "//button[@id='btnCreatePuzzle']"
+    CREATE_PUZZLE_BTN = "//button[@type='submit']"
     CLOSE_BTN = "//button[@id='btnClose']"
+    TYPE_FIELD = "//select[@id='id_type']"
+    DESC_FIELD = "//textarea[@id='id_desc']"
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
@@ -49,4 +52,12 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_current_url(self.target_page)
 
     def test_CreatePuzzle_btn_creates_new_puzzle_and_redirects_to_puzzle_page(self):
-        pass
+        self.get(self.target_page)
+        self.do_click(self.NEW_PUZZLE_BTN)
+        self.set_input_text(self.DESC_FIELD, "Instructions")
+        self.select_by_text(self.TYPE_FIELD, "Non-cryptic Clues")
+        self.do_click(self.CREATE_PUZZLE_BTN)
+        new_puzzle = WordPuzzle.objects.all()[0]
+        self.assert_current_url('/edit_puzzle/' + str(new_puzzle.id) + '/')
+        self.assert_subtitle("Puzzle " + str(new_puzzle.id) + ": Non-cryptic Clues")
+        self.assert_text_equals(self.DESC_FIELD, "Instructions")

@@ -1,29 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="d-inline-block">
-        <div class="bg-light p-3">
-            <div class="ml-0 row mb-2 mr-1">
-                <h2 class="pb-0 mb-0 mt-0">Edit Puzzle #{{ object.id }}</h2>
-                <a href="{% url 'home' %}" class="ml-auto btn btn-dark pl-2 pr-2">DONE</a>
-            </div>
-            <hr/>
-            <form action="{% url 'edit_puzzle' object.id %}" method="post">
-                {% csrf_token %}
-                <table>{{ form.as_table }}</table>
-                <div class="row m-0 mt-2">
-                    <button type="submit" class="btn btn-primary pl-3 pr-3">SAVE</button>
-                    {% if saved == True %}
-                        <div id="flash-msg" class="alert p-1 h5 m-0" role="alert">
-                            <i class="fa fa-check-circle text-success"></i>
-                        </div>
-                    {% endif %}
-                </div>
-            </form>
-            <hr/>
-            <div class="ml-0 row mt-3 mr-1">
-                <div class="h4 mb-0">Clues [{{ object.total_points }} points]</div>
-                <a href="{% url 'new_clue' object.id %}" class="ml-auto btn-sm btn-dark">ADD CLUE</a>
-            </div>
+    <div class="page-title">Edit Puzzle</div>
+    <hr class="dark-line">
+    <div class="subtitle">Puzzle {{ object.id }}: {{ form.instance.get_type_display }}</div>
+    <div class="note-text">Created on {{ object.created_at }}</div>
+    <hr>
+    <div class="flex"><strong>Description:</strong><button class="small-btn r-float">Edit</button></div>
+    <div class="small-text">{{ object.desc }}</div>
+    <hr>
+    <div class="btn-bar">
+        <button class="small-btn">Add Clues</button>
+        <button class="small-btn">Add Answers</button>
+        <button class="small-btn">Add Parsings</button>
+    </div>
+    <hr>
+    <div><strong>Clues [{{ object.total_points }} pts]:</strong></div>
             {% if clues|length == 0 %}
                 <div class="mt-1 notetext">No clues exist. Use ADD CLUE to create clues.</div>
             {% else %}
@@ -64,12 +55,4 @@
                     {% endfor %}
                 </table>
             {% endif %}
-        </div>
-    </div>
-
-    <script lang="javascript">
-        $(document).ready(function () {
-            $('.alert').delay(5000).fadeOut('slow');
-        })
-    </script>
 {% endblock %}
