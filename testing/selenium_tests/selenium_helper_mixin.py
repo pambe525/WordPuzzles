@@ -62,6 +62,9 @@ class HelperMixin:
         self.selenium.add_cookie(session_cookie)
         self.selenium.refresh()
 
+    def logout_user(self):
+        self.get('/logout')
+
     def login_user(self, username, password):
         self.get('/login')
         self.set_input_text("//input[@id='id_username']", username)

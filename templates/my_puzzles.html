@@ -3,6 +3,7 @@
     <div class="page-title">My Puzzles</div>
     <hr class="dark-line">
 
+    <!-- Tabs -->
     <nav class="nav-tabs">
         <ul>
             <li id="drafts-tab" class="active">Drafts</li>
@@ -11,26 +12,57 @@
         </ul>
     </nav>
 
-    <!-- Draft Puzzles -->
+    <!-- Draft Puzzles tab content -->
     <div class="tab-content active-tab drafts-tab">
         <div class="subtitle">My Draft Puzzles</div><br>
         <button id="btnNewPuzzle" class="blue-btn">New Puzzle</button>
     </div>
 
-    <!-- Scheduled Puzzles -->
+    <!-- Scheduled Puzzles tab content -->
     <div class="tab-content scheduled-tab">
-        <div class="subtitle">My Puzzles in Live Sessions</div><br>
+        <div class="subtitle">My Scheduled Puzzles</div>
+        <div class="notetext">Puzzles scheduled for a live session</div>
     </div>
 
-    <!-- Published Puzzles -->
+    <!-- Published Puzzles tab content -->
     <div class="tab-content published-tab">
-        <div class="subtitle">My Published Puzzles</div><br>
+        <div class="subtitle">My Published Puzzles</div>
     </div>
+
+    <!-- New Puzzle Dialog -->
+    <dialog class="modal-dialog" id="new-puzzle-dialog">
+        <div class="subtitle">New Puzzle</div>
+        <hr>
+        <form method="dialog">
+            <div class="form-field">
+                <label for="puzzle-type">Type:</label>
+                <select id="puzzle-type">
+                    <option value="cryptic">Cryptic Clues</option>
+                    <option value="non-cryptic">Non-cryptic Clues</option>
+                    <option value="ortho">Orthogonal Neighbors</option>
+                    <option value="rebus">Rebus</option>
+                    <option value="crossword">Crossword</option>
+                </select>
+            </div>
+            <div class="form-field"><label for="description">Description:</label></div>
+            <div><textarea id="description" rows="5" cols="25"></textarea></div>
+            <button id="btnCreatePuzzle" class="blue-btn">Create Puzzle</button>
+            <button id="btnClose">Cancel</button>
+        </form>
+    </dialog>
 
     <script>
-        const tabs = document.querySelectorAll(".nav-tabs li").forEach(tab => {
+        const newPuzzleDialog = document.querySelector(".modal-dialog#new-puzzle-dialog");
+        document.querySelectorAll(".nav-tabs li").forEach(tab => {
             tab.addEventListener('click', (event) => { activateTab(event); });
         });
+        document.querySelector("#btnNewPuzzle").addEventListener('click', () => {
+            newPuzzleDialog.showModal();
+        });
+        document.querySelector("#btnClose").addEventListener('click', () => {
+            newPuzzleDialog.close();
+        })
+
         function activateTab(event) {
             document.querySelector(".nav-tabs li.active").classList.remove("active");
             document.querySelector(".tab-content.active-tab").classList.remove("active-tab");

@@ -194,6 +194,22 @@ hr.separator {
         display: block;
     }
 }
+.modal-dialog {
+    position: absolute;
+    top: 5rem;
+    padding:1.2rem;
+    max-width: 75ch;
+    margin-inline: auto;
+    border: 2px solid gray;
+    box-shadow: 2px 2px 2px black;
+}
+.modal-dialog::backdrop {
+    background-color: black;
+    opacity: 0.4;
+}
+.form-field {
+    margin-top: 1rem;
+}
 /**
  PAGE CONTENT STYLE
  */
@@ -203,7 +219,7 @@ hr.separator {
 }
 .subtitle {
     font-size: 1.2rem;
-    font-weight: 400;
+    font-weight: 600;
     color: var(--clr-darkblue);
 }
 form table, fieldset{
@@ -308,7 +324,7 @@ hr.dark-line {
     border-radius: 6px 6px 0 0;
     border-bottom: 2px solid black;
     background-color: lightgray;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 500;
 }
 .nav-tabs li:hover {
