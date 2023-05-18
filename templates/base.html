@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.css" />
     {% load static %}
     <link type="text/css" rel="stylesheet" href="{% static '/css/stylesheet.css' %}">
+    <script src="{% static '/javascript/base.js' %}"></script>
 </head>
 <body>
     <div class="container">
@@ -61,23 +62,7 @@
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const toggleButton = document.getElementsByClassName("menu-toggle-button")[0];
-            const navbar = document.getElementsByClassName("navbar")[0];
-            const glasspane = document.getElementsByClassName("glasspane")[0];
-            toggleButton.addEventListener('click', () => {
-                navbar.classList.toggle("active");
-                glasspane.classList.toggle("active");
-            });
-            glasspane.addEventListener('click', () => {
-                navbar.classList.toggle("active");
-                glasspane.classList.toggle("active");
-            })
-
-            /* Highlight active nav link */
-            const activePage = window.location.href;
-            document.querySelectorAll(".navbar-links a").forEach(link => {
-                if (link.href === activePage) link.classList.add("active");
-            })
+            setUpMenuToggleButton();   // in base.js
         });
     </script>
 </body>

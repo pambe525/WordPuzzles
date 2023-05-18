@@ -42,16 +42,11 @@
     </dialog>
 
     <script>
-        const newPuzzleDialog = document.querySelector(".modal-dialog#new-puzzle-dialog");
         document.querySelectorAll(".nav-tabs li").forEach(tab => {
             tab.addEventListener('click', (event) => { activateTab(event); });
         });
-        document.querySelector("#btnNewPuzzle").addEventListener('click', () => {
-            newPuzzleDialog.showModal();
-        });
-        document.querySelector("#btnClose").addEventListener('click', () => {
-            newPuzzleDialog.close();
-        })
+
+        bindModalDialogToButton("new-puzzle-dialog", "btnNewPuzzle");
 
         function activateTab(event) {
             document.querySelector(".nav-tabs li.active").classList.remove("active");

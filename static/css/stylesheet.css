@@ -314,14 +314,17 @@ button, a[role=button] {
 button:hover, a[role=button]:hover {
     opacity: 0.9;
 }
+hr {
+    margin: 0.4rem 0;
+}
 hr.dark-line {
     border: 1px groove var(--clr-orange);
-    margin: 0.5rem 0;
 }
 .note-text {
     font-size: 0.8rem;
     color: var(--clr-darkgray);
     font-weight: 400;
+    line-height: 1rem;
 }
 .small-text {
     font-size: 0.7rem;

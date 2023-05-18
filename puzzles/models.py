@@ -12,7 +12,7 @@ def get_name(self):
         return self.username
 
 def utc_date_to_local_format(utc_date):
-    dt_format = '%b %d, %Y at %H:%M:%S %p'
+    dt_format = '%b %d, %Y at %H:%M:%S'
     return utc_date.astimezone().strftime(dt_format)
 
 User.add_to_class("__str__", get_name)
@@ -104,7 +104,7 @@ class WordPuzzle(models.Model):
         if current_user is not None and current_user == self.editor:
             username = "me"
         text = "Created by " + username + " on " + utc_date_to_local_format(self.created_at) + \
-               " and last modified on " + utc_date_to_local_format(self.modified_at)
+               " (UTC) and last modified on " + utc_date_to_local_format(self.modified_at) + " (UTC)"
         return text
 
 class Clue(models.Model):
