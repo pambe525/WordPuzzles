@@ -291,26 +291,21 @@ button, a[role=button] {
 .small-btn {
     padding: 0.1rem 0.5rem;
     border: 0;
-    border-radius: 2px;
+    border-radius: 4px;
     font-size: 0.7rem;
     font-weight: 500;
     text-decoration: none;
     background-color: black;
     color: white;
-    height: 1.2rem;
+    height: 1.3rem;
 }
 .small-btn:hover {
     opacity: 0.8;
 }
-.btn-bar {
-    display: flex;
-    margin: 0.3rem 0;
-    gap: 0.3rem;
-    justify-content: right;
-}
 .flex {
     display: flex;
     margin: 0.2rem 0;
+    gap: 0.3rem;
     align-items: center;
 }
 .r-float {

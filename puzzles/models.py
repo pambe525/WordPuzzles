@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
-from django.utils.timezone import now
+from django.utils.timezone import now, localtime
 from django.db.utils import IntegrityError
 
 
@@ -11,6 +11,9 @@ def get_name(self):
     else:
         return self.username
 
+def utc_date_to_local_format(utc_date):
+    dt_format = '%b %d, %Y at %H:%M:%S %p'
+    return utc_date.astimezone().strftime(dt_format)
 
 User.add_to_class("__str__", get_name)
 
@@ -96,6 +99,13 @@ class WordPuzzle(models.Model):
     def is_published(self):
         return self.shared_at is not None
 
+    def get_local_time_info_text(self, current_user=None):
+        username = str(self.editor)
+        if current_user is not None and current_user == self.editor:
+            username = "me"
+        text = "Created by " + username + " on " + utc_date_to_local_format(self.created_at) + \
+               " and last modified on " + utc_date_to_local_format(self.modified_at)
+        return text
 
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]

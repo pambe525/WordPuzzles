@@ -12,11 +12,6 @@ from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm
 from puzzles.models import WordPuzzle, Clue, PuzzleSession
 
-
-def utc_date_to_local_format(utc_date):
-    dt_format = '%b %d, %Y at %H:%M:%S'
-    return utc_date.astimezone().strftime(dt_format)
-
 def add_session_data(puzzles, user):
     for puzzle in puzzles:
         puzzle.session_count = len(PuzzleSession.objects.filter(puzzle=puzzle))
@@ -113,6 +108,7 @@ class EditPuzzleView(EditorRequiredMixin, UpdateView):
         context['clues'] = self.object.get_clues()
         context['id'] = self.object.id
         context['saved'] = False
+        context['time_stamp_info'] = self.object.get_local_time_info_text(self.request.user)
         return context
 
     def form_valid(self, form):
