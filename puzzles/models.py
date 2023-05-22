@@ -99,14 +99,6 @@ class WordPuzzle(models.Model):
     def is_published(self):
         return self.shared_at is not None
 
-    def get_local_time_info_text(self, current_user=None):
-        username = str(self.editor)
-        if current_user is not None and current_user == self.editor:
-            username = "me"
-        text = "Created by " + username + " on " + utc_date_to_local_format(self.created_at) + \
-               " (UTC) and last modified on " + utc_date_to_local_format(self.modified_at) + " (UTC)"
-        return text
-
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)

@@ -42,17 +42,17 @@
     </dialog>
 
     <script>
-        document.querySelectorAll(".nav-tabs li").forEach(tab => {
-            tab.addEventListener('click', (event) => { activateTab(event); });
-        });
-
-        bindModalDialogToButton("new-puzzle-dialog", "btnNewPuzzle");
-
-        function activateTab(event) {
-            document.querySelector(".nav-tabs li.active").classList.remove("active");
-            document.querySelector(".tab-content.active-tab").classList.remove("active-tab");
-            event.target.classList.add("active");
-            document.querySelector("." + event.target.id).classList.add("active-tab");
+        function pageInit() {
+            document.querySelectorAll(".nav-tabs li").forEach(tab => {
+                tab.addEventListener('click', (event) => { activateTab(event); });
+            });
+            function activateTab(event) {
+                document.querySelector(".nav-tabs li.active").classList.remove("active");
+                document.querySelector(".tab-content.active-tab").classList.remove("active-tab");
+                event.target.classList.add("active");
+                document.querySelector("." + event.target.id).classList.add("active-tab");
+            }
+            bindModalDialogToButton("new-puzzle-dialog", "btnNewPuzzle");
         }
     </script>
 {% endblock %}

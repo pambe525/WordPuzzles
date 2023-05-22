@@ -25,3 +25,12 @@ function setUpMenuToggleButton() {
         if (link.href === activePage) link.classList.add("active");
     })
 }
+
+function getTimelogString(editorName, userName, createdAt, modifiedAt) {
+    const name = ( editorName === userName ) ? "me": userName;
+    createdAt = new Date(createdAt).toLocaleString();
+    modifiedAt = new Date(modifiedAt).toLocaleString();
+    return "Created by " + name + " on " + createdAt + " and last modified on " + modifiedAt;
+}
+/* This function should be overloaded by each client page of base.html */
+function pageInit() {}

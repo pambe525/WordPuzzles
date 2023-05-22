@@ -3,7 +3,7 @@
     <div class="page-title">Edit Puzzle</div>
     <hr class="dark-line">
     <div class="subtitle">Puzzle {{ object.id }}: {{ form.instance.get_type_display }}</div>
-    <div class="small-text">{{ time_stamp_info }}</div>
+    <div class="small-text" id="timeLog"></div>
     <hr>
     <div class="flex">
         <strong>Description:</strong>
@@ -85,11 +85,16 @@
     {% endif %}
 
     <script>
-        bindModalDialogToButton("edit-desc-dialog", "btnEditDesc");
+        const editorName = "{{ object.editor }}";
+        const userName = "{{ request.user }}";
+        let createdAt = "{{ object.created_at|date:'Y-m-d H:i:s' }}Z";
+        let modifiedAt = "{{ object.modified_at|date:'Y-m-d H:i:s' }}Z";
 
-        const editor = "{{ object.editor }}";
-        const user = "{{ request.user }}";
-        const createdAt = "{{ object.created_at }}"
-        console.log(createdAt);
+        function pageInit() {
+            let timeLogString;
+            timeLogString = getTimelogString(editorName, userName, createdAt, modifiedAt);
+            document.getElementById("timeLog").innerHTML = timeLogString;
+            bindModalDialogToButton("edit-desc-dialog", "btnEditDesc");
+        }
     </script>
 {% endblock %}

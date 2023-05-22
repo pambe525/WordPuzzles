@@ -108,7 +108,6 @@ class EditPuzzleView(EditorRequiredMixin, UpdateView):
         context['clues'] = self.object.get_clues()
         context['id'] = self.object.id
         context['saved'] = False
-        context['time_stamp_info'] = self.object.get_local_time_info_text(self.request.user)
         return context
 
     def form_valid(self, form):

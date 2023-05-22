@@ -18,6 +18,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     CLOSE_BTN = "//button[@id='btnClose']"
     TYPE_FIELD = "//select[@id='id_type']"
     DESC_FIELD = "//textarea[@id='id_desc']"
+    EDIT_PUZZLE_PAGE_DESC = "//div[@class='note-text']"
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
@@ -60,4 +61,5 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         new_puzzle = WordPuzzle.objects.all()[0]
         self.assert_current_url('/edit_puzzle/' + str(new_puzzle.id) + '/')
         self.assert_subtitle("Puzzle " + str(new_puzzle.id) + ": Non-cryptic Clues")
-        self.assert_text_equals(self.DESC_FIELD, "Instructions")
+        self.assert_text_equals(self.EDIT_PUZZLE_PAGE_DESC, "Instructions", )
+
