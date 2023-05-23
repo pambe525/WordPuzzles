@@ -19,6 +19,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     TYPE_FIELD = "//select[@id='id_type']"
     DESC_FIELD = "//textarea[@id='id_desc']"
     EDIT_PUZZLE_PAGE_DESC = "//div[@class='note-text']"
+    EDIT_PUZZLE_PAGE_TIME_STAMPS = "//div[@id='timeLog']"
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
@@ -62,4 +63,8 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_current_url('/edit_puzzle/' + str(new_puzzle.id) + '/')
         self.assert_subtitle("Puzzle " + str(new_puzzle.id) + ": Non-cryptic Clues")
         self.assert_text_equals(self.EDIT_PUZZLE_PAGE_DESC, "Instructions", )
+        self.assert_text_contains(self.EDIT_PUZZLE_PAGE_TIME_STAMPS, 'Created by me on')
+
+    def test_Draft_puzzles_listed(self):
+        pass
 
