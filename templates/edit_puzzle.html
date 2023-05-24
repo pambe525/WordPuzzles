@@ -87,12 +87,12 @@
     <script>
         const editorName = "{{ object.editor }}";
         const userName = "{{ request.user }}";
-        let createdAt = "{{ object.created_at|date:'Y-m-d H:i:s' }}Z";
-        let modifiedAt = "{{ object.modified_at|date:'Y-m-d H:i:s' }}Z";
+        const utcCreatedAt = "{{ object.created_at|date:'Y-m-d H:i:s' }}";
+        const utcModifiedAt = "{{ object.modified_at|date:'Y-m-d H:i:s' }}";
 
         function pageInit() {
             let timeLogString;
-            timeLogString = getTimelogString(editorName, userName, createdAt, modifiedAt);
+            timeLogString = getTimelogString(editorName, userName, utcCreatedAt, utcModifiedAt);
             document.getElementById("timeLog").innerHTML = timeLogString;
             bindModalDialogToButton("edit-desc-dialog", "btnEditDesc");
         }

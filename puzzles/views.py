@@ -27,11 +27,17 @@ class MyPuzzlesView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request):
-        ctx = {'form': WordPuzzleForm()}
+        draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
+        ctx = {'form': WordPuzzleForm(), 'draft_puzzles': draft_puzzles}
         return render(request, "my_puzzles.html", context=ctx)
 
-
-
+class NewPuzzleView(LoginRequiredMixin, View):
+    def post(self, request):
+        form = WordPuzzleForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            puzzle = WordPuzzle.objects.create(editor=request.user, type=data['type'], desc=data['desc'])
+            return redirect("edit_puzzle", puzzle.id)
 
 
 class HomeView(LoginRequiredMixin, View):
@@ -55,15 +61,6 @@ class HomeView(LoginRequiredMixin, View):
         puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user,
                 puzzlesession__modified_at__gte=seven_days_ago).order_by('-puzzlesession__modified_at')
         return puzzles_in_recent_sessions
-
-
-class NewPuzzleView(LoginRequiredMixin, View):
-    def post(self, request):
-        form = WordPuzzleForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            puzzle = WordPuzzle.objects.create(editor=request.user, type=data['type'], desc=data['desc'])
-            return redirect("edit_puzzle", puzzle.id)
 
 
 class EditorRequiredMixin(LoginRequiredMixin):

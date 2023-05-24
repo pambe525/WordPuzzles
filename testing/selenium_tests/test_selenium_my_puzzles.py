@@ -12,6 +12,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     PUBLISHED_TAB = "//li[@id='published-tab']"
     ACTIVE_TAB = "//nav[@class='nav-tabs']//li[@class='active']"
     ACTIVE_CONTENT = "//div[contains(@class,'active-tab')]"
+    ACTIVE_CONTENT_LIST = "//div[contains(@class,'active-tab')]/div"
     MODAL_DIALOG = "//dialog"
     NEW_PUZZLE_BTN = "//button[@id='btnNewPuzzle']"
     CREATE_PUZZLE_BTN = "//button[@type='submit']"
@@ -25,17 +26,17 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
         self.auto_login_user(self.user)
 
-    def test_Redirect_to_login_if_user_is_not_authenticated(self):
+    def test_redirect_to_login_if_user_is_not_authenticated(self):
         self.logout_user()
         self.get(self.target_page)
         self.assert_current_url('/login?next=/my_puzzles')
 
-    def test_Drafts_is_default_active_tab(self):
+    def test_drafts_is_default_active_tab(self):
         self.get(self.target_page)
         self.assert_text_equals(self.ACTIVE_TAB, "Drafts")
-        self.assert_text_contains(self.ACTIVE_CONTENT, "My Draft Puzzles")
+        self.assert_text_contains(self.ACTIVE_CONTENT, "No draft puzzles.")
 
-    def test_Clicking_on_a_tab_activates_tab_content(self):
+    def test_clicking_on_a_tab_activates_tab_content(self):
         self.get(self.target_page)
         self.do_click(self.SCHEDULED_TAB)
         self.assert_text_equals(self.ACTIVE_TAB, "Scheduled")
@@ -65,6 +66,13 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_text_equals(self.EDIT_PUZZLE_PAGE_DESC, "Instructions", )
         self.assert_text_contains(self.EDIT_PUZZLE_PAGE_TIME_STAMPS, 'Created by me on')
 
-    def test_Draft_puzzles_listed(self):
-        pass
+    def test_Drafts_tab_displays_users_draft_puzzles_badge_with_details(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
+        self.get(self.target_page)
+        self.assert_item_count("//div[contains(@class,'badge badge')]", 1)
+        badge_header = "Puzzle #" + str(puzzle.id) + ": 0 Non-cryptic Clues [0 pts]"
+        self.assert_text_equals("//div[contains(@class,'badge badge')]/a", badge_header)
+        self.assert_text_equals("//div[contains(@class,'badge badge')]/div[1]", puzzle.desc)
+        last_edited_str = 'Last edited: ' + puzzle.modified_at.strftime('%b %d, %Y %I:%M %p') + ' (GMT)'
+        self.assert_text_equals("//div[contains(@class,'badge badge')]/div[2]", last_edited_str)
 

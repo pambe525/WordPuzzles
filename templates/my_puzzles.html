@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     <div class="page-title">My Puzzles</div>
     <hr class="dark-line">
@@ -14,7 +15,24 @@
 
     <!-- Draft Puzzles tab content -->
     <div class="tab-content active-tab drafts-tab">
-        <div class="subtitle">My Draft Puzzles</div><br>
+        {% if draft_puzzles|length == 0 %}
+            <div>No draft puzzles.</div>
+        {% else %}
+            {% for draft in draft_puzzles %}
+            <div class="badge">
+                {% if draft.type == 0 %}
+                    <img class="thumbnail" src="{% static '/images/non-cryptic-clue.png' %}" alt="Non-cryptic Clues"/>
+                {% else %}
+                    <img class="thumbnail" src="{% static '/images/cryptic-clue.png' %}" alt="Cryptic Clues"/>
+                {% endif %}
+                <div>
+                    <div class="bold-text">{{ draft }}</div>
+                    <div class="small-text">Last edited on {{ draft.modified_at }}</div>
+                </div>
+                <div class="icon-group"><i class="fa-solid fa-trash-can"></i></div>
+            </div>
+            {% endfor %}
+        {% endif %}
         <button id="btnNewPuzzle" class="blue-btn">New Puzzle</button>
     </div>
 
