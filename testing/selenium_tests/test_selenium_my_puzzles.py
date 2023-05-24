@@ -12,7 +12,10 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     PUBLISHED_TAB = "//li[@id='published-tab']"
     ACTIVE_TAB = "//nav[@class='nav-tabs']//li[@class='active']"
     ACTIVE_CONTENT = "//div[contains(@class,'active-tab')]"
-    ACTIVE_CONTENT_LIST = "//div[contains(@class,'active-tab')]/div"
+    ACTIVE_LIST = "//div[contains(@class,'active-tab')]/div"
+    ACTIVE_BADGE = "//div[contains(@class,'active-tab')]/div[contains(@class,'badge')]"
+    ACTIVE_BADGE_HEADER = "//div[contains(@class,'active-tab')]/div[contains(@class,'badge')]//div[@class='bold-text']"
+    ACTIVE_BADGE_NOTE = "//div[contains(@class,'active-tab')]/div[contains(@class,'badge')]//div[@class='small-text']"
     MODAL_DIALOG = "//dialog"
     NEW_PUZZLE_BTN = "//button[@id='btnNewPuzzle']"
     CREATE_PUZZLE_BTN = "//button[@type='submit']"
@@ -69,10 +72,9 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     def test_Drafts_tab_displays_users_draft_puzzles_badge_with_details(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
         self.get(self.target_page)
-        self.assert_item_count("//div[contains(@class,'badge badge')]", 1)
-        badge_header = "Puzzle #" + str(puzzle.id) + ": 0 Non-cryptic Clues [0 pts]"
-        self.assert_text_equals("//div[contains(@class,'badge badge')]/a", badge_header)
-        self.assert_text_equals("//div[contains(@class,'badge badge')]/div[1]", puzzle.desc)
-        last_edited_str = 'Last edited: ' + puzzle.modified_at.strftime('%b %d, %Y %I:%M %p') + ' (GMT)'
-        self.assert_text_equals("//div[contains(@class,'badge badge')]/div[2]", last_edited_str)
+        self.assert_item_count(self.ACTIVE_BADGE, 1)
+        badge_header = "Puzzle " + str(puzzle.id) + ": 0 Non-cryptic Clues [0 pts]"
+        self.assert_text_equals(self.ACTIVE_BADGE_HEADER, badge_header)
+        last_edited_str = 'Last edited on ' + puzzle.modified_at.strftime('%b %d, %Y, %I:%M')
+        self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str)
 

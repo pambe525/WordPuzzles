@@ -51,7 +51,7 @@ class WordPuzzle(models.Model):
     def __str__(self):
         puzzle_type = str(self.TYPE_CHOICES[self.type][1])
         points = "[" + str(self.total_points) + " pts]"
-        return "Puzzle #" + str(self.id) + ": " + str(self.size) + " " + puzzle_type + " " + points
+        return "Puzzle " + str(self.id) + ": " + str(self.size) + " " + puzzle_type + " " + points
 
     def add_clue(self, form_data_dict):
         self.size += 1
