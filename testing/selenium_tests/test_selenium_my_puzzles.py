@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
@@ -18,12 +20,12 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     ACTIVE_BADGE_NOTE = "//div[contains(@class,'active-tab')]//div[@class='small-text']"
     ACTIVE_BADGE_IMG = "//div[contains(@class,'active-tab')]//img"
     MODAL_DIALOG = "//dialog"
-    NEW_PUZZLE_BTN = "//button[@id='btnNewPuzzle']"
+    ADD_PUZZLE_BTN = "//button[@id='btnAddPuzzle']"
     CREATE_PUZZLE_BTN = "//button[@type='submit']"
     CLOSE_BTN = "//button[@id='btnClose']"
     TYPE_FIELD = "//select[@id='id_type']"
     DESC_FIELD = "//textarea[@id='id_desc']"
-    EDIT_PUZZLE_PAGE_DESC = "//div[@class='note-text']"
+    EDIT_PUZZLE_PAGE_DESC = "//span[@class='note-text']"
     EDIT_PUZZLE_PAGE_TIME_STAMPS = "//div[@id='timeLog']"
 
     def setUp(self):
@@ -52,15 +54,15 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     def test_New_Puzzle_button_activates_dialog_that_can_be_closed(self):
         self.get(self.target_page)
         self.assert_is_not_displayed(self.MODAL_DIALOG)
-        self.do_click(self.NEW_PUZZLE_BTN)
+        self.do_click(self.ADD_PUZZLE_BTN)
         self.assert_is_displayed(self.MODAL_DIALOG)
         self.do_click(self.CLOSE_BTN)
         self.assert_is_not_displayed(self.MODAL_DIALOG)
         self.assert_current_url(self.target_page)
 
-    def test_CreatePuzzle_btn_creates_new_puzzle_and_redirects_to_puzzle_page(self):
+    def test_AddPuzzle_btn_creates_new_puzzle_and_redirects_to_edit_puzzle_page(self):
         self.get(self.target_page)
-        self.do_click(self.NEW_PUZZLE_BTN)
+        self.do_click(self.ADD_PUZZLE_BTN)
         self.set_input_text(self.DESC_FIELD, "Instructions")
         self.select_by_text(self.TYPE_FIELD, "Non-cryptic Clues")
         self.do_click(self.CREATE_PUZZLE_BTN)
@@ -73,6 +75,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     def test_Drafts_tab_displays_users_draft_puzzles_with_details(self):
         puzzle1 = WordPuzzle.objects.create(editor=self.user, type=0)
         puzzle2 = WordPuzzle.objects.create(editor=self.user, type=1)
+        puzzle1.modified_at - timedelta(seconds=60) # to ensure puzzle 1 is older
         self.get(self.target_page)
         self.assert_item_count(self.ACTIVE_BADGE, 2)
         badge1_title = "Puzzle " + str(puzzle1.id) + ": 0 Non-cryptic Clues [0 pts]"
@@ -83,7 +86,6 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src','cryptic-clues.jpg', 0)
         self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/1/', 1)
         self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/2/', 0)
-        #
-        # last_edited_str = 'Last edited on ' + puzzle1.modified_at.strftime('%b %d, %Y, %I:%M')
-        # self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str)
+        last_edited_str1 = 'Last edited on ' + self.utc_to_local(puzzle1.modified_at)
+        self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str1)
 

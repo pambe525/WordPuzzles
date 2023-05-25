@@ -3,7 +3,7 @@
 {% block content %}
     <div class="flex">
         <div class="page-title">My Puzzles</div>
-        <button id="btnNewPuzzle" class="blue-btn r-float">Add Puzzle</button>
+        <button id="btnAddPuzzle" class="blue-btn r-float">Add Puzzle</button>
     </div>
     <hr class="dark-line">
 
@@ -17,37 +17,13 @@
     </nav>
 
     <!-- Draft Puzzles tab content -->
-    <div id="tab-content" class="tab-content active-tab drafts-tab">
-{#        {% if draft_puzzles|length == 0 %}#}
-{#            <div>No draft puzzles.</div>#}
-{#        {% else %}#}
-{#            {% for draft in draft_puzzles %}#}
-{#            <div class="list-badge">#}
-{#                {% if draft.type == 0 %}#}
-{#                    <img class="thumbnail" src="{% static '/images/non-cryptic-clues.png' %}" alt="Non-cryptic Clues"/>#}
-{#                {% else %}#}
-{#                    <img class="thumbnail" src="{% static '/images/cryptic-clues.jpg' %}" alt="Cryptic Clues"/>#}
-{#                {% endif %}#}
-{#                <div>#}
-{#                    <a href="{% url 'edit_puzzle' draft.id %}" class="bold-text">{{ draft }}</a>#}
-{#                    <div class="small-text">Last edited on {{ draft.modified_at }}</div>#}
-{#                </div>#}
-{#                <div class="icon-group r-float"><i class="fa-regular fa-trash-can" title="Delete"></i></div>#}
-{#            </div>#}
-{#            {% endfor %}#}
-{#        {% endif %}#}
-    </div>
+    <div id="drafts-list" class="tab-content active-tab drafts-tab"></div>
 
     <!-- Scheduled Puzzles tab content -->
-    <div class="tab-content scheduled-tab">
-        <div class="subtitle">My Scheduled Puzzles</div>
-        <div class="notetext">Puzzles scheduled for a live session</div>
-    </div>
+    <div id="scheduled-list" class="tab-content scheduled-tab"></div>
 
     <!-- Published Puzzles tab content -->
-    <div class="tab-content published-tab">
-        <div class="subtitle">My Published Puzzles</div>
-    </div>
+    <div id="published-list" class="tab-content published-tab"></div>
 
     <!-- New Puzzle Dialog -->
     <dialog class="modal-dialog" id="new-puzzle-dialog">
@@ -77,16 +53,9 @@
                 event.target.classList.add("active");
                 document.querySelector("." + event.target.id).classList.add("active-tab");
             }
-            bindModalDialogToButton("new-puzzle-dialog", "btnNewPuzzle");
-
-            try {
-                let builder = new ListBuilder(draftPuzzles, imgDirPath, baseUrl);
-                builder.buildHtml("tab-content");
-                console.log(baseUrl);
-            } catch(e) {
-                console.log(e);
-            }
-
+            bindModalDialogToButton("new-puzzle-dialog", "btnAddPuzzle");
+            let builder = new ListBuilder(draftPuzzles, imgDirPath, baseUrl);
+            builder.buildHtml("drafts-list");
         }
     </script>
 {% endblock %}

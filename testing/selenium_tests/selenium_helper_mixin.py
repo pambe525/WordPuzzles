@@ -14,6 +14,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
+import datetime
+from datetime import datetime
+
+
 from testing.selenium_tests.singleton_webdriver import SingletonWebDriver
 
 
@@ -170,3 +174,9 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
         self.get(page_url)
         self.assert_page_title(page_title)
         self.assert_text_equals(self.ACTIVE_MENUITEM, page_title)
+
+    @staticmethod
+    def utc_to_local(utc_datetime):
+        dt_format = '%b %d, %Y at %H:%M:%S'
+        return utc_datetime.astimezone().strftime(dt_format)
+
