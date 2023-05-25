@@ -15,24 +15,24 @@
 
     <!-- Draft Puzzles tab content -->
     <div class="tab-content active-tab drafts-tab">
-        {% if draft_puzzles|length == 0 %}
-            <div>No draft puzzles.</div>
-        {% else %}
-            {% for draft in draft_puzzles %}
-            <div class="list-badge">
-                {% if draft.type == 0 %}
-                    <img class="thumbnail" src="{% static '/images/non-cryptic-clues.png' %}" alt="Non-cryptic Clues"/>
-                {% else %}
-                    <img class="thumbnail" src="{% static '/images/cryptic-clues.jpg' %}" alt="Cryptic Clues"/>
-                {% endif %}
-                <div>
-                    <a href="{% url 'edit_puzzle' draft.id %}" class="bold-text">{{ draft }}</a>
-                    <div class="small-text">Last edited on {{ draft.modified_at }}</div>
-                </div>
-                <div class="icon-group r-float"><i class="fa-regular fa-trash-can" title="Delete"></i></div>
-            </div>
-            {% endfor %}
-        {% endif %}
+{#        {% if draft_puzzles|length == 0 %}#}
+{#            <div>No draft puzzles.</div>#}
+{#        {% else %}#}
+{#            {% for draft in draft_puzzles %}#}
+{#            <div class="list-badge">#}
+{#                {% if draft.type == 0 %}#}
+{#                    <img class="thumbnail" src="{% static '/images/non-cryptic-clues.png' %}" alt="Non-cryptic Clues"/>#}
+{#                {% else %}#}
+{#                    <img class="thumbnail" src="{% static '/images/cryptic-clues.jpg' %}" alt="Cryptic Clues"/>#}
+{#                {% endif %}#}
+{#                <div>#}
+{#                    <a href="{% url 'edit_puzzle' draft.id %}" class="bold-text">{{ draft }}</a>#}
+{#                    <div class="small-text">Last edited on {{ draft.modified_at }}</div>#}
+{#                </div>#}
+{#                <div class="icon-group r-float"><i class="fa-regular fa-trash-can" title="Delete"></i></div>#}
+{#            </div>#}
+{#            {% endfor %}#}
+{#        {% endif %}#}
         <button id="btnNewPuzzle" class="blue-btn m-top">New Puzzle</button>
     </div>
 
@@ -60,6 +60,10 @@
     </dialog>
 
     <script>
+        const draftPuzzles = {{ draft_puzzles | safe }};
+        const imgDirPath = "{% static '/images/' %}";
+        const baseUrl = "{{ request.get_host }}/edit_puzzle";
+
         function pageInit() {
             document.querySelectorAll(".nav-tabs li").forEach(tab => {
                 tab.addEventListener('click', (event) => { activateTab(event); });
@@ -71,6 +75,7 @@
                 document.querySelector("." + event.target.id).classList.add("active-tab");
             }
             bindModalDialogToButton("new-puzzle-dialog", "btnNewPuzzle");
+            console.log(draftPuzzles);
         }
     </script>
 {% endblock %}

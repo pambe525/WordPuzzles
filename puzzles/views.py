@@ -28,7 +28,7 @@ class MyPuzzlesView(LoginRequiredMixin, View):
 
     def get(self, request):
         draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
-        ctx = {'form': WordPuzzleForm(), 'draft_puzzles': draft_puzzles}
+        ctx = {'form': WordPuzzleForm(), 'draft_puzzles': json.dumps(list(draft_puzzles))}
         return render(request, "my_puzzles.html", context=ctx)
 
 class NewPuzzleView(LoginRequiredMixin, View):
