@@ -1,17 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="page-title">Edit Puzzle</div>
+    <div class="flex">
+        <div class="page-title">Edit Puzzle</div>
+        <a role="button" class="blue-btn r-float" href="{% url 'my_puzzles' %}">Done</a>
+    </div>
     <hr class="dark-line">
+
     <div class="subtitle">Puzzle {{ object.id }}: {{ form.instance.get_type_display }}</div>
     <div class="small-text" id="timeLog"></div>
-    <hr>
-    <div class="flex">
+    <div class="flex m-top">
         <strong>Description:</strong>
         <button id="btnEditDesc" class="small-btn r-float">Edit</button>
     </div>
-    <div class="note-text">{{ object.desc }}</div>
-    <hr>
-    <div class="flex"><strong>Clues [{{ object.total_points }} pts]:</strong>
+    <div class="boxed-panel m-bot"><span class="note-text">{{ object.desc }}</span></div>
+
+    <div class="flex m-top"><strong>Clues [{{ object.total_points }} pts]:</strong>
         <div class="r-float">
             <button id="btnAddClues" class="small-btn">+ Clues</button>
             <button id="btnAddAnswers" class="small-btn">+ Answers</button>

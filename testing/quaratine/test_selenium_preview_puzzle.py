@@ -63,7 +63,7 @@ class PreviewPuzzleTests(BaseSeleniumTestCase):
             self.assert_text_equals(tr_xpath+"td[3]/div[1]", clue.get_decorated_clue_text(), index)
             self.assert_text_equals(tr_xpath+"td[4]", str(clue.points), index)
             self.assert_text_equals(tr_xpath+"td[3]/div[2]", "["+clue.parsing+"]", index)
-            self.assert_value_equals(tr_xpath+"td[3]/input", clue.answer, index)
+            self.assert_attribute_equals(tr_xpath + "td[3]/input", clue.answer, index)
 
     def test_draft_puzzle_preview_clues_are_not_clickable(self):
         puzzle = create_draft_puzzle(editor=self.user, clues_pts=[2, 1, 4])

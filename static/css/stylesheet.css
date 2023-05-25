@@ -271,6 +271,13 @@ form .helptext, fieldset .helptext {
 /**
  WIDGET STYLES
  */
+a {
+    text-decoration: none;
+    color: var(--clr-blue);
+}
+a:hover {
+    color: darkblue;
+}
 button, a[role=button] {
     padding: 0.2rem 1rem 0.3rem 1rem;
     border: 0;
@@ -279,6 +286,9 @@ button, a[role=button] {
     display: inline-block;
     font-weight: 500;
     text-decoration: none;
+}
+a[role=button]:hover {
+    color: white;
 }
 .blue-btn {
     background-color: var(--clr-blue);
@@ -311,6 +321,12 @@ button, a[role=button] {
 .r-float {
     margin-left: auto;
 }
+.m-top {
+    margin-top: 0.5rem;
+}
+.m-bot {
+    margin-bottom: 0.5rem;
+}
 button:hover, a[role=button]:hover {
     opacity: 0.9;
 }
@@ -333,10 +349,17 @@ hr.dark-line {
 }
 .bold-text {
     font-size: 0.8rem;
-    color: var(--clr-darkgray);
     font-weight: 600;
 }
-.badge {
+.boxed-panel {
+    display: block;
+    border: 1px solid lightgray;
+    border-radius: 6px;
+    box-shadow: 1px 1px black;
+    align-items: center;
+    padding: 0.5rem;
+}
+.list-badge {
     display: flex;
     border: 1px solid lightgray;
     margin: 0.3rem 0;
@@ -350,10 +373,9 @@ img.thumbnail {
 }
 .icon-group {
     padding: 1rem;
-    margin-left: auto;
 }
 .bg-lemon {
-    background-color: lightyellow;
+    background-color: palegoldenrod;
 }
 .bg-gray {
     background-color: #e8e8e8;

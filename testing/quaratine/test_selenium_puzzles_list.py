@@ -16,9 +16,9 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         self.get('/puzzles_list')
         self.assert_text_equals("//div/h2", 'All Published Puzzles')
         self.assert_exists("//select[1]")
-        self.assert_value_equals("//select[1]", "shared_at")
+        self.assert_attribute_equals("//select[1]", "shared_at")
         self.assert_exists("//select[2]")
-        self.assert_value_equals("//select[2]", '-')
+        self.assert_attribute_equals("//select[2]", '-')
 
     def test_each_published_puzzle_detail_is_listed(self):
         create_draft_puzzle(editor=self.user)
@@ -68,16 +68,16 @@ class PuzzlesListTests(BaseSeleniumTestCase):
     def test_sort_form_reflects_get_parameters_in_url(self):
         self.get('/puzzles_list?sort_by=total_points&order=')
         self.assert_text_equals("//div/h2", 'All Published Puzzles')
-        self.assert_value_equals("//select[1]", "total_points")
-        self.assert_value_equals("//select[2]", '')
+        self.assert_attribute_equals("//select[1]", "total_points")
+        self.assert_attribute_equals("//select[2]", '')
 
     def test_selecting_sort_by_description_submits_form_with_correct_url(self):
         self.get('/puzzles_list')
         self.select_by_text("//select[1]", "Description")
         self.assert_current_url("/puzzles_list?sort_by=desc&order=-")
         self.assert_text_equals("//div/h2", 'All Published Puzzles')
-        self.assert_value_equals("//select[1]", "desc")
-        self.assert_value_equals("//select[2]", '-')
+        self.assert_attribute_equals("//select[1]", "desc")
+        self.assert_attribute_equals("//select[2]", '-')
 
     def test_selecting_sort_by_editor_submits_form_with_correct_url(self):
         self.get('/puzzles_list')
@@ -85,36 +85,36 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         self.select_by_text("//select[2]", "Ascending")
         self.assert_current_url("/puzzles_list?sort_by=editor__username&order=")
         self.assert_text_equals("//div/h2", 'All Published Puzzles')
-        self.assert_value_equals("//select[1]", "editor__username")
-        self.assert_value_equals("//select[2]", '')
+        self.assert_attribute_equals("//select[1]", "editor__username")
+        self.assert_attribute_equals("//select[2]", '')
 
     def test_selecting_sort_by_size_submits_form_with_correct_url(self):
         self.get('/puzzles_list')
         self.select_by_text("//select[1]", "No. of Clues")
         self.assert_current_url("/puzzles_list?sort_by=size&order=-")
-        self.assert_value_equals("//select[1]", "size")
-        self.assert_value_equals("//select[2]", '-')
+        self.assert_attribute_equals("//select[1]", "size")
+        self.assert_attribute_equals("//select[2]", '-')
 
     def test_selecting_sort_by_id_submits_form_with_correct_url(self):
         self.get('/puzzles_list')
         self.select_by_text("//select[1]", "Puzzle #")
         self.assert_current_url("/puzzles_list?sort_by=id&order=-")
-        self.assert_value_equals("//select[1]", "id")
-        self.assert_value_equals("//select[2]", '-')
+        self.assert_attribute_equals("//select[1]", "id")
+        self.assert_attribute_equals("//select[2]", '-')
 
     def test_selecting_sort_by_type_submits_form_with_correct_url(self):
         self.get('/puzzles_list')
         self.select_by_text("//select[1]", "Puzzle Type")
         self.assert_current_url("/puzzles_list?sort_by=type&order=-")
-        self.assert_value_equals("//select[1]", "type")
-        self.assert_value_equals("//select[2]", '-')
+        self.assert_attribute_equals("//select[1]", "type")
+        self.assert_attribute_equals("//select[2]", '-')
 
     def test_selecting_sort_by_total_points_submits_form_with_correct_url(self):
         self.get('/puzzles_list')
         self.select_by_text("//select[1]", "Total Points")
         self.assert_current_url("/puzzles_list?sort_by=total_points&order=-")
-        self.assert_value_equals("//select[1]", "total_points")
-        self.assert_value_equals("//select[2]", '-')
+        self.assert_attribute_equals("//select[1]", "total_points")
+        self.assert_attribute_equals("//select[2]", '-')
 
     def test_puzzles_shows_rounded_badge_containing_session_count(self):
         user2 = create_user(username="user2")

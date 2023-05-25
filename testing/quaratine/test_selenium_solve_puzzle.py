@@ -153,7 +153,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         # Verify Answer box contents
         self.assert_text_equals(self.MODAL_TITLE, "Clue #" + str(self.clues[1].clue_num))
         self.assert_text_equals(self.CLUE_TEXT, self.clues[1].get_decorated_clue_text())
-        self.assert_value_equals(self.ANSWER_INPUT, "")
+        self.assert_attribute_equals(self.ANSWER_INPUT, "")
         self.assert_text_equals(self.ERR_MSG, "")
 
     def test_correct_answer_submit_sets_solved_state_and_saves_timer(self):

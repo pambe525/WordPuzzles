@@ -19,21 +19,21 @@
             <div>No draft puzzles.</div>
         {% else %}
             {% for draft in draft_puzzles %}
-            <div class="badge">
+            <div class="list-badge">
                 {% if draft.type == 0 %}
-                    <img class="thumbnail" src="{% static '/images/non-cryptic-clue.png' %}" alt="Non-cryptic Clues"/>
+                    <img class="thumbnail" src="{% static '/images/non-cryptic-clues.png' %}" alt="Non-cryptic Clues"/>
                 {% else %}
-                    <img class="thumbnail" src="{% static '/images/cryptic-clue.png' %}" alt="Cryptic Clues"/>
+                    <img class="thumbnail" src="{% static '/images/cryptic-clues.jpg' %}" alt="Cryptic Clues"/>
                 {% endif %}
                 <div>
-                    <div class="bold-text">{{ draft }}</div>
+                    <a href="{% url 'edit_puzzle' draft.id %}" class="bold-text">{{ draft }}</a>
                     <div class="small-text">Last edited on {{ draft.modified_at }}</div>
                 </div>
-                <div class="icon-group"><i class="fa-regular fa-trash-can" title="Delete"></i></div>
+                <div class="icon-group r-float"><i class="fa-regular fa-trash-can" title="Delete"></i></div>
             </div>
             {% endfor %}
         {% endif %}
-        <button id="btnNewPuzzle" class="blue-btn">New Puzzle</button>
+        <button id="btnNewPuzzle" class="blue-btn m-top">New Puzzle</button>
     </div>
 
     <!-- Scheduled Puzzles tab content -->

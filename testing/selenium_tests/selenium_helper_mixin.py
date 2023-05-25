@@ -85,9 +85,13 @@ class HelperMixin:
         element = self.selenium.find_elements(By.XPATH, xpath)[index]
         self.testcase.assertEqual(self, element.text, text)
 
-    def assert_value_equals(self, xpath, text, index=0):
+    def assert_attribute_equals(self, xpath, attr, val, index=0):
         element = self.selenium.find_elements(By.XPATH, xpath)[index]
-        self.testcase.assertEqual(self, element.get_attribute('value'), text)
+        self.testcase.assertEqual(self, element.get_attribute(attr), val)
+
+    def assert_attribute_contains(self, xpath, attr, val, index=0):
+        element = self.selenium.find_elements(By.XPATH, xpath)[index]
+        self.testcase.assertTrue(self, val in element.get_attribute(attr))
 
     def assert_item_count(self, xpath, count):
         self.testcase.assertEqual(self, len(self.selenium.find_elements(By.XPATH, xpath)), count)

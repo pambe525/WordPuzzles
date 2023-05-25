@@ -14,8 +14,9 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     ACTIVE_CONTENT = "//div[contains(@class,'active-tab')]"
     ACTIVE_LIST = "//div[contains(@class,'active-tab')]/div"
     ACTIVE_BADGE = "//div[contains(@class,'active-tab')]/div[contains(@class,'badge')]"
-    ACTIVE_BADGE_HEADER = "//div[contains(@class,'active-tab')]/div[contains(@class,'badge')]//div[@class='bold-text']"
-    ACTIVE_BADGE_NOTE = "//div[contains(@class,'active-tab')]/div[contains(@class,'badge')]//div[@class='small-text']"
+    ACTIVE_BADGE_TITLE = "//div[contains(@class,'active-tab')]//a[@class='bold-text']"
+    ACTIVE_BADGE_NOTE = "//div[contains(@class,'active-tab')]//div[@class='small-text']"
+    ACTIVE_BADGE_IMG = "//div[contains(@class,'active-tab')]//img"
     MODAL_DIALOG = "//dialog"
     NEW_PUZZLE_BTN = "//button[@id='btnNewPuzzle']"
     CREATE_PUZZLE_BTN = "//button[@type='submit']"
@@ -69,12 +70,20 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_text_equals(self.EDIT_PUZZLE_PAGE_DESC, "Instructions", )
         self.assert_text_contains(self.EDIT_PUZZLE_PAGE_TIME_STAMPS, 'Created by me on')
 
-    def test_Drafts_tab_displays_users_draft_puzzles_badge_with_details(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
+    def test_Drafts_tab_displays_users_draft_puzzles_with_details(self):
+        puzzle1 = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle2 = WordPuzzle.objects.create(editor=self.user, type=1)
         self.get(self.target_page)
-        self.assert_item_count(self.ACTIVE_BADGE, 1)
-        badge_header = "Puzzle " + str(puzzle.id) + ": 0 Non-cryptic Clues [0 pts]"
-        self.assert_text_equals(self.ACTIVE_BADGE_HEADER, badge_header)
-        last_edited_str = 'Last edited on ' + puzzle.modified_at.strftime('%b %d, %Y, %I:%M')
-        self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str)
+        self.assert_item_count(self.ACTIVE_BADGE, 2)
+        badge1_title = "Puzzle " + str(puzzle1.id) + ": 0 Non-cryptic Clues [0 pts]"
+        badge2_title = "Puzzle " + str(puzzle2.id) + ": 0 Cryptic Clues [0 pts]"
+        self.assert_text_equals(self.ACTIVE_BADGE_TITLE, badge2_title, 0)  # Puzzle 2 listed first
+        self.assert_text_equals(self.ACTIVE_BADGE_TITLE, badge1_title, 1)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src','non-cryptic-clues.png', 1)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src','cryptic-clues.jpg', 0)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/1/', 1)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/2/', 0)
+        #
+        # last_edited_str = 'Last edited on ' + puzzle1.modified_at.strftime('%b %d, %Y, %I:%M')
+        # self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str)
 

@@ -48,7 +48,7 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         self.set_input_text("//textarea[@id='id_desc']", 'New instructions')
         self.do_click("//button[text()='SAVE']")
         self.assert_current_url('/edit_puzzle/' + str(puzzle.id) + '/')
-        self.assert_value_equals("//textarea[@id='id_desc']", 'New instructions')
+        self.assert_attribute_equals("//textarea[@id='id_desc']", 'New instructions')
         updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
         self.assertEquals(updated_puzzle.desc, "New instructions")
 
@@ -85,9 +85,9 @@ class EditClueTests(BaseSeleniumTestCase):
         self.do_click("//a[text()='ADD CLUE']")
         self.assert_current_url("/new_clue/" + str(self.puzzle.id) + '/')
         self.assert_text_equals("//h3", "Edit Clue 1 for Puzzle #" + str(self.puzzle.id))
-        self.assert_value_equals("//input[@id='id_answer']", '')
-        self.assert_value_equals("//textarea[@id='id_clue_text']", '')
-        self.assert_value_equals("//textarea[@id='id_parsing']", '')
+        self.assert_attribute_equals("//input[@id='id_answer']", '')
+        self.assert_attribute_equals("//textarea[@id='id_clue_text']", '')
+        self.assert_attribute_equals("//textarea[@id='id_parsing']", '')
         self.assert_selected_text("//select[@id='id_points']", '1')
 
     def test_Add_Clue_page_CANCEL_button_redirects_to_edit_puzzle_page(self):
@@ -123,9 +123,9 @@ class EditClueTests(BaseSeleniumTestCase):
         self.get('/edit_clue/' + str(self.puzzle.id) + '/1/')
         self.assert_current_url("/edit_clue/" + str(self.puzzle.id) + '/1/')
         self.assert_text_equals("//h3", "Edit Clue 1 for Puzzle #" + str(self.puzzle.id))
-        self.assert_value_equals("//input[@id='id_answer']", 'SECRET')
-        self.assert_value_equals("//textarea[@id='id_clue_text']", 'some clue')
-        self.assert_value_equals("//textarea[@id='id_parsing']", 'Parsing for clue')
+        self.assert_attribute_equals("//input[@id='id_answer']", 'SECRET')
+        self.assert_attribute_equals("//textarea[@id='id_clue_text']", 'some clue')
+        self.assert_attribute_equals("//textarea[@id='id_parsing']", 'Parsing for clue')
         self.assert_selected_text("//select[@id='id_points']", '1')
 
     def test_Edit_Clue_saves_changes_to_existing_clue_and_redirects_to_puzzle_page(self):
