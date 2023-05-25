@@ -175,6 +175,10 @@ hr.separator {
         margin: 0;
         padding: 0;
         width: 100%;
+        height: calc(100vh - 5rem);
+    }
+    .main {
+        min-height: 100%;
     }
     .navbar {
         z-index:100;
@@ -303,7 +307,7 @@ a[role=button]:hover {
     border: 0;
     border-radius: 4px;
     font-size: 0.7rem;
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
     background-color: black;
     color: white;

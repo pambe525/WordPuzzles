@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-    <div class="page-title">My Puzzles</div>
+    <div class="flex">
+        <div class="page-title">My Puzzles</div>
+        <button id="btnNewPuzzle" class="blue-btn r-float">Add Puzzle</button>
+    </div>
     <hr class="dark-line">
 
     <!-- Tabs -->
@@ -14,7 +17,7 @@
     </nav>
 
     <!-- Draft Puzzles tab content -->
-    <div class="tab-content active-tab drafts-tab">
+    <div id="tab-content" class="tab-content active-tab drafts-tab">
 {#        {% if draft_puzzles|length == 0 %}#}
 {#            <div>No draft puzzles.</div>#}
 {#        {% else %}#}
@@ -33,7 +36,6 @@
 {#            </div>#}
 {#            {% endfor %}#}
 {#        {% endif %}#}
-        <button id="btnNewPuzzle" class="blue-btn m-top">New Puzzle</button>
     </div>
 
     <!-- Scheduled Puzzles tab content -->
@@ -59,10 +61,11 @@
         </form>
     </dialog>
 
+    <script src="{% static '/javascript/list_builder.js' %}"></script>
     <script>
         const draftPuzzles = {{ draft_puzzles | safe }};
         const imgDirPath = "{% static '/images/' %}";
-        const baseUrl = "{{ request.get_host }}/edit_puzzle";
+        const baseUrl = "/edit_puzzle";
 
         function pageInit() {
             document.querySelectorAll(".nav-tabs li").forEach(tab => {
@@ -75,7 +78,15 @@
                 document.querySelector("." + event.target.id).classList.add("active-tab");
             }
             bindModalDialogToButton("new-puzzle-dialog", "btnNewPuzzle");
-            console.log(draftPuzzles);
+
+            try {
+                let builder = new ListBuilder(draftPuzzles, imgDirPath, baseUrl);
+                builder.buildHtml("tab-content");
+                console.log(baseUrl);
+            } catch(e) {
+                console.log(e);
+            }
+
         }
     </script>
 {% endblock %}

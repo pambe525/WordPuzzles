@@ -56,13 +56,12 @@ class MyPuzzlesViewTests(TestCase):
     def test_draft_puzzle_details_in_response_context(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Daily puzzle")
         response = self.client.get(self.target_page)
-        puzzle_details = response.context['draft_puzzles'][0]
-        self.assertEqual(puzzle_details.id, puzzle.id)
-        self.assertEqual(puzzle_details.desc, puzzle.desc)
-        self.assertEqual(str(puzzle_details), str(puzzle))
-        self.assertEqual(puzzle_details.size, puzzle.size)
-        self.assertIsNotNone(puzzle_details.modified_at)
-        self.assertIsNone(puzzle_details.shared_at)
+        draft_puzzle = response.context['draft_puzzles'][0]
+        self.assertEqual(draft_puzzle['id'], puzzle.id)
+        self.assertEqual(draft_puzzle['title'], str(puzzle))
+        self.assertEqual(draft_puzzle['type'], puzzle.type)
+        self.assertEqual(draft_puzzle['type_text'], "Cryptic Clues")   # Default
+        self.assertEqual(draft_puzzle['utc_modified_at'], str(puzzle.modified_at.strftime("%Y-%m-%d %H:%M:%SZ")))
 
     def test_draft_puzzles_exclude_published_puzzles_and_are_sorted_last_modified_first(self):
         puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
@@ -74,5 +73,5 @@ class MyPuzzlesViewTests(TestCase):
         puzzle2.save()
         response = self.client.get(self.target_page)
         self.assertEqual(len(response.context['draft_puzzles']), 2)
-        self.assertEqual(response.context['draft_puzzles'][0].desc, puzzle1.desc)
-        self.assertEqual(response.context['draft_puzzles'][1].desc, puzzle3.desc)
+        self.assertEqual(response.context['draft_puzzles'][0]['title'], str(puzzle1))
+        self.assertEqual(response.context['draft_puzzles'][1]['title'], str(puzzle3))

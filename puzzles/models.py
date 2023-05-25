@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
-from django.utils.timezone import now, localtime
+from django.utils.timezone import now
 from django.db.utils import IntegrityError
 
 
@@ -52,6 +52,20 @@ class WordPuzzle(models.Model):
         puzzle_type = str(self.TYPE_CHOICES[self.type][1])
         points = "[" + str(self.total_points) + " pts]"
         return "Puzzle " + str(self.id) + ": " + str(self.size) + " " + puzzle_type + " " + points
+
+    @staticmethod
+    def get_draft_puzzles_as_list(current_user_id):
+        query_set = WordPuzzle.objects.filter(editor=current_user_id, shared_at=None).order_by('-modified_at')
+        draft_puzzle_list = []
+        for puzzle in query_set:
+            puzzle_dict = {}.fromkeys(['id','title','type','type_text','utc_modified_at'])
+            puzzle_dict['id'] = puzzle.id
+            puzzle_dict['title'] = str(puzzle)
+            puzzle_dict['type'] = puzzle.type
+            puzzle_dict['type_text'] = WordPuzzle.TYPE_CHOICES[puzzle.type][1]
+            puzzle_dict['utc_modified_at'] = puzzle.modified_at.strftime("%Y-%m-%d %H:%M:%SZ")
+            draft_puzzle_list.append(puzzle_dict)
+        return draft_puzzle_list
 
     def add_clue(self, form_data_dict):
         self.size += 1
