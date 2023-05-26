@@ -67,6 +67,10 @@ class WordPuzzle(models.Model):
             draft_puzzle_list.append(puzzle_dict)
         return draft_puzzle_list
 
+    @staticmethod
+    def create_new_puzzle(editor, data):
+        return WordPuzzle.objects.create(editor=editor, type=data['type'], desc=data['desc'])
+
     def add_clue(self, form_data_dict):
         self.size += 1
         self.total_points += form_data_dict['points']

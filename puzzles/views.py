@@ -12,6 +12,7 @@ from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm
 from puzzles.models import WordPuzzle, Clue, PuzzleSession
 
+
 def add_session_data(puzzles, user):
     for puzzle in puzzles:
         puzzle.session_count = len(PuzzleSession.objects.filter(puzzle=puzzle))
@@ -27,39 +28,17 @@ class MyPuzzlesView(LoginRequiredMixin, View):
     model = WordPuzzle
 
     def get(self, request):
-        ctx = { 'form': WordPuzzleForm(), 'draft_puzzles': WordPuzzle.get_draft_puzzles_as_list(request.user.id) }
+        ctx = {'form': WordPuzzleForm(),
+               'draft_puzzles': WordPuzzle.get_draft_puzzles_as_list(request.user.id)}
         return render(request, "my_puzzles.html", context=ctx)
+
 
 class NewPuzzleView(LoginRequiredMixin, View):
     def post(self, request):
         form = WordPuzzleForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data
-            puzzle = WordPuzzle.objects.create(editor=request.user, type=data['type'], desc=data['desc'])
+            puzzle = WordPuzzle.create_new_puzzle(request.user, form.cleaned_data)
             return redirect("edit_puzzle", puzzle.id)
-
-
-class HomeView(LoginRequiredMixin, View):
-    model = WordPuzzle
-    recent_puzzles = None
-
-    def get(self, request):
-        seven_days_ago = now() - timedelta(days=7)
-        draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
-        recently_published = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago)\
-                .order_by('-shared_at')
-        in_recent_sessions = self.get_puzzles_in_recent_sessions()
-        recent_puzzles = (in_recent_sessions | recently_published).distinct()  # Union of 2 sets
-
-        add_session_data(recent_puzzles, request.user)
-        ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recent_puzzles}
-        return render(request, "home.html", context=ctx)
-
-    def get_puzzles_in_recent_sessions(self):
-        seven_days_ago = now()-timedelta(days=7)
-        puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user,
-                puzzlesession__modified_at__gte=seven_days_ago).order_by('-puzzlesession__modified_at')
-        return puzzles_in_recent_sessions
 
 
 class EditorRequiredMixin(LoginRequiredMixin):
@@ -94,6 +73,36 @@ class EditorRequiredMixin(LoginRequiredMixin):
         return super(EditorRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
+class DeletePuzzleView(EditorRequiredMixin, DeleteView):
+    model = WordPuzzle
+    template_name = 'delete_confirm.html'
+    success_url = '/'
+
+
+class HomeView(LoginRequiredMixin, View):
+    model = WordPuzzle
+    recent_puzzles = None
+
+    def get(self, request):
+        seven_days_ago = now() - timedelta(days=7)
+        draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
+        recently_published = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago) \
+            .order_by('-shared_at')
+        in_recent_sessions = self.get_puzzles_in_recent_sessions()
+        recent_puzzles = (in_recent_sessions | recently_published).distinct()  # Union of 2 sets
+
+        add_session_data(recent_puzzles, request.user)
+        ctx = {'draft_puzzles': draft_puzzles, 'recent_puzzles': recent_puzzles}
+        return render(request, "home.html", context=ctx)
+
+    def get_puzzles_in_recent_sessions(self):
+        seven_days_ago = now() - timedelta(days=7)
+        puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user,
+                                                               puzzlesession__modified_at__gte=seven_days_ago).order_by(
+            '-puzzlesession__modified_at')
+        return puzzles_in_recent_sessions
+
+
 class EditPuzzleView(EditorRequiredMixin, UpdateView):
     model = WordPuzzle
     template_name = 'edit_puzzle.html'
@@ -111,12 +120,6 @@ class EditPuzzleView(EditorRequiredMixin, UpdateView):
         ctx = {'form': form, 'saved': True, 'id': self.object.id, 'clues': self.object.get_clues(),
                'object': self.object}
         return render(self.request, self.template_name, context=ctx)
-
-
-class DeletePuzzleView(EditorRequiredMixin, DeleteView):
-    model = WordPuzzle
-    template_name = 'delete_confirm.html'
-    success_url = '/'
 
 
 class EditClueView(EditorRequiredMixin, View):

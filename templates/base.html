@@ -60,6 +60,17 @@
             </div>
         </div>
     </div>
+    <dialog class="confirm-dialog" id="confirm-dialog">
+        <div class="subtitle"></div>
+        <hr>
+        <form id="confirm-dialog-form" action="" method="post">
+            {% csrf_token %}
+            <div id="confirm-dialog-message"></div>
+            <button type="submit" class="blue-btn">Confirm</button>
+            <button formmethod="dialog">Cancel</button>
+        </form>
+    </dialog>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             setUpNavMenuToggleButton();

@@ -37,7 +37,7 @@
         </form>
     </dialog>
 
-    <script src="{% static '/javascript/list_builder.js' %}"></script>
+    <script src="{% static '/javascript/puzzles_list_builder.js' %}"></script>
     <script>
         const draftPuzzles = {{ draft_puzzles | safe }};
         const imgDirPath = "{% static '/images/' %}";
@@ -54,8 +54,12 @@
                 document.querySelector("." + event.target.id).classList.add("active-tab");
             }
             bindModalDialogToButton("new-puzzle-dialog", "btnAddPuzzle");
-            let builder = new ListBuilder(draftPuzzles, imgDirPath, baseUrl);
-            builder.buildHtml("drafts-list");
+            try {
+                let builder = new PuzzlesListBuilder(draftPuzzles, imgDirPath, baseUrl);
+                builder.showList("drafts-list");
+            } catch(e) {
+                console.log(e);
+            }
         }
     </script>
 {% endblock %}

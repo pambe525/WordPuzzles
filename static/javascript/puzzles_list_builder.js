@@ -1,37 +1,50 @@
-class ListBuilder {
+/**
+ * This class provides methods to build a list of badges for each puzzle in a list
+ */
+class PuzzlesListBuilder {
 
     CRYPTIC_IMAGE = "cryptic-clues.jpg";
     NONCRYPTIC_IMAGE = "non-cryptic-clues.png";
-    draftPuzzles = null;
+    puzzlesList = [];
     srcFileDir = null;
     baseUrl = null;
+    badges = [];
 
-    constructor(draftPuzzles, srcFileDir, baseUrl) {
-        this.draftPuzzles = draftPuzzles;
+    constructor(puzzles, srcFileDir, baseUrl) {
+        this.puzzlesList = puzzles;
         this.srcFileDir = srcFileDir;
         this.baseUrl = baseUrl;
     }
 
-    buildHtml(containerId) {
+    showList(containerId) {
         const containerDiv = document.getElementById(containerId);
         containerDiv.innerHTML = "";
-        if (this.draftPuzzles.length === 0) containerDiv.innerHTML = "No draft puzzles.";
-        else {
-            for (var i = 0; i < this.draftPuzzles.length; i++) {
-                var badge = this._createBadge(this.draftPuzzles[i]);
-                containerDiv.appendChild(badge);
-            }
-        }
+        if (this.puzzlesList.length > 0) {
+            if (this.badges.length === 0) this.buildBadges();
+            for (let i = 0; i < this.badges.length; i++)
+                containerDiv.appendChild(this.badges[i]);
+        } else containerDiv.innerHTML = "No puzzles to list.";
     }
 
-    _createBadge(draftPuzzle) {
+    buildBadges() {
+        if (this.puzzlesList.length === 0) return;
+        this.badges = [];
+        for (let i = 0; i < this.puzzlesList.length; i++)
+            this.badges.push( this._createBadge(this.puzzlesList[i]) );
+    }
+
+    addIconBtns(fsName, title, clickHandler) {
+
+    }
+
+    _createBadge(puzzle) {
         const badge = document.createElement("div");
-        const imgFilePath = this.srcFileDir + this._getImageFileName(draftPuzzle.type);
-        const linkUrl = this.baseUrl + "/" + draftPuzzle.id + "/";
-        const img = this._createBadgeImage(imgFilePath, draftPuzzle.type_text);
-        const linkTitle = this._createBadgeTitleLink(draftPuzzle.title, linkUrl);
-        const lastEdited = this._createLastEditedDiv(draftPuzzle.utc_modified_at);
-        const icon = this._createIcon("fa-trash-can", "Delete");
+        const imgFilePath = this.srcFileDir + this._getImageFileName(puzzle.type);
+        const linkUrl = this.baseUrl + "/" + puzzle.id + "/";
+        const img = this._createBadgeImage(imgFilePath, puzzle.type_text);
+        const linkTitle = this._createBadgeTitleLink(puzzle.title, linkUrl);
+        const lastEdited = this._createLastEditedDiv(puzzle.utc_modified_at);
+        const icon = this._createIconBtn("fa-trash-can", "Delete", puzzle.id);
         const puzzleInfo = this._createPuzzleInfo(linkTitle, lastEdited);
         const iconGroup = this._createIconGroup(icon);
         badge.classList.add("list-badge");
@@ -83,11 +96,12 @@ class ListBuilder {
         return title;
     }
 
-    _createIcon(faName, title) {
+    _createIconBtn(faName, title, puzzle_id) {
         const icon = document.createElement("i");
         icon.classList.add("fa-regular");
         icon.classList.add(faName);
         icon.title = title;
+        // icon.id = "btn" + title + "_" + id;
         return icon;
     }
 }
