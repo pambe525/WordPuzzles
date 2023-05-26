@@ -177,6 +177,6 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
 
     @staticmethod
     def utc_to_local(utc_datetime):
-        dt_format = '%b %d, %Y at %H:%M:%S'
+        dt_format = '%-m/%-d/%Y, %-H:%M:%S %p'
         return utc_datetime.astimezone().strftime(dt_format)
 

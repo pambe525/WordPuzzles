@@ -46,10 +46,10 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.get(self.target_page)
         self.do_click(self.SCHEDULED_TAB)
         self.assert_text_equals(self.ACTIVE_TAB, "Scheduled")
-        self.assert_text_contains(self.ACTIVE_CONTENT, "My Scheduled Puzzles")
+        self.assert_attribute_equals(self.ACTIVE_CONTENT, "id", "scheduled-list")
         self.do_click(self.PUBLISHED_TAB)
         self.assert_text_equals(self.ACTIVE_TAB, "Published")
-        self.assert_text_contains(self.ACTIVE_CONTENT, "My Published Puzzles")
+        self.assert_attribute_equals(self.ACTIVE_CONTENT, "id", "published-list")
 
     def test_New_Puzzle_button_activates_dialog_that_can_be_closed(self):
         self.get(self.target_page)
@@ -75,7 +75,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     def test_Drafts_tab_displays_users_draft_puzzles_with_details(self):
         puzzle1 = WordPuzzle.objects.create(editor=self.user, type=0)
         puzzle2 = WordPuzzle.objects.create(editor=self.user, type=1)
-        puzzle1.modified_at - timedelta(seconds=60) # to ensure puzzle 1 is older
+        # puzzle2.modified_at = puzzle2.modified_at + timedelta(seconds=60)  # to ensure puzzle 2 is newer
         self.get(self.target_page)
         self.assert_item_count(self.ACTIVE_BADGE, 2)
         badge1_title = "Puzzle " + str(puzzle1.id) + ": 0 Non-cryptic Clues [0 pts]"
@@ -87,5 +87,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/1/', 1)
         self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/2/', 0)
         last_edited_str1 = 'Last edited on ' + self.utc_to_local(puzzle1.modified_at)
-        self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str1)
+        last_edited_str2 = 'Last edited on ' + self.utc_to_local(puzzle2.modified_at)
+        self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str2, 0)
+        self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str1, 1)
 
