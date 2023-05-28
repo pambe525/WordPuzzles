@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import Puzzle, WordPuzzle, Clue, PuzzleSession
 
 # Register your models here.

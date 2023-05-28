@@ -5,10 +5,10 @@
             {% if clue_num == None %}
                 <h2 class="mb-3">Delete Puzzle #{{ object.id }}</h2>
                 <form method="post">
-                {% csrf_token %}
+                    {% csrf_token %}
                     <div class="mb-3">
-                        This puzzle and all associated clues will be permanently <br />
-                        deleted. This action cannot be undone.  Please confirm.
+                        This puzzle and all associated clues will be permanently <br/>
+                        deleted. This action cannot be undone. Please confirm.
                     </div>
                     <button type='submit' class="btn btn-primary pl-3 pr-3">DELETE</button>
                     <a href="{% url 'home' %}" class="ml-2 btn btn-light pl-3 pr-3">CANCEL</a>
@@ -16,7 +16,7 @@
             {% else %}
                 <h2 class="mb-3">Delete Clue {{ clue_num }} for Puzzle #{{ object.id }}</h2>
                 <form method="post">
-                {% csrf_token %}
+                    {% csrf_token %}
                     <div class="mb-3">
                         This clue will be permanently deleted. This<br/>
                         action cannot be undone. Note that clue numbers<br/>

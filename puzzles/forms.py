@@ -2,7 +2,6 @@ import re
 
 from django import forms
 from django.forms import ModelForm, Form
-
 from puzzles.models import WordPuzzle, Clue
 
 
@@ -51,6 +50,8 @@ class SortPuzzlesForm(Form):
     def __init__(self, *args, **kwargs):
         super(SortPuzzlesForm, self).__init__(*args, **kwargs)
         self.fields['sort_by'] = forms.ChoiceField(choices=self.SORT_CHOICES, initial='shared_at', label='Sort by:',
-                        widget=forms.Select(attrs={'style': 'height:26px', 'onchange': 'form.submit();'}))
+                                                   widget=forms.Select(
+                                                       attrs={'style': 'height:26px', 'onchange': 'form.submit();'}))
         self.fields['order'] = forms.ChoiceField(choices=self.ORDER_CHOICES, label='Order', initial='-',
-                        widget=forms.Select(attrs={'style': 'height:26px', 'onchange': 'form.submit();'}))
+                                                 widget=forms.Select(
+                                                     attrs={'style': 'height:26px', 'onchange': 'form.submit();'}))

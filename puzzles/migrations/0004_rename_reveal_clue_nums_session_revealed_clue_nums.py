@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('puzzles', '0003_session_elapsed_seconds_session_is_complete_and_more'),
     ]

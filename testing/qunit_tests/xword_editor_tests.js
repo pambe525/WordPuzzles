@@ -1,42 +1,51 @@
-(function() {
+(function () {
     //==> TESTCASE HELPERS
     let controller = null;
     let puzzleData = null;
+
     function getGridCells() {
         return $("#puzzle > div").children("div");
     }
+
     function saveData(responseData) {
         ajaxSettings = null;
         $("#save").click();
         ajaxSettings.success(responseData);
     }
+
     function verifyClueNums(clueNums) {
         let gridCells = getGridCells();
         let keys = Object.keys(clueNums);
         for (const i in keys)
             assert.equal($(gridCells[keys[i]]).children("span.xw-number").text(), clueNums[keys[i]]);
     }
+
     function clickOnCell(index, doubleClick = false) {
         getGridCells()[index].click();
         if (doubleClick) getGridCells()[index].click();
     }
+
     function gridCell(index) {
         return $(getGridCells()[index]);
     }
+
     function doClueFormInput(clueWord, clueText) {
-            $("#clue-word").val(clueWord);
-            $("#clue-text").val(clueText);
-            $("#clue-update").click();
-        }
+        $("#clue-word").val(clueWord);
+        $("#clue-text").val(clueText);
+        $("#clue-update").click();
+    }
+
     function assertClueFormFields(clueRef, word, clueText, msg) {
         assert.equal($("#clue-ref").text(), clueRef);
         assert.equal($("#clue-word").val(), word);
         assert.equal($("#clue-text").val(), clueText);
         assert.equal($("#clue-msg").text(), msg);
     }
+
     function readLetterInCell(cell) {
-            return $(cell).children(".xw-letter").text();
-        }
+        return $(cell).children(".xw-letter").text();
+    }
+
     function assertHilitedWord(word) {
         let hilitedCells = $(getGridCells()).filter(".xw-hilite");
         assert.equal(hilitedCells.length, word.length);
@@ -46,20 +55,23 @@
             assert.equal(readLetterInCell(hilitedCells[i]), letter);
         }
     }
+
     function setBlocks(cellIndices) {
         for (let i = 0; i < cellIndices.length; i++)
             clickOnCell(cellIndices[i]);
     }
+
     function assertHilitedCells(cellIndex, hilitedCellIndices) {
         if (cellIndex !== null) clickOnCell(cellIndex);
         let gridCells = getGridCells();
         let actualHiliteIndices = [];
         assert.equal($(gridCells).filter(".xw-hilite").length, hilitedCellIndices.length);
         for (let i = 0; i < gridCells.length; i++)
-            if ( $(gridCells[i]).hasClass("xw-hilite") ) actualHiliteIndices.push(i);
+            if ($(gridCells[i]).hasClass("xw-hilite")) actualHiliteIndices.push(i);
         assert.deepEqual(actualHiliteIndices, hilitedCellIndices);
     }
-    function assertHasRedLetterClass(flagsArray){
+
+    function assertHasRedLetterClass(flagsArray) {
         var letterCells = $(getGridCells()).filter(".xw-hilite").children(".xw-letter");
         for (let i = 0; i < letterCells.length; i++) {
             if (flagsArray[i]) assert.true($(letterCells[i]).hasClass("xw-red"));
@@ -111,7 +123,7 @@
         assert.equal(getGridCells().length, 25);
     });
     test('Sets correct title and state of widgets on new puzzle', function (assert) {
-        let puzzleData = {id:0, size: 5};
+        let puzzleData = {id: 0, size: 5};
         new XWordEditor(puzzleData);
         assert.equal($("#page-title").text(), "New Crossword");
         assert.true($("#delete").prop("disabled"));
@@ -177,7 +189,7 @@
         assert.false(controller.view.dataSaved);
     });
     test('Sets grid to default size (15) if not specified', function (assert) {
-        let puzzleData = {id:0};
+        let puzzleData = {id: 0};
         new XWordEditor(puzzleData);
         assert.equal(getGridCells().length, 225);
         assert.equal($("#size").val(), 15);
@@ -193,9 +205,9 @@
     test('Autonumbers grids with no blocks', function (assert) {
         var gridSize = 5;
         new XWordEditor({size: gridSize});
-        let clueNums = {0:"1",1:"2",2:"3",3:"4",4:"5",5:"6",10:"7",15:"8",20:"9"};
+        let clueNums = {0: "1", 1: "2", 2: "3", 3: "4", 4: "5", 5: "6", 10: "7", 15: "8", 20: "9"};
         verifyClueNums(clueNums);
-     });
+    });
     test('Sets dataSaved to false after description is changed', function (assert) {
         let puzzleData = {id: 0, size: 5}
         let controller = new XWordEditor(puzzleData);
@@ -205,7 +217,7 @@
     });
     test('Restores blocked cells in grid from existing data', function (assert) {
         var gridSize = 5, blockStr = "1,2,7,17,22,23";
-        new XWordEditor({size: gridSize, data:{blocks: blockStr}});
+        new XWordEditor({size: gridSize, data: {blocks: blockStr}});
         let gridCells = getGridCells();
         let blockedCells = gridCells.filter(".xw-block");
         let blockedIndices = blockStr.split(",");
@@ -222,33 +234,39 @@
     });
     test('Switches to clues edit mode when existing word data is restored', function (assert) {
         var gridSize = 5, blockStr = "1,2,7,17,22,23";
-        var puzzleData = {id: 10, size: gridSize, data:{
-            blocks: blockStr, across:{"0-0":{word:"ABCDE", clue:"1 across (5)"}}, down:{}}
+        var puzzleData = {
+            id: 10, size: gridSize, data: {
+                blocks: blockStr, across: {"0-0": {word: "ABCDE", clue: "1 across (5)"}}, down: {}
+            }
         }
         new XWordEditor(puzzleData);
         assert.true($("#radio-2").prop("checked"));
         assert.false($("#clue-form").prop("hidden"));
-     });
+    });
     test('Hilites word in grid and loads clue form when data is restored', function (assert) {
         var gridSize = 5, blockStr = "";
         var puzzleData = {
-            id: 10, size: gridSize, data:{blocks: blockStr, across:{0:{word:"ABCDE", clue:""}}, down:{}}
+            id: 10, size: gridSize, data: {blocks: blockStr, across: {0: {word: "ABCDE", clue: ""}}, down: {}}
         }
         new XWordEditor(puzzleData);
-        let hilitedCells = getGridCells().slice(0,5);
+        let hilitedCells = getGridCells().slice(0, 5);
         assert.true($(hilitedCells).hasClass("xw-hilite"));
         assertHilitedWord("ABCDE");
         assertClueFormFields("#1 Across (5)", "ABCDE", "", "");
-     });
+    });
     test('Sets Published state if restored xword is published', function (assert) {
         let gridData = {
-            blocks:"0,1,23,24",
-            across:{2: {word: "PUP", clue: "clue for 1a"}, 5: {word: "SIENA", clue: "clue for 4a"},
-                    10: {word: "ADDUP", clue: "clue for 6a"}, 15: {word: "LLAMA", clue:"clue for 7a"},
-                    20: {word: "EEL", clue: "clue for 8a"}},
-            down:  {2: {word: "PEDAL", clue: "clue for 1d"}, 3: {word: "UNUM", clue: "clue for 2d"},
-                    4: {word: "PAPA", clue: "clue for 3d"}, 5: {word: "SALE", clue: "clue for 4d"},
-                    6: {word: "IDLE", clue: "clue for 5d"}}
+            blocks: "0,1,23,24",
+            across: {
+                2: {word: "PUP", clue: "clue for 1a"}, 5: {word: "SIENA", clue: "clue for 4a"},
+                10: {word: "ADDUP", clue: "clue for 6a"}, 15: {word: "LLAMA", clue: "clue for 7a"},
+                20: {word: "EEL", clue: "clue for 8a"}
+            },
+            down: {
+                2: {word: "PEDAL", clue: "clue for 1d"}, 3: {word: "UNUM", clue: "clue for 2d"},
+                4: {word: "PAPA", clue: "clue for 3d"}, 5: {word: "SALE", clue: "clue for 4d"},
+                6: {word: "IDLE", clue: "clue for 5d"}
+            }
         }
         let timestamp = new Date().toISOString();
         puzzleData = {id: 10, size: 5, is_xword: true, desc: "Crosword", shared_at: timestamp, data: gridData};
@@ -262,17 +280,19 @@
     })
     test('Hilites the first incomplete ACROSS clue on restore', function (assert) {
         let gridData = {
-            blocks:"",
-            across:{0: {word: "FIRST", clue: "clue 1a"}, 5: {word: "SECND", clue: "clue 6a"},
-                    10: {word: "THIRD", clue: ""}, 15: {word: "FORTH", clue:"clue 8a"},
-                    20: {word: "FIFTH", clue: "clue 9a"}},
-            down:  {}
+            blocks: "",
+            across: {
+                0: {word: "FIRST", clue: "clue 1a"}, 5: {word: "SECND", clue: "clue 6a"},
+                10: {word: "THIRD", clue: ""}, 15: {word: "FORTH", clue: "clue 8a"},
+                20: {word: "FIFTH", clue: "clue 9a"}
+            },
+            down: {}
         }
         puzzleData = {id: 10, size: 5, is_xword: true, desc: "Crosword", shared_at: null, data: gridData};
         new XWordEditor(puzzleData);
         $("#radio-2").prop("checked", true).change();
         assertClueFormFields("#7 Across (5)", "THIRD", "", "");
-        assertHilitedCells(null,[10,11,12,13,14]);
+        assertHilitedCells(null, [10, 11, 12, 13, 14]);
     })
     // Loads words and colors them
 
@@ -294,7 +314,7 @@
         assert.equal(ajaxData.size, puzzleData.size);
         assert.equal(ajaxData.is_xword, true);
         assert.equal(ajaxData.shared_at, null);
-        assert.deepEqual(ajaxData.data, {blocks:"",across:{}, down:{}});
+        assert.deepEqual(ajaxData.data, {blocks: "", across: {}, down: {}});
     });
     test('Includes correct data in ajax call for existing xword on save', function (assert) {
         let puzzleData = {id: 10, size: 7, desc: "xword #10"}
@@ -304,7 +324,7 @@
         assert.equal(ajaxData.id, puzzleData.id);
         assert.equal(ajaxData.size, puzzleData.size);
         assert.equal(ajaxData.desc, puzzleData.desc);
-        assert.deepEqual(ajaxData.data, {blocks:"",across:{}, down:{}});
+        assert.deepEqual(ajaxData.data, {blocks: "", across: {}, down: {}});
     });
     test('Includes changes to desc in ajax call on save', function (assert) {
         let puzzleData = {id: null, size: 5}
@@ -317,9 +337,9 @@
     });
     test('Includes full data in ajax call for xword on save', function (assert) {
         let gridData = {
-            blocks:"0,4,12,20,24",
-            across:{1: {word: "abcd", clue: "clue for 1a"}, 5: {word: "efghi", clue: "clue for 4a"}},
-            down:{1: {word: "jklmn", clue:""}, 2:{word:"op", clue:"clue for 2d"}}
+            blocks: "0,4,12,20,24",
+            across: {1: {word: "abcd", clue: "clue for 1a"}, 5: {word: "efghi", clue: "clue for 4a"}},
+            down: {1: {word: "jklmn", clue: ""}, 2: {word: "op", clue: "clue for 2d"}}
         }
         let puzzleData = {id: 10, size: 5, desc: "xword #10", data: gridData};
         new XWordEditor(puzzleData);
@@ -397,7 +417,8 @@
     QUnit.module("XWordEditor::Block Editing", {
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
-            controller = new XWordEditor({id: null, size: 5});       }
+            controller = new XWordEditor({id: null, size: 5});
+        }
     });
     test('Enables cell blocking in block edit mode ', function (assert) {
         clickOnCell(0);
@@ -431,10 +452,10 @@
         clickOnCell(0);   // corner cells
         clickOnCell(4);   // corner cells
         clickOnCell(12);  // center cell
-        let clueNums = {1:"1",2:"2",3:"3",5:"4",9:"5",10:"6",13:"7",15:"8",17:"9",21:"10"};
+        let clueNums = {1: "1", 2: "2", 3: "3", 5: "4", 9: "5", 10: "6", 13: "7", 15: "8", 17: "9", 21: "10"};
         verifyClueNums(clueNums);
     });
-    test("Does not block cell if it or symm cell contains a letter", function(assert) {
+    test("Does not block cell if it or symm cell contains a letter", function (assert) {
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("trial", "");
         $("#radio-1").prop("checked", true).change();
@@ -501,8 +522,8 @@
             assert.equal(readLetterInCell(gridCells[i]), "");
     });
     test('Trims, capitalizes and adds word input to grid if valid', function (assert) {
-        let word ="trial";
-        doClueFormInput(" "+word+" ", "");
+        let word = "trial";
+        doClueFormInput(" " + word + " ", "");
         assert.equal($("#clue-msg").text(), "");
         clickOnCell(0);
         assertHilitedWord(word);
@@ -545,27 +566,27 @@
         assertHilitedWord("RIVER");
         assertClueFormFields("#6 Across (5)", "RIVER", "clue 6 across (1-2,2)", "");
     });
-    test("Shows error msg if word conflicts with existing letters", function(assert) {
+    test("Shows error msg if word conflicts with existing letters", function (assert) {
         $("#radio-1").prop("checked", true).change();
-        setBlocks([0,2,4]);
+        setBlocks([0, 2, 4]);
         $("#radio-2").prop("checked", true).change();
         clickOnCell(1);   // Hilite 1D
         doClueFormInput("SNAKE", "clue 1 down");
         doClueFormInput("TENET", "clue 2 down");  // 2D auto hilited
         clickOnCell(5);                           // Hilite 3A
-        doClueFormInput("PAPER","");
+        doClueFormInput("PAPER", "");
         assertHilitedWord(" N E ");
         assertClueFormFields("#3 Across (5)", "PAPER", "", "Word conflicts with existing letters");
     });
-    test("No tooltip set if clue text is empty", function(assert) {
+    test("No tooltip set if clue text is empty", function (assert) {
         doClueFormInput("ACROS", "");
         assert.equal($(getGridCells()[0]).prop("title"), "");
     });
-    test("Sets tooltip if clue text is not empty", function(assert) {
+    test("Sets tooltip if clue text is not empty", function (assert) {
         doClueFormInput("acros", "clue text for 1a");
         assert.equal($(getGridCells()[0]).prop("title"), "1 Across: clue text for 1a (5)");
     });
-    test("Replaces tooltip if clue text is changed", function(assert) {
+    test("Replaces tooltip if clue text is changed", function (assert) {
         doClueFormInput("acros", "clue text for 1a");
         clickOnCell(0);
         doClueFormInput("acros", "");
@@ -574,20 +595,20 @@
         doClueFormInput("acros", "clue text");
         assert.equal($(getGridCells()[0]).prop("title"), "1 Across: clue text (5)");
     });
-    test("Adds to ACROSS tooltip if DOWN clue text is added", function(assert) {
+    test("Adds to ACROSS tooltip if DOWN clue text is added", function (assert) {
         doClueFormInput("acros", "clue for 1a");
         clickOnCell(0, true);
         doClueFormInput("adown", "clue for 1d");
         assert.equal($(getGridCells()[0]).prop("title"), "1 Across: clue for 1a (5)\n1 Down: clue for 1d (5)");
     });
-    test("Keeps DOWN tooltip if blank ACROSS clue text is added", function(assert) {
+    test("Keeps DOWN tooltip if blank ACROSS clue text is added", function (assert) {
         clickOnCell(0);
         doClueFormInput("adown", "clue for 1d");
         clickOnCell(0);
         doClueFormInput("acros", "");
         assert.equal($(getGridCells()[0]).prop("title"), "1 Down: clue for 1d (5)");
     });
-    test("Does not add ACROSS tooltip to DOWN only clue", function(assert) {
+    test("Does not add ACROSS tooltip to DOWN only clue", function (assert) {
         doClueFormInput("acros", "clue for 1a");
         clickOnCell(1, true);
         doClueFormInput("crown", "clue for 2d");
@@ -595,36 +616,36 @@
         assert.equal($(gridCells[0]).prop("title"), "1 Across: clue for 1a (5)");
         assert.equal($(gridCells[1]).prop("title"), "2 Down: clue for 2d (5)");
     });
-    test("Sets word letters with no clue to class 'xw-red'", function(assert) {
+    test("Sets word letters with no clue to class 'xw-red'", function (assert) {
         doClueFormInput("crown", "");  // 1 ACROSS
         clickOnCell(0);
-        assertHasRedLetterClass([1,1,1,1,1]);
+        assertHasRedLetterClass([1, 1, 1, 1, 1]);
         clickOnCell(1);
         doClueFormInput("river", "");  // 2 DOWN
         clickOnCell(1, true);
-        assertHasRedLetterClass([1,1,1,1,1]);
+        assertHasRedLetterClass([1, 1, 1, 1, 1]);
     });
-    test("Skips setting word letters with clue in single cells to red", function(assert) {
+    test("Skips setting word letters with clue in single cells to red", function (assert) {
         $("#radio-1").prop("checked", true).change();
-        setBlocks([5,7,9]);
+        setBlocks([5, 7, 9]);
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("WORDS", "Clue text");
         clickOnCell(0);
-        assertHasRedLetterClass([0,1,0,1,0]);
+        assertHasRedLetterClass([0, 1, 0, 1, 0]);
     });
-    test("Updates word letter color in single cells when clue is set", function(assert) {
+    test("Updates word letter color in single cells when clue is set", function (assert) {
         $("#radio-1").prop("checked", true).change();
-        setBlocks([5,7,9]);
+        setBlocks([5, 7, 9]);
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("WORDS", "");  // All Red
         clickOnCell(0);
         doClueFormInput("WORDS", "clue added");
         clickOnCell(0);
-        assertHasRedLetterClass([0,1,0,1,0]);
+        assertHasRedLetterClass([0, 1, 0, 1, 0]);
     });
-    test("Skips setting cross-letters to red if both cross-words have clues", function(assert) {
+    test("Skips setting cross-letters to red if both cross-words have clues", function (assert) {
         $("#radio-1").prop("checked", true).change();
-        setBlocks([5,7,9]);
+        setBlocks([5, 7, 9]);
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("WORDS", "Clue text");   // 1 ACROSS with clue
         clickOnCell(1, true);
@@ -633,17 +654,17 @@
         clickOnCell(10);
         doClueFormInput("SERVE", "");   //ACROSS word with no clue
         clickOnCell(0);
-        assertHasRedLetterClass([0,1,0,0,0]);
+        assertHasRedLetterClass([0, 1, 0, 0, 0]);
         clickOnCell(6);
-        assertHasRedLetterClass([1,1,1,1,1]);
+        assertHasRedLetterClass([1, 1, 1, 1, 1]);
         clickOnCell(8);
-        assertHasRedLetterClass([0,0,1,0,1]);
+        assertHasRedLetterClass([0, 0, 1, 0, 1]);
         clickOnCell(10);
-        assertHasRedLetterClass([1,1,1,1,1]);
+        assertHasRedLetterClass([1, 1, 1, 1, 1]);
     });
-    test("Shows grid word in clue form if all letters are populated", function(assert) {
+    test("Shows grid word in clue form if all letters are populated", function (assert) {
         $("#radio-1").prop("checked", true).change();
-        setBlocks([0,4,12]);
+        setBlocks([0, 4, 12]);
         $("#radio-2").prop("checked", true).change();
         clickOnCell(5);
         doClueFormInput("ACTOR", "");  // 4 ACROSS
@@ -651,22 +672,27 @@
         doClueFormInput("ADULT", "");  // 8 ACROSS
         clickOnCell(10);
         doClueFormInput("DI", "");  // 6 ACROSS
-        clickOnCell(1); clickOnCell(1); // Select 1 Down
+        clickOnCell(1);
+        clickOnCell(1); // Select 1 Down
         doClueFormInput("ACIDS", "");  // 1 DOWN
-        clickOnCell(2); clickOnCell(2); // Selects 2 down
+        clickOnCell(2);
+        clickOnCell(2); // Selects 2 down
         doClueFormInput("IT", "");   // 2 DOWN
-        clickOnCell(3); clickOnCell(3); // Selects 3 down
+        clickOnCell(3);
+        clickOnCell(3); // Selects 3 down
         doClueFormInput("MOLLY", "");   // 3 DOWN
         clickOnCell(1);
         assertClueFormFields("#1 Across (3)", "AIM", "", "");
-        clickOnCell(5); clickOnCell(5);
+        clickOnCell(5);
+        clickOnCell(5);
         assertClueFormFields("#4 Down (3)", "ADA", "", "");
-        clickOnCell(9); clickOnCell(9);
+        clickOnCell(9);
+        clickOnCell(9);
         assertClueFormFields("#5 Down (3)", "", "", "");
         clickOnCell(21)
         assertClueFormFields("#10 Across (3)", "", "", "");
     });
-    test("Hides clue form when all cles are complete", function(assert) {
+    test("Hides clue form when all cles are complete", function (assert) {
         doClueFormInput("DASHI", "clue 1a");
         doClueFormInput("ALTER", "clue 6a");
         doClueFormInput("VIOLA", "clue 7a");
@@ -678,7 +704,7 @@
         doClueFormInput("HELEN", "clue 4d");
         doClueFormInput("IRATE", "clue 5d");
         assert.true($("#clue-form").is(":hidden"));
-        assertHilitedCells(null,[]);
+        assertHilitedCells(null, []);
         assert.false($("#publish").prop("disabled"));
     });
 
@@ -690,7 +716,7 @@
             $("#radio-2").prop("checked", true).change();
         }
     });
-    test("Deletes word data and letters in grid", function(assert) {
+    test("Deletes word data and letters in grid", function (assert) {
         $("#radio-1").prop("checked", true).change();
         setBlocks([1, 3]);
         $("#radio-2").prop("checked", true).change();
@@ -707,7 +733,7 @@
         assertClueFormFields("#1 Down (5)", "", "", "");
         assertHilitedWord("     ");
     });
-    test("Does not delete letters in grid shared by cross-words", function(assert) {
+    test("Does not delete letters in grid shared by cross-words", function (assert) {
         $("#radio-1").prop("checked", true).change();
         setBlocks([0, 2, 4]);
         $("#radio-2").prop("checked", true).change();
@@ -728,7 +754,7 @@
         assertClueFormFields("#2 Down (5)", "", "", "");
         assertHilitedWord("   E ");
     });
-    test("Deletes letter color class", function(assert) {
+    test("Deletes letter color class", function (assert) {
         $("#radio-1").prop("checked", true).change();
         setBlocks([0, 2, 4]);
         $("#radio-2").prop("checked", true).change();
@@ -742,12 +768,12 @@
         let clueDeleteBtn = $("#clue-delete");
         clickOnCell(5);
         clueDeleteBtn.click();
-        assertHasRedLetterClass([0,1,0,1,0])
+        assertHasRedLetterClass([0, 1, 0, 1, 0])
         clickOnCell(3);
         clueDeleteBtn.click();
-        assertHasRedLetterClass([0,0,0,1,0])
+        assertHasRedLetterClass([0, 0, 0, 1, 0])
     });
-    test("Deletes tooltip for the word if it exists", function(assert) {
+    test("Deletes tooltip for the word if it exists", function (assert) {
         doClueFormInput("ALTER", "across 1a");
         clickOnCell(0, true);
         doClueFormInput("ADDER", "down 1d");
@@ -779,7 +805,7 @@
     test('Updates status of ACROSS & DOWN clues after adding clues', function (assert) {
         let puzzleData = {id: null, size: 5};
         new XWordEditor(puzzleData);
-        setBlocks([1,3,11])
+        setBlocks([1, 3, 11])
         $("#radio-2").prop("checked", true).change();
         clickOnCell(0);
         doClueFormInput("PEACH", "Clue 1d");
@@ -796,7 +822,7 @@
     test('Updates status of ACROSS & DOWN clues after deleting clues', function (assert) {
         let puzzleData = {id: null, size: 5};
         new XWordEditor(puzzleData);
-        setBlocks([1,3,11])
+        setBlocks([1, 3, 11])
         $("#radio-2").prop("checked", true).change();
         clickOnCell(0);
         doClueFormInput("PEACH", "Clue 1d");
@@ -817,13 +843,17 @@
         beforeEach: function () {
             setupFixture(EditPuzzlePageHtml);
             let gridData = {
-                blocks:"0,1,23,24",
-                across:{2: {word: "PUP", clue: "clue for 1a"}, 5: {word: "SIENA", clue: "clue for 4a"},
-                    10: {word: "ADDUP", clue: "clue for 6a"}, 15: {word: "LLAMA", clue:"clue for 7a"},
-                    20: {word: "EEL", clue: "clue for 8a"}},
-                down:  {2: {word: "PEDAL", clue: "clue for 1d"}, 3: {word: "UNUM", clue: "clue for 2d"},
+                blocks: "0,1,23,24",
+                across: {
+                    2: {word: "PUP", clue: "clue for 1a"}, 5: {word: "SIENA", clue: "clue for 4a"},
+                    10: {word: "ADDUP", clue: "clue for 6a"}, 15: {word: "LLAMA", clue: "clue for 7a"},
+                    20: {word: "EEL", clue: "clue for 8a"}
+                },
+                down: {
+                    2: {word: "PEDAL", clue: "clue for 1d"}, 3: {word: "UNUM", clue: "clue for 2d"},
                     4: {word: "PAPA", clue: "clue for 3d"}, 5: {word: "SALE", clue: "clue for 4d"},
-                    6: {word: "IDLE", clue: "clue for 5d"}}
+                    6: {word: "IDLE", clue: "clue for 5d"}
+                }
             }
             puzzleData = {id: 10, size: 5, is_xword: true, desc: "Crosword", data: gridData};
             new XWordEditor(puzzleData);
@@ -922,67 +952,67 @@
             new XWordEditor(puzzleData);
         }
     });
-    test("Hilites ACROSS word first when a cell is clicked", function(assert) {
-      setBlocks([0, 10]);
-      $("#radio-2").prop("checked", true).change();
-      assertHilitedCells(8, [5,6,7,8,9]);
-      assertHilitedCells(12, [11,12,13]);
-      assertHilitedCells(15, [15,16,17,18,19]);
-      assertHilitedCells(23, [20,21,22,23]);
+    test("Hilites ACROSS word first when a cell is clicked", function (assert) {
+        setBlocks([0, 10]);
+        $("#radio-2").prop("checked", true).change();
+        assertHilitedCells(8, [5, 6, 7, 8, 9]);
+        assertHilitedCells(12, [11, 12, 13]);
+        assertHilitedCells(15, [15, 16, 17, 18, 19]);
+        assertHilitedCells(23, [20, 21, 22, 23]);
     });
-    test("Hilites DOWN word if clicked cell is not part of ACROSS word", function(assert) {
-      setBlocks([1, 2, 4, 11]);
-      $("#radio-2").prop("checked", true).change();
-      assertHilitedCells(0, [0,5,10,15]);
-      assertHilitedCells(12, [7,12,17]);
-      assertHilitedCells(14, [9,14,19,24]);
-      assertHilitedCells(15, [15,16,17,18,19]);
-      assertHilitedCells(21, [16,21]);
+    test("Hilites DOWN word if clicked cell is not part of ACROSS word", function (assert) {
+        setBlocks([1, 2, 4, 11]);
+        $("#radio-2").prop("checked", true).change();
+        assertHilitedCells(0, [0, 5, 10, 15]);
+        assertHilitedCells(12, [7, 12, 17]);
+        assertHilitedCells(14, [9, 14, 19, 24]);
+        assertHilitedCells(15, [15, 16, 17, 18, 19]);
+        assertHilitedCells(21, [16, 21]);
     });
-    test("Toggles hilite from across to down if applicable when same cell is clicked", function(assert) {
-      setBlocks([2, 6, 8]);
-      $("#radio-2").prop("checked", true).change();
-      assertHilitedCells(4, [3,4]);
-      assertHilitedCells(4, [4,9,14,19,24]);
-      assertHilitedCells(12, [10,11,12,13,14]);
-      assertHilitedCells(12, [7,12,17]);
+    test("Toggles hilite from across to down if applicable when same cell is clicked", function (assert) {
+        setBlocks([2, 6, 8]);
+        $("#radio-2").prop("checked", true).change();
+        assertHilitedCells(4, [3, 4]);
+        assertHilitedCells(4, [4, 9, 14, 19, 24]);
+        assertHilitedCells(12, [10, 11, 12, 13, 14]);
+        assertHilitedCells(12, [7, 12, 17]);
     });
-    test("Does not change hilite if blocked cell is clicked", function(assert) {
-      setBlocks([0, 4]);
-      $("#radio-2").prop("checked", true).change();
-      assertHilitedCells(5, [5,6,7,8,9]);
-      assertHilitedCells(0, [5,6,7,8,9]);
+    test("Does not change hilite if blocked cell is clicked", function (assert) {
+        setBlocks([0, 4]);
+        $("#radio-2").prop("checked", true).change();
+        assertHilitedCells(5, [5, 6, 7, 8, 9]);
+        assertHilitedCells(0, [5, 6, 7, 8, 9]);
     });
-    test("Retains ACROSS or DOWN hilite if no DOWN or ACROSS alternative", function(assert) {
-      setBlocks([1,11]);
-      $("#radio-2").prop("checked", true).change();
-      assertHilitedCells(6, [5,6,7,8,9]);     // ACROSS hilite
-      assertHilitedCells(6, [5,6,7,8,9]);     // Re-click cell with no DOWN word (should retain ACROSS hilite)
-      assertHilitedCells(0, [0,5,10,15,20]);  // DOWN hilite
-      assertHilitedCells(0, [0,5,10,15,20]);  // Re-click cell with no ACROSS word (should retain DOWN hilite)
+    test("Retains ACROSS or DOWN hilite if no DOWN or ACROSS alternative", function (assert) {
+        setBlocks([1, 11]);
+        $("#radio-2").prop("checked", true).change();
+        assertHilitedCells(6, [5, 6, 7, 8, 9]);     // ACROSS hilite
+        assertHilitedCells(6, [5, 6, 7, 8, 9]);     // Re-click cell with no DOWN word (should retain ACROSS hilite)
+        assertHilitedCells(0, [0, 5, 10, 15, 20]);  // DOWN hilite
+        assertHilitedCells(0, [0, 5, 10, 15, 20]);  // Re-click cell with no ACROSS word (should retain DOWN hilite)
     });
     test('Hilites 1st ACROSS clue in an unblocked grid on switch to clue edit mode', function (assert) {
         new XWordEditor({id: null, size: 5});
         $("#radio-2").prop("checked", true).change();
-        let hilitedCells = getGridCells().slice(0,5);
+        let hilitedCells = getGridCells().slice(0, 5);
         assert.true($(hilitedCells).hasClass("xw-hilite"));
     });
-    test("Hilites 1st ACROSS word in a new blocked grid on switch to clue edit mode", function(assert) {
+    test("Hilites 1st ACROSS word in a new blocked grid on switch to clue edit mode", function (assert) {
         new XWordEditor({id: null, size: 5});
-        setBlocks([0,2,4,5]);
+        setBlocks([0, 2, 4, 5]);
         $("#radio-2").prop("checked", true).change();
-        assertHilitedCells(null, [6,7,8,9]);
+        assertHilitedCells(null, [6, 7, 8, 9]);
     });
-    test("Hiliting a blank ACROSS & DOWN word initializes clue-form with clue ref", function(assert) {
+    test("Hiliting a blank ACROSS & DOWN word initializes clue-form with clue ref", function (assert) {
         new XWordEditor({id: null, size: 5});
-        setBlocks([0,2,4,5]);
+        setBlocks([0, 2, 4, 5]);
         $("#radio-2").prop("checked", true).change();
-        assertHilitedCells(15, [15,16,17,18]);
+        assertHilitedCells(15, [15, 16, 17, 18]);
         assertClueFormFields("#7 Across (4)", "", "", "");
-        assertHilitedCells(15, [10,15]);
+        assertHilitedCells(15, [10, 15]);
         assertClueFormFields("#6 Down (2)", "", "", "");
     });
-    test("Hilites first INCOMPLETE ACROSS word in grid on switch to clue edit mode", function(assert) {
+    test("Hilites first INCOMPLETE ACROSS word in grid on switch to clue edit mode", function (assert) {
         let radioBtn1 = $("#radio-1"), radioBtn2 = $("#radio-2");
         radioBtn2.prop("checked", true).change();
         doClueFormInput("FIRST", "Clue 1A");  // 1A is complete
@@ -990,23 +1020,23 @@
         doClueFormInput("THIRD", "");               // 7A is incomplete
         radioBtn1.prop("checked", true).change();   // Switch to Block edit mode
         radioBtn2.prop("checked", true).change();   // Switch to Clue edit mode
-        assertHilitedCells(null, [10,11,12,13,14]);  // 7A should be hilited (first incomplete)
+        assertHilitedCells(null, [10, 11, 12, 13, 14]);  // 7A should be hilited (first incomplete)
         assertClueFormFields("#7 Across (5)", "THIRD", "", "");
     });
-    test("Hilites the next incomplete word and updates clue form after word/clue is added", function(assert) {
+    test("Hilites the next incomplete word and updates clue form after word/clue is added", function (assert) {
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("FIRST", "");
         assertClueFormFields("#6 Across (5)", "", "", "");
-        assertHilitedCells(null,[5,6,7,8,9]);
+        assertHilitedCells(null, [5, 6, 7, 8, 9]);
     });
-    test("Hilites the next incomplete word of same type (ACROSS or DOWN)", function(assert) {
+    test("Hilites the next incomplete word of same type (ACROSS or DOWN)", function (assert) {
         $("#radio-2").prop("checked", true).change();
         clickOnCell(0);                 // 1 DOWN hilited
         doClueFormInput("FIRST", "");   // 1 DOWN word
         assertClueFormFields("#2 Down (5)", "", "", "");  // 2 DOWN hitlited
-        assertHilitedCells(null,[1,6,11,16,21]);
+        assertHilitedCells(null, [1, 6, 11, 16, 21]);
     });
-    test("Hilites first down word if no incomplete ACROSS words exist", function(assert) {
+    test("Hilites first down word if no incomplete ACROSS words exist", function (assert) {
         let radioBtn1 = $("#radio-1"), radioBtn2 = $("#radio-2");
         radioBtn2.prop("checked", true).change();
         doClueFormInput("FIRST", "Clue 1A");
@@ -1016,7 +1046,7 @@
         doClueFormInput("FIFTH", "Clue 9A");
         radioBtn1.prop("checked", true).change();   // Switch to Block edit mode
         radioBtn2.prop("checked", true).change();   // Switch to Clue edit mode
-        assertHilitedCells(null, [0,5,10,15,20]);   // 1D should be hilited (first incomplete)
+        assertHilitedCells(null, [0, 5, 10, 15, 20]);   // 1D should be hilited (first incomplete)
         assertClueFormFields("#1 Down (5)", "FSTFF", "", "");
     });
 
@@ -1053,12 +1083,12 @@
     test('Sets dataSaved to true after data is restored', function (assert) {
         var gridSize = 5, blockStr = "";
         var puzzleData = {
-            id: 10, size: gridSize, data:{blocks: blockStr, across:{0:{word:"ABCDE", clue:""}}, down:{}}
+            id: 10, size: gridSize, data: {blocks: blockStr, across: {0: {word: "ABCDE", clue: ""}}, down: {}}
         }
         controller = new XWordEditor(puzzleData);
         assert.true(controller.view.dataSaved);
-     });
-    test("Sets dataSaved to false after deleting word/clue", function(assert) {
+    });
+    test("Sets dataSaved to false after deleting word/clue", function (assert) {
         $("#radio-2").prop("checked", true).change();
         doClueFormInput("ALTER", "across 1a");
         saveData({});

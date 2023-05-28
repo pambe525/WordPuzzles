@@ -46,12 +46,13 @@
                     <a class="ml-auto btn btn-primary py-1" href="{% url 'puzzle_score' object.id %}">SCORES</a>
                     <a class="ml-2 btn btn-dark py-1" id="id-done-btn" onclick="goBack()">BACK</a>
                 </div>
-                <a id="id-finish-later-btn" class="ml-auto btn btn-primary mt-2 py-1" onclick="goBack();">FINISH LATER</a>
+                <a id="id-finish-later-btn" class="ml-auto btn btn-primary mt-2 py-1" onclick="goBack();">FINISH
+                    LATER</a>
             {% endif %}
             {% if object.size != 0 and not object.is_published and request.user == object.editor %}
                 <div class="notetext pt-2">
                     NOTE: Publish your puzzle only after all clues are complete. Published puzzles cannot be edited
-                    and will be accessible to all puzzlers to solve.  Unpublish the puzzle to edit.
+                    and will be accessible to all puzzlers to solve. Unpublish the puzzle to edit.
                 </div>
             {% endif %}
             {% if object.size != 0 and object.is_published and request.user == object.editor %}
@@ -72,9 +73,12 @@
                 {% endif %}
                 <table id="id-clues-list" class="table table-sm">
                     <thead>
-                        <tr class="py-1">
-                            <th></th><th>#</th><th>Description</th><th>Pts</th>
-                        </tr>
+                    <tr class="py-1">
+                        <th></th>
+                        <th>#</th>
+                        <th>Description</th>
+                        <th>Pts</th>
+                    </tr>
                     </thead>
                     <tbody>
                     {% for clue in object.get_clues %}
@@ -89,26 +93,26 @@
                 </table>
 
                 <div class="modal" id="id-modal-answer-box" tabindex="-1" role="dialog" style="width:350px">
-                      <div class="modal-dialog" role="document">
-                          <div class="modal-content">
-                              <div class="modal-header">
-                                  <h4 class="modal-title"></h4>
-                                  <button type="button" class="close" data-dismiss="modal" title="Close">
-                                      <span aria-hidden="true">&times;</span>
-                                  </button>
-                              </div>
-                              <div class="modal-body">
-                                  <div id="id-clue-text"></div>
-                                  <div id="id-answer" class="mt-1"></div>
-                                  <div id="id-err-msg" class="mt-1 text-danger"></div>
-                              </div>
-                              <div class="modal-footer">
-                                  <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn">SUBMIT</button>
-                                  <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn">CLEAR</button>
-                                  <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn">REVEAL</button>
-                              </div>
-                          </div>
-                      </div>
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title"></h4>
+                                <button type="button" class="close" data-dismiss="modal" title="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="id-clue-text"></div>
+                                <div id="id-answer" class="mt-1"></div>
+                                <div id="id-err-msg" class="mt-1 text-danger"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn-sm btn-dark pt-0 pb-0" id="id-submit-btn">SUBMIT</button>
+                                <button class="btn-sm btn-dark pt-0 pb-0 ml-1" id="id-clear-btn">CLEAR</button>
+                                <button class="btn-sm btn-danger pt-0 pb-0 ml-auto" id="id-reveal-btn">REVEAL</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
         </div>
@@ -120,12 +124,15 @@
         var activeSession = {{ active_session | default_if_none:'null' | safe }};
 
         $.ajaxSetup({
-            data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
         });
 
         $(document).ready(function () {
-            try { new WordPuzzlePageView(clueSet, activeSession); }
-            catch(e) { alert(e); }
+            try {
+                new WordPuzzlePageView(clueSet, activeSession);
+            } catch (e) {
+                alert(e);
+            }
         })
     </script>
 {% endblock %}

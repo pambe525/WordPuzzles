@@ -7,9 +7,9 @@ class XWordGrid {
     down = {};
 
     constructor(puzzleData, clickHandler) {
-        if ( puzzleData.size !== undefined ) this.size = puzzleData.size;
+        if (puzzleData.size !== undefined) this.size = puzzleData.size;
         this._createGrid(clickHandler);
-        if ( puzzleData.data !== undefined ) {
+        if (puzzleData.data !== undefined) {
             this._loadBlocks(puzzleData.data.blocks);
             this._storeWordData(puzzleData.data);
         }
@@ -20,16 +20,17 @@ class XWordGrid {
     clearHilite() {
         $(this._getHilitedCells()).removeClass("xw-hilite");
     }
+
     getHilitedWordData() {
         let wordCells = this._getHilitedCells();
         let wordData = {};
         let clueNum = this._getHilitedClueNum();
         let isAcross = this._isHiliteAcross();
-        let clueType = ( isAcross ) ? "Across" : "Down";
+        let clueType = (isAcross) ? "Across" : "Down";
         let index = this._cellIndex(wordCells[0]);
         wordData.maxLength = wordCells.length;
         wordData.clueRef = "#" + clueNum + " " + clueType + " (" + wordData.maxLength + ")";
-        if ( isAcross ) {
+        if (isAcross) {
             wordData.clueWord = (this.across[index]) ? this.across[index].word : this._readGridWord(wordCells);
             wordData.clueText = (this.across[index]) ? this.across[index].clue : "";
         } else {
@@ -38,17 +39,20 @@ class XWordGrid {
         }
         return wordData;
     }
+
     getPuzzleHtml() {
         return this.jqGridObj;
     }
+
     getGridData() {
-        let gridData = {blocks:[], across:this.across, down:this.down};
+        let gridData = {blocks: [], across: this.across, down: this.down};
         let gridCells = this._getGridCells();
         for (let i = 0; i < gridCells.length; i++)
-            if ( this._isBlocked(gridCells[i]) ) gridData.blocks.push(i);
+            if (this._isBlocked(gridCells[i])) gridData.blocks.push(i);
         gridData.blocks = gridData.blocks.toString();
         return gridData;
     }
+
     getStatus() {
         let acrossClues = this._countTotalClues(true);
         let downClues = this._countTotalClues(false);
@@ -58,16 +62,20 @@ class XWordGrid {
         status += "DOWN: " + downDone + " of " + downClues;
         return status;
     }
+
     hasBlocks() {
         return (this.jqGridObj.find(".xw-block").length > 0);
     }
+
     hasClues() {
-        return ( Object.keys(this.across).length > 0 || Object.keys(this.down).length > 0 );
+        return (Object.keys(this.across).length > 0 || Object.keys(this.down).length > 0);
     }
+
     isComplete() {
         return (this._countDoneClues() === this._countTotalClues()) &&
             (this._countDoneClues(false) === this._countTotalClues(false));
     }
+
     hiliteNextIncomplete() {
         let numberedCells = $(this._getGridCells()).has(".xw-number");
         let currentClueNum = this._getHilitedClueNum();
@@ -78,6 +86,7 @@ class XWordGrid {
         this.clearHilite();
         if (cellsToHilite) $(cellsToHilite).addClass("xw-hilite");
     }
+
     removeHilitedWordData() {
         let hilitedCells = this._getHilitedCells();
         let isAcross = this._isHiliteAcross();
@@ -86,9 +95,9 @@ class XWordGrid {
             remove = true;
             letter = $(hilitedCells[i]).children(".xw-letter");
             letterIsInXWord = this._isInWord(hilitedCells[i], !isAcross);
-            if ( letterIsInXWord ) {
+            if (letterIsInXWord) {
                 xwordStartCell = this._getWordStartCell(hilitedCells[i], !isAcross);
-                if ( this._hasWord(xwordStartCell, !isAcross) ) remove = false;
+                if (this._hasWord(xwordStartCell, !isAcross)) remove = false;
             }
             if (remove) letter.removeClass("xw-red").empty();
             else letter.addClass("xw-red");
@@ -98,6 +107,7 @@ class XWordGrid {
         else delete this.down[cellIndex];
         this._setToolTip(hilitedCells[0]);
     }
+
     setHilitedWordData(wordData) {
         let word = wordData.word.toUpperCase().trim();
         let clue = wordData.clue.trim();
@@ -113,6 +123,7 @@ class XWordGrid {
         this._setToolTip(hilitedCells[0]);
         this._setLetterColors(hilitedCells, isAcross);
     }
+
     displayWordsInGrid() {
         let acrossKeys = Object.keys(this.across), word, index;
         let gridCells = this._getGridCells();
@@ -123,6 +134,7 @@ class XWordGrid {
                 $(gridCells[index++]).children(".xw-letter").text(word[i]);
         }
     }
+
     toggleBlock(cell) {
         if ($(cell).prop("tagName") !== "DIV") return false;
         let symmCell = this._getSymmCell(cell);
@@ -132,11 +144,12 @@ class XWordGrid {
         this._autonumberGrid();
         return true;
     }
+
     toggleHilite(cell) {
         if (this._isBlocked(cell)) return false;
         let isAcross = true;
         if ($(cell).hasClass("xw-hilite")) isAcross = !(this._isHiliteAcross());
-        if ( !this._isInWord(cell, isAcross) ) isAcross = !isAcross;
+        if (!this._isInWord(cell, isAcross)) isAcross = !isAcross;
         let wordCells = this._getWordCells(cell, isAcross);
         this.clearHilite();
         $(wordCells).addClass("xw-hilite");
@@ -147,15 +160,17 @@ class XWordGrid {
     _autonumberGrid() {
         this.jqGridObj.find(".xw-number").remove();
         let clueNum = 1, cell;
-        for (var i = 0; i < this.size*this.size; i++) {
+        for (var i = 0; i < this.size * this.size; i++) {
             cell = this._gridCell(i);
             if (this._isWordStart(cell) || this._isWordStart(cell, false))
                 this._setClueNum(cell, clueNum++);
         }
     }
+
     _cellIndex(cell) {
         return this.jqGridObj.children("div").index(cell);
     }
+
     _checkWordFit(word, hilitedCells, isAcross) {
         if (hilitedCells.length !== word.length)
             throw new Error("Word must be " + hilitedCells.length + " chars");
@@ -168,6 +183,7 @@ class XWordGrid {
                 throw new Error("Word conflicts with existing letters");
         }
     }
+
     _checkAndFixClue(word, clue) {
         clue.trim();
         var numbers = clue.match(/\(([^)]*)\)[^(]*$/);  // extracts numbers in parenthesis
@@ -180,6 +196,7 @@ class XWordGrid {
         }
         return clue;
     }
+
     _createGrid(clickHandler) {
         this.jqGridObj = $("<div></div>").addClass("xw-grid");
         let nCells = this.size * this.size, cellHtml = "";
@@ -191,17 +208,19 @@ class XWordGrid {
         $(this.jqGridObj).children("div").click(clickHandler)
             .children(".xw-letter").click(clickHandler);
     }
-    _countTotalClues(isAcross=true){
+
+    _countTotalClues(isAcross = true) {
         let numberedCells = $(this._getGridCells()).has(".xw-number");
         let count = 0, nextCellIsOpen, prevCellIsNotOpen;
         for (let i = 0; i < numberedCells.length; i++) {
             nextCellIsOpen = this._isNextOpen(numberedCells[i], isAcross);
             prevCellIsNotOpen = !this._isPrevOpen(numberedCells[i], isAcross);
-            if ( nextCellIsOpen && prevCellIsNotOpen ) count++;
+            if (nextCellIsOpen && prevCellIsNotOpen) count++;
         }
         return count;
     }
-    _countDoneClues(isAcross=true) {
+
+    _countDoneClues(isAcross = true) {
         let clues = (isAcross) ? this.across : this.down;
         let keys = Object.keys(clues);
         let count = 0;
@@ -209,23 +228,28 @@ class XWordGrid {
             if (clues[key].clue !== "") count++;
         return count;
     }
+
     _parseCellIndex(cellRef) {
-        if (typeof(cellRef) === "number") return cellRef;
+        if (typeof (cellRef) === "number") return cellRef;
         if (!cellRef.includes("-")) return parseInt(cellRef);
         let coord = cellRef.split("-");
-        return ( parseInt(coord[0])*this.size + parseInt(coord[1]) );
+        return (parseInt(coord[0]) * this.size + parseInt(coord[1]));
     }
+
     _getGridCells() {
         return this.jqGridObj.children("div");
     }
+
     _getHilitedCells() {
         return $(this._getGridCells()).filter(".xw-hilite");
     }
+
     _getHilitedClueNum() {
         let hilitedCells = this._getHilitedCells();
         return (hilitedCells.length === 0) ? 0 : parseInt($(hilitedCells[0]).children(".xw-number").text());
     }
-    _getNextIncompleteWord(currentClueNum, isAcross=true) {
+
+    _getNextIncompleteWord(currentClueNum, isAcross = true) {
         let numberedCells = $(this._getGridCells()).has(".xw-number");
         let hiliteCells, wordStartCell, nextNumberedCellIndex;
         for (let i = 0; i < numberedCells.length; i++) {
@@ -236,119 +260,139 @@ class XWordGrid {
         }
         return null;
     }
+
     _getSymmCell(cell) {
         let index = this._cellIndex(cell);
         let symmIndex = this.size * this.size - index - 1;
         return this._gridCell(symmIndex);
     }
-    _getToolTipText(wordStartCell, isAcross=true) {
+
+    _getToolTipText(wordStartCell, isAcross = true) {
         let label = (isAcross) ? "Across" : "Down";
         let clueNum = parseInt($(wordStartCell).children(".xw-number").text());
         let wordData = this._getWordData(wordStartCell, isAcross);
         return (wordData === null || wordData.clue === "") ? "" : (clueNum + " " + label + ": " + wordData.clue);
     }
-    _getWordCells(cell, isAcross=true) {
+
+    _getWordCells(cell, isAcross = true) {
         let isLoneCell = !this._isNextOpen(cell, isAcross) && !this._isPrevOpen(cell, isAcross);
         if (this._isBlocked(cell) || isLoneCell) return null;
         let gridCells = this._getGridCells();
         let wordStartIndex = this._cellIndex(this._getWordStartCell(cell, isAcross));
         let wordEndIndex = this._cellIndex(this._getWordEndCell(cell, isAcross));
-        let incr = (isAcross) ? 1: this.size;
+        let incr = (isAcross) ? 1 : this.size;
         let wordCells = $();
         for (let i = wordStartIndex; i <= wordEndIndex; i += incr)
             wordCells = wordCells.add(gridCells[i]);
         return wordCells;
     }
+
     _getWordData(wordStartCell, isAcross) {
         let cellIndex = this._cellIndex(wordStartCell), wordData;
-        if (isAcross) wordData = (this.across[cellIndex] === undefined) ?  null : this.across[cellIndex];
+        if (isAcross) wordData = (this.across[cellIndex] === undefined) ? null : this.across[cellIndex];
         else wordData = (this.down[cellIndex] === undefined) ? null : this.down[cellIndex];
         return wordData;
     }
-    _getWordEndCell(cell, isAcross=true) {
+
+    _getWordEndCell(cell, isAcross = true) {
         let gridCells = this._getGridCells();
         let cellIndex = this._cellIndex(cell);
         let incr = (isAcross) ? 1 : this.size;
         let currentCell = cell;
-        while ( this._isNextOpen(currentCell, isAcross) ) {
+        while (this._isNextOpen(currentCell, isAcross)) {
             currentCell = gridCells[cellIndex + incr];
             cellIndex = this._cellIndex(currentCell);
         }
         return currentCell;
     }
-    _getWordStartCell(cell, isAcross=true) {
+
+    _getWordStartCell(cell, isAcross = true) {
         let gridCells = this._getGridCells();
         let cellIndex = this._cellIndex(cell);
         let incr = (isAcross) ? 1 : this.size;
         let currentCell = cell;
-        while ( this._isPrevOpen(currentCell, isAcross) ) {
+        while (this._isPrevOpen(currentCell, isAcross)) {
             currentCell = gridCells[cellIndex - incr];
             cellIndex = this._cellIndex(currentCell);
         }
         return currentCell;
     }
+
     _gridCell(index) {
         return this._getGridCells()[index];
     }
+
     _hasLetter(cell) {
         return ($(cell).children(".xw-letter").text() !== "");
     }
-    _hasClue(wordStartCell, isAcross=true) {
+
+    _hasClue(wordStartCell, isAcross = true) {
         let hasClue;
         let cellIndex = this._cellIndex(wordStartCell);
         if (isAcross) hasClue = (this.across[cellIndex] !== undefined && this.across[cellIndex].clue !== "");
         else hasClue = (this.down[cellIndex] !== undefined && this.down[cellIndex].clue !== "");
         return hasClue;
     }
-    _hasWord(wordStartCell, isAcross=true) {
+
+    _hasWord(wordStartCell, isAcross = true) {
         let hasWord;
         let cellIndex = this._cellIndex(wordStartCell);
         if (isAcross) hasWord = (this.across[cellIndex] !== undefined && this.across[cellIndex].word !== "");
         else hasWord = (this.down[cellIndex] !== undefined && this.down[cellIndex].word !== "");
         return hasWord;
     }
+
     _isBlocked(cell) {
         return !!($(cell).hasClass("xw-block"));
     }
-    _isFirst(cellIndex, isAcross=true) {
-        if ( isAcross && (cellIndex % this.size) === 0 ) return true;
+
+    _isFirst(cellIndex, isAcross = true) {
+        if (isAcross && (cellIndex % this.size) === 0) return true;
         return !isAcross && (cellIndex < this.size);
     }
+
     _isHiliteAcross() {
         let hilitedCells = this._getHilitedCells();
         if (hilitedCells.length === 0) return null;
         let indexDiff = this._cellIndex(hilitedCells[1]) - this._cellIndex(hilitedCells[0]);
         return (indexDiff === 1);
     }
-    _isInWord(cell, isAcross=true) {
-       return ( this._isNextOpen(cell, isAcross) || this._isPrevOpen(cell, isAcross) );
+
+    _isInWord(cell, isAcross = true) {
+        return (this._isNextOpen(cell, isAcross) || this._isPrevOpen(cell, isAcross));
     }
-    _isLast(cellIndex, isAcross=true) {
-        if ( isAcross && (cellIndex + 1) % this.size === 0 ) return true;
+
+    _isLast(cellIndex, isAcross = true) {
+        if (isAcross && (cellIndex + 1) % this.size === 0) return true;
         return !isAcross && (cellIndex + this.size) >= this.size * this.size;
     }
-    _isNextOpen(cell, isAcross=true) {
-        let cellIndex = this._cellIndex(cell) ;
-        if ( this._isLast(cellIndex, isAcross) ) return false;
+
+    _isNextOpen(cell, isAcross = true) {
+        let cellIndex = this._cellIndex(cell);
+        if (this._isLast(cellIndex, isAcross)) return false;
         let nextCellIndex = (isAcross) ? cellIndex + 1 : cellIndex + this.size;
         return !this._isBlocked(this._gridCell(nextCellIndex));
     }
-    _isPrevOpen(cell, isAcross=true) {
-        let cellIndex = this._cellIndex(cell) ;
-        if ( this._isFirst(cellIndex, isAcross) ) return false;
+
+    _isPrevOpen(cell, isAcross = true) {
+        let cellIndex = this._cellIndex(cell);
+        if (this._isFirst(cellIndex, isAcross)) return false;
         let prevCellIndex = (isAcross) ? cellIndex - 1 : cellIndex - this.size;
         return !this._isBlocked(this._gridCell(prevCellIndex));
     }
-    _isWordStart(cell, isAcross=true) {
+
+    _isWordStart(cell, isAcross = true) {
         if (this._isBlocked(cell)) return false;
         return !(!this._isNextOpen(cell, isAcross) || this._isPrevOpen(cell, isAcross));
     }
+
     _loadBlocks(blocks) {
         let blockedIndices = blocks.split(",");
         let gridCells = this._getGridCells();
         for (var i = 0; i < blockedIndices.length; i++)
             $(gridCells[parseInt(blockedIndices[i])]).addClass("xw-block");
     }
+
     _readGridWord(wordCells) {
         let word = "", letter;
         for (let i = 0; i < wordCells.length; i++) {
@@ -357,17 +401,20 @@ class XWordGrid {
         }
         return (word.length !== wordCells.length) ? "" : word;
     }
+
     _setClueNum(cell, clueNum) {
         let span = $("<span></span>").addClass("xw-number").text(clueNum);
         $(cell).append(span);
     }
+
     _setToolTip(wordStartCell) {
         let acrossToolTip = this._getToolTipText(wordStartCell);
         let downToolTip = this._getToolTipText(wordStartCell, false);
         let wordBreak = (acrossToolTip !== "" && downToolTip !== "") ? "\n" : "";
         $(wordStartCell).prop("title", acrossToolTip + wordBreak + downToolTip);
     }
-    _setLetterColors(wordCells, isAcross=true){
+
+    _setLetterColors(wordCells, isAcross = true) {
         let wordHasClue = this._hasClue(wordCells[0], isAcross);
         let letterIsInXWord, xwordStartCell, letter, isRed;
         if (!wordHasClue) $(wordCells).children(".xw-letter").addClass("xw-red");
@@ -376,14 +423,15 @@ class XWordGrid {
                 isRed = false;
                 letter = $(wordCells[i]).children(".xw-letter");
                 letterIsInXWord = this._isInWord(wordCells[i], !isAcross);
-                if ( letterIsInXWord ) {
+                if (letterIsInXWord) {
                     xwordStartCell = this._getWordStartCell(wordCells[i], !isAcross);
-                    if ( !this._hasClue(xwordStartCell, !isAcross) ) isRed = true;
+                    if (!this._hasClue(xwordStartCell, !isAcross)) isRed = true;
                 }
                 (isRed) ? letter.addClass("xw-red") : letter.removeClass("xw-red");
             }
         }
     }
+
     _storeWordData(data) {
         let acrossKeys = (data.across) ? Object.keys(data.across) : [];
         let downKeys = (data.down) ? Object.keys(data.down) : [];
@@ -392,8 +440,9 @@ class XWordGrid {
         for (const key of downKeys)
             this.down[this._parseCellIndex(key)] = data.down[key];
     }
+
     _toggleCellBlock(cell) {
-        if ( $(cell).hasClass("xw-block") ) $(cell).removeClass("xw-block");
+        if ($(cell).hasClass("xw-block")) $(cell).removeClass("xw-block");
         else $(cell).addClass("xw-block");
     }
 }

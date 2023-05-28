@@ -1,13 +1,13 @@
 class XWordEditor {
 
     _sizeOptions = {5: "5x5", 7: "7x7", 9: "9x9", 11: "11x11", 13: "13x13", 15: "15x15", 17: "17x17"};
-    _labels = {size:"Grid Size", radio1:"Blocks", radio2:"Clues"};
+    _labels = {size: "Grid Size", radio1: "Blocks", radio2: "Clues"};
 
     view = null;        // type: EditPuzzleView
     xwordGrid = null;   // type: XWordGrid
 
     constructor(puzzleData) {
-        if ( !puzzleData ) throw new Error("Puzzle data is required");
+        if (!puzzleData) throw new Error("Puzzle data is required");
         this.view = new EditPuzzleView(puzzleData);
         this.view.setUILabels(this._labels);
         this.view.bindHandlers(this);
@@ -24,30 +24,31 @@ class XWordEditor {
             if (this.xwordGrid.isComplete()) {
                 this.view.disablePublish(false);
                 this.view.hideClueForm();
-            } else this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
-            this.view.setStatus( this.xwordGrid.getStatus() );
+            } else this.view.setClueForm(this.xwordGrid.getHilitedWordData());
+            this.view.setStatus(this.xwordGrid.getStatus());
             this.view.dataChanged();
+        } catch (e) {
+            this.view.setClueMsg(e.message);
         }
-        catch(e) { this.view.setClueMsg(e.message); }
     }
     onClueDeleteClick = () => {
         this.xwordGrid.removeHilitedWordData();
-        this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
-        this.view.setStatus( this.xwordGrid.getStatus() );
+        this.view.setClueForm(this.xwordGrid.getHilitedWordData());
+        this.view.setStatus(this.xwordGrid.getStatus());
         this.view.dataChanged();
     }
     onGridCellClick = (event) => {
-        if ( this.view.isPublished() ) return;
+        if (this.view.isPublished()) return;
         let cell = event.target;
-        if ( this.view.getActiveSwitchLabel() === "Blocks" ) {
-            if ( this.xwordGrid.toggleBlock(cell) ) {
+        if (this.view.getActiveSwitchLabel() === "Blocks") {
+            if (this.xwordGrid.toggleBlock(cell)) {
                 this.view.dataChanged();
-                this.view.setStatus( this.xwordGrid.getStatus() );
+                this.view.setStatus(this.xwordGrid.getStatus());
             }
         } else {
             this.xwordGrid.toggleHilite(cell);
             this.view.hideClueForm(false);
-            this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
+            this.view.setClueForm(this.xwordGrid.getHilitedWordData());
         }
     }
     onSaveClick = () => {
@@ -57,7 +58,7 @@ class XWordEditor {
     onSizeChange = () => {
         let response = true;
         if (this.xwordGrid.hasBlocks()) response = confirm("All changes to grid will be cleared");
-        if (response) this._setupNewGrid({size:this.view.getSizeSelection()});
+        if (response) this._setupNewGrid({size: this.view.getSizeSelection()});
         else this.view.setSize(this.xwordGrid.size);
     }
     onSwitchChange = () => {
@@ -66,10 +67,10 @@ class XWordEditor {
             this.view.hideClueForm();
             this.xwordGrid.clearHilite();
         } else {
-            if ( !this.xwordGrid.isComplete() ) {
+            if (!this.xwordGrid.isComplete()) {
                 this.view.hideClueForm(false);
                 this.xwordGrid.hiliteNextIncomplete();
-                this.view.setClueForm( this.xwordGrid.getHilitedWordData() );
+                this.view.setClueForm(this.xwordGrid.getHilitedWordData());
             } else {
                 this.view.hideClueForm();
                 this.view.disablePublish(false);
@@ -81,14 +82,13 @@ class XWordEditor {
     _setupNewGrid(puzzleData) {
         this.xwordGrid = new XWordGrid(puzzleData, this.onGridCellClick);
         this.view.setPuzzleContent(this.xwordGrid.getPuzzleHtml());
-        if ( this.xwordGrid.hasClues() ) {
+        if (this.xwordGrid.hasClues()) {
             this.xwordGrid.displayWordsInGrid();
             if (this.view.isPublished()) this.view.setPublishedState();
             else this.view.selectSwitchLabel("Clues");
-        }
-        else this.view.selectSwitchLabel("Blocks");
+        } else this.view.selectSwitchLabel("Blocks");
         if (puzzleData.data === undefined) this.view.dataChanged();
-        this.view.setStatus( this.xwordGrid.getStatus() );
+        this.view.setStatus(this.xwordGrid.getStatus());
     }
 }
 

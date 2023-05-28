@@ -44,6 +44,7 @@ class SingletonWebDriver(object):
             self.active_webdriver.quit()
             self.active_webdriver = None
 
+
 @atexit.register
 def cleanup_driver():
     driver = SingletonWebDriver().active_webdriver

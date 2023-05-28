@@ -1,5 +1,3 @@
-import time
-
 from testing.data_setup_utils import create_user, create_published_puzzle, create_session
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
@@ -33,7 +31,7 @@ class PuzzleScoreTests(BaseSeleniumTestCase):
         self.assert_not_exists("//div[contains(@class,'notetext')]")
         self.assert_text_equals("//table/thead/tr", "Puzzler Progress Score [Time]")
         for index, session in enumerate(sessions):
-            self.assert_text_equals("//table/tbody/tr/td[1]", str(session.solver), index=index*2)
+            self.assert_text_equals("//table/tbody/tr/td[1]", str(session.solver), index=index * 2)
             score_time = str(session.score) + " [" + elapsed_time[index] + "]"
             self.assert_text_equals("//table/tbody/tr/td[3]", score_time, index=index)
             solved_width = self.get_element("//div[@title='Solved']", index=index).get_attribute('style')

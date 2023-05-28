@@ -21,7 +21,7 @@ class Puzzle {
     constructor(arg) {
         if (this.constructor.name === "Puzzle") throw new Error("Abstract Class Puzzle cannot be instantiated");
         if (!arg) throw new Error("No argument specified on Puzzle");
-        if (typeof(arg) !== 'object') this.size = arg;
+        if (typeof (arg) !== 'object') this.size = arg;
         else {
             this.puzzleData = arg;
             this.size = this.puzzleData['size'];
@@ -34,7 +34,7 @@ class Puzzle {
      */
 
     show(divId) {
-        this.divId = "#"+divId;
+        this.divId = "#" + divId;
         $(this.divId).empty();
         this._setHtmlOnPuzzleDiv();
         if (this.puzzleData) this._loadPuzzleData();
@@ -45,7 +45,7 @@ class Puzzle {
         throw new Error("Puzzle.isReady method must be implemented by derived class");
     }
 
-    setSharingOn(turnOn=true) {
+    setSharingOn(turnOn = true) {
         if (turnOn) this.sharedAt = new Date().toISOString();
         else this.sharedAt = null;
     }
@@ -58,7 +58,7 @@ class Puzzle {
         $.ajax({
             method: "POST",
             dataType: "json",
-            data: {'action':'save', 'data': JSON.stringify(puzzle_data)},
+            data: {'action': 'save', 'data': JSON.stringify(puzzle_data)},
             success: this._saveSucceeded,
             error: this._saveFailed,
         })
@@ -72,10 +72,10 @@ class Puzzle {
             success: this._deleteSucceeded,
             error: this._deleteFailed,
         })
-     }
+    }
 
     setShared(isShared) {
-        if ( isShared ) this.sharedAt = new Date().toUTCString();
+        if (isShared) this.sharedAt = new Date().toUTCString();
         else this.sharedAt = null;
     }
 

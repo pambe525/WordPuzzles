@@ -119,8 +119,8 @@ class PuzzlesListTests(BaseSeleniumTestCase):
     def test_puzzles_shows_rounded_badge_containing_session_count(self):
         user2 = create_user(username="user2")
         user3 = create_user(username="user3")
-        puzzle1 = create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1,2,2])
-        puzzle2 = create_published_puzzle(editor=user3, desc="Daily Puzzle 2", clues_pts=[1,1])
+        puzzle1 = create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1, 2, 2])
+        puzzle2 = create_published_puzzle(editor=user3, desc="Daily Puzzle 2", clues_pts=[1, 1])
         create_session(solver=self.user, puzzle=puzzle2)
         create_session(solver=user2, puzzle=puzzle2)
         self.get('/puzzles_list')
@@ -130,7 +130,7 @@ class PuzzlesListTests(BaseSeleniumTestCase):
 
     def test_puzzle_shows_no_flag_if_current_user_session_has_no_session(self):
         other_user = create_user(username="other_user")
-        puzzle = create_published_puzzle(editor=self.user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        puzzle = create_published_puzzle(editor=self.user, desc="Daily Puzzle 1", clues_pts=[1, 2, 2])
         create_session(solver=other_user, puzzle=puzzle)
         self.get('/puzzles_list')
         self.assert_not_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag')]")
@@ -138,7 +138,7 @@ class PuzzlesListTests(BaseSeleniumTestCase):
 
     def test_puzzle_shows_red_flag_if_current_user_session_has_incomplete_session(self):
         other_user = create_user(username="other_user")
-        puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1, 2, 2])
         create_session(solver=self.user, puzzle=puzzle)
         self.get('/puzzles_list')
         self.assert_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag text-danger')]")
@@ -146,7 +146,7 @@ class PuzzlesListTests(BaseSeleniumTestCase):
 
     def test_puzzle_shows_green_flag_if_current_user_session_has_complete_session(self):
         other_user = create_user(username="other_user")
-        puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1,2,2])
+        puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1, 2, 2])
         create_session(solver=self.user, puzzle=puzzle, solved_clues='1,2,3')
         self.get('/puzzles_list')
         self.assert_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag text-success')]")

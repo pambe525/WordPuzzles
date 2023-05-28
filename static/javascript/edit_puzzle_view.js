@@ -15,12 +15,12 @@ class EditPuzzleView {
 
     //==> CONSTRUCTOR
     constructor(puzzleData) {
-        if ( puzzleData.id ) this.id = puzzleData.id;
+        if (puzzleData.id) this.id = puzzleData.id;
         if (this.id > 0) $(this.ID.jqDesc).text(puzzleData.desc);
         if (puzzleData.shared_at) this.sharedAt = puzzleData.shared_at;
         $(this.ID.jqSaveOkIcon).hide();
         this._hideUnpublish();
-        $(this.ID.jqTitle).text( this._buildTitle() );
+        $(this.ID.jqTitle).text(this._buildTitle());
         (!this.id) ? this._disableDelete() : this._disableDelete(false);
         this.disablePublish();
         this._setClueFormTabIndex();
@@ -41,47 +41,57 @@ class EditPuzzleView {
         $(this.ID.jqClueText).keypress(this._onEnterKey);
         $(window).on('beforeunload', this._onBeforeUnload);
     }
+
     dataChanged = () => {
         this.dataSaved = false;
     }
-    disablePublish(disable=true) {
+
+    disablePublish(disable = true) {
         $(this.ID.jqPublishBtn).prop("disabled", disable);
     }
+
     getActiveSwitchLabel() {
-        if ( $("input[name='switch']:checked").val() === "radio-1" ) return $(this.ID.jqRadio1Label).text();
+        if ($("input[name='switch']:checked").val() === "radio-1") return $(this.ID.jqRadio1Label).text();
         else return $(this.ID.jqRadio2Label).text();
     }
+
     getClueFormInput() {
         let formData = {}
         formData.word = $(this.ID.jqClueWord).val();
         formData.clue = $(this.ID.jqClueText).val();
         return formData;
     }
+
     getSizeSelection() {
         return parseInt($(this.ID.jqSizeSelect).val());
     }
-    hideClueForm(hide=true) {
+
+    hideClueForm(hide = true) {
         if (hide) $(this.ID.jqClueForm).hide();
         else $(this.ID.jqClueForm).show();
     }
+
     isPublished() {
         return (this.sharedAt !== null);
     }
+
     save(puzzleData) {
         let fullDataObj = this._getData();
         fullDataObj["data"] = puzzleData;
         $.ajax({
             method: "POST",
             dataType: "json",
-            data: { 'action':'save', 'data': JSON.stringify(fullDataObj) },
+            data: {'action': 'save', 'data': JSON.stringify(fullDataObj)},
             success: this._onSaveSuccess,
             error: this._onServerError,
         });
     }
+
     selectSwitchLabel(label) {
-        if ( $(this.ID.jqRadio1Label).text() === label ) $(this.ID.jqRadio1).prop("checked", true).change();
+        if ($(this.ID.jqRadio1Label).text() === label) $(this.ID.jqRadio1).prop("checked", true).change();
         else $(this.ID.jqRadio2).prop("checked", true).change();
     }
+
     setClueForm(formFields) {
         $(this.ID.jqClueRef).text(formFields.clueRef);
         $(this.ID.jqClueWord).val(formFields.clueWord);
@@ -90,30 +100,37 @@ class EditPuzzleView {
         $(this.ID.jqClueMsg).text("");
         (formFields.clueWord === "") ? $(this.ID.jqClueWord).focus() : $(this.ID.jqClueText).focus()
     }
+
     setClueMsg(message) {
         $(this.ID.jqClueMsg).text(message);
     }
+
     setPublishedState() {
         this._hideUnpublish(false);
         this.hideClueForm();
         $(this.ID.jqNavbar).hide();
     }
+
     setPuzzleContent(puzzleHtml) {
         $(this.ID.jqPuzzleDiv).empty();
         $(this.ID.jqPuzzleDiv).append(puzzleHtml);
     }
+
     setSize(value) {
         $(this.ID.jqSizeSelect).val(value);
     }
+
     setSizeSelector(sizeOptions, defaultVal) {
-        Object.keys(sizeOptions).forEach (key => {
+        Object.keys(sizeOptions).forEach(key => {
             $(this.ID.jqSizeSelect).append($("<option></option>").val(key).text(sizeOptions[key]));
         });
         $(this.ID.jqSizeSelect).val(defaultVal);
     }
+
     setStatus(statusText) {
         $(this.ID.jqStatus).text(statusText);
     }
+
     setUILabels(labels) {
         $(this.ID.jqSizeLabel).text(labels.size);
         $(this.ID.jqRadio1Label).text(labels.radio1);
@@ -121,32 +138,40 @@ class EditPuzzleView {
     }
 
     //==> PRIVATE METHODS
-    _buildTitle(){
+    _buildTitle() {
         return (!this.id) ? "New Crossword" : "Edit Crossword #" + this.id;
     }
-    _disableDelete(disable=true) {
+
+    _disableDelete(disable = true) {
         $(this.ID.jqDeleteBtn).prop("disabled", disable);
     }
+
     _getData() {
-        return {is_xword: this.isXWord, id: this.id, size: parseInt($(this.ID.jqSizeSelect).val()),
-                desc: $(this.ID.jqDesc).text(), shared_at: this.sharedAt, data:{}};
+        return {
+            is_xword: this.isXWord, id: this.id, size: parseInt($(this.ID.jqSizeSelect).val()),
+            desc: $(this.ID.jqDesc).text(), shared_at: this.sharedAt, data: {}
+        };
     }
+
     _hideSaveOKIcon = () => {
         $(this.ID.jqSaveOkIcon).fadeOut(3000);
     }
-    _hideUnpublish(hide=true) {
+
+    _hideUnpublish(hide = true) {
         if (hide) {
             $(this.ID.jqUnpublishBtn).hide();
             $(this.ID.jqPublishBtn).show();
         } else {
-             $(this.ID.jqUnpublishBtn).show();
+            $(this.ID.jqUnpublishBtn).show();
             $(this.ID.jqPublishBtn).hide();
         }
     }
+
     _setClueFormTabIndex() {
         $(this.ID.jqClueWord).attr('tabindex', 1);
         $(this.ID.jqClueText).attr('tabindex', 2);
     }
+
     _showSaveOKIcon() {
         $(this.ID.jqSaveOkIcon).show(400, this._hideSaveOKIcon);
     }
@@ -156,10 +181,10 @@ class EditPuzzleView {
         if (this.dataSaved) return;
         return "";
     }
-    _onDeleteClick = () =>{
+    _onDeleteClick = () => {
         var msg = "All saved data will be permanently deleted.";
         var response = confirm(msg);
-        if ( !response ) return;
+        if (!response) return;
         $.ajax({
             method: "POST",
             dataType: "json",

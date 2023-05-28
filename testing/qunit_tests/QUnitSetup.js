@@ -1,4 +1,4 @@
-const { test } = QUnit;
+const {test} = QUnit;
 QUnit.config.autostart = true;
 QUnit.config.collapse = false;
 QUnit.config.hidepassed = true;
@@ -46,11 +46,11 @@ window.confirm = function (message) {
     return confirmResponse;
 }
 
-window.alert = function(message) {
+window.alert = function (message) {
     alertMessage = message;
 }
 
-$.ajax = function(settings) {
+$.ajax = function (settings) {
     ajaxSettings = settings;
 }
 

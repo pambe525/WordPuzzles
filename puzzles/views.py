@@ -8,7 +8,6 @@ from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
-
 from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm
 from puzzles.models import WordPuzzle, Clue, PuzzleSession
 

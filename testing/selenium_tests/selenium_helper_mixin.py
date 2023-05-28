@@ -13,11 +13,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
-
-import datetime
-from datetime import datetime
-
-
 from testing.selenium_tests.singleton_webdriver import SingletonWebDriver
 
 
@@ -136,7 +131,6 @@ class HelperMixin:
 
 # Parent class from which all selenium test cases will be derived
 class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
-
     SPAN_USERNAME = "//span[contains(@class,'current-user')]"
     NAV_MENU = "//nav[contains(@class,'navbar')]"
     MENU_TOGGLE = "//a[contains(@class,'menu-toggle-button')]"
@@ -177,6 +171,6 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
 
     @staticmethod
     def utc_to_local(utc_datetime):
-        dt_format = '%-m/%-d/%Y, %-H:%M:%S %p'
+        if os.name == "nt": dt_format = '%#m/%#d/%Y, %#H:%M:%S %p'
+        else: dt_format = '%-m/%-d/%Y, %-H:%M:%S %p'
         return utc_datetime.astimezone().strftime(dt_format)
-

@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('puzzles', '0004_rename_reveal_clue_nums_session_revealed_clue_nums'),
     ]

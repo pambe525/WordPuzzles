@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
-from django.utils.timezone import now
 from django.db.utils import IntegrityError
+from django.utils.timezone import now
 
 
 def get_name(self):
@@ -11,9 +11,11 @@ def get_name(self):
     else:
         return self.username
 
+
 def utc_date_to_local_format(utc_date):
     dt_format = '%b %d, %Y at %H:%M:%S'
     return utc_date.astimezone().strftime(dt_format)
+
 
 User.add_to_class("__str__", get_name)
 
@@ -58,7 +60,7 @@ class WordPuzzle(models.Model):
         query_set = WordPuzzle.objects.filter(editor=current_user_id, shared_at=None).order_by('-modified_at')
         draft_puzzle_list = []
         for puzzle in query_set:
-            puzzle_dict = {}.fromkeys(['id','title','type','type_text','utc_modified_at'])
+            puzzle_dict = {}.fromkeys(['id', 'title', 'type', 'type_text', 'utc_modified_at'])
             puzzle_dict['id'] = puzzle.id
             puzzle_dict['title'] = str(puzzle)
             puzzle_dict['type'] = puzzle.type
@@ -116,6 +118,7 @@ class WordPuzzle(models.Model):
 
     def is_published(self):
         return self.shared_at is not None
+
 
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]

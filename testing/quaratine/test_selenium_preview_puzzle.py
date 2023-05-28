@@ -1,9 +1,7 @@
-from selenium.webdriver.support.wait import WebDriverWait
-
 from puzzles.models import WordPuzzle
 from testing.data_setup_utils import create_draft_puzzle, create_published_puzzle, create_user
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
-from selenium.webdriver.support import expected_conditions as EC
+
 
 class PreviewPuzzleTests(BaseSeleniumTestCase):
 
@@ -18,10 +16,10 @@ class PreviewPuzzleTests(BaseSeleniumTestCase):
         self.assert_text_equals("//h2", "Preview Puzzle & Publish")
         self.assert_text_equals("//h4", str(puzzle))
         self.assert_not_exists("//h6[@id='id-posted-by']")  # No Posted by (since it is draft)
-        self.assert_not_exists("//h6[@id='id-desc']")       # No description
-        self.assert_not_exists("//a[text()='PUBLISH']")     # No Publish button
-        self.assert_not_exists("//a[text()='UNPUBLISH']")   # No Unpublish button
-        self.assert_not_exists("//a[text()='SOLVE NOW']")   # No Solve button
+        self.assert_not_exists("//h6[@id='id-desc']")  # No description
+        self.assert_not_exists("//a[text()='PUBLISH']")  # No Publish button
+        self.assert_not_exists("//a[text()='UNPUBLISH']")  # No Unpublish button
+        self.assert_not_exists("//a[text()='SOLVE NOW']")  # No Solve button
         self.assert_text_equals("//div[contains(@class,'notetext')]", "No clues exist.")
         self.assert_item_count("//div[contains(@class,'notetext')]", 1)
         self.do_click("//a[text()='BACK']")
@@ -58,11 +56,11 @@ class PreviewPuzzleTests(BaseSeleniumTestCase):
         self.assert_not_exists("//div[contains(text(),'Click on a clue below')]")
         for index, clue in enumerate(puzzle.get_clues()):
             tr_xpath = "//table/tbody/tr/"
-            self.assert_text_equals(tr_xpath+"td[1]", "", index)
-            self.assert_text_equals(tr_xpath+"td[2]", str(clue.clue_num) + ".", index)
-            self.assert_text_equals(tr_xpath+"td[3]/div[1]", clue.get_decorated_clue_text(), index)
-            self.assert_text_equals(tr_xpath+"td[4]", str(clue.points), index)
-            self.assert_text_equals(tr_xpath+"td[3]/div[2]", "["+clue.parsing+"]", index)
+            self.assert_text_equals(tr_xpath + "td[1]", "", index)
+            self.assert_text_equals(tr_xpath + "td[2]", str(clue.clue_num) + ".", index)
+            self.assert_text_equals(tr_xpath + "td[3]/div[1]", clue.get_decorated_clue_text(), index)
+            self.assert_text_equals(tr_xpath + "td[4]", str(clue.points), index)
+            self.assert_text_equals(tr_xpath + "td[3]/div[2]", "[" + clue.parsing + "]", index)
             self.assert_attribute_equals(tr_xpath + "td[3]/input", clue.answer, index)
 
     def test_draft_puzzle_preview_clues_are_not_clickable(self):
@@ -70,7 +68,7 @@ class PreviewPuzzleTests(BaseSeleniumTestCase):
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         for index, clue in enumerate(puzzle.get_clues()):
             tr_xpath = "//table/tbody/tr/"
-            element = self.get_element(tr_xpath+"td[3]", index)
+            element = self.get_element(tr_xpath + "td[3]", index)
             self.assertIsNone(element.get_attribute('onclick'))
 
     def test_draft_puzzle_preview_shows_error_for_non_editor(self):
@@ -113,19 +111,19 @@ class PreviewPuzzleTests(BaseSeleniumTestCase):
         self.assert_not_exists("//div[contains(text(),'Click on a clue below')]")
         for index, clue in enumerate(puzzle.get_clues()):
             tr_xpath = "//table/tbody/tr/"
-            self.assert_text_equals(tr_xpath+"td[1]", "", index)
-            self.assert_text_equals(tr_xpath+"td[2]", str(clue.clue_num) + ".", index)
-            self.assert_text_equals(tr_xpath+"td[3]/div[1]", clue.get_decorated_clue_text(), index)
-            self.assert_exists(tr_xpath+"td[4]/i[@class='fa fa-eye-slash']")
-            self.assert_not_exists(tr_xpath+"td[3]/div[2]")
-            self.assert_not_exists(tr_xpath+"td[3]/input")
+            self.assert_text_equals(tr_xpath + "td[1]", "", index)
+            self.assert_text_equals(tr_xpath + "td[2]", str(clue.clue_num) + ".", index)
+            self.assert_text_equals(tr_xpath + "td[3]/div[1]", clue.get_decorated_clue_text(), index)
+            self.assert_exists(tr_xpath + "td[4]/i[@class='fa fa-eye-slash']")
+            self.assert_not_exists(tr_xpath + "td[3]/div[2]")
+            self.assert_not_exists(tr_xpath + "td[3]/input")
 
     def test_published_puzzle_preview_clues_are_not_clickable_by_non_editor(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 1, 4])
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         for index, clue in enumerate(puzzle.get_clues()):
             tr_xpath = "//table/tbody/tr/"
-            element = self.get_element(tr_xpath+"td[3]", index)
+            element = self.get_element(tr_xpath + "td[3]", index)
             self.assertIsNone(element.get_attribute('onclick'))
 
     def test_solve_button_starts_solve_session(self):
@@ -135,29 +133,29 @@ class PreviewPuzzleTests(BaseSeleniumTestCase):
         self.assert_text_equals("//h2", "Solve Puzzle")
         self.verify_button_states_for_solve_mode()
 
-    #==================================================================================================================
+    # ==================================================================================================================
     # HELPER METHODS
     def verify_button_states_for_solve_mode(self):
-        self.assert_not_exists("//a[text()='PUBLISH']")    # No PUBLISH button
+        self.assert_not_exists("//a[text()='PUBLISH']")  # No PUBLISH button
         self.assert_not_exists("//a[text()='UNPUBLISH']")  # No UNPUBLISH button
         self.assert_not_exists("//a[text()='SOLVE NOW']")  # No SOLVE NOW button
-        self.assert_is_not_displayed("//a[text()='BACK']") # No BACK button
+        self.assert_is_not_displayed("//a[text()='BACK']")  # No BACK button
         self.assert_is_displayed("//a[@id='id-finish-later-btn']")  # Only FINISH LATER button
 
     def verify_button_states_for_editor_mode(self, mode):
         if mode == 'DRAFT':
-            self.assert_exists("//a[text()='PUBLISH']")        # PUBLISH button
+            self.assert_exists("//a[text()='PUBLISH']")  # PUBLISH button
             self.assert_not_exists("//a[text()='UNPUBLISH']")  # No UNPUBLISH button
         else:
-            self.assert_not_exists("//a[text()='PUBLISH']")    # No PUBLISH button
-            self.assert_exists("//a[text()='UNPUBLISH']")      # UNPUBLISH button
-        self.assert_not_exists("//a[text()='SOLVE NOW']")      # No SOLVE NOW button
-        self.assert_exists("//a[text()='BACK']")               # BACK button
+            self.assert_not_exists("//a[text()='PUBLISH']")  # No PUBLISH button
+            self.assert_exists("//a[text()='UNPUBLISH']")  # UNPUBLISH button
+        self.assert_not_exists("//a[text()='SOLVE NOW']")  # No SOLVE NOW button
+        self.assert_exists("//a[text()='BACK']")  # BACK button
         self.assert_not_exists("//a[@id='id-finish-later-btn']")  # No FINISH LATER button
 
     def verify_button_states_for_non_editor_mode(self):
-        self.assert_not_exists("//a[text()='PUBLISH']")        # No PUBLISH button
-        self.assert_not_exists("//a[text()='UNPUBLISH']")      # No UNPUBLISH button
-        self.assert_exists("//a[text()='SOLVE NOW']")          # SOLVE NOW button
-        self.assert_exists("//a[text()='BACK']")               # BACK button
+        self.assert_not_exists("//a[text()='PUBLISH']")  # No PUBLISH button
+        self.assert_not_exists("//a[text()='UNPUBLISH']")  # No UNPUBLISH button
+        self.assert_exists("//a[text()='SOLVE NOW']")  # SOLVE NOW button
+        self.assert_exists("//a[text()='BACK']")  # BACK button
         self.assert_not_exists("//a[@id='id-finish-later-btn']")  # No FINISH LATER button

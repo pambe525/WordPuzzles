@@ -2,8 +2,8 @@
  * Derived templates use this function to bind their modal dialogs to a button
  */
 function bindModalDialogToButton(dialogId, buttonId) {
-    const modalDialog = document.querySelector(".modal-dialog#"+dialogId);
-    document.querySelector("#"+buttonId).addEventListener('click', () => {
+    const modalDialog = document.querySelector(".modal-dialog#" + dialogId);
+    document.querySelector("#" + buttonId).addEventListener('click', () => {
         modalDialog.showModal();
     });
 }
@@ -39,7 +39,7 @@ function highlightActiveNavItem() {
  * Converts a UTC date-time string in Y-mm-dd h:m:s format to local time
  */
 function utcToLocalString(utcDateTimeString) {
-    return new Date(utcDateTimeString+"Z").toLocaleString();
+    return new Date(utcDateTimeString + "Z").toLocaleString();
 }
 
 /**
@@ -47,12 +47,14 @@ function utcToLocalString(utcDateTimeString) {
  * 'Created by <username or me> on <local-date-time> and last edited on <local-date-time>'
  */
 function getTimelogString(editorName, userName, utcCreatedAt, utcModifiedAt) {
-    const name = ( editorName === userName ) ? "me": userName;
+    const name = (editorName === userName) ? "me" : userName;
     const createdAt = utcToLocalString(utcCreatedAt);
     const modifiedAt = utcToLocalString(utcModifiedAt);
     return "Created by " + name + " on " + createdAt + " and last edited on " + modifiedAt;
 }
+
 /**
  * This function should be overloaded by each client page of base.html
  */
-function pageInit() {}
+function pageInit() {
+}

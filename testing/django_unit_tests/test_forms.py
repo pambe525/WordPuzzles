@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-
-from user_auth.forms import NewUserForm
 from puzzles.forms import WordPuzzleForm, ClueForm
-from puzzles.models import WordPuzzle, Clue
+from puzzles.models import WordPuzzle
+from user_auth.forms import NewUserForm
+
 
 class NewUserFormTest(TestCase):
 
@@ -50,6 +50,7 @@ class NewUserFormTest(TestCase):
         user = form.save()
         self.assertEqual(user.email, "a@b.com")
 
+
 class WordPuzzleFormTest(TestCase):
 
     def test_form_has_needed_fields(self):
@@ -67,10 +68,11 @@ class WordPuzzleFormTest(TestCase):
 
     def test_form_has_no_error_if_desc_is_blank(self):
         user = User.objects.create_user('testuser')
-        puzzle_data = {'editor': user, 'type': 1, 'desc':''}
+        puzzle_data = {'editor': user, 'type': 1, 'desc': ''}
         form = WordPuzzleForm(data=puzzle_data)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.errors, {})
+
 
 class ClueFormTest(TestCase):
 
@@ -82,8 +84,8 @@ class ClueFormTest(TestCase):
         self.assertEqual(form['points'].value(), 1)
 
     def test_form_with_initialized_values(self):
-        form_data = {'answer':'my word', 'clue_text':'some clue text',
-                     'parsing':'def', 'points': 3}
+        form_data = {'answer': 'my word', 'clue_text': 'some clue text',
+                     'parsing': 'def', 'points': 3}
         form = ClueForm(form_data)
         self.assertEqual(form['answer'].value(), 'my word')
         self.assertEqual(form['clue_text'].value(), 'some clue text')
@@ -91,22 +93,21 @@ class ClueFormTest(TestCase):
         self.assertEqual(form['points'].value(), 3)
 
     def test_form_converts_answer_to_uppercase_when_is_valid(self):
-        form_data = {'answer':' my-word ', 'clue_text':'some clue text',
-                     'parsing':'def', 'points': 3}
+        form_data = {'answer': ' my-word ', 'clue_text': 'some clue text',
+                     'parsing': 'def', 'points': 3}
         form = ClueForm(form_data)
         form.is_valid()
         self.assertEqual(form.cleaned_data['answer'], 'MY-WORD')
 
     def test_form_does_not_allow_numbers_in_answer(self):
-        form_data = {'answer':'word1', 'clue_text':'some clue text',
-                     'parsing':'def', 'points': 3}
+        form_data = {'answer': 'word1', 'clue_text': 'some clue text',
+                     'parsing': 'def', 'points': 3}
         form = ClueForm(form_data)
         self.assertRaises(ValueError, form.is_valid)
 
     def test_form_adds_answer_length_to_cluetext_when_is_valid(self):
-        form_data = {'answer':'my word', 'clue_text':'some clue text',
-                     'parsing':'def', 'points': 3}
+        form_data = {'answer': 'my word', 'clue_text': 'some clue text',
+                     'parsing': 'def', 'points': 3}
         form = ClueForm(form_data)
         form.is_valid()
         self.assertEqual(form.cleaned_data['answer'], 'MY WORD')
-

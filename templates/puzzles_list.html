@@ -3,19 +3,20 @@
     <h2 class="pb-0 mb-2 mt-2">All Published Puzzles</h2>
     <div class="bg-light p-3">
         <div>
-            <form method = "get">
-            {{ form.as_table }}
+            <form method="get">
+                {{ form.as_table }}
             </form>
         </div>
         <div class="mb-2 notetext">
-            Hover over the puzzle title to see description pop-up. Click on the title link to solve or preview the puzzle.
+            Hover over the puzzle title to see description pop-up. Click on the title link to solve or preview the
+            puzzle.
         </div>
         <table class="table table-sm">
             <thead class="thead-dark">
-                <tr>
-                    <th class="pl-1">Puzzle Details</th>
-                    <th style="width:65px;"></th>
-                </tr>
+            <tr>
+                <th class="pl-1">Puzzle Details</th>
+                <th style="width:65px;"></th>
+            </tr>
             </thead>
             <tbody>
             {% for puzzle in object_list %}
@@ -23,7 +24,7 @@
                     <td style="line-height:18px; border-top:1px black solid" class="p-2">
                         <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>
                             <b>{{ puzzle }}</b>
-                        </a><br />
+                        </a><br/>
                         <span class="h6">Posted by:
                             {% if puzzle.editor != request.user %}
                                 <b>{{ puzzle.editor }}</b>
@@ -36,16 +37,16 @@
                         <div class="row m-0">
                             {% if puzzle.editor == request.user %}
                                 <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                                    title="VIEW" style="width:22px;height:22px"><i class="fa fa-eye"></i>
+                                   title="VIEW" style="width:22px;height:22px"><i class="fa fa-eye"></i>
                                 </a>
                             {% else %}
                                 <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                                    title="SOLVE" style="width:22px;height:22px"><i class="fa fa-hourglass-2"></i>
+                                   title="SOLVE" style="width:22px;height:22px"><i class="fa fa-hourglass-2"></i>
                                 </a>
                             {% endif %}
                             {% if puzzle.session_count != 0 %}
                                 <a class="ml-1 btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
-                                    title="SCORES" style="width:22px;height:22px"><i class="fa fa-crown"></i>
+                                   title="SCORES" style="width:22px;height:22px"><i class="fa fa-crown"></i>
                                 </a>
                             {% endif %}
                         </div>

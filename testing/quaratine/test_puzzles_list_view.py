@@ -4,7 +4,6 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.timezone import now
-
 from testing.data_setup_utils import create_published_puzzle, create_user, create_session
 
 
@@ -85,8 +84,8 @@ class PuzzlesListViewTest(TestCase):
     def test_posted_puzzles_include_session_data(self):
         user1 = create_user(username="user1")
         user2 = create_user(username="user2")
-        create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1,2,1])
-        puzzle2 = create_published_puzzle(editor=user2, desc="Daily Puzzle 2", clues_pts=[1,1])
+        create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1, 2, 1])
+        puzzle2 = create_published_puzzle(editor=user2, desc="Daily Puzzle 2", clues_pts=[1, 1])
         session1 = create_session(solver=self.user, puzzle=puzzle2)
         create_session(solver=user2, puzzle=puzzle2)
         response = self.client.get('/puzzles_list')

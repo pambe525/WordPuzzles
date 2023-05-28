@@ -29,7 +29,7 @@ class UserAuthTests(BaseSeleniumTestCase):
     EDIT_LNK = "//a[@id='lnkEditAccount']"
     RESET_BTN = "//button[@id='btnReset']"
     RESET_LNK = "//a[@id='lnkReset']"
-    FORM = "//form"
+    FORM = "//form[@id='password-reset-form']"
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)

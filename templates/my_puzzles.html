@@ -45,19 +45,23 @@
 
         function pageInit() {
             document.querySelectorAll(".nav-tabs li").forEach(tab => {
-                tab.addEventListener('click', (event) => { activateTab(event); });
+                tab.addEventListener('click', (event) => {
+                    activateTab(event);
+                });
             });
+
             function activateTab(event) {
                 document.querySelector(".nav-tabs li.active").classList.remove("active");
                 document.querySelector(".tab-content.active-tab").classList.remove("active-tab");
                 event.target.classList.add("active");
                 document.querySelector("." + event.target.id).classList.add("active-tab");
             }
+
             bindModalDialogToButton("new-puzzle-dialog", "btnAddPuzzle");
             try {
                 let builder = new PuzzlesListBuilder(draftPuzzles, imgDirPath, baseUrl);
                 builder.showList("drafts-list");
-            } catch(e) {
+            } catch (e) {
                 console.log(e);
             }
         }

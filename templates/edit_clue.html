@@ -3,12 +3,12 @@
     <div class="d-inline-block">
         <div class="bg-light p-3">
             <h3 class="pb-0">Edit Clue {{ clue_num }} for Puzzle #{{ id }}</h3>
-            <hr />
-            {%  if err_msg == None %}
+            <hr/>
+            {% if err_msg == None %}
                 <form method="post">
                     {% csrf_token %}
                     <table>{{ form.as_table }}</table>
-                    <hr />
+                    <hr/>
                     <div class="row m-0 mt-2">
                         <button type="submit" class="btn btn-primary pl-3 pr-3">SAVE</button>
                         <a href="{% url 'edit_puzzle' id %}" class="ml-auto btn btn-light pl-2 pr-2">CANCEL</a>

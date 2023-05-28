@@ -30,7 +30,7 @@ class PuzzlesListBuilder {
         if (this.puzzlesList.length === 0) return;
         this.badges = [];
         for (let i = 0; i < this.puzzlesList.length; i++)
-            this.badges.push( this._createBadge(this.puzzlesList[i]) );
+            this.badges.push(this._createBadge(this.puzzlesList[i]));
     }
 
     addIconBtns(fsName, title, clickHandler) {
@@ -64,6 +64,7 @@ class PuzzlesListBuilder {
         puzzleInfo.appendChild(lastEdited);
         return puzzleInfo;
     }
+
     _createIconGroup(icon) {
         const iconGroup = document.createElement("div");
         iconGroup.classList.add("r-float");
@@ -84,7 +85,7 @@ class PuzzlesListBuilder {
     _createLastEditedDiv(utcDateTime) {
         const div = document.createElement("div");
         div.classList.add("small-text");
-        div.innerText = "Last edited on " + new Date(utcDateTime).toLocaleString();
+        div.innerText = "Last edited on " + this._utc_to_local(utcDateTime);
         return div;
     }
 
@@ -103,5 +104,9 @@ class PuzzlesListBuilder {
         icon.title = title;
         // icon.id = "btn" + title + "_" + id;
         return icon;
+    }
+
+    _utc_to_local(utc_datetime) {
+        return new Date(utc_datetime).toLocaleString();
     }
 }

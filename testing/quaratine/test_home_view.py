@@ -3,10 +3,6 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from puzzles.models import WordPuzzle
-from django.utils.timezone import now
-from datetime import timedelta
-
-from testing.data_setup_utils import create_published_puzzle, create_session, create_user
 
 
 class DashboardViewTests(TestCase):

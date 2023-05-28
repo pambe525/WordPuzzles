@@ -8,7 +8,7 @@ class WordPuzzlePageView {
     }
 
     _clueClicked = (clueNum) => {
-        this.answerDialog.show(this.clueSet[clueNum-1]);
+        this.answerDialog.show(this.clueSet[clueNum - 1]);
     }
 
     _submitClicked = (clueNum, answerInput) => {
@@ -129,7 +129,7 @@ class SessionProgress {
  * Answer grid
  */
 class AnswerGrid {
-       constructor(answerText, isEditable) {
+    constructor(answerText, isEditable) {
         this.answer = answerText;
         this.isEditable = isEditable;
         this._grid = this._createGrid();
@@ -148,13 +148,13 @@ class AnswerGrid {
     }
 
     _createGrid() {
-        let grid = $("<input/>").attr('type','text');
+        let grid = $("<input/>").attr('type', 'text');
 //       grid.css('border','1px solid #ccc').css('background','linear-gradient(to right, #ccc 1px, transparent 0');
 //       grid.css('background-size', '14px 1px')
-        grid.css('text-align', 'left').css('text-transform','uppercase');
+        grid.css('text-align', 'left').css('text-transform', 'uppercase');
         grid.prop('maxlength', this.answer.length).css('padding-left', '0px');
-        grid.css('letter-spacing','2px').css('font', '14px consolas, monospace');
-        grid.css('width', 12*this.answer.length + 'px').css('text-indent','2px');
+        grid.css('letter-spacing', '2px').css('font', '14px consolas, monospace');
+        grid.css('width', 12 * this.answer.length + 'px').css('text-indent', '2px');
         if (!this.isEditable) grid.prop('readonly', true).val(this.answer);
         return grid;
     }
@@ -166,7 +166,7 @@ class AnswerGrid {
 class CluesList {
     constructor(clues, tableId, clickHandler) {
         this.clues = clues;
-        this.tableID = "#"+tableId;
+        this.tableID = "#" + tableId;
         this.clickhandler = clickHandler;
         this.activeRow = 0;
         this._setClickHandler();
@@ -181,7 +181,7 @@ class CluesList {
 
     update(clues) {
         this.clues = clues;
-        let activeClue = this.clues[this.activeRow-1]
+        let activeClue = this.clues[this.activeRow - 1]
         this._setClueRowDetails(activeClue);
     }
 
@@ -190,8 +190,8 @@ class CluesList {
     }
 
     _clueCell(clue, colNum) {
-        let cells = $(this.tableID + ">tbody>tr").eq(clue.clue_num-1).children();
-        return cells.eq(colNum-1);
+        let cells = $(this.tableID + ">tbody>tr").eq(clue.clue_num - 1).children();
+        return cells.eq(colNum - 1);
     }
 
     _setClickHandler() {
@@ -202,10 +202,10 @@ class CluesList {
     }
 
     _setClueRowDetails(clue) {
-        this._clueCell(clue,1).empty().html(this._icon(clue))
-        this._clueCell(clue,2).empty().text(clue.clue_num + ".");
-        this._clueCell(clue,3).empty().html(this._clueDesc(clue));
-        this._clueCell(clue,4).empty().html(this._points(clue));
+        this._clueCell(clue, 1).empty().html(this._icon(clue))
+        this._clueCell(clue, 2).empty().text(clue.clue_num + ".");
+        this._clueCell(clue, 3).empty().html(this._clueDesc(clue));
+        this._clueCell(clue, 4).empty().html(this._points(clue));
         if (clue.mode === "PREVIEW") this._showAnswerAndParsing(clue);
     }
 
@@ -229,11 +229,11 @@ class CluesList {
 
     _parsing(clue) {
         let parsing = $("<div>").addClass("h6 text-secondary");
-        return (clue.parsing) ? parsing.text("["+clue.parsing+"]") : null;
+        return (clue.parsing) ? parsing.text("[" + clue.parsing + "]") : null;
     }
 
     _points(clue) {
-        let hidden_icon = $("<i>").addClass("fa fa-eye-slash").attr('title','Hidden');
+        let hidden_icon = $("<i>").addClass("fa fa-eye-slash").attr('title', 'Hidden');
         let points = (clue.mode === "REVEALED") ? 0 : clue.points;
         return (this._isDetailHidden(clue)) ? hidden_icon : points;
     }
@@ -243,18 +243,18 @@ class CluesList {
     }
 
     _showAnswerAndParsing(clue) {
-        this._clueCell(clue,3).append(this._answer(clue)).append(this._parsing(clue));
+        this._clueCell(clue, 3).append(this._answer(clue)).append(this._parsing(clue));
     }
 
     _clueClicked = (event) => {
         let clueNum = parseInt($(event.target).closest("tr").find("td:nth-child(2)").text());
         this.activeRow = clueNum;
-        let clue = this.clues[clueNum-1];
+        let clue = this.clues[clueNum - 1];
         let clueCell = this._clueCell(clue, 3);
         if (!this._isDetailHidden(clue))
             if (clueCell.children().length > 1) clueCell.children().not(":first").remove()
             else this._showAnswerAndParsing(clue);
-        if (this.clues[clueNum-1].mode === "UNSOLVED") this.clickhandler(clueNum);
+        if (this.clues[clueNum - 1].mode === "UNSOLVED") this.clickhandler(clueNum);
     }
 }
 
@@ -263,7 +263,7 @@ class CluesList {
  */
 class AnswerDialog {
     constructor(modalDialogID, submitAnswerHandler, revealAnswerHandler) {
-        this.modalDialog = "#"+modalDialogID;
+        this.modalDialog = "#" + modalDialogID;
         this.submitHandler = submitAnswerHandler;
         this.revealHandler = revealAnswerHandler;
         this.answerGrid = null;
@@ -276,7 +276,9 @@ class AnswerDialog {
     show(clue) {
         this.activeClue = clue;
         this.answerGrid = new AnswerGrid(clue.answer, true);
-        $(this.modalDialog).on('shown.bs.modal', () => { $(this.answerGrid.grid).focus(); });
+        $(this.modalDialog).on('shown.bs.modal', () => {
+            $(this.answerGrid.grid).focus();
+        });
         $(this.modalDialog).find(".modal-title").text("Clue #" + clue.clue_num);
         $(this.modalDialog).find("#id-clue-text").empty().html(clue.clue_text);
         $(this.modalDialog).find("#id-answer").empty().append(this.answerGrid.grid);

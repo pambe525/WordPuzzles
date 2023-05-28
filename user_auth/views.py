@@ -1,9 +1,8 @@
 from django.contrib.auth import login, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.decorators import login_required
 
 from .forms import NewUserForm, UserAccountForm
 
@@ -24,6 +23,7 @@ class SignUpView(View):
             login(request, user)
             return redirect("home")
 
+
 class UserAccountView(LoginRequiredMixin, View):
 
     def get(self, request):
@@ -38,11 +38,12 @@ class UserAccountView(LoginRequiredMixin, View):
             form.save()
             return redirect("account")
 
+
 class ChangePasswordView(LoginRequiredMixin, View):
 
     def get(self, request):
         form = PasswordChangeForm(request.user)
-        return render(request, "change_password.html", {'form':form})
+        return render(request, "change_password.html", {'form': form})
 
     def post(self, request):
         form = PasswordChangeForm(request.user, request.POST)
@@ -52,5 +53,3 @@ class ChangePasswordView(LoginRequiredMixin, View):
             form.save()
             update_session_auth_hash(request, request.user)
             return redirect("change_password_done")
-
-

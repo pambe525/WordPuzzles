@@ -1,14 +1,10 @@
-from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, PasswordChangeForm
+from django.contrib import auth
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.contrib import auth
-from user_auth.forms import NewUserForm
-from django import utils
-from django.conf import settings
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
 from django.urls import reverse
+from user_auth.forms import NewUserForm
+
 
 # When url is /signup ...
 class SignUpViewTests(TestCase):
@@ -152,6 +148,7 @@ class PasswordResetViewTests(TestCase):
         self.assertContains(response, "Password Reset Email Sent")
         self.assertNotContains(response, "Reset Password")
 
+
 # When url is /password_reset_confirm or /password_reset_complete ...
 class PasswordResetConfirmTests(TestCase):
     def setUp(self):
@@ -182,6 +179,7 @@ class PasswordResetConfirmTests(TestCase):
         self.assertContains(response, "Sign In")
         self.assertContains(response, "Password Reset Complete")
         self.assertNotContains(response, "Enter new password")
+
 
 # When url is /account or /account/edit
 class UserAccountView(TestCase):
@@ -223,10 +221,10 @@ class UserAccountView(TestCase):
         self.assertContains(response, "Cancel")
 
     def test_Account_Edit_shows_form_errors_if_data_input_is_bad(self):
-        self.client.force_login(self.user) # testuser
+        self.client.force_login(self.user)  # testuser
         self.user = User.objects.create_user("testuser2", "cde@email.com", "secretkey2")
-        user_update = {'username':'testuser2', 'email':''}
-        response = self.client.post('/account/edit/', user_update)  #change username to existing one
+        user_update = {'username': 'testuser2', 'email': ''}
+        response = self.client.post('/account/edit/', user_update)  # change username to existing one
         self.assertEqual(response.status_code, 200)
         error_msg1 = 'A user with that username already exists.'
         error_msg2 = 'Email is required.'
@@ -235,7 +233,7 @@ class UserAccountView(TestCase):
 
     def test_Account_Edit_saves_data_if_data_input_is_good_and_redirects_to_account(self):
         self.client.force_login(self.user)
-        user_update = {'username':'testuser2', 'email':'cde@email.com', 'first_name': 'Django', 'last_name': 'Tester'}
+        user_update = {'username': 'testuser2', 'email': 'cde@email.com', 'first_name': 'Django', 'last_name': 'Tester'}
         response = self.client.post('/account/edit/', user_update)
         self.assertEqual(response.status_code, 302)  # redirect
         updated_user = User.objects.get(id=self.user.id)
@@ -245,6 +243,8 @@ class UserAccountView(TestCase):
         self.assertEqual(updated_user.last_name, 'Tester')
 
     # When url is /change_password or /change_password_done
+
+
 class PasswordChangeView(TestCase):
     def setUp(self):
         self.user = User.objects.create_user("testuser", "abc@email.com", "secretkey1")
@@ -269,18 +269,18 @@ class PasswordChangeView(TestCase):
         self.assertContains(response, "Change Password")
 
     def test_Change_Password_shows_form_errors_if_data_input_is_bad(self):
-        self.client.force_login(self.user) # testuser
-        passwords = {'old_password':'secretkey', 'new_password1':'secretkey2', 'new_password2':'secretkey3'}
+        self.client.force_login(self.user)  # testuser
+        passwords = {'old_password': 'secretkey', 'new_password1': 'secretkey2', 'new_password2': 'secretkey3'}
         response = self.client.post('/change_password', passwords)
         self.assertEqual(response.status_code, 200)
         error_msg1 = 'Your old password was entered incorrectly. Please enter it again.'
         error_msg2 = "The two password fields didn"
         self.assertEqual(error_msg1, response.context['form'].errors['old_password'][0])
-        self.assertTrue( error_msg2 in response.context['form'].errors['new_password2'][0])
+        self.assertTrue(error_msg2 in response.context['form'].errors['new_password2'][0])
 
     def test_Change_Password_changes_password_and_redirects_to_confirmation(self):
         self.client.force_login(self.user)
-        passwords = {'old_password':'secretkey1', 'new_password1':'secretkey2', 'new_password2':'secretkey2'}
+        passwords = {'old_password': 'secretkey1', 'new_password1': 'secretkey2', 'new_password2': 'secretkey2'}
         response = self.client.post('/change_password', passwords)
         self.assertEqual(response.status_code, 302)  # redirect
         user = User.objects.get(username='testuser')

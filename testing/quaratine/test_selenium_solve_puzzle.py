@@ -9,7 +9,6 @@ from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 # HELPER FUNCTIONS FOR SolveSession Test Cases cast as a derived class (of SeleneiumTestCase
 # Test cases for Solve Session should derive from this class.
 class SolveSessionTestCaseHelper(BaseSeleniumTestCase):
-    
     MODAL_DIALOG = "//div[@id='id-modal-answer-box']"
     ANSWER_INPUT = "//div[@id='id-modal-answer-box']//div[@id='id-answer']/input"
     FINISH_LATER_BTN = "//a[@id='id-finish-later-btn']"

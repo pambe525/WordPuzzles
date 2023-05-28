@@ -8,11 +8,11 @@ class Crossword extends Puzzle {
     }
 
     isReady() {
-        var blockedCells = $(this.divId+">div.xw-blocked").length;
-        var emptyCells = $(this.divId+">div>.xw-letter:empty").length - blockedCells;
-        if ( emptyCells !== 0 ) return false;
+        var blockedCells = $(this.divId + ">div.xw-blocked").length;
+        var emptyCells = $(this.divId + ">div>.xw-letter:empty").length - blockedCells;
+        if (emptyCells !== 0) return false;
         else {
-            var cells = $(this.divId+">div").has(".xw-number");
+            var cells = $(this.divId + ">div").has(".xw-number");
             for (var i = 0; i < cells.length; i++) {
                 if (this._isWordStart(cells[i].id, true) && (this.words.across[cells[i].id] === undefined ||
                     this.words.across[cells[i].id].clue === "")) return false;
@@ -84,20 +84,19 @@ class Crossword extends Puzzle {
         return word;
     }
 
-    deleteWordData(cellId, isAcross=true) {
+    deleteWordData(cellId, isAcross = true) {
         var wordData = this.getWordData(cellId, isAcross);
-        if ( !this._isUnblockedCell(cellId) || wordData === null ) return false;
+        if (!this._isUnblockedCell(cellId) || wordData === null) return false;
         var key = (isAcross) ? "across" : "down";
         var startCellId = this._getWordStartCellId(cellId, isAcross);
         delete this.words[key][startCellId];
         var wordCells = this._getCellsInWord(cellId, isAcross);
         var xyColorClass = (isAcross) ? "xw-xblue" : "xw-yblue";
         for (var i = 0; i < wordCells.length; i++) {
-            if ( !this.getWordData(wordCells[i].id, !isAcross) ) {
+            if (!this.getWordData(wordCells[i].id, !isAcross)) {
                 $(wordCells[i]).children(".xw-letter").empty();
                 $(wordCells[i]).children(".xw-letter").removeClass("xw-blue");
-            }
-            else $(wordCells[i]).children(".xw-letter").removeClass(xyColorClass);
+            } else $(wordCells[i]).children(".xw-letter").removeClass(xyColorClass);
         }
         this._setToolTip(startCellId, isAcross);
         this._dataChanged();
@@ -147,7 +146,7 @@ class Crossword extends Puzzle {
             else if (this._isInWord(cellId, false)) isAcross = false;
             this._hiliteCellsInWord(cellId, isAcross);
         } else {
-            if ( $(jqCellId).hasClass("xw-across") ) isAcross = !this._isInWord(cellId, false);
+            if ($(jqCellId).hasClass("xw-across")) isAcross = !this._isInWord(cellId, false);
             else isAcross = this._isInWord(cellId, true);
             this._hiliteCellsInWord(cellId, isAcross);
         }
@@ -181,7 +180,7 @@ class Crossword extends Puzzle {
     }
 
     _getDataToSave() {
-        var blocks = [], cells = $(this.divId+">div");
+        var blocks = [], cells = $(this.divId + ">div");
         for (var i = 0; i < cells.length; i++)
             if ($(cells[i]).hasClass("xw-blocked")) blocks.push(i);
         blocks = blocks.toString();
@@ -218,7 +217,7 @@ class Crossword extends Puzzle {
         }
     }
 
-    _nextIncompleteWordFirstCellId(currentFirstCellId, isAcross=true) {
+    _nextIncompleteWordFirstCellId(currentFirstCellId, isAcross = true) {
         var currentCellIndex = 0;
         if (currentFirstCellId !== null) currentCellIndex = this.getClueNum(currentFirstCellId, isAcross);
         var numberedCells = $(".xw-number").parent();
@@ -251,7 +250,7 @@ class Crossword extends Puzzle {
     _setToolTip(startCellId, isAcross) {
         var wordDataA = (this._isWordStart(startCellId, true)) ? this.getWordData(startCellId, true) : null;
         var wordDataD = (this._isWordStart(startCellId, false)) ? this.getWordData(startCellId, false) : null;
-        var toolTipText="";
+        var toolTipText = "";
         if (wordDataA) toolTipText = this._getToolTipText(startCellId, wordDataA.clue, true);
         if (wordDataD) toolTipText += this._getToolTipText(startCellId, wordDataD.clue, false);
         $("#" + startCellId).prop("title", toolTipText);
@@ -347,7 +346,7 @@ class Crossword extends Puzzle {
         for (var index in coords) {
             neighborId = this._getOffsetCellId(cellId, coords[index][0], coords[index][1]);
             isAcross = (index <= 1);
-            if ( this.getWordData(neighborId, isAcross) ) return true;
+            if (this.getWordData(neighborId, isAcross)) return true;
         }
         return false;
     }
@@ -356,8 +355,8 @@ class Crossword extends Puzzle {
         return (!this._isUnblockedCell(cellId)) ? false : ($("#" + cellId + "> .xw-letter").text() !== "");
     }
 
-    _hasToolTip(cellId, isAcross=true) {
-        var toolTip = $("#"+cellId).prop("title");
+    _hasToolTip(cellId, isAcross = true) {
+        var toolTip = $("#" + cellId).prop("title");
         var label = (isAcross) ? " Across:" : " Down:";
         if (toolTip.trim().length === 0) return false;
         return (toolTip.includes(label));
@@ -431,7 +430,7 @@ class Crossword extends Puzzle {
         return clue;
     }
 
-    _setWordColor(cellId, isAcross=true) {
+    _setWordColor(cellId, isAcross = true) {
         var wordData = this.getWordData(cellId, isAcross), colorFlag = false;
         if (wordData && wordData["clue"] !== "") colorFlag = true;
         var cells = this._getCellsInWord(cellId, isAcross);

@@ -1,9 +1,7 @@
 from django.contrib.auth import logout
 from django.test import TestCase
 
-from django.contrib.auth.models import User
-
-from puzzles.models import WordPuzzle, PuzzleSession
+from puzzles.models import WordPuzzle
 from testing.data_setup_utils import create_user, create_published_puzzle, create_session
 
 
@@ -65,7 +63,6 @@ class PuzzleScoreViewTests(TestCase):
     def test_get_response_contains_puzzle_object(self):
         response = self.client.get("/puzzle_score/" + str(self.puzzle.id) + "/")
         self.assertEqual(self.puzzle, response.context['object'])
-
 
     # ==================================================================================================================
     # HELPER METHODS

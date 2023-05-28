@@ -40,7 +40,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     def test_drafts_is_default_active_tab(self):
         self.get(self.target_page)
         self.assert_text_equals(self.ACTIVE_TAB, "Drafts")
-        self.assert_text_contains(self.ACTIVE_CONTENT, "No draft puzzles.")
+        self.assert_text_contains(self.ACTIVE_CONTENT, "No puzzles to list.")
 
     def test_clicking_on_a_tab_activates_tab_content(self):
         self.get(self.target_page)
@@ -75,19 +75,19 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     def test_Drafts_tab_displays_users_draft_puzzles_with_details(self):
         puzzle1 = WordPuzzle.objects.create(editor=self.user, type=0)
         puzzle2 = WordPuzzle.objects.create(editor=self.user, type=1)
-        # puzzle2.modified_at = puzzle2.modified_at + timedelta(seconds=60)  # to ensure puzzle 2 is newer
+        puzzle2.modified_at = puzzle2.modified_at + timedelta(seconds=60)  # to ensure puzzle 2 is newer
+        puzzle2.save()
         self.get(self.target_page)
         self.assert_item_count(self.ACTIVE_BADGE, 2)
         badge1_title = "Puzzle " + str(puzzle1.id) + ": 0 Non-cryptic Clues [0 pts]"
         badge2_title = "Puzzle " + str(puzzle2.id) + ": 0 Cryptic Clues [0 pts]"
         self.assert_text_equals(self.ACTIVE_BADGE_TITLE, badge2_title, 0)  # Puzzle 2 listed first
         self.assert_text_equals(self.ACTIVE_BADGE_TITLE, badge1_title, 1)
-        self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src','non-cryptic-clues.png', 1)
-        self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src','cryptic-clues.jpg', 0)
-        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/1/', 1)
-        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/2/', 0)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src', 'non-cryptic-clues.png', 1)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src', 'cryptic-clues.jpg', 0)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/'+str(puzzle1.id)+'/', 1)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/'+str(puzzle2.id)+'/', 0)
         last_edited_str1 = 'Last edited on ' + self.utc_to_local(puzzle1.modified_at)
         last_edited_str2 = 'Last edited on ' + self.utc_to_local(puzzle2.modified_at)
         self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str2, 0)
         self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str1, 1)
-

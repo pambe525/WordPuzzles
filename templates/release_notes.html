@@ -1,33 +1,41 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="page-title">Release Notes</div>
-<hr class="dark-line">
+    <div class="page-title">Release Notes</div>
+    <hr class="dark-line">
 
     <div class="epic-title">User Authentication [2023.05.09]</div>
     <ul class="feature-list">
         <li><b>Sign Up</b>: New users can register using a username, password and email address. The username must be
-            unique and is not case-sensitive.  This will be visible to others, so use your first name or full name as
-            username (no spaces). The email address must also be unique and will be used for notifications.</li>
+            unique and is not case-sensitive. This will be visible to others, so use your first name or full name as
+            username (no spaces). The email address must also be unique and will be used for notifications.
+        </li>
         <li><b>Log In</b>: Registered users can sign in with their username and password. On successful login, users are
-            directed to the Dashboard page. Site pages are not accessible unless the user is authenticated.</li>
-        <li><b>Reset Password</b>: Users can reset their password if they forget it.  An email is sent with a link
-            which they can use to reset the password.</li>
+            directed to the Dashboard page. Site pages are not accessible unless the user is authenticated.
+        </li>
+        <li><b>Reset Password</b>: Users can reset their password if they forget it. An email is sent with a link
+            which they can use to reset the password.
+        </li>
         <li><b>Account Settings</b>: Once signed in, users can edit their credentials including username, email, first
-            and last name.  This can be accessed from the side menu.</li>
+            and last name. This can be accessed from the side menu.
+        </li>
         <li><b>Change Password</b>: Users can also change their password, if needed. This can be accessed from the
-            side menu.</li>
-        <li><b>Logout</b>: Users can logout (accessible from the side menu). This will take them back to login page.</li>
+            side menu.
+        </li>
+        <li><b>Logout</b>: Users can logout (accessible from the side menu). This will take them back to login page.
+        </li>
     </ul>
 
     <div class="epic-title">Responsive Web Interface [2023.05.09]</div>
     <ul class="feature-list">
         <li>The web interface is responsive and adapts to the device's viewport such as large monitors, laptops,
-            tablets and phones.</li>
+            tablets and phones.
+        </li>
         <li>On larger devices, a side menu is displayed that provides access to all the features.</li>
         <li>On smaller devices, the side menu can be accessed using the <i class="fa-solid fa-bars"></i> icon
-            on top right of the screen.</li>
+            on top right of the screen.
+        </li>
         <li>Clicking on the CrypticLive logo always navigates to the home page (Dashboard)</li>
     </ul>
 
-<hr class="dark-line">
+    <hr class="dark-line">
 {% endblock %}

@@ -30,7 +30,7 @@ class NewUserForm(UserCreationForm):
 
 class UserAccountForm(UserChangeForm):
     password = None
-    email = forms.EmailField(required=True, error_messages={'required':'Email is required.'})
+    email = forms.EmailField(required=True, error_messages={'required': 'Email is required.'})
 
     def __init__(self, *args, **kwargs):
         super(UserChangeForm, self).__init__(*args, **kwargs)
