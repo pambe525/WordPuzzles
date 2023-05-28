@@ -41,7 +41,7 @@
     <script>
         const draftPuzzles = {{ draft_puzzles | safe }};
         const imgDirPath = "{% static '/images/' %}";
-        const baseUrl = "/edit_puzzle";
+        const baseUrl = "{{ request.get_host }}";
 
         function pageInit() {
             document.querySelectorAll(".nav-tabs li").forEach(tab => {
@@ -60,6 +60,8 @@
             bindModalDialogToButton("new-puzzle-dialog", "btnAddPuzzle");
             try {
                 let builder = new PuzzlesListBuilder(draftPuzzles, imgDirPath, baseUrl);
+                builder.buildBadges();
+                builder.addDeleteBtns();
                 builder.showList("drafts-list");
             } catch (e) {
                 console.log(e);

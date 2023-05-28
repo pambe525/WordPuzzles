@@ -33,20 +33,24 @@ class PuzzlesListBuilder {
             this.badges.push(this._createBadge(this.puzzlesList[i]));
     }
 
-    addIconBtns(fsName, title, clickHandler) {
-
+    addDeleteBtns() {
+        let iconGroup = null, iconBtn = null;
+        for (let i = 0; i < this.badges.length; i++) {
+            iconGroup = this.badges[i].getElementsByClassName("icon-group")[0];
+            iconBtn = this._createDeleteBtn(this.puzzlesList[i].id)
+            iconGroup.appendChild(iconBtn);
+        }
     }
 
     _createBadge(puzzle) {
         const badge = document.createElement("div");
         const imgFilePath = this.srcFileDir + this._getImageFileName(puzzle.type);
-        const linkUrl = this.baseUrl + "/" + puzzle.id + "/";
         const img = this._createBadgeImage(imgFilePath, puzzle.type_text);
-        const linkTitle = this._createBadgeTitleLink(puzzle.title, linkUrl);
+        const linkTitle = this._createBadgeTitleLink(puzzle);
         const lastEdited = this._createLastEditedDiv(puzzle.utc_modified_at);
         const icon = this._createIconBtn("fa-trash-can", "Delete", puzzle.id);
         const puzzleInfo = this._createPuzzleInfo(linkTitle, lastEdited);
-        const iconGroup = this._createIconGroup(icon);
+        const iconGroup = this._createIconGroup();
         badge.classList.add("list-badge");
         badge.appendChild(img);
         badge.appendChild(puzzleInfo);
@@ -65,11 +69,10 @@ class PuzzlesListBuilder {
         return puzzleInfo;
     }
 
-    _createIconGroup(icon) {
+    _createIconGroup() {
         const iconGroup = document.createElement("div");
         iconGroup.classList.add("r-float");
         iconGroup.classList.add("icon-group");
-        iconGroup.appendChild(icon);
         return iconGroup;
     }
 
@@ -89,23 +92,37 @@ class PuzzlesListBuilder {
         return div;
     }
 
-    _createBadgeTitleLink(titleText, linkUrl) {
+    _createBadgeTitleLink(puzzle) {
         const title = document.createElement("a");
         title.classList.add("bold-text");
-        title.setAttribute("href", linkUrl);
-        title.innerText = titleText;
+        title.setAttribute("href", "/edit_puzzle/"+puzzle.id+"/");
+        title.innerText = puzzle.title;
         return title;
     }
 
     _createIconBtn(faName, title, puzzle_id) {
+        const btn = document.createElement("button");
         const icon = document.createElement("i");
         icon.classList.add("fa-regular");
         icon.classList.add(faName);
         icon.title = title;
-        // icon.id = "btn" + title + "_" + id;
-        return icon;
+        btn.appendChild(icon);
+        icon.id = "btn" + title + "_" + puzzle_id;
+        btn.classList.add("icon-btn");
+        return btn;
     }
 
+    _createDeleteBtn(puzzle_id) {
+        const link = document.createElement("a");
+        const icon = document.createElement("i");
+        icon.classList.add("fa-regular");
+        icon.classList.add("fa-trash-can");
+        icon.title = "Delete";
+        link.setAttribute("href", "/delete_puzzle/" + puzzle_id + "/")
+        link.appendChild(icon);
+        link.classList.add("icon-btn");
+        return link;
+    }
     _utc_to_local(utc_datetime) {
         return new Date(utc_datetime).toLocaleString();
     }

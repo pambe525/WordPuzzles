@@ -75,7 +75,7 @@ class EditorRequiredMixin(LoginRequiredMixin):
 class DeletePuzzleView(EditorRequiredMixin, DeleteView):
     model = WordPuzzle
     template_name = 'delete_confirm.html'
-    success_url = '/'
+    success_url = '/my_puzzles'
 
 
 class HomeView(LoginRequiredMixin, View):
