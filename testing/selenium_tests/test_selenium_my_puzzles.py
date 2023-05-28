@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
@@ -19,6 +20,8 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     ACTIVE_BADGE_TITLE = "//div[contains(@class,'active-tab')]//a[@class='bold-text']"
     ACTIVE_BADGE_NOTE = "//div[contains(@class,'active-tab')]//div[@class='small-text']"
     ACTIVE_BADGE_IMG = "//div[contains(@class,'active-tab')]//img"
+    DELETE_PUZZLE_ICON = "//div[contains(@class,'badge')]//i[@title='Delete']"
+    DELETE_CONFIRM_BTN = "//button"
     MODAL_DIALOG = "//dialog"
     ADD_PUZZLE_BTN = "//button[@id='btnAddPuzzle']"
     CREATE_PUZZLE_BTN = "//button[@type='submit']"
@@ -91,3 +94,22 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         last_edited_str2 = 'Last edited on ' + self.utc_to_local(puzzle2.modified_at)
         self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str2, 0)
         self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str1, 1)
+
+    def test_Delete_Puzzle_button_within_badge_redirects_to_delete_confirmation(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=1, desc="Some description")
+        self.get(self.target_page)
+        self.do_click(self.DELETE_PUZZLE_ICON)  # DELETE icon on puzzle badge
+        self.assert_current_url('/delete_puzzle/' + str(puzzle.id) + '/')
+        self.assert_text_equals("//div[@class='page-title']", "Delete Puzzle " + str(puzzle.id))
+        self.do_click("//a[text()='Cancel']")  # Cancel redirects back to Dashboard
+        self.assert_current_url('/my_puzzles')
+        self.assert_item_count("//div[contains(@class,'badge')]", 1)  # Puzzle still exists
+        badge_title = "Puzzle " + str(puzzle.id) + ": 0 Cryptic Clues [0 pts]"
+        self.assert_text_equals(self.ACTIVE_BADGE_TITLE, badge_title, 0)
+
+    def test_Delete_Puzzle_button_deletes_puzzle_after_confirmation(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
+        self.get(self.target_page)
+        self.do_click(self.DELETE_PUZZLE_ICON)
+        self.do_click("//button[text()='Delete']")  # Delete button on delete confirm page
+        self.assert_item_count(self.ACTIVE_BADGE, 0)  # Puzzle deleted

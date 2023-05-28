@@ -55,25 +55,6 @@ class DraftPuzzlesTests(BaseSeleniumTestCase):
         self.assert_current_url('/edit_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Edit Puzzle #" + str(puzzle.id))
 
-    def test_Delete_Puzzle_button_within_badge_redirects_to_delete_confirmation(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, type=1, desc="Some description")
-        self.get('/')
-        self.do_click("//div[contains(@class,'badge badge')]//a[@title='DELETE']")  # DELETE icon on puzzle badge
-        self.assert_current_url('/delete_puzzle_confirm/' + str(puzzle.id) + '/')
-        self.assert_text_equals("//h2", "Delete Puzzle #" + str(puzzle.id))
-        self.do_click("//a[text()='CANCEL']")  # Cancel redirects back to Dashboard
-        self.assert_current_url('/')
-        self.assert_item_count("//div[contains(@class,'badge badge')]", 1)  # Puzzle still exists
-        badge_header = "Puzzle #" + str(puzzle.id) + ": 0 Cryptic Clues [0 pts]"
-        self.assert_text_equals("//div[contains(@class,'badge badge')]/a", badge_header)
-
-    def test_Delete_Puzzle_button_deletes_puzzle_after_confirmation(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
-        self.get('/')
-        self.do_click("//a[@title='DELETE']")
-        self.do_click("//button[text()='DELETE']")  # Delete button on Edit Puzzle page
-        self.assert_item_count("//div[contains(@class,'badge badge')]", 0)  # Puzzle deleted
-
     def test_Preview_Puzzle_button_is_not_visible_if_draft_puzzle_has_no_clues(self):
         WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
         self.get('/')

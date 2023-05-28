@@ -1,6 +1,6 @@
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.utils.timezone import now
 from puzzles.models import WordPuzzle
 
