@@ -1,7 +1,10 @@
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils.timezone import now
+
 from puzzles.models import WordPuzzle
+from testing.data_setup_utils import create_user
 
 
 class DashboardViewTests(TestCase):
@@ -32,8 +35,11 @@ class DashboardViewTests(TestCase):
         self.assertContains(response, "No notifications to report")
 
     def test_notifications_with_draft_puzzle(self):
-        WordPuzzle.objects.create(editor=self.user, type=0)
-        WordPuzzle.objects.create(editor=self.user, type=1)
+        user2 = create_user(username="user2")
+        WordPuzzle.objects.create(editor=self.user, type=0)  # Draft 1
+        WordPuzzle.objects.create(editor=self.user, type=1)  # Draft 2
+        WordPuzzle.objects.create(editor=user2)              # Other user draft - not counted
+        WordPuzzle.objects.create(editor=self.user, shared_at=now()) # Published - not counted
         response = self.client.get(self.target_page)
         self.assertEqual(response.context['drafts_count'], 2)
         self.assertNotContains(response, "No notifications to report")
