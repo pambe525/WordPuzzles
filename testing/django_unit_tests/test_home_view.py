@@ -1,11 +1,11 @@
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.urls import reverse
 from puzzles.models import WordPuzzle
 
 
 class DashboardViewTests(TestCase):
+    target_page = "/"
 
     def setUp(self):
         # Create a logged in user
@@ -13,27 +13,31 @@ class DashboardViewTests(TestCase):
         self.client.force_login(self.user)
 
     def test_renders_dashboard_page_if_user_is_authenticated(self):
-        response = self.client.get(reverse("home"))
+        response = self.client.get(self.target_page)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "home.html")
         self.assertContains(response, "Dashboard")
 
     def test_redirects_to_login_page_if_user_is_not_authenticated(self):
         logout(self.client)
-        response = self.client.get(reverse("home"))
+        response = self.client.get(self.target_page)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/login?next=/")
 
-    def test_rendered_template_with_no_draft_puzzles(self):
-        response = self.client.get(reverse("home"))
-        self.assertEqual(len(response.context['draft_puzzles']), 0)
-        self.assertContains(response, "no draft puzzles")
-
-    def test_rendered_template_with_draft_puzzles(self):
-        WordPuzzle.objects.create(editor=self.user)
-        WordPuzzle.objects.create(editor=self.user)
-        response = self.client.get(reverse("home"))
+    def test_empty_notifications_section(self):
+        response = self.client.get(self.target_page)
         self.assertTemplateUsed(response, "home.html")
+        self.assertEqual(response.context['drafts_count'], 0)
+        self.assertContains(response, "Notifications")
+        self.assertContains(response, "No notifications to report")
+
+    def test_notifications_with_draft_puzzle(self):
+        WordPuzzle.objects.create(editor=self.user, type=0)
+        WordPuzzle.objects.create(editor=self.user, type=1)
+        response = self.client.get(self.target_page)
+        self.assertEqual(response.context['drafts_count'], 2)
+        self.assertNotContains(response, "No notifications to report")
+        self.assertContains(response, "2 draft puzzle(s)")
 
     # def test_draft_puzzles_filtered_for_current_user(self):
     #     user2 = User.objects.create_user("testuser2")

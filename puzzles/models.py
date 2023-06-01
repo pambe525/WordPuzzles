@@ -56,6 +56,10 @@ class WordPuzzle(models.Model):
         return "Puzzle " + str(self.id) + ": " + str(self.size) + " " + puzzle_type + " " + points
 
     @staticmethod
+    def get_draft_puzzles_count(current_user_id):
+        return WordPuzzle.objects.filter(editor=current_user_id, shared_at=None).count()
+
+    @staticmethod
     def get_draft_puzzles_as_list(current_user_id):
         query_set = WordPuzzle.objects.filter(editor=current_user_id, shared_at=None).order_by('-modified_at')
         draft_puzzle_list = []

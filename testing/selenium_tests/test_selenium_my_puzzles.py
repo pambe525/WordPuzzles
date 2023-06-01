@@ -10,6 +10,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
     password = 'secretkey'
     target_page = "/my_puzzles"
 
+    PAGE_TITLE = "//div[@class='page-title']"
     DRAFTS_TAB = "//.nav-tabs/li[@id='drafts-tab']"
     SCHEDULED_TAB = "//li[@id='scheduled-tab']"
     PUBLISHED_TAB = "//li[@id='published-tab']"
@@ -42,6 +43,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
 
     def test_drafts_is_default_active_tab(self):
         self.get(self.target_page)
+        self.assert_text_equals(self.PAGE_TITLE, "My Puzzles")
         self.assert_text_equals(self.ACTIVE_TAB, "Drafts")
         self.assert_text_contains(self.ACTIVE_CONTENT, "No puzzles to list.")
 
