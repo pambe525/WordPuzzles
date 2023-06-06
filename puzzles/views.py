@@ -103,20 +103,18 @@ class HomeView(LoginRequiredMixin, View):
 class EditPuzzleView(EditorRequiredMixin, UpdateView):
     model = WordPuzzle
     template_name = 'edit_puzzle.html'
-    form_class = WordPuzzleForm
+    fields = ['desc']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['clues'] = self.object.get_clues()
         context['id'] = self.object.id
-        context['saved'] = False
         return context
 
     def form_valid(self, form):
-        form.save()
-        ctx = {'form': form, 'saved': True, 'id': self.object.id, 'clues': self.object.get_clues(),
-               'object': self.object}
-        return render(self.request, self.template_name, context=ctx)
+            form.save(True)
+            ctx = {'form': form, 'id': self.object.id, 'clues': self.object.get_clues(), 'object': self.object}
+            return render(self.request, self.template_name, context=ctx)
 
 
 class EditClueView(EditorRequiredMixin, View):

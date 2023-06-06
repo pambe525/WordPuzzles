@@ -36,11 +36,6 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
         self.auto_login_user(self.user)
 
-    def test_redirect_to_login_if_user_is_not_authenticated(self):
-        self.logout_user()
-        self.get(self.target_page)
-        self.assert_current_url('/login?next=/my_puzzles')
-
     def test_drafts_is_default_active_tab(self):
         self.get(self.target_page)
         self.assert_text_equals(self.PAGE_TITLE, "My Puzzles")
@@ -56,7 +51,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_text_equals(self.ACTIVE_TAB, "Published")
         self.assert_attribute_equals(self.ACTIVE_CONTENT, "id", "published-list")
 
-    def test_New_Puzzle_button_activates_dialog_that_can_be_closed(self):
+    def test_Add_Puzzle_button_activates_dialog_that_can_be_closed(self):
         self.get(self.target_page)
         self.assert_is_not_displayed(self.MODAL_DIALOG)
         self.do_click(self.ADD_PUZZLE_BTN)
@@ -65,7 +60,7 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_is_not_displayed(self.MODAL_DIALOG)
         self.assert_current_url(self.target_page)
 
-    def test_AddPuzzle_btn_creates_new_puzzle_and_redirects_to_edit_puzzle_page(self):
+    def test_Add_Puzzle_btn_creates_new_puzzle_and_redirects_to_edit_puzzle_page(self):
         self.get(self.target_page)
         self.do_click(self.ADD_PUZZLE_BTN)
         self.set_input_text(self.DESC_FIELD, "Instructions")

@@ -25,20 +25,10 @@ class MyPuzzlesViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/login?next=/my_puzzles")
 
-    def test_initializes_new_puzzle_modal_form(self):
+    def test_response_has_new_puzzle_form(self):
         response = self.client.get(self.target_page)
         self.assertEqual(response.context['form']['type'].initial, 1)
         self.assertIsNone(response.context['form']['desc'].initial)
-
-    def test_posting_new_puzzle_modal_form_creates_new_puzzle_and_redirects_to_edit_page(self):
-        self.assertEqual(len(WordPuzzle.objects.all()), 0)
-        response = self.client.post("/new_puzzle", {'type': 0, 'desc': "Some instructions"})
-        self.assertEqual(len(WordPuzzle.objects.all()), 1)
-        new_puzzle = WordPuzzle.objects.all()[0]
-        self.assertEqual(new_puzzle.type, 0)
-        self.assertEqual(new_puzzle.desc, "Some instructions")
-        self.assertEqual(response.status_code, 302)  # Redirect
-        self.assertEqual(response['location'], "/edit_puzzle/" + str(new_puzzle.id) + "/")
 
     def test_rendered_template_with_no_draft_puzzles(self):
         response = self.client.get(self.target_page)

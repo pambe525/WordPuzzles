@@ -17,8 +17,7 @@
     <div class="flex m-top"><strong>Clues [{{ object.total_points }} pts]:</strong>
         <div class="r-float">
             <button id="btnAddClues" class="small-btn">+ Clues</button>
-            <button id="btnAddAnswers" class="small-btn">+ Answers</button>
-            <button id="btnAddPasrings" class="small-btn">+ Parsings</button>
+            <button id="btnAddParsings" class="small-btn">+ Parsings</button>
         </div>
     </div>
 
@@ -26,7 +25,7 @@
     <dialog class="modal-dialog" id="edit-desc-dialog">
         <div class="subtitle">Edit Description</div>
         <hr>
-        <form action="" method="post">
+        <form action="{% url 'edit_puzzle' id %}" method="post">
             {% csrf_token %}
             {{ form.desc }}
             <button type="submit" class="blue-btn">Save</button>
