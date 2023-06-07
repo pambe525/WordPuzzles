@@ -398,7 +398,7 @@ a[role=button]:hover {
 }
 
 .small-btn {
-    padding: 0.1rem 0.5rem;
+    padding: 0.2rem 0.5rem;
     border: 0;
     border-radius: 4px;
     font-size: 0.7rem;
@@ -411,6 +411,7 @@ a[role=button]:hover {
 
 .small-btn:hover {
     opacity: 0.8;
+    color: white;
 }
 button.icon-btn {
     padding: 0;

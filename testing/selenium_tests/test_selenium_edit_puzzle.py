@@ -9,12 +9,11 @@ class EditPuzzleTests(BaseSeleniumTestCase):
     user = None
     password = 'secret_key'
     target_page = "/edit_puzzle/"
-    PAGE_TITLE = "//div[@class='page-title']"
-    SUBTITLE = "//div[@class='subtitle']"
     PUZZLE_DESC = "(//span[@class='note-text'])[1]"
     PUZZLE_TIMELOG = "//div[@id='timeLog']"
     DONE_BTN = "(//a[@role='button'])[1]"
     EDIT_DESC_BTN = "//button[@id='btnEditDesc']"
+    ADD_CLUES_BTN = "//div//a[text()='Add Clues']"
     MODAL_DIALOG_DESC = "//dialog[@id='edit-desc-dialog']"
     DESC_TEXT_AREA = "//dialog//textarea[@id='id_desc']"
     CLOSE_BTN = "//dialog//button[@id='btnClose']"
@@ -27,8 +26,8 @@ class EditPuzzleTests(BaseSeleniumTestCase):
     def test_loads_puzzle_with_existing_desc_and_done_btn(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some Instructions")
         self.get(self.target_page + str(puzzle.id) + '/')
-        self.assert_text_equals(self.PAGE_TITLE, "Edit Puzzle")
-        self.assert_text_equals(self.SUBTITLE, "Puzzle 1: Non-cryptic Clues")
+        self.assert_page_title("Edit Puzzle")
+        self.assert_subtitle("Puzzle 1: Non-cryptic Clues")
         self.assert_text_contains(self.PUZZLE_TIMELOG, 'Created by me on')
         self.assert_text_equals(self.PUZZLE_DESC, 'Some Instructions')
         self.assert_text_equals(self.DONE_BTN, "Done")
@@ -60,6 +59,14 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         self.get(self.target_page + str(puzzle.id) + '/')
         self.assert_text_equals(self.PUZZLE_DESC, "New desc")
 
+    def test_Add_Clues_btn_redirects_to_add_clues_page(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user)
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.do_click(self.ADD_CLUES_BTN)
+        self.assert_current_url("/add_clues/" + str(puzzle.id) + '/')
+        self.assert_page_title("Add Clues & Answers")
+        self.assert_subtitle(str(puzzle))
+
 #     def test_Edit_Puzzle_page_lists_all_the_clues(self):
 #         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
 #         puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue 1', 'parsing': 'p1', 'points': 1})
@@ -79,7 +86,38 @@ class EditPuzzleTests(BaseSeleniumTestCase):
 #             self.assertEqual(answer.text, '[' + clues[index].answer + ']')
 #             self.assert_text_equals("//div/span[@title='" + clues[index].parsing + "']", clues[index].parsing)
 #
-#
+
+class AddCluesTests(BaseSeleniumTestCase):
+    reset_sequences = True
+    user = None
+    password = 'secret_key'
+    target_page = "/add_clues/"
+    CLUES_LABEL = "//form//label[@for='id_clues']"
+    CLUES_TEXTAREA = "//form//textarea[@name='clues']"
+    ANSWERS_LABEL = "//form//label[@for='id_answers']"
+    ANSWERS_TEXTAREA = "//form//textarea[@name='answers']"
+    CANCEL_BTN = "//a[text()='Cancel']"
+    SUBMIT_BTN = "//button[text()='Submit']"
+    ERROR_LIST = ""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
+        self.auto_login_user(self.user)
+
+    def test_page_has_form_widgets(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.assert_page_title("Add Clues & Answers")
+        self.assert_subtitle(str(puzzle))
+        self.assert_text_equals(self.CLUES_LABEL, "Clues:")
+        self.assert_text_equals(self.ANSWERS_LABEL, "Answers:")
+        self.assert_is_displayed(self.CLUES_TEXTAREA)
+        self.assert_is_displayed(self.ANSWERS_TEXTAREA)
+        self.assert_is_displayed(self.CANCEL_BTN)
+        self.assert_is_displayed(self.SUBMIT_BTN)
+        self.do_click(self.CANCEL_BTN)
+        self.assert_current_url("/edit_puzzle/" + str(puzzle.id) + '/')
+
 # class EditClueTests(BaseSeleniumTestCase):
 #     password = 'secret_key'
 #

@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
-from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm
+from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm, AddCluesForm
 from puzzles.models import WordPuzzle, Clue, PuzzleSession
 
 
@@ -116,6 +116,12 @@ class EditPuzzleView(EditorRequiredMixin, UpdateView):
             ctx = {'form': form, 'id': self.object.id, 'clues': self.object.get_clues(), 'object': self.object}
             return render(self.request, self.template_name, context=ctx)
 
+class AddCluesView(EditorRequiredMixin, View):
+
+    def get(self, request, pk=None):
+        puzzle = WordPuzzle.objects.get(id=pk)
+        ctx = {'id':pk, 'title':str(puzzle), 'form': AddCluesForm}
+        return render(request, "add_clues.html", ctx)
 
 class EditClueView(EditorRequiredMixin, View):
     template_name = "edit_clue.html"

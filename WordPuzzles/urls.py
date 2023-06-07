@@ -18,7 +18,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from puzzles.views import HomeView, EditPuzzleView, NewPuzzleView, EditClueView, DeleteClueView, PuzzlesListView, \
-    PuzzleScoreView, MyPuzzlesView
+    PuzzleScoreView, MyPuzzlesView, AddCluesView
 from puzzles.views import PreviewPuzzleView, DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView
 from puzzles.views import ReleaseNotesView, SolvePuzzleView
 from user_auth.views import SignUpView, UserAccountView, ChangePasswordView
@@ -54,6 +54,7 @@ urlpatterns = [
     path('new_puzzle', NewPuzzleView.as_view(), name="new_puzzle"),
     path('edit_puzzle/<int:pk>/', EditPuzzleView.as_view(), name="edit_puzzle"),
     path('delete_puzzle/<int:pk>/', DeletePuzzleView.as_view(), name="delete_puzzle"),
+    path('add_clues/<int:pk>/', AddCluesView.as_view(), name="add_clues"),
     path('new_clue/<int:pk>/', EditClueView.as_view(), name="new_clue"),
     path('edit_clue/<int:pk>/<int:clue_num>/', EditClueView.as_view(), name="edit_clue"),
     path('delete_clue_confirm/<int:pk>/<int:clue_num>/', DeleteClueView.as_view(), name='delete_clue_confirm'),

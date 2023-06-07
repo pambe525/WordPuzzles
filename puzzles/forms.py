@@ -16,6 +16,17 @@ class WordPuzzleForm(ModelForm):
         self.fields['desc'].widget.attrs['style'] = "width: 100%; height:150px"
         self.fields['desc'].help_text = "Optional description, instructions or guidelines"
 
+class AddCluesForm(Form):
+    clues = forms.CharField(widget=forms.Textarea(), label="Clues")
+    answers = forms.CharField(widget=forms.Textarea(), label="Answers")
+
+    def __init__(self, *args, **kwargs):
+        super(Form, self).__init__(*args, **kwargs)
+        self.fields['clues'].widget.attrs['rows'] = 5
+        self.fields['clues'].widget.attrs['placeholder'] = "1. First clue (5,6)"
+        self.fields['answers'].widget.attrs['rows'] = 5
+        self.fields['answers'].widget.attrs['placeholder'] = "1. first answer"
+
 
 class ClueForm(ModelForm):
     class Meta:

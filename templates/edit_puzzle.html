@@ -16,8 +16,8 @@
 
     <div class="flex m-top"><strong>Clues [{{ object.total_points }} pts]:</strong>
         <div class="r-float">
-            <button id="btnAddClues" class="small-btn">+ Clues</button>
-            <button id="btnAddParsings" class="small-btn">+ Parsings</button>
+            <a class="small-btn" href="{% url 'add_clues' id %}">Add Clues</a>
+            <a class="small-btn">Add Parsings</a>
         </div>
     </div>
 
@@ -29,26 +29,6 @@
             {% csrf_token %}
             {{ form.desc }}
             <button type="submit" class="blue-btn">Save</button>
-            <button id="btnClose" formmethod="dialog">Cancel</button>
-        </form>
-    </dialog>
-
-    <!-- Add Clues dialog -->
-    <dialog class="modal-dialog" id="add-clues-dialog">
-        <div class="subtitle">Add Clues & Answers</div>
-        <hr>
-        <div class="small-text">
-            Add single or multiple items in each text area below using clue number with a period followed by text.
-            Each item must be on a new line.
-        </div>
-        <form action="" method="post">
-            {% csrf_token %}
-            <label class="m-top" for="clues">Clues:</label>
-            <textarea rows="5" id="clues" placeholder="1. Firsr clue text (5,6)"></textarea>
-            <label class="m-top" for="answers">Answers: (must match number of clues):</label>
-            <textarea rows="5" id="answers" placeholder="1. first answer"></textarea>
-            <div class="red-text m-top">This is an error</div>
-            <button type="submit" class="blue-btn m-top">Submit</button>
             <button id="btnClose" formmethod="dialog">Cancel</button>
         </form>
     </dialog>

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="page-title">Add Clues & Answers</div>
+    <hr class="dark-line">
+    <div class="subtitle">{{ title }}</div>
+
+    <!-- Add Clues Form -->
+    <div class="small-text">
+        Add (or cut & paste) single or multiple items in each text area below using clue number with a period
+        followed by text. Each item must be on a new line.
+    </div>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="blue-btn m-top">Submit</button>
+        <a role="button" class="gray-btn" href="{% url 'edit_puzzle' id %}">Cancel</a>
+    </form>
+{% endblock %}
