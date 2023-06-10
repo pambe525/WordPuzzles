@@ -16,6 +16,7 @@ class WordPuzzleForm(ModelForm):
         self.fields['desc'].widget.attrs['style'] = "width: 100%; height:150px"
         self.fields['desc'].help_text = "Optional description, instructions or guidelines"
 
+
 class AddCluesForm(Form):
     clues = forms.CharField(widget=forms.Textarea(), label="Clues")
     answers = forms.CharField(widget=forms.Textarea(), label="Answers")
