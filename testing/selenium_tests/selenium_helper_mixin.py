@@ -8,7 +8,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from selenium.common import ElementClickInterceptedException
+from selenium.common import ElementClickInterceptedException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
@@ -53,7 +53,7 @@ class HelperMixin:
         try:
             self.selenium.find_element(By.XPATH, xpath).click()
             return True
-        except ElementClickInterceptedException:
+        except WebDriverException:
             return False
 
     def auto_login_user(self, user):
@@ -128,6 +128,9 @@ class HelperMixin:
     def wait_until_visible(self, xpath):
         # element = self.selenium.find_element(By.XPATH, xpath)
         WebDriverWait(self.selenium, 5).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+
+    def wait_until_clickable(self, xpath):
+        WebDriverWait(self.selenium, 5).until(EC.element_to_be_clickable((By.XPATH, xpath)))
 
 
 # Parent class from which all selenium test cases will be derived

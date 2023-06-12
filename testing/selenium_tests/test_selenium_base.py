@@ -37,13 +37,13 @@ class BaseTemplateTests(BaseSeleniumTestCase):
         self.set_mobile_size(True)  # In mobile mode
         self.get('/')
         self.assert_is_displayed(self.MENU_TOGGLE)
-        self.assertFalse(self.do_click(self.MENUITEM_HOME))
+        self.assertFalse(self.do_click(self.MENUITEM_HOME))  # Menu not clickable
 
     def test_Menu_toggle_click_displays_menu_in_mobile_mode(self):
         self.set_mobile_size(True)  # In mobile mode
         self.get('/')
         self.do_click(self.MENU_TOGGLE)
-        self.selenium.implicitly_wait(1)
+        self.wait_until_clickable(self.MENUITEM_HOME)
         self.assertTrue(self.do_click(self.MENUITEM_HOME))
 
     def test_Clicking_on_logo_in_authenticated_mode_redirects_to_home_page(self):
