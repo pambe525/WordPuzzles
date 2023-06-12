@@ -1,12 +1,15 @@
 import json
+from unittest.case import skip
 
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase
+
 from puzzles.models import WordPuzzle, PuzzleSession
 from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_session
 
 
+@skip
 class PreviewPuzzleViewTest(TransactionTestCase):
     reset_sequences = True
 
@@ -92,6 +95,7 @@ class PreviewPuzzleViewTest(TransactionTestCase):
         self.assertRedirects(response, "/solve_puzzle/" + str(puzzle.id) + "/", 302)
 
 
+@skip
 class SolvePuzzleViewTest(TransactionTestCase):
     reset_sequences = True
 

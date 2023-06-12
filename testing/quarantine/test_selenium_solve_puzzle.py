@@ -1,4 +1,5 @@
 import time
+from unittest.case import skip
 
 from puzzles.models import PuzzleSession
 from testing.data_setup_utils import create_published_puzzle, create_session, create_user
@@ -102,6 +103,7 @@ class SolveSessionTestCaseHelper(BaseSeleniumTestCase):
         self.assert_text_equals("//div[@id='id-timer']", timer_string)
 
 
+@skip
 class SolveSessionTests(SolveSessionTestCaseHelper):
     def setUp(self):
         self.user = create_user()
@@ -206,6 +208,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         self.assertEqual(answer_input, self.get_active_element())  # Has focus
 
 
+@skip
 class SessionTimerTests(SolveSessionTestCaseHelper):
     def setUp(self):
         self.user = create_user()

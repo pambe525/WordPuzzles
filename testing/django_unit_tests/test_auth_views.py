@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+
 from user_auth.forms import NewUserForm
 
 

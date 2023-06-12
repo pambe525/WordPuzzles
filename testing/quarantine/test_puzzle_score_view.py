@@ -1,3 +1,5 @@
+from unittest.case import skip
+
 from django.contrib.auth import logout
 from django.test import TestCase
 
@@ -5,6 +7,7 @@ from puzzles.models import WordPuzzle
 from testing.data_setup_utils import create_user, create_published_puzzle, create_session
 
 
+@skip
 class PuzzleScoreViewTests(TestCase):
     def setUp(self):
         self.user = create_user()

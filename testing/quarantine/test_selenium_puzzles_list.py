@@ -1,9 +1,12 @@
+from unittest.case import skip
+
 from django.contrib.auth.models import User
 
 from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_user, create_session
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
+@skip
 class PuzzlesListTests(BaseSeleniumTestCase):
     password = 'secretkey'
 

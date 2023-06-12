@@ -1,6 +1,7 @@
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase
+
 from puzzles.models import WordPuzzle
 
 

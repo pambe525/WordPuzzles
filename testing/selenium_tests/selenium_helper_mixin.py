@@ -13,6 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
+
 from testing.selenium_tests.singleton_webdriver import SingletonWebDriver
 
 
@@ -171,6 +172,8 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
 
     @staticmethod
     def utc_to_local(utc_datetime):
-        if os.name == "nt": dt_format = '%#m/%#d/%Y, %#I:%M:%S %p'
-        else: dt_format = '%-m/%-d/%Y, %-I:%M:%S %p'
+        if os.name == "nt":
+            dt_format = '%#m/%#d/%Y, %#I:%M:%S %p'
+        else:
+            dt_format = '%-m/%-d/%Y, %-I:%M:%S %p'
         return utc_datetime.astimezone().strftime(dt_format)

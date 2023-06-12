@@ -1,7 +1,7 @@
 from datetime import timedelta
 
-from django.contrib.auth import logout
 from django.contrib.auth.models import User
+
 from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
@@ -84,8 +84,8 @@ class MyPuzzlesTests(BaseSeleniumTestCase):
         self.assert_text_equals(self.ACTIVE_BADGE_TITLE, badge1_title, 1)
         self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src', 'non-cryptic-clues.png', 1)
         self.assert_attribute_contains(self.ACTIVE_BADGE_IMG, 'src', 'cryptic-clues.jpg', 0)
-        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/'+str(puzzle1.id)+'/', 1)
-        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/'+str(puzzle2.id)+'/', 0)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/' + str(puzzle1.id) + '/', 1)
+        self.assert_attribute_contains(self.ACTIVE_BADGE_TITLE, 'href', '/edit_puzzle/' + str(puzzle2.id) + '/', 0)
         last_edited_str1 = 'Last edited on ' + self.utc_to_local(puzzle1.modified_at)
         last_edited_str2 = 'Last edited on ' + self.utc_to_local(puzzle2.modified_at)
         self.assert_text_equals(self.ACTIVE_BADGE_NOTE, last_edited_str2, 0)

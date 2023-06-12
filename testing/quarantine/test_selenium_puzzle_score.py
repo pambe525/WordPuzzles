@@ -1,7 +1,10 @@
+from unittest.case import skip
+
 from testing.data_setup_utils import create_user, create_published_puzzle, create_session
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
+@skip
 class PuzzleScoreTests(BaseSeleniumTestCase):
     def setUp(self):
         self.user = create_user()

@@ -38,8 +38,8 @@ class DashboardViewTests(TestCase):
         user2 = create_user(username="user2")
         WordPuzzle.objects.create(editor=self.user, type=0)  # Draft 1
         WordPuzzle.objects.create(editor=self.user, type=1)  # Draft 2
-        WordPuzzle.objects.create(editor=user2)              # Other user draft - not counted
-        WordPuzzle.objects.create(editor=self.user, shared_at=now()) # Published - not counted
+        WordPuzzle.objects.create(editor=user2)  # Other user draft - not counted
+        WordPuzzle.objects.create(editor=self.user, shared_at=now())  # Published - not counted
         response = self.client.get(self.target_page)
         self.assertEqual(response.context['drafts_count'], 2)
         self.assertNotContains(response, "No notifications to report")

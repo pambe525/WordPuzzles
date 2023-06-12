@@ -2,6 +2,7 @@ import re
 
 from django import forms
 from django.forms import ModelForm, Form
+
 from puzzles.models import WordPuzzle, Clue
 
 
@@ -18,8 +19,8 @@ class WordPuzzleForm(ModelForm):
 
 
 class AddCluesForm(Form):
-    clues = forms.CharField(widget=forms.Textarea(), label="Clues")
-    answers = forms.CharField(widget=forms.Textarea(), label="Answers")
+    clues = forms.CharField(widget=forms.Textarea(), label="Clues", required=True)
+    answers = forms.CharField(widget=forms.Textarea(), label="Answers", required=True)
 
     def __init__(self, *args, **kwargs):
         super(Form, self).__init__(*args, **kwargs)
@@ -27,6 +28,18 @@ class AddCluesForm(Form):
         self.fields['clues'].widget.attrs['placeholder'] = "1. First clue (5,6)"
         self.fields['answers'].widget.attrs['rows'] = 5
         self.fields['answers'].widget.attrs['placeholder'] = "1. first answer"
+
+    def clean(self):
+        clues_text = self.cleaned_data["clues"]
+        answers_text = self.cleaned_data["answers"]
+        numbered_clues = self._parse_text_into_numbered_items(clues_text)
+        numbered_answers = self._parse_text_into_numbered_items(answers_text)
+        if len(numbered_clues) == 0: self.add_error("clues", "No numbered items found in clues.")
+        if len(numbered_answers) == 0: self.add_error("answers", "No numbered items found in answers.")
+
+    def _parse_text_into_numbered_items(self, text):
+        pattern = r"\d+\.\s+[\w\s]+"
+        return re.findall(pattern, text)
 
 
 class ClueForm(ModelForm):

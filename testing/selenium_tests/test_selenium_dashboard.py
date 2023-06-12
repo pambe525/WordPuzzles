@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle
-from testing.data_setup_utils import create_published_puzzle, create_user, create_session
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 

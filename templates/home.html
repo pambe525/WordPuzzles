@@ -10,9 +10,10 @@
         {% else %}
             <div class="note-text flex m-top">
                 <i class="fa-regular fa-circle-dot"></i>
-                <span>You have <a href="{% url 'my_puzzles' %}">{{ drafts_count }} draft puzzle(s)</a> to complete</span>
+                <span>You have <a
+                        href="{% url 'my_puzzles' %}">{{ drafts_count }} draft puzzle(s)</a> to complete</span>
             </div>
-        {%  endif %}
+        {% endif %}
     </div>
 
     <!-- RATINGS -->

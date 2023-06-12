@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
+
 from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm, AddCluesForm
 from puzzles.models import WordPuzzle, Clue, PuzzleSession
 
@@ -112,16 +113,28 @@ class EditPuzzleView(EditorRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-            form.save(True)
-            ctx = {'form': form, 'id': self.object.id, 'clues': self.object.get_clues(), 'object': self.object}
-            return render(self.request, self.template_name, context=ctx)
+        form.save(True)
+        ctx = {'form': form, 'id': self.object.id, 'clues': self.object.get_clues(), 'object': self.object}
+        return render(self.request, self.template_name, context=ctx)
+
 
 class AddCluesView(EditorRequiredMixin, View):
+    template_name = "add_clues.html"
 
     def get(self, request, pk=None):
         puzzle = WordPuzzle.objects.get(id=pk)
-        ctx = {'id':pk, 'title':str(puzzle), 'form': AddCluesForm}
-        return render(request, "add_clues.html", ctx)
+        ctx = {'id': pk, 'title': str(puzzle), 'form': AddCluesForm}
+        return render(request, self.template_name, ctx)
+
+    def post(self, request, pk=None):
+        form = AddCluesForm(request.POST)
+        puzzle = WordPuzzle.objects.get(id=pk)
+        if form.is_valid():
+            return redirect('edit_puzzle', pk)
+        else:
+            ctx = {'id': pk, 'title': str(puzzle), 'form': form}
+            return render(request, self.template_name, ctx)
+
 
 class EditClueView(EditorRequiredMixin, View):
     template_name = "edit_clue.html"

@@ -295,6 +295,7 @@ hr.separator {
     background-color: black;
     opacity: 0.4;
 }
+
 .confirm-dialog {
     margin: auto;
     position: center;
@@ -413,14 +414,17 @@ a[role=button]:hover {
     opacity: 0.8;
     color: white;
 }
+
 button.icon-btn {
     padding: 0;
     background-color: white;
 }
+
 button.icon-btn:hover {
     cursor: pointer;
     font-weight: bolder;
 }
+
 .flex {
     display: flex;
     margin: 0.2rem 0;
@@ -469,9 +473,12 @@ hr.dark-line {
     font-size: 0.8rem;
     font-weight: 600;
 }
+
 .red-text {
-    color: red; !important;
+    color: red;
+!important;
 }
+
 .boxed-panel {
     display: block;
     border: 1px solid lightgray;

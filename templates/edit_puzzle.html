@@ -36,42 +36,42 @@
     {% if clues|length == 0 %}
         <div class="note-text">No clues exist.</div>
     {% else %}
-{#        <div class="note-text">#}
-{#            To edit a clue click on the description. Hover over the<br/>#}
-{#            clue or parsing to reveal a tooltip with full text.#}
-{#        </div>#}
-{#        <table class="table table-sm mt-3 p-0">#}
-{#            <thead>#}
-{#            <tr class="bg-secondary text-light">#}
-{#                <th class="text-center">#</th>#}
-{#                <th class="pl-1">Clue</th>#}
-{#                <th class="text-right">Pts</th>#}
-{#                <th></th>#}
-{#            </tr>#}
-{#            </thead>#}
-{#            {% for clue in clues %}#}
-{#                <tr>#}
-{#                    <td class="p-0 pl-1 text-center">{{ clue.clue_num }}.</td>#}
-{#                    <td class="p-0 pl-1">#}
-{#                        <div class="text-wrap" style="line-height:normal; padding-top:2px">#}
-{#                            <a class="text-primary" href="{% url 'edit_clue' object.id clue.clue_num %}"#}
-{#                               title="{{ clue.get_decorated_clue_text }}">{{ clue.get_decorated_clue_text }}#}
-{#                            </a>#}
-{#                        </div>#}
-{#                        <div class="h6 mt-1 text-secondary text-wrap">#}
-{#                            <b>[{{ clue.answer }}]</b>#}
-{#                            <span title="{{ clue.parsing }}">{{ clue.parsing }}</span>#}
-{#                        </div>#}
-{#                    </td>#}
-{#                    <td class="p-0 text-right">{{ clue.points }}</td>#}
-{#                    <td class="p-0 pl-2">#}
-{#                        <a href="{% url 'delete_clue_confirm' id clue.clue_num %}">#}
-{#                            <i class="fa fa-trash fa-lg ml-1" title="Delete"></i>#}
-{#                        </a>#}
-{#                    </td>#}
-{#                </tr>#}
-{#            {% endfor %}#}
-{#        </table>#}
+        {#        <div class="note-text">#}
+        {#            To edit a clue click on the description. Hover over the<br/>#}
+        {#            clue or parsing to reveal a tooltip with full text.#}
+        {#        </div>#}
+        {#        <table class="table table-sm mt-3 p-0">#}
+        {#            <thead>#}
+        {#            <tr class="bg-secondary text-light">#}
+        {#                <th class="text-center">#</th>#}
+        {#                <th class="pl-1">Clue</th>#}
+        {#                <th class="text-right">Pts</th>#}
+        {#                <th></th>#}
+        {#            </tr>#}
+        {#            </thead>#}
+        {#            {% for clue in clues %}#}
+        {#                <tr>#}
+        {#                    <td class="p-0 pl-1 text-center">{{ clue.clue_num }}.</td>#}
+        {#                    <td class="p-0 pl-1">#}
+        {#                        <div class="text-wrap" style="line-height:normal; padding-top:2px">#}
+        {#                            <a class="text-primary" href="{% url 'edit_clue' object.id clue.clue_num %}"#}
+        {#                               title="{{ clue.get_decorated_clue_text }}">{{ clue.get_decorated_clue_text }}#}
+        {#                            </a>#}
+        {#                        </div>#}
+        {#                        <div class="h6 mt-1 text-secondary text-wrap">#}
+        {#                            <b>[{{ clue.answer }}]</b>#}
+        {#                            <span title="{{ clue.parsing }}">{{ clue.parsing }}</span>#}
+        {#                        </div>#}
+        {#                    </td>#}
+        {#                    <td class="p-0 text-right">{{ clue.points }}</td>#}
+        {#                    <td class="p-0 pl-2">#}
+        {#                        <a href="{% url 'delete_clue_confirm' id clue.clue_num %}">#}
+        {#                            <i class="fa fa-trash fa-lg ml-1" title="Delete"></i>#}
+        {#                        </a>#}
+        {#                    </td>#}
+        {#                </tr>#}
+        {#            {% endfor %}#}
+        {#        </table>#}
     {% endif %}
 
     <script>

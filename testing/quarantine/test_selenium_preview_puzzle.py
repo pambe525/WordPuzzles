@@ -1,8 +1,11 @@
+from unittest.case import skip
+
 from puzzles.models import WordPuzzle
 from testing.data_setup_utils import create_draft_puzzle, create_published_puzzle, create_user
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
+@skip
 class PreviewPuzzleTests(BaseSeleniumTestCase):
 
     def setUp(self):

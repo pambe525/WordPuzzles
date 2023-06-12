@@ -5,22 +5,22 @@ from django.test import TransactionTestCase
 from puzzles.models import WordPuzzle
 
 
-class EditPuzzleViewTests(TransactionTestCase):
+class BaseEditPuzzleTest(TransactionTestCase):
     reset_sequences = True
-    target_page = "/edit_puzzle/"
+    target_page = None
 
     def setUp(self):
         # Create a logged in user
         self.user = User.objects.get_or_create(username="test_user")[0]
         self.client.force_login(self.user)
 
-    def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
+    def unauthenticated_user_test(self):
         logout(self.client)
-        response = self.client.get(self.target_page+"1/")
+        response = self.client.get(self.target_page + "1/")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/login?next=/edit_puzzle/1/")
+        self.assertEqual(response.url, "/login?next=" + self.target_page + "1/")
 
-    def test_GET_shows_error_if_user_is_not_editor(self):
+    def user_is_not_editor_test(self):
         other_user = User.objects.create(username="other_user", email="abc@cde.com")
         new_puzzle = WordPuzzle.objects.create(editor=other_user)
         response = self.client.get(self.target_page + str(new_puzzle.id) + "/")
@@ -29,13 +29,26 @@ class EditPuzzleViewTests(TransactionTestCase):
         self.assertContains(response, "This operation is not permitted")
         self.assertContains(response, "Ok")
 
-    def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
-        response = self.client.get("/edit_puzzle/3/")
+    def puzzle_does_not_exist_test(self):
+        response = self.client.get(self.target_page + "3/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle 3")
         self.assertContains(response, "This puzzle does not exist.")
         self.assertContains(response, "Ok")
+
+
+class EditPuzzleViewTests(BaseEditPuzzleTest):
+    target_page = "/edit_puzzle/"
+
+    def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
+        self.unauthenticated_user_test()
+
+    def test_GET_shows_error_if_user_is_not_editor(self):
+        self.user_is_not_editor_test()
+
+    def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
+        self.puzzle_does_not_exist_test()
 
     def test_POST_saves_basic_puzzle_data(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
@@ -106,3 +119,24 @@ class EditPuzzleViewTests(TransactionTestCase):
     #     self.assertEqual(response.context['clues'][0].clue_text, 'Clue for word')
     #     self.assertEqual(response.context['clues'][0].parsing, 'DEF1')
     #     self.assertEqual(response.context['clues'][0].points, 2)
+
+
+class AddCluesViewTests(BaseEditPuzzleTest):
+    target_page = "/add_clues/"
+
+    def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
+        self.unauthenticated_user_test()
+
+    def test_GET_shows_error_if_user_is_not_editor(self):
+        self.user_is_not_editor_test()
+
+    def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
+        self.puzzle_does_not_exist_test()
+
+    def test_response_context(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        response = self.client.get(self.target_page + str(puzzle.id) + "/")
+        self.assertTemplateUsed("add_clues.html")
+        self.assertEqual(response.context['id'], puzzle.id)
+        self.assertEqual(response.context['title'], str(puzzle))
+        self.assertIn('AddCluesForm', str(response.context['form']))

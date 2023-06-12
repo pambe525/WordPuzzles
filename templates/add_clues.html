@@ -9,7 +9,7 @@
         Add (or cut & paste) single or multiple items in each text area below using clue number with a period
         followed by text. Each item must be on a new line.
     </div>
-    <form action="" method="post">
+    <form action="{% url 'add_clues' id %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="blue-btn m-top">Submit</button>

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from puzzles.models import WordPuzzle, Clue
+from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
@@ -66,6 +66,7 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         self.assert_current_url("/add_clues/" + str(puzzle.id) + '/')
         self.assert_page_title("Add Clues & Answers")
         self.assert_subtitle(str(puzzle))
+
 
 #     def test_Edit_Puzzle_page_lists_all_the_clues(self):
 #         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)

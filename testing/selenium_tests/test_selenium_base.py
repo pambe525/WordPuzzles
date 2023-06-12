@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 

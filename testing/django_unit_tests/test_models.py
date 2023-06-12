@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.test import TestCase, TransactionTestCase
 from django.utils import timezone
+
 from puzzles.models import Puzzle, WordPuzzle, Clue, PuzzleSession
 from testing.data_setup_utils import create_published_puzzle
 

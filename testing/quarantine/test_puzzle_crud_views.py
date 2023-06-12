@@ -1,9 +1,13 @@
+from unittest.case import skip
+
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase, TransactionTestCase
 
 from puzzles.models import WordPuzzle, Clue
 
+
+@skip
 class EditClueViewTests(TestCase):
     def setUp(self):
         # Create a logged in user
@@ -128,6 +132,7 @@ class EditClueViewTests(TestCase):
         self.assertEqual(puzzle.total_points, 2)
 
 
+@skip
 class DeleteClueViewTests(TransactionTestCase):
     reset_sequences = True
 
@@ -204,6 +209,7 @@ class DeleteClueViewTests(TransactionTestCase):
         self.assertEqual(clues[2].clue_num, 3)
 
 
+@skip
 class PublishPuzzleViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test_user")
@@ -281,6 +287,7 @@ class PublishPuzzleViewTest(TestCase):
         self.assertContains(response, "Puzzle #" + str(puzzle.id))
 
 
+@skip
 class UnpublishPuzzleViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="test_user")

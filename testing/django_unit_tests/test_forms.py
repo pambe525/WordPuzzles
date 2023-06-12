@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
-from puzzles.forms import WordPuzzleForm, ClueForm
+
+from puzzles.forms import WordPuzzleForm, ClueForm, AddCluesForm
 from puzzles.models import WordPuzzle
 from user_auth.forms import NewUserForm
 
@@ -111,3 +112,16 @@ class ClueFormTest(TestCase):
         form = ClueForm(form_data)
         form.is_valid()
         self.assertEqual(form.cleaned_data['answer'], 'MY WORD')
+
+
+class AddCluesFormTest(TestCase):
+
+    def test_form_default_fields(self):
+        form = AddCluesForm()
+        self.assertTrue(form.fields['clues'].required)
+        self.assertTrue(form.fields['answers'].required)
+
+    def test_form_with_no_numbered_items(self):
+        form_data = {'clues': 'not numbered', 'answers': 'not numbered'}
+        form = AddCluesForm(form_data)
+        form.is_valid()

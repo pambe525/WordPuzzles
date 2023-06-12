@@ -95,7 +95,7 @@ class PuzzlesListBuilder {
     _createBadgeTitleLink(puzzle) {
         const title = document.createElement("a");
         title.classList.add("bold-text");
-        title.setAttribute("href", "/edit_puzzle/"+puzzle.id+"/");
+        title.setAttribute("href", "/edit_puzzle/" + puzzle.id + "/");
         title.innerText = puzzle.title;
         return title;
     }
@@ -123,6 +123,7 @@ class PuzzlesListBuilder {
         link.classList.add("icon-btn");
         return link;
     }
+
     _utc_to_local(utc_datetime) {
         return new Date(utc_datetime).toLocaleString();
     }
