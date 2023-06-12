@@ -4,6 +4,7 @@ from django import forms
 from django.forms import ModelForm, Form
 
 from puzzles.models import WordPuzzle, Clue
+from puzzles.numbered_items_parser import NumberedItemsParser
 
 
 class WordPuzzleForm(ModelForm):
@@ -30,17 +31,12 @@ class AddCluesForm(Form):
         self.fields['answers'].widget.attrs['placeholder'] = "1. first answer"
 
     def clean(self):
-        clues_text = self.cleaned_data["clues"]
-        answers_text = self.cleaned_data["answers"]
-        numbered_clues = self._parse_text_into_numbered_items(clues_text)
-        numbered_answers = self._parse_text_into_numbered_items(answers_text)
-        if len(numbered_clues) == 0: self.add_error("clues", "No numbered items found in clues.")
-        if len(numbered_answers) == 0: self.add_error("answers", "No numbered items found in answers.")
-
-    def _parse_text_into_numbered_items(self, text):
-        pattern = r"\d+\.\s+[\w\s]+"
-        return re.findall(pattern, text)
-
+        clues_text = self.data["clues"]
+        answers_text = self.data["answers"]
+        clues_parser = NumberedItemsParser(clues_text)
+        answers_parser = NumberedItemsParser(answers_text)
+        if clues_parser.error: self.add_error("clues", clues_parser.error)
+        if answers_parser.error: self.add_error('answers', answers_parser.error)
 
 class ClueForm(ModelForm):
     class Meta:
