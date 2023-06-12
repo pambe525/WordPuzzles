@@ -93,30 +93,49 @@ class AddCluesFormTest(TestCase):
         self.assertEqual(form['clues'].errors[0], "This field is required.")
         self.assertEqual(form['answers'].errors[0], "This field is required.")
 
-    def test_no_numbered_items_return_error(self):
-        form_data = {'clues': 'not numbered', 'answers': 'not numbered'}
-        form = AddCluesForm(form_data)
-        self.assertFalse(form.is_valid())
-        self.assertEqual(len(form['clues'].errors), 1)
-        self.assertEqual(len(form['answers'].errors), 1)
-        self.assertEqual(form['clues'].errors[0], "No numbered items found.")
-        self.assertEqual(form['answers'].errors[0], "No numbered items found.")
-
     def test_numbered_items_return_no_error(self):
-        form_data = {'clues': '1. not numbered', 'answers': '1 answer'}
+        form_data = {'clues': '1. numbered clue', 'answers': '1 answer'}
         form = AddCluesForm(form_data)
         self.assertTrue(form.is_valid())
         self.assertEqual(len(form['clues'].errors), 0)
         self.assertEqual(len(form['answers'].errors), 0)
 
     def test_non_numbered_item_num_is_flagged_in_error(self):
-        form_data = {'clues': '1. numbered\n\nnot numbered', 'answers': 'not numbered\n1 answer'}
+        form_data = {'clues': '1. numbered\n\nnot numbered\n no number', 'answers': 'not numbered\n1 answer'}
         form = AddCluesForm(form_data)
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form['clues'].errors), 1)
         self.assertEqual(len(form['answers'].errors), 1)
         self.assertEqual(form['clues'].errors[0], "Item 2 is not numbered.")
         self.assertEqual(form['answers'].errors[0], "Item 1 is not numbered.")
+
+    def test_duplicate_item_number_returns_error(self):
+        form_data = {'clues': '1 first \n2. second \n1 third\n\n2 fourth', 'answers': '1 first \n1. second \n2 third '}
+        form = AddCluesForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form['clues'].errors[0], "Item 3 has duplicate item number 1.")
+        self.assertEqual(form['answers'].errors[0], "Item 2 has duplicate item number 1.")
+
+    def test_duplicate_item_text_returns_error(self):
+        form_data = {'clues': '1 first \n2. second \n3 first\n\n4 second', 'answers': '1 first \n2. first \n3 third '}
+        form = AddCluesForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form['clues'].errors[0], "Item 3 has duplicate text.")
+        self.assertEqual(form['answers'].errors[0], "Item 2 has duplicate text.")
+
+    def test_blank_item_text_returns_error(self):
+        form_data = {'clues': '1 first \n2.  \n3 third\n\n4 fourth', 'answers': '1 first \n2. second \n3'}
+        form = AddCluesForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form['clues'].errors[0], "Item 2 has no text.")
+        self.assertEqual(form['answers'].errors[0], "Item 3 has no text.")
+
+    def test_valid_form_input(self):
+        form_data = {'clues': '1 first \n2. second \r\n\n3 third\n', 'answers': '\r\n1 one \n3. three \n2 two'}
+        form = AddCluesForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form['clues'].errors), 0)
+        self.assertEqual(len(form['answers'].errors), 0)
 
 @skip
 class ClueFormTest(TestCase):

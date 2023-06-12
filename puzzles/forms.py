@@ -1,4 +1,5 @@
 import re
+from unittest.case import skip
 
 from django import forms
 from django.forms import ModelForm, Form
@@ -37,6 +38,7 @@ class AddCluesForm(Form):
         answers_parser = NumberedItemsParser(answers_text)
         if clues_parser.error: self.add_error("clues", clues_parser.error)
         if answers_parser.error: self.add_error('answers', answers_parser.error)
+
 
 class ClueForm(ModelForm):
     class Meta:
