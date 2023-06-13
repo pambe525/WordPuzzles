@@ -28,14 +28,16 @@ class AddCluesForm(Form):
         super(Form, self).__init__(*args, **kwargs)
         self.fields['clues'].widget.attrs['rows'] = 5
         self.fields['clues'].widget.attrs['placeholder'] = "1. First clue (5,6)"
+        self.fields['clues'].help_text = "NOTE: Answer lengths at the end of each clue, are optional. " \
+                                         "If omitted, they will be automatically added. "
         self.fields['answers'].widget.attrs['rows'] = 5
         self.fields['answers'].widget.attrs['placeholder'] = "1. first answer"
+        self.fields['answers'].help_text = "Specify a single unique answer for each clue."
 
     def clean(self):
-        clues_text = self.data["clues"]
-        answers_text = self.data["answers"]
-        clues_parser = NumberedItemsParser(clues_text)
-        answers_parser = NumberedItemsParser(answers_text)
+        clues_parser = NumberedItemsParser(self.data["clues"])
+        answers_parser = NumberedItemsParser(self.data["answers"], 1)
+        answers_parser.cross_check_entries(clues_parser.items_dict)
         if clues_parser.error: self.add_error("clues", clues_parser.error)
         if answers_parser.error: self.add_error('answers', answers_parser.error)
 
@@ -49,7 +51,7 @@ class ClueForm(ModelForm):
         super(ClueForm, self).__init__(*args, **kwargs)
         self.fields['answer'].help_text = "Required. Should be < 25 chars. Letters and hyphen only."
         self.fields['answer'].widget.attrs['style'] = 'width:200px; text-transform:uppercase'
-        self.fields['answer'].widget.attrs['pattern'] = '[A-Za-z \-]+'
+        self.fields['answer'].widget.attrs['pattern'] = "[A-Za-z \-]+"
         self.fields['clue_text'].help_text = "Required. Answer length will be auto-added"
         self.fields['clue_text'].widget.attrs['style'] = 'height:50px'
         self.fields['parsing'].help_text = "Optional"

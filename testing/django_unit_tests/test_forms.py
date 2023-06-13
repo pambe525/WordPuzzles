@@ -137,6 +137,43 @@ class AddCluesFormTest(TestCase):
         self.assertEqual(len(form['clues'].errors), 0)
         self.assertEqual(len(form['answers'].errors), 0)
 
+    def test_more_than_one_answers_returns_error(self):
+        form_data = {'clues': '1 first \n2. second \r\n\n', 'answers': '\r\n1 first one\n2. three1, three2'}
+        form = AddCluesForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form['clues'].errors), 0)
+        self.assertEqual(len(form['answers'].errors), 1)
+        self.assertEqual(form['answers'].errors[0], "Item 2 has more than one entry.")
+
+    def test_less_answers_than_clues(self):
+        form_data = {'clues': '1 clue one\n2. clue two\n3 clue three', 'answers': '1 first\n3. second'}
+        form = AddCluesForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form['clues'].errors), 0)
+        self.assertEqual(form['answers'].errors[0], "Corresponding cross-entry for #2 missing.")
+
+    def test_more_answers_than_clues(self):
+        form_data = {'clues': '1 clue one\n2. clue two', 'answers': '1 first\n2. second\n3. third'}
+        form = AddCluesForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form['clues'].errors), 0)
+        self.assertEqual(form['answers'].errors[0], "Item 3 has no matching cross-entry.")
+
+    def test_mismatch_in_answers_length(self):
+        form_data = {'clues': '1 clue one\n2. clue two (7, 3)', 'answers': '1 first\n2. second one'}
+        form = AddCluesForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form['clues'].errors), 0)
+        self.assertEqual(form['answers'].errors[0], "Item 2 mismatches specified cross-entry length.")
+
+    def test_matching_answers_length(self):
+        form_data = {'clues': '1 clue one (3-2, 1, 5-2)\n2. clue two (6, 3)',
+                     'answers': '1 one-of a mixed-up\n2. second one'}
+        form = AddCluesForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form['clues'].errors), 0)
+        self.assertEqual(len(form['answers'].errors), 0)
+
 @skip
 class ClueFormTest(TestCase):
 

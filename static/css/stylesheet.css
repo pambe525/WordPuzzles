@@ -348,6 +348,7 @@ form .helptext, fieldset .helptext {
     color: var(--clr-darkgray);
     font-size: 0.8rem;
     display: block;
+    line-height: 0.9rem;
     margin-top: 0.1rem;
 }
 
@@ -528,7 +529,9 @@ img.thumbnail {
     font-weight: 400;
     font-size: 0.9rem;
 }
-
+textarea {
+    font-size: 0.9rem;
+}
 /**
  MY PUZZLES TABS
  */
