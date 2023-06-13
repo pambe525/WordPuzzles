@@ -20,7 +20,7 @@ class NumberedItemsParser:
     def __init__(self, form_field_text, tokens_check_flag=0):
         self.error = None
         self.items_dict = {}
-        self.__validate(form_field_text, tokens_check_flag)
+        self.__validate_entries(form_field_text, tokens_check_flag)
 
     def cross_check_entries(self, target_dict):
         if self.error: return
@@ -31,7 +31,7 @@ class NumberedItemsParser:
         except ValueError as err:
             self.error = str(err)
 
-    def __validate(self, form_field_text, tokens_check_flag):
+    def __validate_entries(self, form_field_text, tokens_check_flag):
         items = self.__parse_text_into_items(form_field_text)
         for index, item in enumerate(items):
             try:

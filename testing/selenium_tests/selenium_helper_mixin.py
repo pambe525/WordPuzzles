@@ -24,7 +24,7 @@ class HelperMixin:
     cookie_path = os.getcwd() + '/cookies.pkl'
 
     @staticmethod
-    def get_selenium_webdriver(headless=False):
+    def get_selenium_webdriver(headless=True):
         return SingletonWebDriver().start_webdriver(headless)
 
     @staticmethod
@@ -147,7 +147,7 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.selenium = cls.get_selenium_webdriver(False)
+        cls.selenium = cls.get_selenium_webdriver()
         cls.server_url = cls.live_server_url
         cls.testcase = cls
 
