@@ -130,6 +130,7 @@ class AddCluesView(EditorRequiredMixin, View):
         form = AddCluesForm(request.POST)
         puzzle = WordPuzzle.objects.get(id=pk)
         if form.is_valid():
+            puzzle.add_clues(form.cleaned_data_list)
             return redirect('edit_puzzle', pk)
         else:
             ctx = {'id': pk, 'title': str(puzzle), 'form': form}

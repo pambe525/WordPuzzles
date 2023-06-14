@@ -23,6 +23,7 @@ class WordPuzzleForm(ModelForm):
 class AddCluesForm(Form):
     clues = forms.CharField(widget=forms.Textarea(), label="Clues", required=True)
     answers = forms.CharField(widget=forms.Textarea(), label="Answers", required=True)
+    cleaned_data_list = []
 
     def __init__(self, *args, **kwargs):
         super(Form, self).__init__(*args, **kwargs)
@@ -40,6 +41,13 @@ class AddCluesForm(Form):
         answers_parser.cross_check_entries(clues_parser.items_dict)
         if clues_parser.error: self.add_error("clues", clues_parser.error)
         if answers_parser.error: self.add_error('answers', answers_parser.error)
+        self.__build_cleaned_data(clues_parser.items_dict, answers_parser.items_dict)
+
+    def __build_cleaned_data(self, clues_dict, answers_dict):
+        if not self.has_error('clues') and not self.has_error('answer'):
+            for key in clues_dict:
+                clue_data = {'clue_num': key, 'clue_text': clues_dict[key], 'answer': answers_dict[key]}
+                self.cleaned_data_list.append(clue_data)
 
 
 class ClueForm(ModelForm):

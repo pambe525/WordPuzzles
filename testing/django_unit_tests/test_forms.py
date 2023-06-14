@@ -174,6 +174,24 @@ class AddCluesFormTest(TestCase):
         self.assertEqual(len(form['clues'].errors), 0)
         self.assertEqual(len(form['answers'].errors), 0)
 
+    def test_valid_form_is_saved_with_all_entries(self):
+        form_data = {'clues': '1 clue one (8)\n3. clue two (6, 3)\n5 clue (three)',
+                     'answers': '1 distance\n5. no length\n3   second one'}
+        form = AddCluesForm(form_data)
+        print(form.errors)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.cleaned_data_list), 3)
+        self.assertEqual(form.cleaned_data_list[0]['clue_num'], 1)
+        self.assertEqual(form.cleaned_data_list[1]['clue_num'], 3)
+        self.assertEqual(form.cleaned_data_list[2]['clue_num'], 5)
+        self.assertEqual(form.cleaned_data_list[0]['clue_text'], 'clue one (8)')
+        self.assertEqual(form.cleaned_data_list[1]['clue_text'], 'clue two (6, 3)')
+        self.assertEqual(form.cleaned_data_list[2]['clue_text'], 'clue (three)')
+        self.assertEqual(form.cleaned_data_list[0]['answer'], 'distance')
+        self.assertEqual(form.cleaned_data_list[1]['answer'], 'second one')
+        self.assertEqual(form.cleaned_data_list[2]['answer'], 'no length')
+
+
 @skip
 class ClueFormTest(TestCase):
 

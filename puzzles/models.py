@@ -77,6 +77,18 @@ class WordPuzzle(models.Model):
     def create_new_puzzle(editor, data):
         return WordPuzzle.objects.create(editor=editor, type=data['type'], desc=data['desc'])
 
+    def add_clues(self, cleaned_clues_data):
+        for clue_data in cleaned_clues_data:
+            clue, created = Clue.objects.update_or_create(
+                puzzle=self,
+                clue_num=clue_data['clue_num'],
+                clue_text=clue_data['clue_text'],
+                answer=clue_data['answer']
+            )
+            if created:
+                self.size += 1
+                self.total_points += 1
+
     def add_clue(self, form_data_dict):
         self.size += 1
         self.total_points += form_data_dict['points']
@@ -151,7 +163,8 @@ class Clue(models.Model):
             if idx < len(words) - 1: footprint += ','
         return footprint
 
-    def get_word_length_as_string(self, word):
+    @staticmethod
+    def get_word_length_as_string(word):
         len_text = str(len(word))
         hyphenated_parts = word.split('-')
         if len(hyphenated_parts) > 1:

@@ -6,15 +6,15 @@
     </div>
     <hr class="dark-line">
 
-    <div class="subtitle">Puzzle {{ object.id }}: {{ form.instance.get_type_display }}</div>
+    <div class="subtitle">{{ object }}</div>
     <div class="small-text" id="timeLog"></div>
     <div class="flex m-top">
         <strong>Description:</strong>
         <button id="btnEditDesc" class="small-btn r-float">Edit</button>
     </div>
-    <div class="boxed-panel m-bot"><span class="note-text">{{ object.desc }}</span></div>
+    <div class="boxed-panel m-bot"><span class="note-text pre-line">{{ object.desc }}</span></div>
 
-    <div class="flex m-top"><strong>Clues [{{ object.total_points }} pts]:</strong>
+    <div class="flex m-top"><strong>Clues:</strong>
         <div class="r-float">
             <a class="small-btn" href="{% url 'add_clues' id %}">Add Clues</a>
             <a class="small-btn">Add Parsings</a>
@@ -36,42 +36,35 @@
     {% if clues|length == 0 %}
         <div class="note-text">No clues exist.</div>
     {% else %}
-        {#        <div class="note-text">#}
-        {#            To edit a clue click on the description. Hover over the<br/>#}
-        {#            clue or parsing to reveal a tooltip with full text.#}
-        {#        </div>#}
-        {#        <table class="table table-sm mt-3 p-0">#}
-        {#            <thead>#}
-        {#            <tr class="bg-secondary text-light">#}
-        {#                <th class="text-center">#</th>#}
-        {#                <th class="pl-1">Clue</th>#}
-        {#                <th class="text-right">Pts</th>#}
-        {#                <th></th>#}
-        {#            </tr>#}
-        {#            </thead>#}
-        {#            {% for clue in clues %}#}
-        {#                <tr>#}
-        {#                    <td class="p-0 pl-1 text-center">{{ clue.clue_num }}.</td>#}
-        {#                    <td class="p-0 pl-1">#}
-        {#                        <div class="text-wrap" style="line-height:normal; padding-top:2px">#}
-        {#                            <a class="text-primary" href="{% url 'edit_clue' object.id clue.clue_num %}"#}
-        {#                               title="{{ clue.get_decorated_clue_text }}">{{ clue.get_decorated_clue_text }}#}
-        {#                            </a>#}
-        {#                        </div>#}
-        {#                        <div class="h6 mt-1 text-secondary text-wrap">#}
-        {#                            <b>[{{ clue.answer }}]</b>#}
-        {#                            <span title="{{ clue.parsing }}">{{ clue.parsing }}</span>#}
-        {#                        </div>#}
-        {#                    </td>#}
-        {#                    <td class="p-0 text-right">{{ clue.points }}</td>#}
-        {#                    <td class="p-0 pl-2">#}
-        {#                        <a href="{% url 'delete_clue_confirm' id clue.clue_num %}">#}
-        {#                            <i class="fa fa-trash fa-lg ml-1" title="Delete"></i>#}
-        {#                        </a>#}
-        {#                    </td>#}
-        {#                </tr>#}
-        {#            {% endfor %}#}
-        {#        </table>#}
+        <hr>
+        <table style="width:100%">
+            <tr>
+                <th style="text-align:left">#</th>
+                <th style="text-align:left">Clue</th>
+                <th style="text-align:center">Pts</th>
+                <th></th>
+            </tr>
+            {% for clue in clues %}
+                <tr>
+                    <td style="vertical-align: top">{{ clue.clue_num }}.</td>
+                    <td>
+                        <a class="text-primary" href="{% url 'edit_clue' object.id clue.clue_num %}">
+                            {{ clue.get_decorated_clue_text }}
+                        </a>
+                        <div class="note-text">
+                            Answer: {{ clue.answer }}
+                            {% if clue.parsing %}, Parsing: {{ clue.parsing }} {% endif %}
+                        </div>
+                    </td>
+                    <td style="text-align:center; vertical-align: top">{{ clue.points }}</td>
+                    <td style="vertical-align: top">
+                        <a href="{% url 'delete_clue_confirm' id clue.clue_num %}">
+                            <i class="fa-regular fa-trash-can" title="Delete"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
     {% endif %}
 
     <script>
