@@ -21,8 +21,8 @@ class WordPuzzleForm(ModelForm):
 
 
 class AddCluesForm(Form):
-    clues = forms.CharField(widget=forms.Textarea(), label="Clues", required=True)
-    answers = forms.CharField(widget=forms.Textarea(), label="Answers", required=True)
+    clues = forms.CharField(widget=forms.Textarea(), initial=None, label="Clues", required=True)
+    answers = forms.CharField(widget=forms.Textarea(), initial=None, label="Answers", required=True)
     cleaned_data_list = []
 
     def __init__(self, *args, **kwargs):

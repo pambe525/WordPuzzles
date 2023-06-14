@@ -135,7 +135,8 @@ class AddCluesView(EditorRequiredMixin, View):
 
     def get(self, request, pk=None):
         puzzle = WordPuzzle.objects.get(id=pk)
-        ctx = {'id': pk, 'title': str(puzzle), 'form': AddCluesForm}
+        form = AddCluesForm
+        ctx = {'id': pk, 'title': str(puzzle), 'form': form}
         return render(request, self.template_name, ctx)
 
     def post(self, request, pk=None):

@@ -167,10 +167,26 @@ class AddCluesViewTests(BaseEditPuzzleTest):
     def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
         self.puzzle_does_not_exist_test()
 
-    def test_response_context(self):
+    def test_GET_response_context(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertTemplateUsed("add_clues.html")
         self.assertEqual(response.context['id'], puzzle.id)
         self.assertEqual(response.context['title'], str(puzzle))
-        self.assertIn('AddCluesForm', str(response.context['form']))
+        self.assertIn('clues', response.context['form'].base_fields)
+        self.assertIn('answers', response.context['form'].base_fields)
+
+    def test_POST_response_with_invalid_form_input(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle_data = {'clues': '1. first\n2. secomd', 'answers': '1. answer'}
+        response = self.client.post(self.target_page + str(puzzle.id) + "/", puzzle_data)
+        self.assertEqual(puzzle.id, response.context['id'])
+        self.assertEqual(str(puzzle), response.context['title'])
+        self.assertFalse(response.context['form'].is_valid())
+        self.assertEqual('Corresponding cross-entry for #2 missing.', response.context['form'].errors['answers'][0])
+
+    def test_POST_redirects_to_edit_puzzle_page_with_valid_form_input(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle_data = {'clues': '1. first\n2. secomd', 'answers': '1. answer one\n2. answer two'}
+        response = self.client.post(self.target_page + str(puzzle.id) + "/", puzzle_data)
+        self.assertRedirects(response, "/edit_puzzle/" + str(puzzle.id) + "/")
