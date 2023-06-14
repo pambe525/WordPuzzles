@@ -16,13 +16,12 @@
         <div class="page-title">Delete Clue {{ clue_num }} for Puzzle {{ object.id }}</div>
         <form method="post">
             {% csrf_token %}
-            <div class="mb-3">
-                This clue will be permanently deleted. This
-                action cannot be undone. Note that clue numbers
-                will be adjusted to close gap. Please confirm.
+            <div class="m-bot">
+                This clue will be permanently deleted. This action cannot be undone.
+                Note that clue numbers will be adjusted to close gaps. Please confirm.
             </div>
             <button type='submit' class="blue-btn">Delete</button>
-            <a href="{% url 'edit_puzzle' object.id %}" class="gray-btn">Cancel</a>
+            <a href="{% url 'edit_puzzle' object.id %}" class="gray-btn" role="button">Cancel</a>
         </form>
     {% endif %}
 {% endblock %}

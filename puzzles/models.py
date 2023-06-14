@@ -79,15 +79,15 @@ class WordPuzzle(models.Model):
 
     def add_clues(self, cleaned_clues_data):
         for clue_data in cleaned_clues_data:
-            clue, created = Clue.objects.update_or_create(
-                puzzle=self,
-                clue_num=clue_data['clue_num'],
-                clue_text=clue_data['clue_text'],
-                answer=clue_data['answer']
-            )
+            data_dict = {'clue_text': clue_data['clue_text'], 'answer': clue_data['answer']}
+            clue, created = Clue.objects.get_or_create(puzzle=self, clue_num=clue_data['clue_num'])
+            clue.clue_text = clue_data['clue_text']
+            clue.answer = clue_data['answer']
+            clue.save()
             if created:
                 self.size += 1
                 self.total_points += 1
+                self.save()
 
     def add_clue(self, form_data_dict):
         self.size += 1

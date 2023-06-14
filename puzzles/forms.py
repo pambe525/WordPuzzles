@@ -34,6 +34,7 @@ class AddCluesForm(Form):
         self.fields['answers'].widget.attrs['rows'] = 5
         self.fields['answers'].widget.attrs['placeholder'] = "1. first answer"
         self.fields['answers'].help_text = "Specify a single unique answer for each clue."
+        self.cleaned_data_list = []
 
     def clean(self):
         clues_parser = NumberedItemsParser(self.data["clues"])
@@ -44,7 +45,7 @@ class AddCluesForm(Form):
         self.__build_cleaned_data(clues_parser.items_dict, answers_parser.items_dict)
 
     def __build_cleaned_data(self, clues_dict, answers_dict):
-        if not self.has_error('clues') and not self.has_error('answer'):
+        if not self.has_error('clues') and not self.has_error('answers'):
             for key in clues_dict:
                 clue_data = {'clue_num': key, 'clue_text': clues_dict[key], 'answer': answers_dict[key]}
                 self.cleaned_data_list.append(clue_data)
