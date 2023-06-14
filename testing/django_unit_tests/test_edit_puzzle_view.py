@@ -52,6 +52,32 @@ class NewPuzzleViewTests(BaseEditPuzzleTest):
         self.assertRedirects(response, "/edit_puzzle/" + str(created_puzzle.id) + "/")
 
 
+class DeletePuzzleViewTests(BaseEditPuzzleTest):
+    target_page = "/delete_puzzle/"
+
+    def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
+        self.unauthenticated_user_test()
+
+    def test_GET_shows_error_if_user_is_not_editor(self):
+        self.user_is_not_editor_test()
+
+    def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
+        self.puzzle_does_not_exist_test()
+
+    def test_GET_redirects_to_confirm_page(self):
+        new_puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        response = self.client.get(self.target_page + str(new_puzzle.id) + "/")
+        self.assertTemplateUsed(response, "delete_confirm.html")
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(WordPuzzle.objects.filter(id=new_puzzle.id).exists())  # NOT deleted
+
+    def test_POST_deletes_puzzle_and_redirects_to_my_puzzles_page(self):
+        new_puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        response = self.client.post(self.target_page + str(new_puzzle.id) + "/")
+        self.assertFalse(WordPuzzle.objects.filter(id=new_puzzle.id).exists())  # Deleted
+        self.assertRedirects(response, "/my_puzzles")
+
+
 class EditPuzzleViewTests(BaseEditPuzzleTest):
     target_page = "/edit_puzzle/"
 
