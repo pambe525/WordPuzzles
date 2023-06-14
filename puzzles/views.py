@@ -108,14 +108,26 @@ class EditPuzzleView(EditorRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['clues'] = self.object.get_clues()
+        clues = self.object.get_clues()
+        context['clues'] = clues
         context['id'] = self.object.id
+        context['has_gaps'] = self.__clue_nums_have_gaps(clues)
         return context
 
     def form_valid(self, form):
         form.save(True)
         ctx = {'form': form, 'clues': self.object.get_clues(), 'object': self.object}
         return render(self.request, self.template_name, context=ctx)
+
+    @staticmethod
+    def __clue_nums_have_gaps(clues_list):
+        if len(clues_list) == 0: return False
+        clue_nums = [clue.clue_num for clue in clues_list]
+        clue_nums.sort()
+        if clue_nums[0] != 1: return True
+        for i in range(1, len(clue_nums)):
+            if clue_nums[i] - clue_nums[i - 1] > 1: return True
+        return False
 
 
 class AddCluesView(EditorRequiredMixin, View):
