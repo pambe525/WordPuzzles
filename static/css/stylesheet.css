@@ -466,20 +466,29 @@ hr.dark-line {
 .pre-line {
     white-space: pre-line;
 }
-
-.small-text {
-    font-size: 0.7rem;
-    color: var(--clr-darkgray);
+.clr-light {
+    color: var(--clr-gray)
 }
-
+.clr-blue {
+    color: var(--clr-blue)
+}
+.clr-red {
+    color: var(--clr-red)
+}
 .bold-text {
-    font-size: 0.8rem;
     font-weight: 600;
 }
-
-.red-text {
-    color: red;
-!important;
+.font-xsmall {
+    font-size: 0.7rem;
+}
+.font-small {
+    font-size: 0.8rem;
+}
+.font-medium {
+    font-size: 0.9rem;
+}
+.font-large {
+    font-size: 1.2rem;
 }
 
 .boxed-panel {

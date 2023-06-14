@@ -7,7 +7,7 @@
     <hr class="dark-line">
 
     <div class="subtitle">{{ object }}</div>
-    <div class="small-text" id="timeLog"></div>
+    <div class="font-xsmall" id="timeLog"></div>
     <div class="flex m-top">
         <strong>Description:</strong>
         <button id="btnEditDesc" class="small-btn r-float">Edit</button>
@@ -16,7 +16,7 @@
 
     <div class="flex m-top"><strong>Clues:</strong>
         <div class="r-float">
-            <a class="small-btn" href="{% url 'add_clues' id %}">Add Clues</a>
+            <a class="small-btn" href="{% url 'add_clues' object.id %}">Add Clues</a>
         </div>
     </div>
 
@@ -24,7 +24,7 @@
     <dialog class="modal-dialog" id="edit-desc-dialog">
         <div class="subtitle">Edit Description</div>
         <hr>
-        <form action="{% url 'edit_puzzle' id %}" method="post">
+        <form action="{% url 'edit_puzzle' object.id %}" method="post">
             {% csrf_token %}
             {{ form.desc }}
             <button type="submit" class="blue-btn">Save</button>
@@ -57,7 +57,7 @@
                     </td>
                     <td style="text-align:center; vertical-align: top">{{ clue.points }}</td>
                     <td style="vertical-align: top">
-                        <a href="{% url 'delete_clue_confirm' id clue.clue_num %}">
+                        <a href="{% url 'delete_clue_confirm' object.id clue.clue_num %}">
                             <i class="fa-regular fa-trash-can" title="Delete"></i>
                         </a>
                     </td>

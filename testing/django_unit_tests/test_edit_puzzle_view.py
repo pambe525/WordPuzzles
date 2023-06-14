@@ -38,6 +38,20 @@ class BaseEditPuzzleTest(TransactionTestCase):
         self.assertContains(response, "Ok")
 
 
+class NewPuzzleViewTests(BaseEditPuzzleTest):
+    target_page = "/new_puzzle"
+
+    def test_POST_creates_new_puzzle_and_redirects_to_edit_puzzle_page(self):
+        puzzle_data = {'type': 0, 'desc': 'new description'}
+        self.assertEqual(0, len(WordPuzzle.objects.all()))
+        response = self.client.post(self.target_page, puzzle_data)
+        created_puzzle = WordPuzzle.objects.all()[0]
+        self.assertEqual(self.user, created_puzzle.editor)
+        self.assertEqual(0, created_puzzle.type)
+        self.assertEqual(puzzle_data['desc'], created_puzzle.desc)
+        self.assertRedirects(response, "/edit_puzzle/" + str(created_puzzle.id) + "/")
+
+
 class EditPuzzleViewTests(BaseEditPuzzleTest):
     target_page = "/edit_puzzle/"
 
@@ -50,14 +64,17 @@ class EditPuzzleViewTests(BaseEditPuzzleTest):
     def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
         self.puzzle_does_not_exist_test()
 
-    def test_POST_saves_basic_puzzle_data(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+    def test_POST_saves_desc_field(self):
+        before_save_puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        self.assertIsNone(before_save_puzzle.desc)
         puzzle_data = {'desc': 'Puzzle instructions'}
-        response = self.client.post('/edit_puzzle/' + str(puzzle.id) + '/', puzzle_data)
-        saved_puzzle = WordPuzzle.objects.get(id=puzzle.id)
-        self.assertEqual(saved_puzzle.type, 0)
-        self.assertEqual(saved_puzzle.desc, puzzle_data['desc'])
-        self.assertEqual(response.context['form']['desc'].value(), puzzle_data['desc'])
+        response = self.client.post(self.target_page + str(before_save_puzzle.id) + '/', puzzle_data)
+        after_save_puzzle = WordPuzzle.objects.get(id=before_save_puzzle.id)
+        self.assertEqual(0, after_save_puzzle.type)
+        self.assertEqual(puzzle_data['desc'], after_save_puzzle.desc)
+        self.assertEqual(puzzle_data['desc'], response.context['form']['desc'].value())
+        self.assertEqual(response.context['object'], after_save_puzzle)
+
     #
     # def test_GET_form_initialization_with_blank_object(self):
     #     puzzle = WordPuzzle.objects.create(editor=self.user)

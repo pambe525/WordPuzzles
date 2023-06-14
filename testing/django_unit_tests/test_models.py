@@ -77,8 +77,6 @@ class WordPuzzleModelTest(TransactionTestCase):
         self.assertEqual(puzzle.size, 0)
         self.assertIsNone(puzzle.desc)
         self.assertIsNone(puzzle.shared_at)
-        # current_time_stamp = datetime.now(tz=timezone.utc).isoformat() # timestamp as ISO string (UTC)
-        # self.assertEqual(current_time_stamp, puzzle.created_at.isoformat())
 
     def test_string_representation(self):
         puzzle = WordPuzzle.objects.create(size=10, type=0, editor=self.user)

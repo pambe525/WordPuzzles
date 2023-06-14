@@ -33,7 +33,7 @@ class MyPuzzlesView(LoginRequiredMixin, View):
         return render(request, "my_puzzles.html", context=ctx)
 
 
-class NewPuzzleView(LoginRequiredMixin, View):
+class NewPuzzleView(View):
     def post(self, request):
         form = WordPuzzleForm(request.POST)
         if form.is_valid():
@@ -114,7 +114,7 @@ class EditPuzzleView(EditorRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         form.save(True)
-        ctx = {'form': form, 'id': self.object.id, 'clues': self.object.get_clues(), 'object': self.object}
+        ctx = {'form': form, 'clues': self.object.get_clues(), 'object': self.object}
         return render(self.request, self.template_name, context=ctx)
 
 
