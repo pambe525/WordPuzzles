@@ -89,7 +89,7 @@ class WordPuzzle(models.Model):
                 self.total_points += 1
                 self.save()
 
-    # TODO: Eliminate this method since clues are created in bulk using add_clues
+    # TODO: Eliminate this method since clues are created in bulk only using add_clues
     def add_clue(self, form_data_dict):
         self.size += 1
         self.total_points += form_data_dict['points']
@@ -154,27 +154,27 @@ class Clue(models.Model):
         return text
 
     def get_decorated_clue_text(self):
-        return self.clue_text + " (" + self.get_answer_footprint_as_string() + ")"
+        return self.clue_text   # + " (" + self.get_answer_footprint_as_string() + ")"
 
-    def get_answer_footprint_as_string(self):
-        footprint = ''
-        words = self.answer.split()
-        for idx, word in enumerate(words):
-            footprint += self.get_word_length_as_string(word)
-            if idx < len(words) - 1: footprint += ','
-        return footprint
-
-    @staticmethod
-    def get_word_length_as_string(word):
-        len_text = str(len(word))
-        hyphenated_parts = word.split('-')
-        if len(hyphenated_parts) > 1:
-            len_text = ''
-            for idx, part in enumerate(hyphenated_parts):
-                len_text += str(len(part))
-                if idx < (len(hyphenated_parts) - 1):
-                    len_text += '-'
-        return len_text
+    # def get_answer_footprint_as_string(self):
+    #     footprint = ''
+    #     words = self.answer.split()
+    #     for idx, word in enumerate(words):
+    #         footprint += self.get_word_length_as_string(word)
+    #         if idx < len(words) - 1: footprint += ','
+    #     return footprint
+    #
+    # @staticmethod
+    # def get_word_length_as_string(word):
+    #     len_text = str(len(word))
+    #     hyphenated_parts = word.split('-')
+    #     if len(hyphenated_parts) > 1:
+    #         len_text = ''
+    #         for idx, part in enumerate(hyphenated_parts):
+    #             len_text += str(len(part))
+    #             if idx < (len(hyphenated_parts) - 1):
+    #                 len_text += '-'
+    #     return len_text
 
 
 class PuzzleSession(models.Model):

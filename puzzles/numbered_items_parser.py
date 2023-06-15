@@ -76,33 +76,54 @@ class NumberedItemsParser:
 
     def __cross_check_length_of_entries(self, target_dict):
         for key in self.items_dict:
-            length_to_match = self.__extract_from_end_parenthesis(target_dict[key])
-            if length_to_match is not None:
-                length_text = self.__get_answer_footprint_as_string(self.items_dict[key])
-                if length_to_match != length_text: raise ValueError(self.MISMATCH_IN_CROSS_ENTRY_LENGTH.format(key))
+            clue_answer_parser = ClueAnswerLengthParser(target_dict[key], self.items_dict[key])
+            if clue_answer_parser.clue_has_end_paren():
+                if clue_answer_parser.has_incorrect_answer_length():
+                    raise ValueError(self.MISMATCH_IN_CROSS_ENTRY_LENGTH.format(key))
 
-    @staticmethod
-    def __extract_from_end_parenthesis(text):
-        match = re.search(r'\(([0-9, -]+)\)$', text)
+
+class ClueAnswerLengthParser:
+    clue_text = None
+    answer = None
+
+    def __init__(self, clue_text, answer):
+        self.clue_text = clue_text
+        self.answer = answer
+        self.answer_footprint = self.__get_answer_footprint_as_string()
+        self.clue_paren_footprint = self.__extract_from_end_parenthesis()
+
+    def clue_has_end_paren(self):
+        return False if self.clue_paren_footprint is None else True
+
+    def has_incorrect_answer_length(self):
+        return self.answer_footprint != self.clue_paren_footprint
+
+    def add_missing_paren_to_clue_text(self):
+        if self.clue_paren_footprint is None:
+            self.clue_text += " (" + self.answer_footprint + ")"
+        return self.clue_text
+
+    def __extract_from_end_parenthesis(self):
+        match = re.search(r'\(([0-9, -]+)\)$', self.clue_text)
         if match: return match.group(1).replace(" ", "")
         return None
 
-    def __get_answer_footprint_as_string(self, text):
+    def __get_answer_footprint_as_string(self):
         footprint = ''
-        words = text.split()
+        words = self.answer.split()
         for idx, word in enumerate(words):
-            footprint += self.__get_word_length_as_string(word)
+            footprint += self.__encode_word_length_as_numeric_string(word)
             if idx < len(words) - 1: footprint += ','
         return footprint
 
     @staticmethod
-    def __get_word_length_as_string(word):
-        len_text = str(len(word))
+    def __encode_word_length_as_numeric_string(word):
+        numeric_string = str(len(word))
         hyphenated_parts = word.split('-')
         if len(hyphenated_parts) > 1:
-            len_text = ''
+            numeric_string = ''
             for idx, part in enumerate(hyphenated_parts):
-                len_text += str(len(part))
+                numeric_string += str(len(part))
                 if idx < (len(hyphenated_parts) - 1):
-                    len_text += '-'
-        return len_text
+                    numeric_string += '-'
+        return numeric_string

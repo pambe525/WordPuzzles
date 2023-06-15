@@ -118,7 +118,7 @@ class EditPuzzleViewTests(BaseEditPuzzleTest):
     def test_GET_response_with_existing_clues_sorted_by_clue_number(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         clues_data = [{'clue_num': 3, 'clue_text': 'Third clue', 'answer': 'answer three'},
-                      {'clue_num': 1, 'clue_text': 'First clue', 'answer': 'answer one'},
+                      {'clue_num': 1, 'clue_text': 'First clue (6,3)', 'answer': 'answer one'},
                       {'clue_num': 2, 'clue_text': 'Second clue', 'answer': 'answer two'}]
         puzzle.add_clues(clues_data)
         response = self.client.get('/edit_puzzle/' + str(puzzle.id) + '/')
@@ -130,21 +130,21 @@ class EditPuzzleViewTests(BaseEditPuzzleTest):
         self.assertEqual(puzzle, response.context['clues'][0].puzzle)
         self.assertEqual(clues_data[1]['clue_num'], response.context['clues'][0].clue_num)
         self.assertEqual(clues_data[1]['clue_text'], response.context['clues'][0].clue_text)
-        self.assertEqual(clues_data[1]['answer'], response.context['clues'][0].answer)
+        self.assertEqual(clues_data[1]['answer'].upper(), response.context['clues'][0].answer)
         self.assertEqual(None, response.context['clues'][0].parsing)
         self.assertEqual(1, response.context['clues'][0].points)
         # Second sorted clue in response list is the 3rd in clues_data
         self.assertEqual(puzzle, response.context['clues'][1].puzzle)
         self.assertEqual(clues_data[2]['clue_num'], response.context['clues'][1].clue_num)
         self.assertEqual(clues_data[2]['clue_text'], response.context['clues'][1].clue_text)
-        self.assertEqual(clues_data[2]['answer'], response.context['clues'][1].answer)
+        self.assertEqual(clues_data[2]['answer'].upper(), response.context['clues'][1].answer)
         self.assertEqual(None, response.context['clues'][1].parsing)
         self.assertEqual(1, response.context['clues'][1].points)
         # Third sorted clue in response list is the 1st in clues_data
         self.assertEqual(puzzle, response.context['clues'][0].puzzle)
         self.assertEqual(clues_data[0]['clue_num'], response.context['clues'][2].clue_num)
         self.assertEqual(clues_data[0]['clue_text'], response.context['clues'][2].clue_text)
-        self.assertEqual(clues_data[0]['answer'], response.context['clues'][2].answer)
+        self.assertEqual(clues_data[0]['answer'].upper(), response.context['clues'][2].answer)
         self.assertEqual(None, response.context['clues'][2].parsing)
         self.assertEqual(1, response.context['clues'][2].points)
 
