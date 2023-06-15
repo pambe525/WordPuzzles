@@ -10,6 +10,7 @@ from testing.django_unit_tests.test_puzzle_crud_views import BaseEditPuzzleTest
 
 class AddCluesViewTests(BaseEditPuzzleTest):
     target_page = "/add_clues/"
+    redirect_page = "/edit_puzzle/"
 
     def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
         self.unauthenticated_user_test()
@@ -31,19 +32,62 @@ class AddCluesViewTests(BaseEditPuzzleTest):
 
     def test_POST_response_with_invalid_form_input(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        puzzle_data = {'clues': '1. first\n2. secomd', 'answers': '1. answer'}
+        puzzle_data = {'clues': '1. first\n2. second', 'answers': '1. answer'}
         response = self.client.post(self.target_page + str(puzzle.id) + "/", puzzle_data)
         self.assertEqual(puzzle.id, response.context['id'])
         self.assertEqual(str(puzzle), response.context['title'])
         self.assertFalse(response.context['form'].is_valid())
         self.assertEqual('Corresponding cross-entry for #2 missing.', response.context['form'].errors['answers'][0])
+        self.assertFalse(Clue.objects.filter(puzzle=puzzle).exists())
 
-    def test_POST_redirects_to_edit_puzzle_page_with_valid_form_input(self):
+    def test_POST_with_valid_form_input_saves_and_redirects_to_edit_puzzle_page_(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        puzzle_data = {'clues': '1. first\n2. secomd', 'answers': '1. answer one\n2. answer two'}
+        puzzle_data = {'clues': '5. fifth clue \n2. second clue', 'answers': '5. answer fifth\n 2 answer two'}
         response = self.client.post(self.target_page + str(puzzle.id) + "/", puzzle_data)
-        self.assertRedirects(response, "/edit_puzzle/" + str(puzzle.id) + "/")
+        self.assertRedirects(response, self.redirect_page + str(puzzle.id) + "/")
+        saved_clues = Clue.objects.filter(puzzle=puzzle)
+        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        # Puzzle clue counts must be updated
+        self.assertEqual(2, updated_puzzle.size)
+        self.assertEqual(2, updated_puzzle.total_points)
+        self.assertEqual(2, len(saved_clues))
+        # first saved clue (#5)
+        self.assertEqual(5, saved_clues[0].clue_num)
+        self.assertEqual('fifth clue', saved_clues[0].clue_text)
+        self.assertEqual('ANSWER FIFTH', saved_clues[0].answer)  # answer is capitalized
+        self.assertEqual(None, saved_clues[0].parsing)
+        self.assertEqual(1, saved_clues[0].points)
+        # second saved clue (#2)
+        self.assertEqual(2, saved_clues[1].clue_num)
+        self.assertEqual('second clue', saved_clues[1].clue_text)
+        self.assertEqual('ANSWER TWO', saved_clues[1].answer)  # answer is capitalized
+        self.assertEqual(None, saved_clues[1].parsing)
+        self.assertEqual(1, saved_clues[1].points)
 
+    def test_POST_with_existing_clue_nums_updates_clues(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle_data = {'clues': '5. fifth clue \n2. second clue', 'answers': '5. answer fifth\n 2 answer two'}
+        response = self.client.post(self.target_page + str(puzzle.id) + "/", puzzle_data)
+        more_puzzle_data = {'clues': '5. fifth clue mod \n6. new clue', 'answers': '6. new answer\n 5 mod answer'}
+        response = self.client.post(self.target_page + str(puzzle.id) + "/", more_puzzle_data)
+        saved_clues = Clue.objects.filter(puzzle=puzzle)
+        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        # Puzzle clue counts must be updated
+        self.assertEqual(3, updated_puzzle.size)
+        self.assertEqual(3, updated_puzzle.total_points)
+        self.assertEqual(3, len(saved_clues))
+        # first saved clue (#5)
+        self.assertEqual(5, saved_clues[0].clue_num)
+        self.assertEqual('fifth clue mod', saved_clues[0].clue_text)
+        self.assertEqual('MOD ANSWER', saved_clues[0].answer)  # answer is capitalized
+        # second saved clue (#2) - unchanged
+        self.assertEqual(2, saved_clues[1].clue_num)
+        self.assertEqual('second clue', saved_clues[1].clue_text)
+        self.assertEqual('ANSWER TWO', saved_clues[1].answer)  # answer is capitalized
+        # second saved clue (#6) - new
+        self.assertEqual(6, saved_clues[2].clue_num)
+        self.assertEqual('new clue', saved_clues[2].clue_text)
+        self.assertEqual('NEW ANSWER', saved_clues[2].answer)  # answer is capitalized
 
 @skip
 class EditClueViewTests(TestCase):
