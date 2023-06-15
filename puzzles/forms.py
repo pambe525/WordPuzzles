@@ -5,7 +5,7 @@ from django import forms
 from django.forms import ModelForm, Form
 
 from puzzles.models import WordPuzzle, Clue
-from puzzles.numbered_items_parser import NumberedItemsParser
+from puzzles.text_parsers import NumberedItemsParser
 
 
 class WordPuzzleForm(ModelForm):

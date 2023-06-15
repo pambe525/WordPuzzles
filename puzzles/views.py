@@ -154,23 +154,15 @@ class EditClueView(EditorRequiredMixin, View):
     template_name = "edit_clue.html"
 
     def get(self, request, pk=None, clue_num=None):
-        ctx = {'form': ClueForm(), 'clue_num': clue_num, 'id': pk}
-        puzzle = WordPuzzle.objects.get(id=pk)
-        if clue_num is None:
-            ctx['clue_num'] = puzzle.size + 1
-        else:
-            clue = Clue.objects.get(puzzle=pk, clue_num=clue_num)
-            ctx['form'] = ClueForm(instance=clue)
+        clue = Clue.objects.get(puzzle=pk, clue_num=clue_num)
+        ctx = {'form': ClueForm(instance=clue), 'clue_num': clue_num, 'id': pk}
         return render(request, self.template_name, ctx)
 
     def post(self, request, pk=None, clue_num=None):
         form = ClueForm(request.POST)
         puzzle = WordPuzzle.objects.get(id=pk)
         if form.is_valid():
-            if clue_num is None:  # New clue
-                puzzle.add_clue(form.cleaned_data)
-            else:
-                puzzle.update_clue(clue_num, form.cleaned_data)
+            puzzle.update_clue(clue_num, form.cleaned_data)
             return redirect("edit_puzzle", puzzle.id)
         else:
             if clue_num is None: clue_num = puzzle.size + 1

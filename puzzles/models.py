@@ -79,10 +79,9 @@ class WordPuzzle(models.Model):
 
     def add_clues(self, cleaned_clues_data):
         for clue_data in cleaned_clues_data:
-            data_dict = {'clue_text': clue_data['clue_text'], 'answer': clue_data['answer']}
             clue, created = Clue.objects.get_or_create(puzzle=self, clue_num=clue_data['clue_num'])
             clue.clue_text = clue_data['clue_text']
-            clue.answer = clue_data['answer'].upper()
+            clue.answer = clue_data['answer']
             clue.save()
             if created:
                 self.size += 1
@@ -154,7 +153,7 @@ class Clue(models.Model):
         return text
 
     def get_decorated_clue_text(self):
-        return self.clue_text   # + " (" + self.get_answer_footprint_as_string() + ")"
+        return self.clue_text  # + " (" + self.get_answer_footprint_as_string() + ")"
 
     # def get_answer_footprint_as_string(self):
     #     footprint = ''

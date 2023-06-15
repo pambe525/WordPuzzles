@@ -191,7 +191,6 @@ class AddCluesFormTest(TestCase):
         self.assertEqual(form.cleaned_data_list[2]['answer'], 'no length')
 
 
-@skip
 class ClueFormTest(TestCase):
 
     def test_form_default_fields(self):

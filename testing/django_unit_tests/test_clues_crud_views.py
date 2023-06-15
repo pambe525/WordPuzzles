@@ -42,7 +42,7 @@ class AddCluesViewTests(BaseEditPuzzleTest):
 
     def test_POST_with_valid_form_input_saves_and_redirects_to_edit_puzzle_page_(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        puzzle_data = {'clues': '5. fifth clue \n2. second clue', 'answers': '5. answer fifth\n 2 answer two'}
+        puzzle_data = {'clues': '5. fifth clue (6,5)\n2. second clue', 'answers': '5. answer fifth\n 2 answer two'}
         response = self.client.post(self.target_page + str(puzzle.id) + "/", puzzle_data)
         self.assertRedirects(response, self.redirect_page + str(puzzle.id) + "/")
         saved_clues = Clue.objects.filter(puzzle=puzzle)
@@ -51,16 +51,17 @@ class AddCluesViewTests(BaseEditPuzzleTest):
         self.assertEqual(2, updated_puzzle.size)
         self.assertEqual(2, updated_puzzle.total_points)
         self.assertEqual(2, len(saved_clues))
-        # first saved clue (#5)
+        # first saved clue (#5) - note: answers are NOT capitalized before saving;
+        # answer lengths, if specified, are preserved
         self.assertEqual(5, saved_clues[0].clue_num)
-        self.assertEqual('fifth clue', saved_clues[0].clue_text)
-        self.assertEqual('ANSWER FIFTH', saved_clues[0].answer)  # answer is capitalized
+        self.assertEqual('fifth clue (6,5)', saved_clues[0].clue_text)
+        self.assertEqual('answer fifth', saved_clues[0].answer)
         self.assertEqual(None, saved_clues[0].parsing)
         self.assertEqual(1, saved_clues[0].points)
         # second saved clue (#2)
         self.assertEqual(2, saved_clues[1].clue_num)
         self.assertEqual('second clue', saved_clues[1].clue_text)
-        self.assertEqual('ANSWER TWO', saved_clues[1].answer)  # answer is capitalized
+        self.assertEqual('answer two', saved_clues[1].answer)
         self.assertEqual(None, saved_clues[1].parsing)
         self.assertEqual(1, saved_clues[1].points)
 
@@ -79,18 +80,20 @@ class AddCluesViewTests(BaseEditPuzzleTest):
         # first saved clue (#5)
         self.assertEqual(5, saved_clues[0].clue_num)
         self.assertEqual('fifth clue mod', saved_clues[0].clue_text)
-        self.assertEqual('MOD ANSWER', saved_clues[0].answer)  # answer is capitalized
+        self.assertEqual('mod answer', saved_clues[0].answer)
         # second saved clue (#2) - unchanged
         self.assertEqual(2, saved_clues[1].clue_num)
         self.assertEqual('second clue', saved_clues[1].clue_text)
-        self.assertEqual('ANSWER TWO', saved_clues[1].answer)  # answer is capitalized
+        self.assertEqual('answer two', saved_clues[1].answer)
         # second saved clue (#6) - new
         self.assertEqual(6, saved_clues[2].clue_num)
         self.assertEqual('new clue', saved_clues[2].clue_text)
-        self.assertEqual('NEW ANSWER', saved_clues[2].answer)  # answer is capitalized
+        self.assertEqual('new answer', saved_clues[2].answer)
 
-@skip
-class EditClueViewTests(TestCase):
+
+class EditClueViewTests(TransactionTestCase):
+    target_page = "/edit_clue/"
+
     def setUp(self):
         # Create a logged in user
         self.user = User.objects.get_or_create(username="test_user")[0]
@@ -98,93 +101,45 @@ class EditClueViewTests(TestCase):
 
     def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
         logout(self.client)
-        response = self.client.get("/new_clue/1/")
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/login?next=/new_clue/1/")
-        response = self.client.get("/edit_clue/1/1/")
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/login?next=/edit_clue/1/1/")
-
-    def test_GET_new_clue_shows_error_if_user_is_not_editor_of_puzzle(self):
-        other_user = User.objects.create(username="other_user")
-        puzzle = WordPuzzle.objects.create(editor=other_user)
-        response = self.client.get("/new_clue/" + str(puzzle.id) + "/")
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "puzzle_error.html")
-        self.assertContains(response, "Puzzle #" + str(puzzle.id))
-        self.assertContains(response, "This operation is not permitted since you are not the editor.")
-        self.assertContains(response, "OK")
+        response = self.client.get(self.target_page + "1/1/")
+        self.assertEqual(302, response.status_code)
+        self.assertEqual("/login?next=" + self.target_page + "1/1/", response.url)
 
     def test_GET_edit_clue_shows_error_if_user_is_not_editor_of_puzzle(self):
-        other_user = User.objects.create(username="other_user")
+        other_user = User.objects.create(username="other_user", email="abc@xyz")
         puzzle = WordPuzzle.objects.create(editor=other_user)
-        puzzle.add_clue({'answer': 'TEST', 'clue_text': 'Clue text desc', 'parsing': '', 'points': 1})
+        clue = Clue.objects.create(puzzle=puzzle, clue_num=1)
         response = self.client.get("/edit_clue/" + str(puzzle.id) + "/1/")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, "puzzle_error.html")
-        self.assertContains(response, "Clue 1 for Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "Clue 1 for Puzzle " + str(puzzle.id))
         self.assertContains(response, "This operation is not permitted since you are not the editor.")
-        self.assertContains(response, "OK")
-
-    def test_GET_new_clue_raises_error_message_if_puzzle_id_does_not_exist(self):
-        response = self.client.get("/new_clue/5/")
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "puzzle_error.html")
-        self.assertContains(response, "Puzzle #5")
-        self.assertContains(response, "This puzzle does not exist.")
-        self.assertContains(response, "OK")
 
     def test_GET_edit_clue_raises_error_message_if_puzzle_id_does_not_exist(self):
         response = self.client.get("/edit_clue/5/1/")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, "puzzle_error.html")
-        self.assertContains(response, "Puzzle #5")
+        self.assertContains(response, "Puzzle 5")
         self.assertContains(response, "This puzzle does not exist.")
-        self.assertContains(response, "OK")
 
     def test_GET_edit_clue_raises_error_message_if_clue_does_not_exist(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get("/edit_clue/" + str(puzzle.id) + "/1/")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, "puzzle_error.html")
-        self.assertContains(response, "Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "Puzzle " + str(puzzle.id))
         self.assertContains(response, "This clue does not exist.")
-        self.assertContains(response, "OK")
-
-    def test_GET_new_clue_renders_template_and_clue_edit_form(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user)
-        response = self.client.get('/new_clue/' + str(puzzle.id) + '/')
-        self.assertContains(response, "Edit Clue 1 for Puzzle #" + str(puzzle.id))
-        self.assertEqual(response.context['form']['answer'].value(), None)
-        self.assertEqual(response.context['form']['clue_text'].value(), None)
-        self.assertEqual(response.context['form']['parsing'].value(), None)
-        self.assertEqual(response.context['form']['points'].value(), 1)
-        self.assertContains(response, "SAVE")
-        self.assertContains(response, "CANCEL")
 
     def test_GET_edit_clue_renders_template_and_clue_edit_form(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        clue = puzzle.add_clue({'answer': 'TEST', 'clue_text': 'Clue text desc', 'parsing': 'easy', 'points': 1})
-        response = self.client.get('/edit_clue/' + str(puzzle.id) + '/' + str(clue.clue_num) + '/')
-        self.assertContains(response, "Edit Clue 1 for Puzzle #" + str(puzzle.id))
-        self.assertEqual(response.context['form']['answer'].value(), 'TEST')
-        self.assertEqual(response.context['form']['clue_text'].value(), 'Clue text desc')
-        self.assertEqual(response.context['form']['parsing'].value(), 'easy')
-        self.assertEqual(response.context['form']['points'].value(), 1)
-        self.assertContains(response, "SAVE")
-        self.assertContains(response, "CANCEL")
-
-    def test_POST_new_clue_form_creates_clue_and_redirects_to_edit_puzzle_view(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
-        clue_form_data = {'answer': "MY WORD", 'clue_text': 'clue to my word', 'parsing': '', 'points': 2}
-        response = self.client.post('/new_clue/' + str(puzzle.id) + '/', clue_form_data)
-        self.assertEqual(response.status_code, 302)
-        self.assertTemplateUsed('edit_puzzle.html')
-        clues = Clue.objects.all()
-        self.assertEqual(len(clues), 1)
-        updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
-        self.assertEqual(updated_puzzle.size, 1)
-        self.assertEqual(updated_puzzle.total_points, 2)
+        clue = Clue.objects.create(puzzle=puzzle, clue_num=1, clue_text='Clue text desc', answer='test')
+        response = self.client.get(self.target_page + str(puzzle.id) + '/' + str(clue.clue_num) + '/')
+        self.assertEqual(puzzle.id, response.context['id'])
+        self.assertEqual(1, response.context['clue_num'])
+        self.assertEqual("test", response.context['form']['answer'].value())
+        self.assertEqual('Clue text desc', response.context['form']['clue_text'].value(), )
+        self.assertIsNone(response.context['form']['parsing'].value())
+        self.assertEqual(1, response.context['form']['points'].value())
 
     def test_POST_new_clue_form_does_not_save_form_if_errors(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
@@ -192,7 +147,7 @@ class EditClueViewTests(TestCase):
         response = self.client.post('/new_clue/' + str(puzzle.id) + '/', clue_form_data)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "edit_clue.html")
-        self.assertContains(response, "Edit Clue 1 for Puzzle #" + str(puzzle.id))
+        self.assertContains(response, "Edit Clue 1 for Puzzle " + str(puzzle.id))
         clues = Clue.objects.all()
         self.assertEqual(len(clues), 0)
 
@@ -212,7 +167,6 @@ class EditClueViewTests(TestCase):
         self.assertEqual(updated_clue.points, 2)
         puzzle = WordPuzzle.objects.get(id=puzzle.id)
         self.assertEqual(puzzle.total_points, 2)
-
 
 @skip
 class DeleteClueViewTests(TransactionTestCase):
