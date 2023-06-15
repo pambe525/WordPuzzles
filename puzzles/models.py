@@ -89,12 +89,13 @@ class WordPuzzle(models.Model):
                 self.total_points += 1
                 self.save()
 
-    # def add_clue(self, form_data_dict):
-    #     self.size += 1
-    #     self.total_points += form_data_dict['points']
-    #     new_clue = Clue.objects.create(puzzle=self, clue_num=self.size, **form_data_dict)
-    #     self.save(update_fields=['size', 'total_points'])
-    #     return new_clue
+    # TODO: Eliminate this method since clues are created in bulk using add_clues
+    def add_clue(self, form_data_dict):
+        self.size += 1
+        self.total_points += form_data_dict['points']
+        new_clue = Clue.objects.create(puzzle=self, clue_num=self.size, **form_data_dict)
+        self.save(update_fields=['size', 'total_points'])
+        return new_clue
 
     def update_clue(self, clue_num, form_data_dict):
         clue = Clue.objects.filter(puzzle=self, clue_num=clue_num)
