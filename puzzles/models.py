@@ -4,6 +4,8 @@ from django.db import models
 from django.db.utils import IntegrityError
 from django.utils.timezone import now
 
+from puzzles.text_parsers import ClueChecker
+
 
 def get_name(self):
     if self.first_name:
@@ -153,27 +155,7 @@ class Clue(models.Model):
         return text
 
     def get_decorated_clue_text(self):
-        return self.clue_text  # + " (" + self.get_answer_footprint_as_string() + ")"
-
-    # def get_answer_footprint_as_string(self):
-    #     footprint = ''
-    #     words = self.answer.split()
-    #     for idx, word in enumerate(words):
-    #         footprint += self.get_word_length_as_string(word)
-    #         if idx < len(words) - 1: footprint += ','
-    #     return footprint
-    #
-    # @staticmethod
-    # def get_word_length_as_string(word):
-    #     len_text = str(len(word))
-    #     hyphenated_parts = word.split('-')
-    #     if len(hyphenated_parts) > 1:
-    #         len_text = ''
-    #         for idx, part in enumerate(hyphenated_parts):
-    #             len_text += str(len(part))
-    #             if idx < (len(hyphenated_parts) - 1):
-    #                 len_text += '-'
-    #     return len_text
+        return ClueChecker().get_decorated_clue_text(self.clue_text, self.answer)
 
 
 class PuzzleSession(models.Model):
