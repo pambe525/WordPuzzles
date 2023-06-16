@@ -99,14 +99,6 @@ class WordPuzzle(models.Model):
                 return saved_clue.clue_num
         return None
 
-    # TODO: Eliminate this method since clues are created in bulk only using add_clues
-    def add_clue(self, form_data_dict):
-        self.size += 1
-        self.total_points += form_data_dict['points']
-        new_clue = Clue.objects.create(puzzle=self, clue_num=self.size, **form_data_dict)
-        self.save(update_fields=['size', 'total_points'])
-        return new_clue
-
     def update_clue(self, clue_num, form_data_dict):
         clue = Clue.objects.filter(puzzle=self, clue_num=clue_num)
         self.total_points += (form_data_dict['points'] - clue[0].points)
