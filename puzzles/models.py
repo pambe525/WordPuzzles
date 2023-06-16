@@ -90,6 +90,15 @@ class WordPuzzle(models.Model):
                 self.total_points += 1
                 self.save()
 
+    # Checks if given unsaved clue has the same answer in existing saved clues
+    # returns clue number that has same answer as given clue
+    def has_duplicate_answer(self, clue_data):
+        for saved_clue in self.get_clues():
+            if saved_clue.clue_num == clue_data['clue_num']: break
+            if saved_clue.answer.upper() == clue_data['answer'].upper():
+                return saved_clue.clue_num
+        return None
+
     # TODO: Eliminate this method since clues are created in bulk only using add_clues
     def add_clue(self, form_data_dict):
         self.size += 1

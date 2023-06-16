@@ -51,16 +51,6 @@ class AddCluesForm(Form):
                 clue_data = {'clue_num': key, 'clue_text': clues_dict[key], 'answer': answers_dict[key]}
                 self.cleaned_data_list.append(clue_data)
 
-    def check_duplicate_answers(self, saved_clues):
-        if self.has_error('answers'): return
-        msg = "#{} answer is same as answer in clue #{}."
-        for input_clue in self.cleaned_data_list:
-            for saved_clue in saved_clues:
-                if saved_clue.clue_num == input_clue['clue_num']: break
-                if saved_clue.answer.upper() == input_clue['answer'].upper():
-                    self.add_error('answers', msg.format(input_clue['clue_num'], saved_clue.clue_num))
-                    return
-
 
 class ClueForm(ModelForm):
     class Meta:

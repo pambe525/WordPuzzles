@@ -142,13 +142,23 @@ class AddCluesView(EditorRequiredMixin, View):
     def post(self, request, pk=None):
         puzzle = WordPuzzle.objects.get(id=pk)
         form = AddCluesForm(request.POST)
-        form.check_duplicate_answers(puzzle.get_clues())
+        self.__check_duplicate_answers(form, puzzle)
         if form.is_valid():
             puzzle.add_clues(form.cleaned_data_list)
             return redirect('edit_puzzle', pk)
         else:
             ctx = {'id': pk, 'title': str(puzzle), 'form': form}
             return render(request, self.template_name, ctx)
+
+    @staticmethod
+    def __check_duplicate_answers(form, puzzle):
+        if form.has_error('answers'): return
+        msg = "#{} answer is same as answer in clue #{}."
+        for input_clue in form.cleaned_data_list:
+            clue_num = puzzle.has_duplicate_answer(input_clue)
+            if clue_num is not None:
+                form.add_error('answers', msg.format(input_clue['clue_num'], clue_num))
+                return
 
 
 class EditClueView(EditorRequiredMixin, View):
