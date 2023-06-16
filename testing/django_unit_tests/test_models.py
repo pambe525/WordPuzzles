@@ -84,33 +84,40 @@ class WordPuzzleModelTest(TransactionTestCase):
         puzzle = WordPuzzle.objects.create(size=20, type=1, editor=self.user)
         self.assertEqual("Puzzle 2: 20 Cryptic Clues [0 pts]", str(puzzle))
 
-    def test_add_clue_creates_new_clue_and_updates_counts(self):
+    def test_add_clues_creates_new_clues_and_updates_counts(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        cleaned_data = {'answer': 'MY-WORD TWO', 'clue_text': 'some clue text', 'parsing': 'def', 'points': 3}
-        self.assertEqual(puzzle.size, 0)
-        self.assertEqual(puzzle.total_points, 0)
-        puzzle.add_clue(cleaned_data)
-        self.assertEqual(puzzle.size, 1)
-        self.assertEqual(puzzle.total_points, 3)
-        new_clue = Clue.objects.all()[0]
-        self.assertEqual(new_clue.puzzle, puzzle)
-        self.assertEqual(new_clue.clue_num, 1)
-        self.assertEqual(new_clue.answer, 'MY-WORD TWO')  # NOTE: capitalized answer
-        self.assertEqual(new_clue.clue_text, 'some clue text')
-        self.assertEqual(new_clue.parsing, 'def')
-        self.assertEqual(new_clue.points, 3)
+        cleaned_input = [{'clue_num': 1, 'clue_text': 'some clue text (2-4)', 'answer': 'my-word'},
+                         {'clue_num': 2, 'clue_text': 'another clue', 'answer': 'ANOTHER WORD'}]
+        puzzle.add_clues(cleaned_input)
+        created_clues = Clue.objects.all()
+        self.assertEqual(2, len(created_clues))
+        clue1 = created_clues[0]
+        clue2 = created_clues[1]
+        # first clue
+        self.assertEqual(clue1.puzzle, puzzle)
+        self.assertEqual(clue1.clue_num, 1)
+        self.assertEqual(clue1.answer, 'my-word')  # NOT capitalized
+        self.assertEqual(clue1.clue_text, 'some clue text (2-4)')
+        self.assertIsNone(clue1.parsing)
+        self.assertEqual(clue1.points, 1)
+        # second clue
+        self.assertEqual(clue2.puzzle, puzzle)
+        self.assertEqual(clue2.clue_num, 2)
+        self.assertEqual(clue2.answer, 'ANOTHER WORD')  # capitalization preserved
+        self.assertEqual(clue2.clue_text, 'another clue')
         puzzle = WordPuzzle.objects.get(id=puzzle.id)
-        self.assertEqual(puzzle.total_points, 3)
-        self.assertEqual(puzzle.size, 1)
+        self.assertEqual(puzzle.total_points, 2)
+        self.assertEqual(puzzle.size, 2)
 
     def test_get_clues_returns_all_clues_as_a_list(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
-        clue1_data = {'answer': "FIRST", 'clue_text': 'Clue for first', 'parsing': 'DEF1', 'points': 1}
-        clue2_data = {'answer': "SECOND", 'clue_text': 'Clue for 2nd', 'parsing': 'DEF2', 'points': 2}
-        puzzle.add_clue(clue1_data)
-        puzzle.add_clue(clue2_data)
+        cleaned_input = [{'clue_num': 1, 'clue_text': 'some clue text (2-4)', 'answer': 'my-word'},
+                         {'clue_num': 3, 'clue_text': 'another clue', 'answer': 'ANOTHER WORD'}]
+        puzzle.add_clues(cleaned_input)
         clues_list = puzzle.get_clues()
         self.assertEqual(len(clues_list), 2)
+        self.assertEqual(1, clues_list[0].clue_num)
+        self.assertEqual(3, clues_list[1].clue_num)
 
 
 class ClueModelTest(TestCase):

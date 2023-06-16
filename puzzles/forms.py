@@ -5,7 +5,7 @@ from django import forms
 from django.forms import ModelForm, Form
 
 from puzzles.models import WordPuzzle, Clue
-from puzzles.text_parsers import NumberedItemsParser
+from puzzles.text_parsers import NumberedItemsParser, ClueChecker
 
 
 class WordPuzzleForm(ModelForm):
@@ -59,9 +59,8 @@ class ClueForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ClueForm, self).__init__(*args, **kwargs)
-        self.fields['answer'].help_text = "Required [< 25 chars]. Letters and hyphen only."
+        self.fields['answer'].help_text = "Required [< 25 chars]. Letters, spaces and hyphens only."
         self.fields['answer'].widget.attrs['style'] = 'width:200px; text-transform:uppercase'
-        self.fields['answer'].widget.attrs['pattern'] = "[A-Za-z \-]+"
         self.fields['clue_text'].help_text = "Required. Answer length will be auto-added, if not specified."
         self.fields['clue_text'].widget.attrs['style'] = 'height:50px'
         self.fields['parsing'].help_text = "Optional"
@@ -69,11 +68,15 @@ class ClueForm(ModelForm):
         self.fields['points'].widget.attrs['style'] = 'width: 40px; height: 28px'
 
     def clean_answer(self):
-        value = self.cleaned_data['answer']
-        forbidden_char = re.compile('[0-9@_!#$%^&*()<>?/\|}{~:,]')
-        if forbidden_char.search(value) is not None:
-            raise ValueError("Answer cannot contain non-alphabet characters")
-        return value.upper()
+        answer = self.data['answer']
+        clue_text = self.data['clue_text']
+        if ClueChecker().has_non_alpha_chars(answer):
+            self.add_error('answer', "Answer cannot contain non-alphabet characters")
+        elif not ClueChecker().has_single_answer():
+            self.add_error('answer', "Answer cannot contain non-alphabet characters")
+        elif not ClueChecker().has_matching_answer_lengths(clue_text, answer):
+            self.add_error('answer', "Answer does not match specified answer length.")
+        return answer
 
 
 class SortPuzzlesForm(Form):

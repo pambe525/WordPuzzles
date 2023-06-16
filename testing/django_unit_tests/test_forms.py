@@ -217,18 +217,25 @@ class ClueFormTest(TestCase):
         self.assertEqual(form['parsing'].value(), 'def')
         self.assertEqual(form['points'].value(), 3)
 
-    def test_form_converts_answer_to_uppercase_when_is_valid(self):
-        form_data = {'answer': ' my-word ', 'clue_text': 'some clue text',
-                     'parsing': 'def', 'points': 3}
-        form = ClueForm(form_data)
-        form.is_valid()
-        self.assertEqual(form.cleaned_data['answer'], 'MY-WORD')
-
     def test_form_does_not_allow_numbers_in_answer(self):
         form_data = {'answer': 'word1', 'clue_text': 'some clue text',
                      'parsing': 'def', 'points': 3}
         form = ClueForm(form_data)
-        self.assertRaises(ValueError, form.is_valid)
+        self.assertEqual(form.errors['answer'][0], "Answer cannot contain non-alphabet characters")
+
+    def test_form_with_mismatch_in_answers_length(self):
+        form_data = {'answer': 'word puzzle', 'clue_text': 'some clue text (4,8)',
+                     'parsing': 'def', 'points': 3}
+        form = ClueForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form['answer'].errors[0], "Answer does not match specified answer length.")
+
+    def test_form_with_multiple_answers(self):
+        form_data = {'answer': 'word puzzle, another one', 'clue_text': 'some clue text (7,3)',
+                     'parsing': 'def', 'points': 3}
+        form = ClueForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form['answer'].errors[0], "Multiple answers specified.")
 
     def test_form_adds_answer_length_to_cluetext_when_is_valid(self):
         form_data = {'answer': 'my word', 'clue_text': 'some clue text',
