@@ -73,10 +73,11 @@
 </div>
 <dialog class="confirm-dialog" id="confirm-dialog">
     <div class="subtitle"></div>
-    <hr class="dark-line">
-    <form id="confirm-dialog-form" action="" method="post">
+    <form class="confirm-dialog-form" action="" method="post">
+        <hr class="dark-line">
         {% csrf_token %}
-        <div class="m-bot" id="confirm-dialog-message"></div>
+        <div class="m-bot confirm-dialog-message"></div>
+        <hr class="dark-line">
         <button type="submit" class="blue-btn">Confirm</button>
         <button formmethod="dialog">Cancel</button>
     </form>

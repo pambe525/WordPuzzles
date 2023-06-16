@@ -1,7 +1,7 @@
 from unittest.case import skip
 
 from puzzles.models import WordPuzzle
-from testing.data_setup_utils import create_draft_puzzle, create_published_puzzle, create_user
+from testing.data_setup_utils import create_draft_puzzle, create_published_puzzle, create_user, add_clue
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
@@ -30,7 +30,7 @@ class PreviewPuzzleTests(BaseSeleniumTestCase):
 
     def test_draft_puzzle_editor_can_preview_puzzle_with_desc_and_clue(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description of clue")
-        puzzle.add_clue({'answer': "WORD-A", 'clue_text': "Some clue", 'points': 2})
+        add_clue(puzzle, {'answer': "WORD-A", 'clue_text': "Some clue", 'points': 2})
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_equals("//h2", "Preview Puzzle & Publish")
         self.assert_text_equals("//h4", str(puzzle))
@@ -43,7 +43,7 @@ class PreviewPuzzleTests(BaseSeleniumTestCase):
 
     def test_draft_puzzle_editor_can_publish_puzzle(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        puzzle.add_clue({'answer': 'WORD1', 'clue_text': 'Clue text 1', 'parsing': 'p1', 'points': 1})
+        add_clue(puzzle, {'answer': 'WORD1', 'clue_text': 'Clue text 1', 'parsing': 'p1', 'points': 1})
         self.get('/preview_puzzle/' + str(puzzle.id) + '/')
         self.assert_text_contains("//div[contains(@class,'notetext')][1]", "NOTE: Publish your puzzle only")
         self.do_click("//a[text()='PUBLISH']")

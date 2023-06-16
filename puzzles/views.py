@@ -197,11 +197,6 @@ class DeleteClueView(EditorRequiredMixin, View):
     template_name = "delete_confirm.html"
     success_url = 'edit_puzzle'
 
-    def get(self, request, pk=None, clue_num=None):
-        puzzle = WordPuzzle.objects.get(id=pk)
-        ctx = {'object': puzzle, 'clue_num': clue_num}
-        return render(request, self.template_name, ctx)
-
     def post(self, request, pk=None, clue_num=None):
         puzzle = WordPuzzle.objects.get(id=pk)
         puzzle.delete_clue(clue_num)

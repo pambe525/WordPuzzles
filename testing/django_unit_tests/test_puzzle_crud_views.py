@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.test import TransactionTestCase
 
 from puzzles.models import WordPuzzle
+from testing.data_setup_utils import add_clue
 
 
 class BaseEditPuzzleTest(TransactionTestCase):

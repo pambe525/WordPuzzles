@@ -281,7 +281,7 @@ hr.separator {
 /**
  MODAL DIALOG
  */
-.modal-dialog {
+.modal-dialog, #confirm-dialog {
     position: absolute;
     top: 5rem;
     padding: 1.2rem;
@@ -294,11 +294,6 @@ hr.separator {
 .modal-dialog::backdrop {
     background-color: black;
     opacity: 0.4;
-}
-
-.confirm-dialog {
-    margin: auto;
-    position: center;
 }
 
 .form-field {
