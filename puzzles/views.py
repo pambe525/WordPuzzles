@@ -172,6 +172,7 @@ class EditClueView(EditorRequiredMixin, View):
     def post(self, request, pk=None, clue_num=None):
         form = ClueForm(request.POST)
         puzzle = WordPuzzle.objects.get(id=pk)
+        self.__check_duplicate_answers(clue_num, form, puzzle)
         if form.is_valid():
             puzzle.update_clue(clue_num, form.cleaned_data)
             return redirect("edit_puzzle", puzzle.id)
@@ -179,6 +180,16 @@ class EditClueView(EditorRequiredMixin, View):
             if clue_num is None: clue_num = puzzle.size + 1
             ctx = {'id': pk, 'clue_num': clue_num, 'form': form}
             return render(request, self.template_name, ctx)
+
+    @staticmethod
+    def __check_duplicate_answers(clue_num, form, puzzle):
+        if form.has_error('answers'): return
+        msg = "Answer is same as in clue #{}."
+        clue_data = {'clue_num': clue_num, 'answer': form.data['answer']}
+        repeated_clue_num = puzzle.has_duplicate_answer(clue_data)
+        if repeated_clue_num is not None:
+            form.add_error('answer', msg.format(repeated_clue_num))
+            return
 
 
 class DeleteClueView(EditorRequiredMixin, View):

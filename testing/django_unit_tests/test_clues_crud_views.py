@@ -8,6 +8,14 @@ from puzzles.models import WordPuzzle, Clue
 from testing.django_unit_tests.test_puzzle_crud_views import BaseEditPuzzleTest
 
 
+def add_clue(puzzle, clue_data):
+    puzzle.size += 1
+    puzzle.total_points += clue_data['points']
+    new_clue = Clue.objects.create(puzzle=puzzle, clue_num=puzzle.size, **clue_data)
+    puzzle.save(update_fields=['size', 'total_points'])
+    return new_clue
+
+
 class AddCluesViewTests(BaseEditPuzzleTest):
     target_page = "/add_clues/"
     redirect_page = "/edit_puzzle/"
@@ -119,7 +127,7 @@ class EditClueViewTests(TransactionTestCase):
         self.assertEqual(302, response.status_code)
         self.assertEqual("/login?next=" + self.target_page + "1/1/", response.url)
 
-    def test_GET_edit_clue_shows_error_if_user_is_not_editor_of_puzzle(self):
+    def test_GET_shows_error_if_user_is_not_editor_of_puzzle(self):
         other_user = User.objects.create(username="other_user", email="abc@xyz")
         puzzle = WordPuzzle.objects.create(editor=other_user)
         clue = Clue.objects.create(puzzle=puzzle, clue_num=1)
@@ -129,14 +137,14 @@ class EditClueViewTests(TransactionTestCase):
         self.assertContains(response, "Clue 1 for Puzzle " + str(puzzle.id))
         self.assertContains(response, "This operation is not permitted since you are not the editor.")
 
-    def test_GET_edit_clue_raises_error_message_if_puzzle_id_does_not_exist(self):
+    def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
         response = self.client.get("/edit_clue/5/1/")
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle 5")
         self.assertContains(response, "This puzzle does not exist.")
 
-    def test_GET_edit_clue_raises_error_message_if_clue_does_not_exist(self):
+    def test_GET_raises_error_message_if_clue_does_not_exist(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get("/edit_clue/" + str(puzzle.id) + "/1/")
         self.assertEqual(200, response.status_code)
@@ -144,7 +152,7 @@ class EditClueViewTests(TransactionTestCase):
         self.assertContains(response, "Puzzle " + str(puzzle.id))
         self.assertContains(response, "This clue does not exist.")
 
-    def test_GET_edit_clue_renders_template_and_clue_edit_form(self):
+    def test_GET_renders_template_and_clue_form(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         clue = Clue.objects.create(puzzle=puzzle, clue_num=1, clue_text='Clue text desc', answer='test')
         response = self.client.get(self.target_page + str(puzzle.id) + '/' + str(clue.clue_num) + '/')
@@ -155,22 +163,51 @@ class EditClueViewTests(TransactionTestCase):
         self.assertIsNone(response.context['form']['parsing'].value())
         self.assertEqual(1, response.context['form']['points'].value())
 
-    def test_POST_edit_clue_form_updates_clue_and_redirects_to_edit_puzzle_view(self):
+    def test_POST_form_updates_clue_and_redirects_to_edit_puzzle_view(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
-        clue_data = {'answer': 'TEST', 'clue_text': 'Clue text desc', 'parsing': 'easy', 'points': 1}
-        clue = puzzle.add_clue(clue_data)
-        mod_clue_data = {'answer': 'MOD-TEST', 'clue_text': 'Clue text', 'parsing': 'not easy', 'points': 2}
+        clue_data = {'clue_text': 'Clue text desc', 'answer': 'test', 'points': 1}
+        clue = add_clue(puzzle, clue_data)
+        mod_clue_data = {'answer': 'MOD-TEST', 'clue_text': 'Mod clue text', 'points': 2}
         response = self.client.post('/edit_clue/' + str(puzzle.id) + '/' + str(clue.clue_num) + '/', mod_clue_data)
         self.assertEqual(response.url, '/edit_puzzle/' + str(puzzle.id) + '/')
         clues = Clue.objects.all()
         self.assertEqual(len(clues), 1)
         updated_clue = Clue.objects.get(puzzle=puzzle.id, id=clue.id)
         self.assertEqual(updated_clue.answer, 'MOD-TEST')
-        self.assertEqual(updated_clue.clue_text, 'Clue text')
-        self.assertEqual(updated_clue.parsing, 'not easy')
+        self.assertEqual(updated_clue.clue_text, 'Mod clue text')
         self.assertEqual(updated_clue.points, 2)
         puzzle = WordPuzzle.objects.get(id=puzzle.id)
         self.assertEqual(puzzle.total_points, 2)
+
+    def test_POST_form_has_errors_on_incorrect_input_and_no_redirect(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
+        clue_data = {'clue_text': 'Clue text', 'answer': 'test', 'points': 1}
+        clue = add_clue(puzzle, clue_data)
+        mod_clue_data = {'clue_text': 'Mod clue text', 'answer': 'in_correct!', 'points': 2}
+        url = self.target_page + str(puzzle.id) + '/' + str(clue.clue_num) + '/'
+        response = self.client.post(url, mod_clue_data)
+        self.assertTemplateUsed('edit_clue.html')
+        saved_clue = Clue.objects.get(puzzle=puzzle.id, id=1)
+        self.assertEqual(saved_clue.answer, 'test')
+        self.assertEqual(response.context['id'], puzzle.id)
+        self.assertEqual(response.context['clue_num'], 1)
+        self.assertFalse(response.context['form'].is_valid())
+        self.assertEqual(response.context['form']['answer'].errors[0],
+                         "Answer cannot contain non-alphabet characters")
+        puzzle = WordPuzzle.objects.get(id=puzzle.id)
+        self.assertEqual(puzzle.total_points, 1)
+
+    def test_POST_form_checks_if_edited_answer_is_repeated(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
+        add_clue(puzzle, {'clue_text': 'first clue', 'answer': 'ans one', 'points': 1})
+        add_clue(puzzle, {'clue_text': 'second clue', 'answer': 'repeat this', 'points': 2})
+        clue = add_clue(puzzle, {'clue_text': 'third clue', 'answer': 'change this', 'points': 1})
+        mod_clue_data = {'clue_text': 'Mod clue text', 'answer': 'repeat this', 'points': 2}
+        url = self.target_page + str(puzzle.id) + '/' + str(clue.clue_num) + '/'
+        response = self.client.post(url, mod_clue_data)
+        self.assertTemplateUsed('edit_clue.html')
+        self.assertFalse(response.context['form'].is_valid())
+        self.assertEqual(response.context['form']['answer'].errors[0], "Answer is same as in clue #2.")
 
 @skip
 class DeleteClueViewTests(TransactionTestCase):
