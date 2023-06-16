@@ -39,6 +39,7 @@ class AddCluesForm(Form):
     def clean(self):
         clues_parser = NumberedItemsParser(self.data["clues"])
         answers_parser = NumberedItemsParser(self.data["answers"], 1)
+        answers_parser.check_non_alpha_chars()
         answers_parser.cross_check_entries(clues_parser.items_dict)
         if clues_parser.error: self.add_error("clues", clues_parser.error)
         if answers_parser.error: self.add_error('answers', answers_parser.error)
@@ -54,14 +55,14 @@ class AddCluesForm(Form):
 class ClueForm(ModelForm):
     class Meta:
         model = Clue
-        fields = ['answer', 'clue_text', 'parsing', 'points']
+        fields = ['clue_text', 'answer', 'parsing', 'points']
 
     def __init__(self, *args, **kwargs):
         super(ClueForm, self).__init__(*args, **kwargs)
-        self.fields['answer'].help_text = "Required. Should be < 25 chars. Letters and hyphen only."
+        self.fields['answer'].help_text = "Required [< 25 chars]. Letters and hyphen only."
         self.fields['answer'].widget.attrs['style'] = 'width:200px; text-transform:uppercase'
         self.fields['answer'].widget.attrs['pattern'] = "[A-Za-z \-]+"
-        self.fields['clue_text'].help_text = "Required. Answer length will be auto-added"
+        self.fields['clue_text'].help_text = "Required. Answer length will be auto-added, if not specified."
         self.fields['clue_text'].widget.attrs['style'] = 'height:50px'
         self.fields['parsing'].help_text = "Optional"
         self.fields['parsing'].widget.attrs['style'] = 'height:50px'

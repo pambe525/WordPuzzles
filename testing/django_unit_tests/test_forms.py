@@ -106,29 +106,29 @@ class AddCluesFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form['clues'].errors), 1)
         self.assertEqual(len(form['answers'].errors), 1)
-        self.assertEqual(form['clues'].errors[0], "Item 2 is not numbered.")
-        self.assertEqual(form['answers'].errors[0], "Item 1 is not numbered.")
+        self.assertEqual(form['clues'].errors[0], "Entry 2 is not numbered.")
+        self.assertEqual(form['answers'].errors[0], "Entry 1 is not numbered.")
 
     def test_duplicate_item_number_returns_error(self):
         form_data = {'clues': '1 first \n2. second \n1 third\n\n2 fourth', 'answers': '1 first \n1. second \n2 third '}
         form = AddCluesForm(form_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form['clues'].errors[0], "Item 3 has duplicate item number 1.")
-        self.assertEqual(form['answers'].errors[0], "Item 2 has duplicate item number 1.")
+        self.assertEqual(form['clues'].errors[0], "#1 is repeated.")
+        self.assertEqual(form['answers'].errors[0], "#1 is repeated.")
 
     def test_duplicate_item_text_returns_error(self):
         form_data = {'clues': '1 first \n2. second \n3 first\n\n4 second', 'answers': '1 first \n2. first \n3 third '}
         form = AddCluesForm(form_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form['clues'].errors[0], "Item 3 has duplicate text.")
-        self.assertEqual(form['answers'].errors[0], "Item 2 has duplicate text.")
+        self.assertEqual(form['clues'].errors[0], "#3 has repeated text.")
+        self.assertEqual(form['answers'].errors[0], "#2 has repeated text.")
 
     def test_blank_item_text_returns_error(self):
         form_data = {'clues': '1 first \n2.  \n3 third\n\n4 fourth', 'answers': '1 first \n2. second \n3'}
         form = AddCluesForm(form_data)
         self.assertFalse(form.is_valid())
-        self.assertEqual(form['clues'].errors[0], "Item 2 has no text.")
-        self.assertEqual(form['answers'].errors[0], "Item 3 has no text.")
+        self.assertEqual(form['clues'].errors[0], "#2 has no text.")
+        self.assertEqual(form['answers'].errors[0], "#3 has no text.")
 
     def test_valid_form_input(self):
         form_data = {'clues': '1 first \n2. second \r\n\n3 third\n', 'answers': '\r\n1 one \n3. three \n2 two'}
@@ -143,7 +143,7 @@ class AddCluesFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form['clues'].errors), 0)
         self.assertEqual(len(form['answers'].errors), 1)
-        self.assertEqual(form['answers'].errors[0], "Item 2 has more than one entry.")
+        self.assertEqual(form['answers'].errors[0], "#2 must have a single entry.")
 
     def test_less_answers_than_clues(self):
         form_data = {'clues': '1 clue one\n2. clue two\n3 clue three', 'answers': '1 first\n3. second'}
@@ -157,22 +157,30 @@ class AddCluesFormTest(TestCase):
         form = AddCluesForm(form_data)
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form['clues'].errors), 0)
-        self.assertEqual(form['answers'].errors[0], "Item 3 has no matching cross-entry.")
+        self.assertEqual(form['answers'].errors[0], "#3 has no matching cross-entry.")
 
     def test_mismatch_in_answers_length(self):
-        form_data = {'clues': '1 clue one\n2. clue two (7, 3)', 'answers': '1 first\n2. second one'}
+        form_data = {'clues': '1 clue one\n2. clue two (7,3)', 'answers': '1 first\n2. second one'}
         form = AddCluesForm(form_data)
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form['clues'].errors), 0)
-        self.assertEqual(form['answers'].errors[0], "Item 2 mismatches specified cross-entry length.")
+        self.assertEqual(form['answers'].errors[0], "#2 mismatches specified cross-entry length.")
 
     def test_matching_answers_length(self):
-        form_data = {'clues': '1 clue one (3-2, 1, 5-2)\n2. clue two (6, 3)',
+        form_data = {'clues': '1 clue one (3-2,1,5-2)\n2. clue two (6, 3)',
                      'answers': '1 one-of a mixed-up\n2. second one'}
         form = AddCluesForm(form_data)
         self.assertTrue(form.is_valid())
         self.assertEqual(len(form['clues'].errors), 0)
         self.assertEqual(len(form['answers'].errors), 0)
+
+    def test_non_alpha_chars_in_answers(self):
+        form_data = {'clues': '1 clue one\n2. clue two (7)',
+                     'answers': '1 one_of_a_kind\n2. second1'}
+        form = AddCluesForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form['clues'].errors), 0)
+        self.assertEqual(form['answers'].errors[0], "#1 has characters other than alphabets & hyphen.")
 
     def test_valid_form_is_saved_with_all_entries(self):
         form_data = {'clues': '1 clue one (8)\n3. clue two (6, 3)\n5 clue (three)',
