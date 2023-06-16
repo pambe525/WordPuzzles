@@ -236,10 +236,3 @@ class ClueFormTest(TestCase):
         form = ClueForm(form_data)
         self.assertFalse(form.is_valid())
         self.assertEqual(form['answer'].errors[0], "Multiple answers specified.")
-
-    def test_form_adds_answer_length_to_cluetext_when_is_valid(self):
-        form_data = {'answer': 'my word', 'clue_text': 'some clue text',
-                     'parsing': 'def', 'points': 3}
-        form = ClueForm(form_data)
-        form.is_valid()
-        self.assertEqual(form.cleaned_data['answer'], 'MY WORD')

@@ -72,8 +72,8 @@ class ClueForm(ModelForm):
         clue_text = self.data['clue_text']
         if ClueChecker().has_non_alpha_chars(answer):
             self.add_error('answer', "Answer cannot contain non-alphabet characters")
-        elif not ClueChecker().has_single_answer():
-            self.add_error('answer', "Answer cannot contain non-alphabet characters")
+        elif not ClueChecker().has_single_answer(answer):
+            self.add_error('answer', "Multiple answers specified.")
         elif not ClueChecker().has_matching_answer_lengths(clue_text, answer):
             self.add_error('answer', "Answer does not match specified answer length.")
         return answer
