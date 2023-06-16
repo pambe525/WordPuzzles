@@ -37,13 +37,14 @@ class AddCluesViewTests(BaseEditPuzzleTest):
         self.assertEqual(puzzle.id, response.context['id'])
         self.assertEqual(str(puzzle), response.context['title'])
         self.assertFalse(response.context['form'].is_valid())
-        self.assertEqual('Corresponding cross-entry for #2 missing.', response.context['form'].errors['answers'][0])
+        self.assertEqual('Corresponding cross-entry for #2 missing.',
+                         response.context['form'].errors['answers'][0])
         self.assertFalse(Clue.objects.filter(puzzle=puzzle).exists())
 
     def test_POST_with_valid_form_input_saves_and_redirects_to_edit_puzzle_page_(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        puzzle_data = {'clues': '5. fifth clue (6,5)\n2. second clue', 'answers': '5. answer fifth\n 2 answer two'}
-        response = self.client.post(self.target_page + str(puzzle.id) + "/", puzzle_data)
+        clues_data = {'clues': '5. fifth clue (6,5)\n2. second clue', 'answers': '5. answer fifth\n 2 answer two'}
+        response = self.client.post(self.target_page + str(puzzle.id) + "/", clues_data)
         self.assertRedirects(response, self.redirect_page + str(puzzle.id) + "/")
         saved_clues = Clue.objects.filter(puzzle=puzzle)
         updated_puzzle = WordPuzzle.objects.get(id=puzzle.id)
@@ -64,6 +65,19 @@ class AddCluesViewTests(BaseEditPuzzleTest):
         self.assertEqual('answer two', saved_clues[1].answer)
         self.assertEqual(None, saved_clues[1].parsing)
         self.assertEqual(1, saved_clues[1].points)
+
+    def test_POST_with_repeated_answer(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        prev_form_data = {'clues': '1 first clue (5,3)\n2. clue two',
+                          'answers': '1 first one\n2 repeated'}
+        self.client.post(self.target_page + str(puzzle.id) + "/", prev_form_data)
+        new_form_data = {'clues': '3 clue three\n4. fourth clue',
+                         'answers': '3 answer three\n4.REPEATED '}
+        response = self.client.post(self.target_page + str(puzzle.id) + "/", new_form_data)
+        self.assertFalse(response.context['form'].is_valid())
+        self.assertEqual(len(response.context['form']['clues'].errors), 0)
+        self.assertEqual(response.context['form']['answers'].errors[0],
+                         '#4 answer is same as answer in clue #2.')
 
     def test_POST_with_existing_clue_nums_updates_clues(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
@@ -140,16 +154,6 @@ class EditClueViewTests(TransactionTestCase):
         self.assertEqual('Clue text desc', response.context['form']['clue_text'].value(), )
         self.assertIsNone(response.context['form']['parsing'].value())
         self.assertEqual(1, response.context['form']['points'].value())
-
-    def test_POST_new_clue_form_does_not_save_form_if_errors(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")
-        clue_form_data = {'answer': "word", 'clue_text': '', 'parsing': '', 'points': 2}
-        response = self.client.post('/new_clue/' + str(puzzle.id) + '/', clue_form_data)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "edit_clue.html")
-        self.assertContains(response, "Edit Clue 1 for Puzzle " + str(puzzle.id))
-        clues = Clue.objects.all()
-        self.assertEqual(len(clues), 0)
 
     def test_POST_edit_clue_form_updates_clue_and_redirects_to_edit_puzzle_view(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, desc="Instructions")

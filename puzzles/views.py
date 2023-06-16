@@ -140,8 +140,9 @@ class AddCluesView(EditorRequiredMixin, View):
         return render(request, self.template_name, ctx)
 
     def post(self, request, pk=None):
-        form = AddCluesForm(request.POST)
         puzzle = WordPuzzle.objects.get(id=pk)
+        form = AddCluesForm(request.POST)
+        form.check_duplicate_answers(puzzle.get_clues())
         if form.is_valid():
             puzzle.add_clues(form.cleaned_data_list)
             return redirect('edit_puzzle', pk)

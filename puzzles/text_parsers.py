@@ -17,6 +17,7 @@ class NumberedItemsParser:
     EXTRA_CROSS_ENTRY = "#{} has no matching cross-entry."
     MISMATCH_IN_CROSS_ENTRY_LENGTH = "#{} mismatches specified cross-entry length."
     NON_ALPHA_CHARS_IN_TEXT = "#{} has characters other than alphabets & hyphen."
+    REPEATED_TEXT_IN_FIELD = "#{} has {} text identical to #{}"
 
     def __init__(self, form_field_text, tokens_check_flag=0):
         self.error = None
