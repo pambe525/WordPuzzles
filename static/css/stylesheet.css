@@ -514,13 +514,15 @@ img.thumbnail {
 }
 
 .bg-lemon {
-    background-color: palegoldenrod;
+    background-color: #fffec7;
 }
 
 .bg-gray {
     background-color: #e8e8e8;
 }
-
+.bg-white {
+    background-color: white;
+}
 .rating-table {
     margin: 0.3rem 0;
 }

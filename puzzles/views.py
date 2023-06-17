@@ -24,13 +24,28 @@ class ReleaseNotesView(TemplateView):
     template_name = "release_notes.html"
 
 
-class MyPuzzlesView(LoginRequiredMixin, View):
-    model = WordPuzzle
+class HomeView(LoginRequiredMixin, View):
 
     def get(self, request):
-        ctx = {'form': WordPuzzleForm(),
-               'draft_puzzles': WordPuzzle.get_draft_puzzles_as_list(request.user.id)}
-        return render(request, "my_puzzles.html", context=ctx)
+        # seven_days_ago = now() - timedelta(days=7)
+        # draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
+        # recently_published = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago) \
+        #     .order_by('-shared_at')
+        # in_recent_sessions = self.get_puzzles_in_recent_sessions()
+        # recent_puzzles = (in_recent_sessions | recently_published).distinct()  # Union of 2 sets
+        # add_session_data(recent_puzzles, request.user)
+        # drafts_count = WordPuzzle.get_draft_puzzles_count(request.user.id)
+        draft_puzzles = WordPuzzle.get_draft_puzzles_as_list(request.user.id)
+        new_puzzle_form = WordPuzzleForm()
+        ctx = {'draft_puzzles': draft_puzzles, 'form': new_puzzle_form}
+        return render(request, "home.html", context=ctx)
+
+    # def get_puzzles_in_recent_sessions(self):
+    #     seven_days_ago = now() - timedelta(days=7)
+    #     puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user,
+    #                                                            puzzlesession__modified_at__gte=seven_days_ago).order_by(
+    #         '-puzzlesession__modified_at')
+    #     return puzzles_in_recent_sessions
 
 
 class NewPuzzleView(View):
@@ -75,30 +90,7 @@ class EditorRequiredMixin(LoginRequiredMixin):
 
 class DeletePuzzleView(EditorRequiredMixin, DeleteView):
     model = WordPuzzle
-    template_name = 'delete_confirm.html'
-    success_url = '/my_puzzles'
-
-
-class HomeView(LoginRequiredMixin, View):
-
-    def get(self, request):
-        # seven_days_ago = now() - timedelta(days=7)
-        # draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
-        # recently_published = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago) \
-        #     .order_by('-shared_at')
-        # in_recent_sessions = self.get_puzzles_in_recent_sessions()
-        # recent_puzzles = (in_recent_sessions | recently_published).distinct()  # Union of 2 sets
-        # add_session_data(recent_puzzles, request.user)
-        drafts_count = WordPuzzle.get_draft_puzzles_count(request.user.id)
-        ctx = {'drafts_count': drafts_count}
-        return render(request, "home.html", context=ctx)
-
-    def get_puzzles_in_recent_sessions(self):
-        seven_days_ago = now() - timedelta(days=7)
-        puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user,
-                                                               puzzlesession__modified_at__gte=seven_days_ago).order_by(
-            '-puzzlesession__modified_at')
-        return puzzles_in_recent_sessions
+    success_url = '/'
 
 
 class EditPuzzleView(EditorRequiredMixin, UpdateView):

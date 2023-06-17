@@ -141,8 +141,9 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     MENUITEM_HOME = "//nav/ul/li[1]"
     LOGO = "//img[@class='logo']"
     PAGE_TITLE = "//div[@class='page-title']"
-    SUBTITLE = "//div[@class='subtitle']"
+    SUBTITLE = "//div[contains(@class,'subtitle')]"
     ACTIVE_MENUITEM = "//nav/ul/li/a[@class='active']"
+    reset_sequences = True
 
     @classmethod
     def setUpClass(cls):
@@ -165,8 +166,8 @@ class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
     def assert_page_title(self, title):
         self.assert_text_equals(self.PAGE_TITLE, title)
 
-    def assert_subtitle(self, title):
-        self.assert_text_equals(self.SUBTITLE, title)
+    def assert_subtitle(self, title, index=0):
+        self.assert_text_equals(self.SUBTITLE, title, index)
 
     def assert_active_page_nav_link_hilited(self, page_url, page_title):
         self.get(page_url)

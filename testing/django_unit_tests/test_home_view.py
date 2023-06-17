@@ -30,53 +30,46 @@ class DashboardViewTests(TestCase):
     def test_empty_notifications_section(self):
         response = self.client.get(self.target_page)
         self.assertTemplateUsed(response, "home.html")
-        self.assertEqual(response.context['drafts_count'], 0)
         self.assertContains(response, "Notifications")
         self.assertContains(response, "No notifications to report")
 
-    def test_notifications_with_draft_puzzle(self):
-        user2 = create_user(username="user2")
-        WordPuzzle.objects.create(editor=self.user, type=0)  # Draft 1
-        WordPuzzle.objects.create(editor=self.user, type=1)  # Draft 2
-        WordPuzzle.objects.create(editor=user2)  # Other user draft - not counted
-        WordPuzzle.objects.create(editor=self.user, shared_at=now())  # Published - not counted
-        response = self.client.get(self.target_page)
-        self.assertEqual(response.context['drafts_count'], 2)
-        self.assertNotContains(response, "No notifications to report")
-        self.assertContains(response, "2 draft puzzle(s)")
+    def test_GET_has_draft_puzzles_filtered_for_current_user(self):
+        user2 = User.objects.create_user("testuser2")
+        WordPuzzle.objects.create(editor=self.user)
+        WordPuzzle.objects.create(editor=user2)
+        WordPuzzle.objects.create(editor=self.user)
+        response = self.client.get("/")
+        self.assertEqual(len(response.context['draft_puzzles']), 2)
 
-    # def test_draft_puzzles_filtered_for_current_user(self):
-    #     user2 = User.objects.create_user("testuser2")
-    #     WordPuzzle.objects.create(editor=self.user)
-    #     WordPuzzle.objects.create(editor=user2)
-    #     WordPuzzle.objects.create(editor=self.user)
-    #     response = self.client.get(reverse("home"))
-    #     self.assertEqual(len(response.context['draft_puzzles']), 2)
-    #
-    # def test_draft_puzzle_details_in_response_context(self):
-    #     puzzle = WordPuzzle.objects.create(editor=self.user, desc="Daily puzzle")
-    #     response = self.client.get(reverse("home"))
-    #     puzzle_details = response.context['draft_puzzles'][0]
-    #     self.assertEqual(puzzle_details.id, puzzle.id)
-    #     self.assertEqual(puzzle_details.desc, puzzle.desc)
-    #     self.assertEqual(str(puzzle_details), str(puzzle))
-    #     self.assertEqual(puzzle_details.size, puzzle.size)
-    #     self.assertIsNotNone(puzzle_details.modified_at)
-    #     self.assertIsNone(puzzle_details.shared_at)
-    #
-    # def test_draft_puzzles_do_not_include_published_puzzles_and_sorted_last_modified_first(self):
-    #     puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
-    #     puzzle2 = WordPuzzle.objects.create(editor=self.user)
-    #     puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
-    #     puzzle1.type=0
-    #     puzzle1.save()    # Change Puzzle 1 so it becomes last modified
-    #     puzzle2.shared_at = now()   # PUBLISHED
-    #     puzzle2.save()
-    #     response = self.client.get('/')
-    #     self.assertEqual(len(response.context['draft_puzzles']), 2)
-    #     self.assertEqual(response.context['draft_puzzles'][0].desc, puzzle1.desc)
-    #     self.assertEqual(response.context['draft_puzzles'][1].desc, puzzle3.desc)
-    #
+    def test_draft_puzzle_details_in_response_context(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Daily puzzle")
+        response = self.client.get(self.target_page)
+        draft_puzzle = response.context['draft_puzzles'][0]
+        self.assertEqual(draft_puzzle['id'], puzzle.id)
+        self.assertEqual(draft_puzzle['title'], str(puzzle))
+        self.assertEqual(draft_puzzle['type'], puzzle.type)
+        self.assertEqual(draft_puzzle['type_text'], "Cryptic Clues")  # Default
+        self.assertEqual(draft_puzzle['utc_modified_at'], str(puzzle.modified_at.strftime("%Y-%m-%d %H:%M:%SZ")))
+
+    def test_draft_puzzles_exclude_published_puzzles_and_are_sorted_last_modified_first(self):
+        puzzle1 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
+        puzzle2 = WordPuzzle.objects.create(editor=self.user)
+        puzzle3 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 3")
+        puzzle1.type = 0
+        puzzle1.save()  # Change Puzzle 1 so it becomes last modified
+        puzzle2.shared_at = now()  # PUBLISHED
+        puzzle2.save()
+        response = self.client.get(self.target_page)
+        self.assertEqual(len(response.context['draft_puzzles']), 2)
+        self.assertEqual(response.context['draft_puzzles'][0]['title'], str(puzzle1))
+        self.assertEqual(response.context['draft_puzzles'][1]['title'], str(puzzle3))
+
+    def test_response_has_new_puzzle_form(self):
+        response = self.client.get(self.target_page)
+        self.assertEqual(2, len(response.context['form'].fields))
+        self.assertEqual(1, response.context['form']['type'].value())
+        self.assertIsNone(response.context['form']['desc'].value())
+
     # def test_recently_posted_puzzles_include_only_published_puzzles_and_sorted_by_recent_first(self):
     #     WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
     #     puzzle2 = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 2")

@@ -1,145 +1,75 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     <div class="page-title">Dashboard</div>
     <hr class="dark-line">
+
     <!-- NOTIFICATIONS SECTION -->
-    <div class="boxed-panel bg-lemon m-bot">
-        <div class="subtitle"><i class="fa-solid fa-bell r-space"></i>Notifications</div>
-        {% if drafts_count == 0 %}
-            <div class="note-text m-top ">No notifications to report</div>
+    <div class="boxed-panel bg-lemon m-top">
+        <div class="subtitle"><i class="fa-solid fa-bell r-space"></i>My Notifications</div>
+        <hr>
+        <div class="note-text">No notifications to report.</div>
+    </div>
+    <br>
+
+    <!-- Draft Puzzles tab content -->
+    <div class="boxed-panel bg-gray m-top">
+        <div class="flex">
+            <i class="fa-solid fa-compass-drafting r-space"></i>
+            <div class="subtitle">My Draft Puzzles</div>
+            <button id="btnCreatePuzzle" class="blue-btn r-float">Create Puzzle</button>
+        </div>
+        <hr>
+        {% if draft_puzzles|length == 0 %}
+            <div class="note-text">No draft puzzles.</div>
         {% else %}
-            <div class="note-text flex m-top">
-                <i class="fa-regular fa-circle-dot"></i>
-                <span>You have <a
-                        href="{% url 'my_puzzles' %}">{{ drafts_count }} draft puzzle(s)</a> to complete</span>
+            <div id="drafts-list" class="m-top">
             </div>
         {% endif %}
     </div>
 
-    <!-- RATINGS -->
-    <div class="boxed-panel m-top" style="display:none">
-        <div class="subtitle">My Overall Score:
-            <span class="fa-regular fa-star"></span>
-            <span class="fa-regular fa-star"></span>
-            <span class="fa-regular fa-star"></span>
-            <span class="fa-regular fa-star"></span>
-            <span class="fa-regular fa-star"></span>
-            <span>[0]</span>
-        </div>
-        <hr class="dark-line">
-        <table class="rating-table">
-            <!-- CONTRIBUTION RATING -->
-            <tr>
-                <td class="group-rating" colspan="2">
-                    <span>CONTRIBUTION SCORE:</span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-            <tr>
-                <td class="item-rating">Clues published</td>
-                <td class="item-rating">
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-            <tr>
-                <td class="item-rating">Live sessions hosted</td>
-                <td class="item-rating">
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="3">
-                    <hr class="dark-line">
-                </td>
-            </tr>
-            <!-- PARTICIPATION RATING -->
-            <tr>
-                <td class="group-rating" colspan="2">
-                    <span>PARTICIPATION SCORE:</span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-            <tr>
-                <td class="item-rating">Live sessions</td>
-                <td class="item-rating">
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-            <tr>
-                <td class="item-rating">Individual sessions</td>
-                <td class="item-rating">
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="3">
-                    <hr class="dark-line">
-                </td>
-            </tr>
-            <!-- PERFORMANCE RATING -->
-            <tr>
-                <td class="group-rating" colspan="2">
-                    <span>PERFORMANCE SCORE:</span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-            <tr>
-                <td class="item-rating">Clues solved correctly</td>
-                <td class="item-rating">
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-            <tr>
-                <td class="item-rating">Total points scored</td>
-                <td class="item-rating">
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span class="fa-regular fa-star"></span>
-                    <span>[0]</span>
-                </td>
-            </tr>
-        </table>
-    </div>
+    <!-- New Puzzle Dialog -->
+    <dialog class="modal-dialog" id="new-puzzle-dialog">
+        <div class="subtitle">New Puzzle</div>
+        <hr>
+        <form action="{% url 'new_puzzle' %}" method="post">
+            {% csrf_token %}
+            <table>{{ form.as_table }}</table>
+            <button type="submit" class="blue-btn">Create Puzzle</button>
+            <button id="btnClose" formmethod="dialog">Cancel</button>
+        </form>
+    </dialog>
+
+    <script src="{% static '/javascript/puzzles_list_builder.js' %}"></script>
+    <script>
+        const draftPuzzles = {{ draft_puzzles | safe }};
+        const imgDirPath = "{% static '/images/' %}";
+        const baseUrl = "{{ request.get_host }}";
+
+        function pageInit() {
+            bindModalDialogToButton("new-puzzle-dialog", "btnCreatePuzzle");
+            try {
+                let builder = new PuzzlesListBuilder(draftPuzzles, imgDirPath, baseUrl);
+                builder.buildBadges();
+                builder.addDeleteBtns(showConfirmDialog);
+                builder.showList("drafts-list");
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function showConfirmDialog(event) {
+            const element = event.target
+            const dialog = document.getElementById("confirm-dialog")
+            const puzzleId = element.getAttribute("data-id");
+            const url = "/delete_puzzle/" + puzzleId + "/";
+            dialog.getElementsByClassName("confirm-dialog-form")[0].setAttribute('action', url)
+            dialog.getElementsByClassName("subtitle")[0].textContent =
+                "Delete Puzzle " + puzzleId;
+            dialog.getElementsByClassName("confirm-dialog-message")[0].textContent =
+                "This puzzle and all associated clues will be permanently deleted " +
+                "This action cannot be undone. Please confirm."
+            dialog.showModal();
+        }
+    </script>
 {% endblock %}

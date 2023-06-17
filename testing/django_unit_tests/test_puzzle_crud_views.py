@@ -68,19 +68,12 @@ class DeletePuzzleViewTests(BaseEditPuzzleTest):
     def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
         self.puzzle_does_not_exist_test()
 
-    def test_GET_redirects_to_confirm_page(self):
-        new_puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        response = self.client.get(self.target_page + str(new_puzzle.id) + "/")
-        self.assertTemplateUsed(response, "delete_confirm.html")
-        self.assertEqual(200, response.status_code)
-        self.assertTrue(WordPuzzle.objects.filter(id=new_puzzle.id).exists())  # NOT deleted
-
-    def test_POST_deletes_puzzle_and_redirects_to_my_puzzles_page(self):
+    def test_POST_deletes_puzzle_and_redirects_to_dashboard(self):
         new_puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         response = self.client.post(self.target_page + str(new_puzzle.id) + "/")
         self.assertFalse(WordPuzzle.objects.filter(id=new_puzzle.id).exists())  # Deleted
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, "/my_puzzles")
+        self.assertRedirects(response, "/")
 
 
 class EditPuzzleViewTests(BaseEditPuzzleTest):

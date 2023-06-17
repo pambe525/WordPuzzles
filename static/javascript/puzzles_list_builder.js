@@ -33,11 +33,11 @@ class PuzzlesListBuilder {
             this.badges.push(this._createBadge(this.puzzlesList[i]));
     }
 
-    addDeleteBtns() {
+    addDeleteBtns(handler) {
         let iconGroup = null, iconBtn = null;
         for (let i = 0; i < this.badges.length; i++) {
             iconGroup = this.badges[i].getElementsByClassName("icon-group")[0];
-            iconBtn = this._createDeleteBtn(this.puzzlesList[i].id)
+            iconBtn = this._createDeleteBtn(this.puzzlesList[i].id, handler)
             iconGroup.appendChild(iconBtn);
         }
     }
@@ -52,6 +52,7 @@ class PuzzlesListBuilder {
         const puzzleInfo = this._createPuzzleInfo(linkTitle, lastEdited);
         const iconGroup = this._createIconGroup();
         badge.classList.add("list-badge");
+        badge.classList.add("bg-white");
         badge.appendChild(img);
         badge.appendChild(puzzleInfo);
         badge.appendChild(iconGroup);
@@ -87,7 +88,7 @@ class PuzzlesListBuilder {
 
     _createLastEditedDiv(utcDateTime) {
         const div = document.createElement("div");
-        div.classList.add("small-text");
+        div.classList.add("font-xsmall");
         div.innerText = "Last edited on " + this._utc_to_local(utcDateTime);
         return div;
     }
@@ -95,6 +96,7 @@ class PuzzlesListBuilder {
     _createBadgeTitleLink(puzzle) {
         const title = document.createElement("a");
         title.classList.add("bold-text");
+        title.classList.add("font-small");
         title.setAttribute("href", "/edit_puzzle/" + puzzle.id + "/");
         title.innerText = puzzle.title;
         return title;
@@ -112,13 +114,14 @@ class PuzzlesListBuilder {
         return btn;
     }
 
-    _createDeleteBtn(puzzle_id) {
+    _createDeleteBtn(puzzle_id, handler) {
         const link = document.createElement("a");
         const icon = document.createElement("i");
         icon.classList.add("fa-regular");
         icon.classList.add("fa-trash-can");
         icon.title = "Delete";
-        link.setAttribute("href", "/delete_puzzle/" + puzzle_id + "/")
+        icon.setAttribute("data-id", puzzle_id);
+        link.addEventListener('click',handler)
         link.appendChild(icon);
         link.classList.add("icon-btn");
         return link;
