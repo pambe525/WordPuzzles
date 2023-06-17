@@ -549,6 +549,9 @@ img.thumbnail {
 textarea {
     font-size: 0.9rem;
 }
+div.font-medium {
+    line-height: 1rem;
+}
 /**
  MY PUZZLES TABS
  */
