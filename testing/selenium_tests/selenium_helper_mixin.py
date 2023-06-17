@@ -24,7 +24,7 @@ class HelperMixin:
     cookie_path = os.getcwd() + '/cookies.pkl'
 
     @staticmethod
-    def get_selenium_webdriver(headless=True):
+    def get_selenium_webdriver(headless=False):
         return SingletonWebDriver().start_webdriver(headless)
 
     @staticmethod
@@ -49,9 +49,9 @@ class HelperMixin:
         element.clear()
         element.send_keys(input_text)
 
-    def do_click(self, xpath):
+    def do_click(self, xpath, index=0):
         try:
-            self.selenium.find_element(By.XPATH, xpath).click()
+            self.selenium.find_elements(By.XPATH, xpath)[index].click()
             return True
         except WebDriverException:
             return False
@@ -129,7 +129,7 @@ class HelperMixin:
         # element = self.selenium.find_element(By.XPATH, xpath)
         WebDriverWait(self.selenium, 5).until(EC.visibility_of_element_located((By.XPATH, xpath)))
 
-    def wait_until_clickable(self, xpath):
+    def wait_until_clickable(self, xpath, index=0):
         WebDriverWait(self.selenium, 5).until(EC.element_to_be_clickable((By.XPATH, xpath)))
 
 

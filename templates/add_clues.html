@@ -6,8 +6,9 @@
 
     <!-- Add Clues Form -->
     <div class="font-xsmall">
-        Add (or cut & paste) single or multiple items in each text area below using clue number with a period
-        followed by text. Each item must be on a new line.
+        Add (or cut & paste) single or multiple items in each text area below using clue number
+        with a period followed by text. Each item must be on a new line. Existing clues with same
+        number will be replaced.
     </div>
     <form action="{% url 'add_clues' id %}" method="post">
         {% csrf_token %}

@@ -146,7 +146,7 @@ class ClueModelTest(TestCase):
         self.puzzle.delete()
         self.assertEqual(Clue.objects.all().count(), 0)
 
-    def test_get_decorated_clue(self):
+    def test_get_decorated_clue_with_length_not_specified_in_clue(self):
         clue = Clue.objects.create(puzzle=self.puzzle, clue_num=1, clue_text='This is a clue')
         clue.answer = "ONEWORD"
         self.assertEqual(clue.get_decorated_clue_text(), 'This is a clue (7)')
@@ -158,6 +158,11 @@ class ClueModelTest(TestCase):
         self.assertEqual(clue.get_decorated_clue_text(), 'This is a clue (10-4)')
         clue.answer = "THE EDITOR-IN-CHIEF FOR ALL-IN"
         self.assertEqual(clue.get_decorated_clue_text(), 'This is a clue (3,6-2-5,3,3-2)')
+
+    def test_get_decorated_clue_with_length_specified_in_clue(self):
+        clue = Clue.objects.create(puzzle=self.puzzle, clue_num=1, clue_text='This is a clue (3,4)')
+        clue.answer = "ONE WORD"
+        self.assertEqual(clue.get_decorated_clue_text(), 'This is a clue (3,4)')
 
 
 class SessionModelTest(TestCase):

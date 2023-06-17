@@ -2,7 +2,7 @@
 {% block content %}
     <div class="flex">
         <div class="page-title">Edit Puzzle</div>
-        <a role="button" class="blue-btn r-float" href="{% url 'home' %}">Done</a>
+        <a class="r-float" href="{% url 'home' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
     </div>
     <hr class="dark-line">
 
@@ -45,19 +45,19 @@
             </tr>
             {% for clue in clues %}
                 <tr>
-                    <td style="vertical-align: top">{{ clue.clue_num }}.</td>
+                    <td class="clue-num" style="vertical-align: top">{{ clue.clue_num }}.</td>
                     <td>
-                        <a class="text-primary" href="{% url 'edit_clue' object.id clue.clue_num %}">
+                        <a class="clue-text font-medium" href="{% url 'edit_clue' object.id clue.clue_num %}">
                             {{ clue.get_decorated_clue_text }}
                         </a>
-                        <div class="note-text">
+                        <div class="answer note-text">
                             Answer: {{ clue.answer }}
                             {% if clue.parsing %}, Parsing: {{ clue.parsing }} {% endif %}
                         </div>
                     </td>
-                    <td style="text-align:center; vertical-align: top">{{ clue.points }}</td>
+                    <td style="text-align:center; vertical-align: top" class="points">{{ clue.points }}</td>
                     <td style="vertical-align: top">
-                        <a onclick="showConfirmDialog(this)"
+                        <a class="delete-btn" onclick="showConfirmDialog(this)"
                            data-puzzle-id="{{ object.id }}" data-clue-num="{{ clue.clue_num }}">
                             <i class="fa-regular fa-trash-can" title="Delete"></i>
                         </a>
