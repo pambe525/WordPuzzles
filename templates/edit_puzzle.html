@@ -50,8 +50,8 @@
                         <a class="clue-text font-medium" href="{% url 'edit_clue' object.id clue.clue_num %}">
                             {{ clue.get_decorated_clue_text }}
                         </a>
-                        <div class="answer note-text">
-                            Answer: {{ clue.answer }}
+                        <div class="answer font-xsmall">
+                            Answer: {{ clue.answer.upper }}
                             {% if clue.parsing %}, Parsing: {{ clue.parsing }} {% endif %}
                         </div>
                     </td>
@@ -80,7 +80,6 @@
             timeLogString = getTimelogString(editorName, userName, utcCreatedAt, utcModifiedAt);
             document.getElementById("timeLog").innerHTML = timeLogString;
             bindModalDialogToButton("edit-desc-dialog", "btnEditDesc");
-            bindModalDialogToButton("add-clues-dialog", "btnAddClues");
         }
 
         function showConfirmDialog(element) {

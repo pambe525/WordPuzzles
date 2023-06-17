@@ -231,22 +231,6 @@ class DeleteClueViewTests(TransactionTestCase):
         self.assertEqual(puzzle.size, 0)
         self.assertEqual(puzzle.total_points, 0)
 
-    def test_POST_renumbers_clues_after_delete_to_eliminate_gaps(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user)
-        add_clue(puzzle, {'answer': 'WORD1', 'clue_text': 'Clue 1', 'parsing': '', 'points': 1})
-        add_clue(puzzle, {'answer': 'WORD2', 'clue_text': 'Clue 2', 'parsing': '', 'points': 2})
-        add_clue(puzzle, {'answer': 'WORD3', 'clue_text': 'Clue 3', 'parsing': '', 'points': 3})
-        add_clue(puzzle, {'answer': 'WORD4', 'clue_text': 'Clue 4', 'parsing': '', 'points': 4})
-        self.client.post("/delete_clue/" + str(puzzle.id) + "/2/")
-        clues = Clue.objects.filter(puzzle=puzzle)
-        self.assertEqual(len(clues), 3)
-        puzzle = WordPuzzle.objects.get(id=puzzle.id)
-        self.assertEqual(puzzle.size, 3)
-        self.assertEqual(puzzle.total_points, 8)
-        self.assertEqual(clues[0].clue_num, 1)
-        self.assertEqual(clues[1].clue_num, 2)
-        self.assertEqual(clues[2].clue_num, 3)
-
 
 @skip
 class PublishPuzzleViewTest(TestCase):

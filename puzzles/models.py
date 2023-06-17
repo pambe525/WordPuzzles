@@ -112,7 +112,7 @@ class WordPuzzle(models.Model):
         self.size -= 1
         clue.delete()
         self.save(update_fields=['size', 'total_points'])
-        self._adjust_clue_nums(clue_num)
+        # self._adjust_clue_nums(clue_num)
 
     def _adjust_clue_nums(self, start_clue_num):
         clues = Clue.objects.filter(puzzle=self)

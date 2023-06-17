@@ -24,7 +24,7 @@ class HelperMixin:
     cookie_path = os.getcwd() + '/cookies.pkl'
 
     @staticmethod
-    def get_selenium_webdriver(headless=False):
+    def get_selenium_webdriver(headless=True):
         return SingletonWebDriver().start_webdriver(headless)
 
     @staticmethod
