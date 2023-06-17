@@ -186,7 +186,6 @@ class EditClueView(EditorRequiredMixin, View):
 
 class DeleteClueView(EditorRequiredMixin, View):
     model = Clue
-    template_name = "delete_confirm.html"
     success_url = 'edit_puzzle'
 
     def post(self, request, pk=None, clue_num=None):
