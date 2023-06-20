@@ -517,16 +517,16 @@ hr.dark-line {
     margin: 0.3rem 0;
     box-shadow: 1px 1px black;
     align-items: center;
-    padding: 0.1rem;
+    padding: 0.3rem 0;
 }
 
 img.thumbnail {
     height: 2.5rem;
-    margin: 0 0.5rem;
+    margin: 0 0.4rem;
 }
 
 .icon-group {
-    padding: 0.6rem;
+    padding: 0.5rem;
 }
 .bg-lemon {
     background-color: #fffec7;

@@ -39,7 +39,7 @@ function highlightActiveNavItem() {
  * Converts a UTC date-time string in Y-mm-dd h:m:s format to local time
  */
 function utcToLocalString(utcDateTimeString) {
-    return new Date(utcDateTimeString + "Z").toLocaleString();
+    return new Date(utcDateTimeString).toLocaleString();
 }
 
 /**
@@ -51,6 +51,17 @@ function getTimelogString(editorName, userName, utcCreatedAt, utcModifiedAt) {
     const createdAt = utcToLocalString(utcCreatedAt);
     const modifiedAt = utcToLocalString(utcModifiedAt);
     return "Created by " + name + " on " + createdAt + " and last edited on " + modifiedAt;
+}
+
+/**
+ * Sets up and shows the modal confirm dialog
+ */
+function showConfirmDialog(title, message, actionUrl) {
+    const dialog = document.getElementById("confirm-dialog")
+    dialog.getElementsByClassName("confirm-dialog-form")[0].setAttribute('action', actionUrl)
+    dialog.getElementsByClassName("subtitle")[0].textContent = title;
+    dialog.getElementsByClassName("confirm-dialog-message")[0].textContent = message;
+    dialog.showModal();
 }
 
 /**

@@ -57,7 +57,7 @@
                     </td>
                     <td style="text-align:center; vertical-align: top" class="points">{{ clue.points }}</td>
                     <td style="vertical-align: top">
-                        <a class="delete-btn" onclick="showConfirmDialog(this)"
+                        <a class="delete-btn" onclick="showDeleteConfirmDialog(this)"
                            data-puzzle-id="{{ object.id }}" data-clue-num="{{ clue.clue_num }}">
                             <i class="fa-regular fa-trash-can" title="Delete"></i>
                         </a>
@@ -82,17 +82,13 @@
             bindModalDialogToButton("edit-desc-dialog", "btnEditDesc");
         }
 
-        function showConfirmDialog(element) {
-            const dialog = document.getElementById("confirm-dialog")
+        function showDeleteConfirmDialog(element) {
             const puzzleId = element.getAttribute("data-puzzle-id");
             const clueNum = element.getAttribute("data-clue-num");
-            const url = "/delete_clue/" + puzzleId + "/" + clueNum + "/";
-            dialog.getElementsByClassName("confirm-dialog-form")[0].setAttribute('action', url)
-            dialog.getElementsByClassName("subtitle")[0].textContent =
-                "Delete Clue #" + clueNum + " for Puzzle " + puzzleId;
-            dialog.getElementsByClassName("confirm-dialog-message")[0].textContent =
-                "This clue will be permanently deleted. This action cannot be undone. Please confirm.";
-            dialog.showModal();
+            const title = "Delete Clue #" + clueNum + " for Puzzle " + puzzleId;
+            const actionUrl = "/delete_clue/" + puzzleId + "/" + clueNum + "/";
+            const message = "This clue will be permanently deleted. This action cannot be undone. Please confirm.";
+            showConfirmDialog(title, message, actionUrl);
         }
     </script>
 {% endblock %}
