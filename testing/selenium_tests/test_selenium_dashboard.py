@@ -116,6 +116,7 @@ class DraftPuzzlesTests(BaseSeleniumTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=1, desc="Some description")
         self.get(self.target_page)
         self.do_click(self.DELETE_PUZZLE_ICON)  # DELETE icon on puzzle badge
+        self.wait_until_visible(self.CONFIRM_DIALOG)
         self.assert_is_displayed(self.CONFIRM_DIALOG)
         # Validate confirm dialog contents
         self.assert_text_equals(self.CONFIRM_DIALOG_SUBTITLE, "Delete Puzzle 1")
@@ -130,6 +131,7 @@ class DraftPuzzlesTests(BaseSeleniumTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
         self.get(self.target_page)
         self.do_click(self.DELETE_PUZZLE_ICON)
+        self.wait_until_visible(self.CONFIRM_DIALOG)
         self.do_click(self.CONFIRM_DIALOG_SUBMIT_BTN)  # Delete button on delete confirm dialog
         self.assert_is_not_displayed(self.CONFIRM_DIALOG)
         self.assert_current_url(self.target_page)
