@@ -131,7 +131,6 @@ class DraftPuzzlesTests(BaseSeleniumTestCase):
         self.get(self.target_page)
         self.do_click(self.DELETE_PUZZLE_ICON)
         self.do_click(self.CONFIRM_DIALOG_SUBMIT_BTN)  # Delete button on delete confirm dialog
-        #self.wait_until_clickable(self.CREATE_PUZZLE_BTN)
         self.assert_is_not_displayed(self.CONFIRM_DIALOG)
         self.assert_current_url(self.target_page)
         self.assert_item_count(self.LIST_BADGE, 0)  # Puzzle deleted

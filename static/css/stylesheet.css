@@ -494,7 +494,14 @@ hr.dark-line {
 .font-large {
     font-size: 1.2rem;
 }
-
+.truncated-text {
+    overflow: hidden;
+}
+.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .boxed-panel {
     display: block;
     border: 1px solid lightgray;
@@ -510,7 +517,7 @@ hr.dark-line {
     margin: 0.3rem 0;
     box-shadow: 1px 1px black;
     align-items: center;
-    padding: 0;
+    padding: 0.1rem;
 }
 
 img.thumbnail {
@@ -519,9 +526,8 @@ img.thumbnail {
 }
 
 .icon-group {
-    padding: 1rem;
+    padding: 0.6rem;
 }
-
 .bg-lemon {
     background-color: #fffec7;
 }

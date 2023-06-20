@@ -66,11 +66,12 @@ class WordPuzzle(models.Model):
         query_set = WordPuzzle.objects.filter(editor=current_user_id, shared_at=None).order_by('-modified_at')
         draft_puzzle_list = []
         for puzzle in query_set:
-            puzzle_dict = {}.fromkeys(['id', 'title', 'type', 'type_text', 'utc_modified_at'])
+            puzzle_dict = {}.fromkeys(['id', 'title', 'type', 'type_text', 'desc', 'utc_modified_at'])
             puzzle_dict['id'] = puzzle.id
             puzzle_dict['title'] = str(puzzle)
             puzzle_dict['type'] = puzzle.type
             puzzle_dict['type_text'] = WordPuzzle.TYPE_CHOICES[puzzle.type][1]
+            puzzle_dict['desc'] = puzzle.desc
             puzzle_dict['utc_modified_at'] = puzzle.modified_at.strftime("%Y-%m-%d %H:%M:%SZ")
             draft_puzzle_list.append(puzzle_dict)
         return draft_puzzle_list

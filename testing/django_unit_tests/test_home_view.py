@@ -48,6 +48,7 @@ class DashboardViewTests(TestCase):
         self.assertEqual(draft_puzzle['id'], puzzle.id)
         self.assertEqual(draft_puzzle['title'], str(puzzle))
         self.assertEqual(draft_puzzle['type'], puzzle.type)
+        self.assertEqual(draft_puzzle['desc'], puzzle.desc)
         self.assertEqual(draft_puzzle['type_text'], "Cryptic Clues")  # Default
         self.assertEqual(draft_puzzle['utc_modified_at'], str(puzzle.modified_at.strftime("%Y-%m-%d %H:%M:%SZ")))
 
