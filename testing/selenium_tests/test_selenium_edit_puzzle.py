@@ -12,7 +12,7 @@ class EditPuzzleTests(BaseSeleniumTestCase):
     target_page = "/edit_puzzle/"
     PUZZLE_DESC = "//div[contains(@class,'boxed-panel')]//span[contains(@class,'note-text')]"
     PUZZLE_TIMELOG = "//div[@id='timeLog']"
-    DONE_BTN = "//i[contains(@class,'fa-circle-xmark')]"
+    DONE_BTN = "//div//i[contains(@class,'fa-circle-xmark')]"
     EDIT_DESC_BTN = "//button[@id='btnEditDesc']"
     ADD_CLUES_BTN = "//div//a[text()='Add Clues']"
     MODAL_DIALOG_DESC = "//dialog[@id='edit-desc-dialog']"
@@ -112,12 +112,13 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         add_clue(puzzle, {'answer': 'word one', 'clue_text': 'Clue 1', 'points': 1})
         self.get(self.target_page + str(puzzle.id) + '/')
         self.do_click(self.DELETE_BTN_CELL)
+        self.assertTrue(self.modal_dialog_open("confirm-dialog"))
         # Validate confirm dialog contents
         self.assert_text_equals(self.CONFIRM_DIALOG_SUBTITLE, "Delete Clue #1 for Puzzle 1")
         self.assert_text_contains(self.CONFIRM_DIALOG_MSG, "This clue will be permanently")
         self.assert_text_equals(self.CONFIRM_DIALOG_CLOSE_BTN, "Cancel")
         self.do_click(self.CONFIRM_DIALOG_CLOSE_BTN)
-        self.assert_is_not_displayed(self.CONFIRM_DIALOG)
+        self.assertFalse(self.modal_dialog_open("confirm-dialog"))
         self.assert_current_url(self.target_page + str(puzzle.id) + "/")
 
     def test_clue_delete_confirm_deletes_clue_and_updates_clues_list(self):
@@ -127,8 +128,9 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         self.get(self.target_page + str(puzzle.id) + '/')
         self.assert_item_count(self.CLUE_TEXT_CELL, 2)
         self.do_click(self.DELETE_BTN_CELL, 1)
+        self.assertTrue(self.modal_dialog_open("confirm-dialog"))
         self.do_click(self.CONFIRM_DIALOG_SUBMIT_BTN)
-        self.assert_is_not_displayed(self.CONFIRM_DIALOG)
+        self.assertFalse(self.modal_dialog_open("confirm-dialog"))
         self.assert_current_url(self.target_page + str(puzzle.id) + "/")
         self.assert_item_count(self.CLUE_TEXT_CELL, 1)
 

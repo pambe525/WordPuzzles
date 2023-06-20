@@ -25,7 +25,7 @@
         {% else %}
             <!-- Loop through draft puzzles -->
             {% for puzzle in draft_puzzles %}
-                <div class="list-badge bg-white">
+                <div class="list-badge bg-white w-100">
                     <!-- Puzzle type thumbnail -->
                     <img class="thumbnail"
                          src="{% static puzzle.type|yesno:'/images/cryptic-clues.jpg,/images/non-cryptic-clues.png' %}"

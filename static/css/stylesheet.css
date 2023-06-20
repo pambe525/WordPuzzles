@@ -258,7 +258,7 @@ hr.separator {
         left: 0;
         min-height: 100%;
         transform: translateX(-100%);
-        transition: transform 0.05s ease-in-out;
+        /* transition: transform 0.05s ease-in-out; */
         display: block;
     }
 
@@ -285,7 +285,7 @@ hr.separator {
     position: absolute;
     top: 5rem;
     padding: 1.2rem;
-    max-width: 50ch;
+    max-width: 35ch;
     margin-inline: auto;
     border: 2px solid gray;
     box-shadow: 2px 2px 2px black;
@@ -448,6 +448,9 @@ button.icon-btn:hover {
 .m-bot {
     margin-bottom: 1rem;
 }
+.w-100 {
+    width: 100%;
+}
 
 button:hover, a[role=button]:hover {
     opacity: 0.9;
@@ -508,13 +511,16 @@ hr.dark-line {
     border-radius: 6px;
     box-shadow: 1px 1px black;
     padding: 0.5rem;
+    margin: 0;
     line-height: 1rem;
 }
 
 .list-badge {
+    min-width: 100%;
     display: flex;
     border: 1px solid lightgray;
-    margin: 0.3rem 0;
+    margin-top: 0.3rem;
+    margin-right: 0;
     box-shadow: 1px 1px black;
     align-items: center;
     padding: 0.3rem 0;

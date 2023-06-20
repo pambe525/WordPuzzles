@@ -132,6 +132,10 @@ class HelperMixin:
     def wait_until_clickable(self, xpath, index=0):
         WebDriverWait(self.selenium, 5).until(EC.element_to_be_clickable((By.XPATH, xpath)))
 
+    def modal_dialog_open(self, dialog_id):
+        is_open = self.selenium.find_element(By.ID, dialog_id).get_property('open')
+        return is_open
+
 
 # Parent class from which all selenium test cases will be derived
 class BaseSeleniumTestCase(HelperMixin, StaticLiveServerTestCase):
