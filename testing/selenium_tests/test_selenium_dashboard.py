@@ -116,14 +116,12 @@ class DraftPuzzlesTests(BaseSeleniumTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=1, desc="Some description")
         self.get(self.target_page)
         self.do_click(self.DELETE_PUZZLE_ICON)  # DELETE icon on puzzle badge
-        self.selenium.implicitly_wait(1)
         self.assertTrue(self.modal_dialog_open("confirm-dialog"))
         # Validate confirm dialog contents
         self.assert_text_equals(self.CONFIRM_DIALOG_SUBTITLE, "Delete Puzzle 1")
         self.assert_text_contains(self.CONFIRM_DIALOG_MSG, "This puzzle and all associated")
         self.assert_text_equals(self.CONFIRM_DIALOG_CLOSE_BTN, "Cancel")
         self.do_click(self.CONFIRM_DIALOG_CLOSE_BTN)
-        self.selenium.implicitly_wait(1)
         self.assertFalse(self.modal_dialog_open("confirm-dialog"))
         self.assert_current_url(self.target_page)
         self.assert_item_count(self.LIST_BADGE, 1)  # Puzzle still exists
@@ -132,10 +130,8 @@ class DraftPuzzlesTests(BaseSeleniumTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
         self.get(self.target_page)
         self.do_click(self.DELETE_PUZZLE_ICON)
-        self.selenium.implicitly_wait(1)
         self.assertTrue(self.modal_dialog_open("confirm-dialog"))
         self.do_click(self.CONFIRM_DIALOG_SUBMIT_BTN)  # Delete button on delete confirm dialog
-        self.selenium.implicitly_wait(1)
         self.assertFalse(self.modal_dialog_open("confirm-dialog"))
         self.assert_current_url(self.target_page)
         self.assert_item_count(self.LIST_BADGE, 0)  # Puzzle deleted

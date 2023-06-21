@@ -29,6 +29,8 @@ class EditPuzzleTests(BaseSeleniumTestCase):
     CONFIRM_DIALOG_MSG = "//dialog[@id='confirm-dialog']//div[contains(@class,'confirm-dialog-message')]"
     CONFIRM_DIALOG_CLOSE_BTN = "//dialog[@id='confirm-dialog']//button[@id='btnClose']"
     CONFIRM_DIALOG_SUBMIT_BTN = "//dialog[@id='confirm-dialog']//button[@type='submit']"
+    ATLEAST_5_CLUES_MSG = "//div[contains(@class, 'clr-red')]"
+    START_GROUP_SESSION_BTN = "//div//button[@id='btnStartSession']"
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
@@ -133,6 +135,27 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         self.assertFalse(self.modal_dialog_open("confirm-dialog"))
         self.assert_current_url(self.target_page + str(puzzle.id) + "/")
         self.assert_item_count(self.CLUE_TEXT_CELL, 1)
+
+    def test_message_appears_if_less_than_5_clues(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        add_clue(puzzle, {'answer': 'word one', 'clue_text': 'Clue one', 'points': 1})
+        add_clue(puzzle, {'answer': 'word two', 'clue_text': 'Clue two', 'points': 1})
+        add_clue(puzzle, {'answer': 'word three', 'clue_text': 'Clue three', 'points': 1})
+        add_clue(puzzle, {'answer': 'word four', 'clue_text': 'Clue four', 'points': 1})
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.assert_exists(self.ATLEAST_5_CLUES_MSG)
+        self.assert_not_exists(self.START_GROUP_SESSION_BTN)
+
+    def test_Start_Group_Session_btn_appears_after_five_clues(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        add_clue(puzzle, {'answer': 'word a', 'clue_text': 'Clue one', 'points': 1})
+        add_clue(puzzle, {'answer': 'word b', 'clue_text': 'Clue two', 'points': 1})
+        add_clue(puzzle, {'answer': 'word c', 'clue_text': 'Clue three', 'points': 1})
+        add_clue(puzzle, {'answer': 'word d', 'clue_text': 'Clue four', 'points': 1})
+        add_clue(puzzle, {'answer': 'word e', 'clue_text': 'Clue five', 'points': 1})
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.assert_not_exists(self.ATLEAST_5_CLUES_MSG)
+        self.assert_text_equals(self.START_GROUP_SESSION_BTN, "Start Group Session")
 
 
 class AddCluesTests(BaseSeleniumTestCase):

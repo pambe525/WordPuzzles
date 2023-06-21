@@ -11,6 +11,7 @@
     <script src="{% static '/javascript/base.js' %}"></script>
 </head>
 <body>
+<div class="glasspane"></div>
 <div class="container">
     <header>
         <a href="{% url 'dashboard' %}">
@@ -23,7 +24,6 @@
             </div>
         {% endif %}
     </header>
-    <div class="glasspane"></div>
     <div class="main">
         {% if user.is_authenticated %}
             <!-- NAVBAR -->

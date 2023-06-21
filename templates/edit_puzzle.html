@@ -19,6 +19,9 @@
             <a class="small-btn" href="{% url 'add_clues' object.id %}">Add Clues</a>
         </div>
     </div>
+    {% if clues|length < 5 %}
+        <div class="clr-red font-small">NOTE: At least 5 clues needed to start a group session.</div>
+    {% endif %}
 
     <!-- Edit description dialog -->
     <dialog class="modal-dialog" id="edit-desc-dialog">
@@ -66,7 +69,9 @@
             {% endfor %}
         </table>
         <hr>
-
+        {% if clues|length > 4 %}
+            <button class="blue-btn" id="btnStartSession">Start Group Session</button>
+        {% endif %}
     {% endif %}
 
     <script>

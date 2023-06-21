@@ -25,17 +25,17 @@ class SingletonWebDriver(object):
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--disable-gpu")
             if headless is True:
-                driver = webdriver.Chrome(options=chrome_options)
-                # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+                # driver = webdriver.Chrome(options=chrome_options)
+                driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
             else:
                 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        elif self._browser == 'Firefox':
-            driver = webdriver.Firefox(GeckoDriverManager().install())
+        # elif self._browser == 'Firefox':
+        #     driver = webdriver.Firefox(GeckoDriverManager().install())
         else:
             driver = webdriver.Safari()
         return driver
 
-    def start_webdriver(self, headless=True):
+    def start_webdriver(self, headless=False):
         if self.active_webdriver is None:
             self.active_webdriver = self._create_webdriver(headless)
         return self.active_webdriver
