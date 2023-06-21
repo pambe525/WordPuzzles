@@ -35,7 +35,7 @@ class SingletonWebDriver(object):
             driver = webdriver.Safari()
         return driver
 
-    def start_webdriver(self, headless=False):
+    def start_webdriver(self, headless=True):
         if self.active_webdriver is None:
             self.active_webdriver = self._create_webdriver(headless)
         return self.active_webdriver

@@ -5,6 +5,15 @@ from testing.data_setup_utils import add_clue
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
+def get_clues_data(n_clues):
+    clues_list = []
+    for i in range(n_clues):
+        char = chr(ord('a') + i)
+        clue = {'clue_num': i + 1, 'answer': 'word ' + char, 'clue_text': "Clue " + char, 'points': 1}
+        clues_list.append(clue)
+    return clues_list
+
+
 class EditPuzzleTests(BaseSeleniumTestCase):
     reset_sequences = True
     user = None
@@ -30,7 +39,7 @@ class EditPuzzleTests(BaseSeleniumTestCase):
     CONFIRM_DIALOG_CLOSE_BTN = "//dialog[@id='confirm-dialog']//button[@id='btnClose']"
     CONFIRM_DIALOG_SUBMIT_BTN = "//dialog[@id='confirm-dialog']//button[@type='submit']"
     ATLEAST_5_CLUES_MSG = "//div[contains(@class, 'clr-red')]"
-    START_GROUP_SESSION_BTN = "//div//button[@id='btnStartSession']"
+    PUBLISH_BTN = "//button[@id='btnPublish']"
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
@@ -138,25 +147,43 @@ class EditPuzzleTests(BaseSeleniumTestCase):
 
     def test_message_appears_if_less_than_5_clues(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        add_clue(puzzle, {'answer': 'word one', 'clue_text': 'Clue one', 'points': 1})
-        add_clue(puzzle, {'answer': 'word two', 'clue_text': 'Clue two', 'points': 1})
-        add_clue(puzzle, {'answer': 'word three', 'clue_text': 'Clue three', 'points': 1})
-        add_clue(puzzle, {'answer': 'word four', 'clue_text': 'Clue four', 'points': 1})
+        puzzle.add_clues(get_clues_data(4))
         self.get(self.target_page + str(puzzle.id) + '/')
         self.assert_exists(self.ATLEAST_5_CLUES_MSG)
-        self.assert_not_exists(self.START_GROUP_SESSION_BTN)
+        self.assert_not_exists(self.PUBLISH_BTN)
 
-    def test_Start_Group_Session_btn_appears_after_five_clues(self):
+    def test_Publish_btn_appears_after_five_clues(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        add_clue(puzzle, {'answer': 'word a', 'clue_text': 'Clue one', 'points': 1})
-        add_clue(puzzle, {'answer': 'word b', 'clue_text': 'Clue two', 'points': 1})
-        add_clue(puzzle, {'answer': 'word c', 'clue_text': 'Clue three', 'points': 1})
-        add_clue(puzzle, {'answer': 'word d', 'clue_text': 'Clue four', 'points': 1})
-        add_clue(puzzle, {'answer': 'word e', 'clue_text': 'Clue five', 'points': 1})
+        puzzle.add_clues(get_clues_data(5))
         self.get(self.target_page + str(puzzle.id) + '/')
         self.assert_not_exists(self.ATLEAST_5_CLUES_MSG)
-        self.assert_text_equals(self.START_GROUP_SESSION_BTN, "Start Group Session")
+        self.assert_text_equals(self.PUBLISH_BTN, "Publish Puzzle")
 
+    def test_clicking_Publish_btn_displays_dialog_that_can_be_cancelled(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle.add_clues(get_clues_data(5))
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.do_click(self.PUBLISH_BTN)
+        # Validate confirm-dialog contents
+        self.assert_is_displayed(self.CONFIRM_DIALOG)
+        self.assert_text_equals(self.CONFIRM_DIALOG_SUBTITLE, "Publish Puzzle " + str(puzzle.id))
+        self.assert_text_contains(self.CONFIRM_DIALOG_MSG, "This will make the puzzle accessible")
+        self.assert_text_equals(self.CONFIRM_DIALOG_CLOSE_BTN, "Cancel")
+        self.do_click(self.CONFIRM_DIALOG_CLOSE_BTN)
+        self.assert_is_not_displayed(self.CONFIRM_DIALOG)
+        self.assert_current_url(self.target_page + str(puzzle.id) + "/")
+
+    def test_clicking_Publish_Confirm_btn_publishes_puzzle(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle.add_clues(get_clues_data(5))
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.assertIsNone(puzzle.shared_at)
+        self.do_click(self.PUBLISH_BTN)
+        self.do_click(self.CONFIRM_DIALOG_SUBMIT_BTN)
+        self.assert_is_not_displayed(self.CONFIRM_DIALOG)
+        self.assert_current_url("/")
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        self.assertIsNone(puzzle.shared_at)
 
 class AddCluesTests(BaseSeleniumTestCase):
     reset_sequences = True

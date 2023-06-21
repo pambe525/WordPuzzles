@@ -1,89 +1,88 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2 class="pb-0 mb-2 mt-2">All Published Puzzles</h2>
-    <div class="bg-light p-3">
-        <div>
-            <form method="get">
-                {{ form.as_table }}
-            </form>
-        </div>
-        <div class="mb-2 notetext">
-            Hover over the puzzle title to see description pop-up. Click on the title link to solve or preview the
-            puzzle.
-        </div>
-        <table class="table table-sm">
-            <thead class="thead-dark">
+    <div class="page-title">Published Puzzles</div>
+    <hr class="dark-line">
+    <div>
+        <form method="get">
+            {{ form.as_table }}
+        </form>
+    </div>
+    <div class="mb-2 notetext">
+        Hover over the puzzle title to see description pop-up. Click on the title link to solve or preview the
+        puzzle.
+    </div>
+    <table class="table table-sm">
+        <thead class="thead-dark">
+        <tr>
+            <th class="pl-1">Puzzle Details</th>
+            <th style="width:65px;"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for puzzle in object_list %}
             <tr>
-                <th class="pl-1">Puzzle Details</th>
-                <th style="width:65px;"></th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for puzzle in object_list %}
-                <tr>
-                    <td style="line-height:18px; border-top:1px black solid" class="p-2">
-                        <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>
-                            <b>{{ puzzle }}</b>
-                        </a><br/>
-                        <span class="h6">Posted by:
-                            {% if puzzle.editor != request.user %}
-                                <b>{{ puzzle.editor }}</b>
-                            {% else %}
-                                <span class="bg-secondary p-1 rounded text-white">ME</span>
-                            {% endif %} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
-                        </span>
-                    </td>
-                    <td style="border-top:1px black solid" class="p-2">
-                        <div class="row m-0">
-                            {% if puzzle.editor == request.user %}
-                                <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                                   title="VIEW" style="width:22px;height:22px"><i class="fa fa-eye"></i>
-                                </a>
-                            {% else %}
-                                <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
-                                   title="SOLVE" style="width:22px;height:22px"><i class="fa fa-hourglass-2"></i>
-                                </a>
-                            {% endif %}
-                            {% if puzzle.session_count != 0 %}
-                                <a class="ml-1 btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
-                                   title="SCORES" style="width:22px;height:22px"><i class="fa fa-crown"></i>
-                                </a>
-                            {% endif %}
+                <td style="line-height:18px; border-top:1px black solid" class="p-2">
+                    <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>
+                        <b>{{ puzzle }}</b>
+                    </a><br/>
+                    <span class="h6">Posted by:
+                        {% if puzzle.editor != request.user %}
+                            <b>{{ puzzle.editor }}</b>
+                        {% else %}
+                            <span class="bg-secondary p-1 rounded text-white">ME</span>
+                        {% endif %} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)
+                    </span>
+                </td>
+                <td style="border-top:1px black solid" class="p-2">
+                    <div class="row m-0">
+                        {% if puzzle.editor == request.user %}
+                            <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
+                               title="VIEW" style="width:22px;height:22px"><i class="fa fa-eye"></i>
+                            </a>
+                        {% else %}
+                            <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"
+                               title="SOLVE" style="width:22px;height:22px"><i class="fa fa-hourglass-2"></i>
+                            </a>
+                        {% endif %}
+                        {% if puzzle.session_count != 0 %}
+                            <a class="ml-1 btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"
+                               title="SCORES" style="width:22px;height:22px"><i class="fa fa-crown"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="row m-0">
+                        <div class="bg-primary text-light text-center rounded-circle py-1 mr-1 h6"
+                             title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}
                         </div>
-                        <div class="row m-0">
-                            <div class="bg-primary text-light text-center rounded-circle py-1 mr-1 h6"
-                                 title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}
+                        {% if puzzle.user_session != None %}
+                            <div class="ml-1 mb-2 text-right">
+                                {% if puzzle.user_session.is_complete %}
+                                    <i title="Completed" class="fa fa-flag text-success"></i>
+                                {% else %}
+                                    <i title="Incomplete" class="fa fa-flag text-danger"></i>
+                                {% endif %}
                             </div>
-                            {% if puzzle.user_session != None %}
-                                <div class="ml-1 mb-2 text-right">
-                                    {% if puzzle.user_session.is_complete %}
-                                        <i title="Completed" class="fa fa-flag text-success"></i>
-                                    {% else %}
-                                        <i title="Incomplete" class="fa fa-flag text-danger"></i>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <hr class="mb-1">
-        <div class="ml-1 mt-1 pagination">
-            <span class="step-links">
-                {% if page_obj.has_previous %}
-                    <a href="?page=1">&laquo; First</a>
-                    <a href="?page={{ page_obj.previous_page_number }}">| Previous</a>
-                {% endif %}
-                <span class="current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                </span>
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}">| Last &raquo;</a>
-                {% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr class="mb-1">
+    <div class="ml-1 mt-1 pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}">| Previous</a>
+            {% endif %}
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
             </span>
-        </div>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">| Last &raquo;</a>
+            {% endif %}
+        </span>
     </div>
 {% endblock %}

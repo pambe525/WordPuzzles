@@ -54,6 +54,7 @@ class BaseTemplateTests(BaseSeleniumTestCase):
 
     def test_Nav_link_is_hilited_for_active_page(self):
         self.assert_active_page_nav_link_hilited("/", "Dashboard")
+        self.assert_active_page_nav_link_hilited("/puzzles_list", "Published Puzzles")
         self.assert_active_page_nav_link_hilited("/account", "Account Settings")
         self.assert_active_page_nav_link_hilited("/change_password", "Change Password")
         self.assert_active_page_nav_link_hilited("/release_notes", "Release Notes")

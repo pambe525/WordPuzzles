@@ -197,14 +197,13 @@ class DeleteClueView(EditorRequiredMixin, View):
 class PublishPuzzleView(EditorRequiredMixin, View):
     model = WordPuzzle
 
-    def get(self, request, **kwargs):
-        puzzle = self.model.objects.get(id=kwargs['pk'])
+    def post(self, request, pk=None):
+        puzzle = self.model.objects.get(id=pk)
         if puzzle.size == 0:
             err_msg = "No clues to publish.  Add clues before publishing."
-            ctx = {'err_msg': err_msg, 'id': kwargs['pk']}
+            ctx = {'err_msg': err_msg, 'id': pk}
             return render(request, "puzzle_error.html", context=ctx)
-        if not puzzle.is_published():
-            puzzle.publish()
+        if not puzzle.is_published(): puzzle.publish()
         return redirect('home')
 
 

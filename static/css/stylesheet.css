@@ -280,7 +280,7 @@ hr.separator {
     position: absolute;
     top: 5rem;
     padding: 1.2rem;
-    max-width: 35ch;
+    max-width: 40ch;
     margin-inline: auto;
     border: 2px solid gray;
     box-shadow: 2px 2px 2px black;
@@ -368,7 +368,7 @@ a:hover {
 }
 
 button {
-    padding: 0.2rem 1rem;
+    padding: 0.2rem 1rem 0.3rem 1rem;
     border: 0;
     border-radius: 5px;
     font-size: 0.9rem;
