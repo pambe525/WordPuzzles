@@ -4,58 +4,69 @@ from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
+from testing.selenium_tests.test_selenium_edit_puzzle import get_clues_data
 
 
-class DashboardTests(BaseSeleniumTestCase):
+class NotificationsTests(BaseSeleniumTestCase):
     password = 'secretkey'
     target_page = "/"
-    SECTION_NOTICE_TEXT = "//div[contains(@class,'boxed-panel')]/div[contains(@class,'note-text')]"
-    CREATE_PUZZLE_BTN = "//button[@id='btnCreatePuzzle']"
+    NOTICE_ITEM = "//div[@id='notices-panel']/ul/li"
+    FIRST_NOTICE_ITEM = "//div[@id='notices-panel']/ul/li[1]/a"
+    SECOND_NOTICE_ITEM = "//div[@id='notices-panel']/ul/li[2]/a"
+    THIRD_NOTICE_ITEM = "//div[@id='notices-panel']/ul/li[3]/a"
+    FOURTH_NOTICE_ITEM = "//div[@id='notices-panel']/ul/li[4]/a"
     NEW_PUZZLE_DIALOG = "//dialog[@id='new-puzzle-dialog']"
-    DIALOG_SUBTITLE = "//dialog[@id='new-puzzle-dialog']/div[@class='subtitle']"
-    DIALOG_FORM = "//dialog[@id='new-puzzle-dialog']/form"
-    DIALOG_SUBMIT_BTN = "//dialog[@id='new-puzzle-dialog']//button[@type='submit']"
-    DIALOG_CLOSE_BTN = "//dialog[@id='new-puzzle-dialog']//button[@id='btnClose']"
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
         self.auto_login_user(self.user)
         self.set_mobile_size(True)
 
-    def test_notifications_section_without_notificatons(self):
+    def test_has_at_least_three_default_notifications(self):
         self.get(self.target_page)
         self.assert_page_title("Dashboard")
         self.assert_subtitle("My Notifications", 0)
-        self.assert_text_equals(self.SECTION_NOTICE_TEXT, "No notifications to report.", 0)
+        self.assert_item_count(self.NOTICE_ITEM, 3)
 
-    def test_draft_puzzles_section_with_no_puzzles(self):
+    def test_first_notification_item_links_to_release_notes(self):
         self.get(self.target_page)
-        self.assert_subtitle("My Draft Puzzles", 1)
-        self.assert_text_equals(self.SECTION_NOTICE_TEXT, "No draft puzzles.", 1)
+        self.assert_text_contains(self.NOTICE_ITEM, "See What's New in", 0)
+        self.do_click(self.FIRST_NOTICE_ITEM)
+        self.assert_current_url("/release_notes")
 
-    def test_create_puzzle_btn_shows_modal_dialog_that_can_be_canceled(self):
+    def test_second_notification_links_to_new_puzzle(self):
         self.get(self.target_page)
-        self.assert_text_equals(self.CREATE_PUZZLE_BTN, "Create Puzzle")
-        self.assert_is_not_displayed(self.NEW_PUZZLE_DIALOG)
-        self.do_click(self.CREATE_PUZZLE_BTN)
+        self.assert_text_contains(self.NOTICE_ITEM, "Create a New Puzzle", 1)
+        self.do_click(self.SECOND_NOTICE_ITEM)
         self.assert_is_displayed(self.NEW_PUZZLE_DIALOG)
-        # Validate new puzzle dialog contents
-        self.assert_text_equals(self.DIALOG_SUBTITLE, "New Puzzle")
-        self.assert_exists(self.DIALOG_FORM)
-        self.assert_text_equals(self.DIALOG_SUBMIT_BTN, "Create Puzzle")
-        self.assert_text_equals(self.DIALOG_CLOSE_BTN, "Cancel")
-        self.do_click(self.DIALOG_CLOSE_BTN)
-        self.assert_is_not_displayed(self.NEW_PUZZLE_DIALOG)
+
+    def test_third_notification_links_to_account_page(self):
+        self.get(self.target_page)
+        self.assert_text_contains(self.NOTICE_ITEM, "Set your first & last name in", 2)
+        self.do_click(self.THIRD_NOTICE_ITEM)
+        self.assert_current_url("/account")
+
+    def test_fourth_notification_links_to_Published_Puzzles_page(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle.publish()
+        self.get(self.target_page)
+        self.assert_item_count(self.NOTICE_ITEM, 4)
+        self.assert_text_contains(self.NOTICE_ITEM, "Pick a puzzle to solve", 3)
+        self.do_click(self.FOURTH_NOTICE_ITEM)
+        self.assert_current_url("/puzzles_list")
 
 
 class DraftPuzzlesTests(BaseSeleniumTestCase):
     password = 'secretkey'
     target_page = '/'
 
+    DRAFTS_PANEL = "//div[@id='draft-puzzles-panel']"
     NEW_PUZZLE_DIALOG = "//dialog[@id='new-puzzle-dialog']"
     TYPE_FIELD = "//dialog[@id='new-puzzle-dialog']//select[@id='id_type']"
     DESC_FIELD = "//dialog[@id='new-puzzle-dialog']//textarea[@id='id_desc']"
-    CREATE_PUZZLE_BTN = "//button[@id='btnCreatePuzzle']"
+    CREATE_PUZZLE_BTN = "//a[@id='btnCreatePuzzle']"
+    DIALOG_SUBTITLE = "//dialog[@id='new-puzzle-dialog']/div[@class='subtitle']"
+    DIALOG_FORM = "//dialog[@id='new-puzzle-dialog']/form"
     DIALOG_SUBMIT_BTN = "//dialog[@id='new-puzzle-dialog']//button[@type='submit']"
     DIALOG_CLOSE_BTN = "//dialog[@id='new-puzzle-dialog']//button[@id='btnClose']"
     DELETE_PUZZLE_ICON = "//div[contains(@class,'list-badge')]//i[@title='Delete']"
@@ -74,7 +85,30 @@ class DraftPuzzlesTests(BaseSeleniumTestCase):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
         self.auto_login_user(self.user)
 
-    def test_New_Puzzle_btn_creates_puzzle_and_redirects_to_edit_puzzle_page(self):
+    def test_panel_not_displayed_if_no_draft_puzzles(self):
+        self.get(self.target_page)
+        self.assert_not_exists(self.DRAFTS_PANEL)
+
+    def test_panel_is_displayed_with_draft_puzzles(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        self.get(self.target_page)
+        self.assert_exists(self.DRAFTS_PANEL)
+
+    def test_Create_Puzzle_btn_shows_modal_dialog_that_can_be_canceled(self):
+        self.get(self.target_page)
+        self.assert_text_equals(self.CREATE_PUZZLE_BTN, "Create a New Puzzle.")
+        self.assert_is_not_displayed(self.NEW_PUZZLE_DIALOG)
+        self.do_click(self.CREATE_PUZZLE_BTN)
+        self.assert_is_displayed(self.NEW_PUZZLE_DIALOG)
+        # Validate new puzzle dialog contents
+        self.assert_text_equals(self.DIALOG_SUBTITLE, "New Puzzle")
+        self.assert_exists(self.DIALOG_FORM)
+        self.assert_text_equals(self.DIALOG_SUBMIT_BTN, "Create Puzzle")
+        self.assert_text_equals(self.DIALOG_CLOSE_BTN, "Cancel")
+        self.do_click(self.DIALOG_CLOSE_BTN)
+        self.assert_is_not_displayed(self.NEW_PUZZLE_DIALOG)
+
+    def test_dialog_submit_btn_creates_puzzle_and_redirects_to_edit_puzzle_page(self):
         self.get(self.target_page)
         self.do_click(self.CREATE_PUZZLE_BTN)
         self.set_input_text(self.DESC_FIELD, "Instructions")
@@ -135,18 +169,6 @@ class DraftPuzzlesTests(BaseSeleniumTestCase):
         self.assertFalse(self.modal_dialog_open("confirm-dialog"))
         self.assert_current_url(self.target_page)
         self.assert_item_count(self.LIST_BADGE, 0)  # Puzzle deleted
-
-    # def test_Preview_Puzzle_button_is_not_visible_if_draft_puzzle_has_no_clues(self):
-    #     WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
-    #     self.get('/')
-    #     self.assert_not_exists("//a[@title='Preview & Publish']")
-    #
-    # def test_Preview_Puzzle_button_redirects_to_preview_page_if_draft_puzzle_has_clues(self):
-    #     puzzle = WordPuzzle.objects.create(editor=self.user, type=0, desc="Some description")
-    #     puzzle.add_clue({'answer': "WORDLE", 'clue_text': "Clue for word", 'points': 1})
-    #     self.get('/')
-    #     self.do_click("//a[@title='PREVIEW & PUBLISH']")
-    #     self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + '/')
 
 # class RecentPuzzlesTests(BaseSeleniumTestCase):
 #     password = 'secretkey'

@@ -5,51 +5,49 @@
     <hr class="dark-line">
 
     <!-- Notifications Section -->
-    <div class="boxed-panel bg-lemon m-top">
+    <div id="notices-panel" class="boxed-panel bg-lemon m-top">
         <div class="subtitle"><i class="fa-solid fa-bell r-space"></i>My Notifications</div>
         <hr>
-        <div class="note-text">No notifications to report.</div>
+        <ul class="notices">
+            {% for notice in notifications %}
+            <li class="has-icon">
+                {% autoescape off %}{{ notice }}{% endautoescape %}
+            </li>
+            {% endfor %}
+        </ul>
     </div>
     <br>
 
     <!-- Draft Puzzles Section -->
-    <div class="boxed-panel bg-gray m-top">
-        <div class="flex">
-            <i class="fa-solid fa-compass-drafting r-space"></i>
-            <div class="subtitle">My Draft Puzzles</div>
-            <button id="btnCreatePuzzle" class="blue-btn r-float">Create Puzzle</button>
-        </div>
+    {% if draft_puzzles|length != 0 %}
+    <div id="draft-puzzles-panel" class="boxed-panel bg-gray m-top">
+        <div class="subtitle"><i class="fa-solid fa-compass-drafting r-space"></i>My Draft Puzzles</div>
         <hr>
-        {% if draft_puzzles|length == 0 %}
-            <div class="note-text">No draft puzzles.</div>
-        {% else %}
-            <!-- Loop through draft puzzles -->
-            {% for puzzle in draft_puzzles %}
-                <div class="list-badge bg-white w-100">
-                    <!-- Puzzle type thumbnail -->
-                    <img class="thumbnail"
-                         src="{% static puzzle.type|yesno:'/images/cryptic-clues.jpg,/images/non-cryptic-clues.png' %}"
-                         title="{{ puzzle.type_text }}" alt="{{ puzzle.type_text }}" >
-                    <!-- Puzzle info (title and last edited on -->
-                    <div class="truncated-text">
-                        <a class="bold-text font-small" href="/edit_puzzle/{{ puzzle.id }}/">{{ puzzle.title }}</a>
-                        <div class="font-xsmall bold-text ellipsis">{{ puzzle.desc }}</div>
-                        <div class="font-xsmall">
-                            Last edited on <span class="timestamp">{{ puzzle.utc_modified_at }}</span>
-                        </div>
-                    </div>
-                    <div class="icon-group r-float">
-                        <a class="icon-btn delete-btn" >
-                            <i data-id="{{ puzzle.id }}"
-                               class="fa-regular fa-trash-can" title="Delete">
-                            </i>
-                        </a>
+        <!-- Loop through draft puzzles -->
+        {% for puzzle in draft_puzzles %}
+            <div class="list-badge bg-white w-100">
+                <!-- Puzzle type thumbnail -->
+                <img class="thumbnail"
+                     src="{% static puzzle.type|yesno:'/images/cryptic-clues.jpg,/images/non-cryptic-clues.png' %}"
+                     title="{{ puzzle.type_text }}" alt="{{ puzzle.type_text }}" >
+                <!-- Puzzle info (title and last edited on -->
+                <div class="truncated-text">
+                    <a class="bold-text font-small" href="/edit_puzzle/{{ puzzle.id }}/">{{ puzzle.title }}</a>
+                    <div class="font-xsmall bold-text ellipsis">{{ puzzle.desc }}</div>
+                    <div class="font-xsmall">
+                        Last edited on <span class="timestamp">{{ puzzle.utc_modified_at }}</span>
                     </div>
                 </div>
-            {% endfor %}
-{#            <div id="drafts-list" class="m-top">#}
-{#            </div>#}
-        {% endif %}
+                <div class="icon-group r-float">
+                    <a class="icon-btn delete-btn" >
+                        <i data-id="{{ puzzle.id }}"
+                           class="fa-regular fa-trash-can" title="Delete">
+                        </i>
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
     </div>
 
     <!-- New Puzzle Dialog -->

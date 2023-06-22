@@ -27,12 +27,6 @@ class DashboardViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/login?next=/")
 
-    def test_empty_notifications_section(self):
-        response = self.client.get(self.target_page)
-        self.assertTemplateUsed(response, "home.html")
-        self.assertContains(response, "Notifications")
-        self.assertContains(response, "No notifications to report")
-
     def test_GET_has_draft_puzzles_filtered_for_current_user(self):
         user2 = User.objects.create_user("testuser2")
         WordPuzzle.objects.create(editor=self.user)
@@ -70,6 +64,30 @@ class DashboardViewTests(TestCase):
         self.assertEqual(2, len(response.context['form'].fields))
         self.assertEqual(1, response.context['form']['type'].value())
         self.assertIsNone(response.context['form']['desc'].value())
+
+    def test_has_at_least_three_notifications_by_default(self):
+        response = self.client.get(self.target_page)
+        notifications = response.context['notifications']
+        self.assertEqual(3, len(notifications))
+        self.assertIn("See <b>What's New</b> in the", notifications[0])
+        self.assertIn("Create a New Puzzle", notifications[1])
+        self.assertIn("Set your first & last name in", notifications[2])
+
+    def test_has_puzzles_page_notice_if_published_puzzles_exist(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")
+        puzzle.publish()
+        response = self.client.get(self.target_page)
+        notifications = response.context['notifications']
+        self.assertEqual(4, len(notifications))
+        self.assertIn("Pick a puzzle to solve in", notifications[3])
+
+    def test_has_no_set_name_notice_if_name_is_already_set(self):
+        self.user.first_name = "Joe"
+        self.user.last_name = "Smith"
+        self.user.save()
+        response = self.client.get(self.target_page)
+        notifications = response.context['notifications']
+        self.assertEqual(2, len(notifications))
 
     # def test_recently_posted_puzzles_include_only_published_puzzles_and_sorted_by_recent_first(self):
     #     WordPuzzle.objects.create(editor=self.user, desc="Daily Puzzle 1")

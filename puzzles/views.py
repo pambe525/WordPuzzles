@@ -36,9 +36,20 @@ class HomeView(LoginRequiredMixin, View):
         # add_session_data(recent_puzzles, request.user)
         # drafts_count = WordPuzzle.get_draft_puzzles_count(request.user.id)
         draft_puzzles = WordPuzzle.get_draft_puzzles_as_list(request.user.id)
+        notifications = self.__build_notifications(request)
         new_puzzle_form = WordPuzzleForm()
-        ctx = {'draft_puzzles': draft_puzzles, 'form': new_puzzle_form}
+        ctx = {'notifications': notifications, 'draft_puzzles': draft_puzzles, 'form': new_puzzle_form}
         return render(request, "home.html", context=ctx)
+
+    @staticmethod
+    def __build_notifications(request):
+        notifications = ["See <b>What's New</b> in the <a href='/release_notes'>Release Notes</a>.",
+                         "<a id='btnCreatePuzzle'>Create a New Puzzle.</a>"]
+        if request.user.first_name is "" and request.user.last_name is "":
+            notifications.append("Set your first & last name in <a href='/account'>Account Settings</a>.")
+        if len(WordPuzzle.objects.exclude(shared_at=None)) > 0:
+            notifications.append("Pick a puzzle to solve in <a href='/puzzles_list'>Published Puzzles</a>.")
+        return notifications
 
     # def get_puzzles_in_recent_sessions(self):
     #     seven_days_ago = now() - timedelta(days=7)
