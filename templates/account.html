@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="page-title">Account Settings</div>
+    <div class="flex">
+        <div class="page-title">Account Settings</div>
+        <a class="r-float" href="{% url 'home' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
+    </div>
     <hr class="dark-line">
     {% url 'account' as account_url %}
     {% if request.path == account_url %}
