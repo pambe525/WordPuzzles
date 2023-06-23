@@ -40,6 +40,7 @@ class EditPuzzleTests(BaseSeleniumTestCase):
     CONFIRM_DIALOG_SUBMIT_BTN = "//dialog[@id='confirm-dialog']//button[@type='submit']"
     ATLEAST_5_CLUES_MSG = "//div[contains(@class, 'clr-red')]"
     PUBLISH_BTN = "//button[@id='btnPublish']"
+    UNPUBLISH_BTN = "//button[@id='btnUnpublish']"
 
     def setUp(self):
         self.user = User.objects.create_user(username="test_user", email="user@test.com", password=self.password)
@@ -157,9 +158,9 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         puzzle.add_clues(get_clues_data(5))
         self.get(self.target_page + str(puzzle.id) + '/')
         self.assert_not_exists(self.ATLEAST_5_CLUES_MSG)
-        self.assert_text_equals(self.PUBLISH_BTN, "Publish Puzzle")
+        self.assert_text_equals(self.PUBLISH_BTN, "Publish")
 
-    def test_clicking_Publish_btn_displays_dialog_that_can_be_cancelled(self):
+    def test_clicking_Publish_btn_displays_dialog_that_can_be_canceled(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         puzzle.add_clues(get_clues_data(5))
         self.get(self.target_page + str(puzzle.id) + '/')
@@ -184,6 +185,31 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         self.assert_current_url("/")
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         self.assertIsNone(puzzle.shared_at)
+
+    def test_published_puzzle_has_correct_page_content_with_done_btn_redirecting_to_puzzles_page(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle.add_clues(get_clues_data(5))
+        puzzle.publish()
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.assert_page_title("Published Puzzle")  # changed from Edit Puzzle
+        self.assert_subtitle(str(puzzle))
+        self.assert_text_contains(self.PUZZLE_TIMELOG, 'Posted by me on')
+        self.assert_not_exists(self.PUBLISH_BTN)
+        self.assert_not_exists(self.ADD_CLUES_BTN)
+        self.assert_item_count(self.DELETE_BTN_CELL, 0)
+        self.assert_exists(self.UNPUBLISH_BTN)
+        self.do_click(self.DONE_BTN)
+        self.assert_current_url('/puzzles_list')
+
+    def test_unpublish_puts_puzzle_in_draft_mode_and_redirects_to_home(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle.add_clues(get_clues_data(5))
+        puzzle.publish()
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.do_click(self.UNPUBLISH_BTN)
+        self.assertIsNone(WordPuzzle.objects.get(id=puzzle.id).shared_at)
+        self.assert_current_url('/')
+
 
 class AddCluesTests(BaseSeleniumTestCase):
     reset_sequences = True

@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
+    <!-- Page title based on if the puzzle is draft or published -->
     <div class="flex">
-        <div class="page-title">Edit Puzzle</div>
-        <a class="r-float" href="{% url 'home' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
+        {% if object.is_published %}
+            <div class="page-title">Published Puzzle</div>
+            <a class="r-float" href="{% url 'puzzles_list' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
+        {% else %}
+            <div class="page-title">Edit Puzzle</div>
+            <a class="r-float" href="{% url 'home' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
+        {% endif %}
     </div>
     <hr class="dark-line">
 
@@ -16,7 +22,18 @@
 
     <div class="flex m-top"><strong>Clues:</strong>
         <div class="r-float">
-            <a class="small-btn" href="{% url 'add_clues' object.id %}">Add Clues</a>
+            {% if not object.is_published %}
+                <a class="small-btn" href="{% url 'add_clues' object.id %}">Add Clues</a>
+                {% if  clues|length > 4  %}
+                    <button class="small-btn" onclick="showPublishConfirmDialog(this)"
+                        data-puzzle-id={{ object.id }} id="btnPublish">Publish</button>
+                {% endif %}
+            {% else %}
+                <form action="{% url 'unpublish_puzzle' object.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="small-btn" id="btnUnpublish">Unpublish</button>
+                </form>
+            {% endif %}
         </div>
     </div>
     {% if clues|length < 5 %}
@@ -48,19 +65,17 @@
                     </td>
                     <td style="text-align:center; vertical-align: top" class="points">{{ clue.points }}</td>
                     <td style="vertical-align: top">
-                        <a class="delete-btn" onclick="showDeleteConfirmDialog(this)"
-                           data-puzzle-id="{{ object.id }}" data-clue-num="{{ clue.clue_num }}">
-                            <i class="fa-regular fa-trash-can" title="Delete"></i>
-                        </a>
+                        {% if not object.is_published %}
+                            <a class="delete-btn" onclick="showDeleteConfirmDialog(this)"
+                               data-puzzle-id="{{ object.id }}" data-clue-num="{{ clue.clue_num }}">
+                                <i class="fa-regular fa-trash-can" title="Delete"></i>
+                            </a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
         </table>
         <hr>
-        {% if clues|length > 4 %}
-            <button class="blue-btn" onclick="showPublishConfirmDialog(this)"
-                    data-puzzle-id={{ object.id }} id="btnPublish">Publish Puzzle</button>
-        {% endif %}
     {% endif %}
 
     <!-- Edit description dialog -->
@@ -76,14 +91,20 @@
     </dialog>
 
     <script>
-        const editorName = "{{ object.editor }}";
+        const puzzleData = {
+            editorName: "{{ object.editor }}",
+            utcCreatedAt: "{{ object.created_at|date:'Y-m-d H:i:s' }}Z",
+            utcModifiedAt: "{{ object.modified_at|date:'Y-m-d H:i:s' }}Z",
+            utcSharedAt: null
+        }
+        {% if object.is_published %}
+            puzzleData.utcSharedAt = "{{ object.shared_at|date:'Y-m-d H:i:s' }}Z";
+        {% endif %}
         const userName = "{{ request.user }}";
-        const utcCreatedAt = "{{ object.created_at|date:'Y-m-d H:i:s' }}";
-        const utcModifiedAt = "{{ object.modified_at|date:'Y-m-d H:i:s' }}";
 
         function pageInit() {
             let timeLogString;
-            timeLogString = getTimelogString(editorName, userName, utcCreatedAt, utcModifiedAt);
+            timeLogString = getTimelogString(puzzleData, userName);
             document.getElementById("timeLog").innerHTML = timeLogString;
             bindModalDialogToButton("edit-desc-dialog", "btnEditDesc");
             bindModalDialogToButton("confirm-dialog", "btnPublish");

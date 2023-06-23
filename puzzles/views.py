@@ -84,12 +84,12 @@ class EditorRequiredMixin(LoginRequiredMixin):
                 err_msg = "This clue does not exist."
             else:
                 url_name = request.resolver_match.url_name
-                if puzzle.is_published():
-                    if "publish" not in url_name and "preview" not in url_name and "solve" not in url_name:
-                        err_msg = "Published puzzle cannot be edited. Unpublish to edit."
-                    elif "solve" in url_name and request.user == puzzle.editor:
-                        return redirect("preview_puzzle", puzzle.id)
-                elif request.user != puzzle.editor:
+                # if puzzle.is_published():
+                # if "publish" not in url_name and "preview" not in url_name and "solve" not in url_name:
+                #     err_msg = "Published puzzle cannot be edited. Unpublish to edit."
+                # elif "solve" in url_name and request.user == puzzle.editor:
+                #     return redirect("preview_puzzle", puzzle.id)
+                if request.user != puzzle.editor:
                     err_msg = "This operation is not permitted since you are not the editor."
                 elif "solve" in url_name:
                     err_msg = "This puzzle is not published."
@@ -221,7 +221,7 @@ class PublishPuzzleView(EditorRequiredMixin, View):
 class UnpublishPuzzleView(EditorRequiredMixin, View):
     model = WordPuzzle
 
-    def get(self, request, **kwargs):
+    def post(self, request, **kwargs):
         puzzle = self.model.objects.get(id=kwargs['pk'])
         puzzle.unpublish()
         return redirect('home')

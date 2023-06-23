@@ -39,18 +39,20 @@ function highlightActiveNavItem() {
  * Converts a UTC date-time string in Y-mm-dd h:m:s format to local time
  */
 function utcToLocalString(utcDateTimeString) {
-    return new Date(utcDateTimeString).toLocaleString();
+    return (utcDateTimeString) ? new Date(utcDateTimeString).toLocaleString() : "";
 }
 
 /**
  * Constructs a time log string given the parameters in the form:
  * 'Created by <username or me> on <local-date-time> and last edited on <local-date-time>'
  */
-function getTimelogString(editorName, userName, utcCreatedAt, utcModifiedAt) {
-    const name = (editorName === userName) ? "me" : userName;
-    const createdAt = utcToLocalString(utcCreatedAt);
-    const modifiedAt = utcToLocalString(utcModifiedAt);
-    return "Created by " + name + " on " + createdAt + " and last edited on " + modifiedAt;
+function getTimelogString(puzzleData, userName) {
+    const name = (puzzleData.editorName === userName) ? "me" : userName;
+    const createdAt = utcToLocalString(puzzleData.utcCreatedAt);
+    const modifiedAt = utcToLocalString(puzzleData.utcModifiedAt);
+    const sharedAt = utcToLocalString(puzzleData.utcSharedAt);
+    return (sharedAt) ? "Posted by " + name + " on " + sharedAt :
+                        "Created by " + name + " on " + createdAt + " and last edited on " + modifiedAt;
 }
 
 /**
