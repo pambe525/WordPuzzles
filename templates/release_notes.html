@@ -1,84 +1,150 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="page-title">Release Notes</div>
-    [July 16, 2023]
+    [June 16, 2023]
     <hr class="dark-line">
-
-    These are all the active features in the current release.
-
-    <div class="epic-title">Dashboard [Home Page]</div>
-    <div class="font-medium m-bot">Dashboard is the home page and has notification & draft puzzles sections.</div>
-    <ul class="feature-list">
-        <li><b>Notifications</b>: This section is a place-holder for future notifications.
-        </li>
-        <li><b>[Create Puzzle]</b>: Click on this button to create a new puzzle. Select the type of puzzle, add a
-            description and click Create Puzzle to start editing the puzzle and adding clues. The new puzzle will
-            appear in your drafts list.
-        </li>
-        <li><b>Draft Puzzles</b>: Click on the title of the puzzle in the list, to edit it. Click the
-            <i class="fa-regular fa-trash-can"></i> button to delete the puzzle. Note that all clues associated
-            with the puzzle will also be deleted. The puzzle badge lists last edited timestamp in local time.
-        </li>
-    </ul>
-
-    <div class="epic-title">Puzzle Editor</div>
-    <div class="font-medium m-bot">
-            Clicking on the puzzle link in the draft puzzles section on the home page will open the edit puzzle page.
-            Here you can edit the description (click on the [Edit] button.  You can also add bulk clues by clicking on
-            the [Add Clues] button.
+    <div class="font-small m-bot">Select filter and Release date to see pertinent features.</div>
+    <div class="fieldset font-small">
+        Show: <select id="feature-filter" onchange="showFeatures();">
+                    <option value="0">What's New</option>
+                    <option value="1">All features</option>
+                </select>
+        in Release: <select id="release-options" onchange="showFeatures()"></select>
     </div>
-    <ul class="feature-list">
-        <li><b>[Add Clues]</b> This opens the add clues form. Multiple clues and corresponding answers can be entered
-            or cut & pasted.  Each item in the text boxes must be separated with a new line [return] and must begin
-            with the clue number.<br><br>
-            Clue text need not have answer length specified in parenthesis since these will be auto-added based on
-            the answer given for each clue. Answers must be unique across clues and cannot contain non-alphabet
-            characters (only spaces and hyphens). Cryptic and non-cryptic clues can only have a single answer.<br><br>
-            Existing clues are replaced if re-entered.  Numbering gaps should be managed by the puzzle editor.
-        </li>
-        <li><b>Clues List</b>: Clues are listed in order of clue numbers on the edit puzzle page.  Click on the clue
-            description to edit the clue (see below).  You can also delete the clue by clicking on the
-            <i class="fa-regular fa-trash-can"></i> button.
-        </li>
-        <li><b>Edit Clue Form</b>: This form allows you to make changes to a single clue. Changed fields will overwrite
-            the existing clue on submit.  Note that answers will automatically uoper-cased.  You can also add parsing
-            or change the number of points for each clue using this form.
-        </li>
-    </ul>
+    <hr>
+    <div class="feature" data-release="6/16/2023">
+        <div class="epic-title">Creating Draft Puzzles</div>
+        <ul class="feature-list">
+            <li><b>[Create a New Puzzle]</b>: Click on this link ion the dashboard to create a new puzzle.
+                Select the type of puzzle, add a description and click Create Puzzle to start editing the puzzle and
+                adding clues. The new puzzle will appear in your drafts list.
+            </li>
+            <li><b>My Draft Puzzles section</b>: This section appears on the Dashboard when one or more draft puzzles
+                are created. Click on the title of the puzzle in the list, to edit it in the Puzzle Editor. Click the
+                <i class="fa-regular fa-trash-can"></i> button to delete the puzzle. Note that all clues associated
+                with the puzzle will also be deleted. The puzzle badge lists last edited timestamp in local time.
+            </li>
+        </ul>
+    </div>
 
-    <div class="epic-title">User Authentication</div>
-    <ul class="feature-list">
-        <li><b>[Sign Up]</b>: New users can register using a username, password and email address. The username must be
-            unique and is not case-sensitive. This will be visible to others, so use your first name or full name as
-            username (no spaces). The email address must also be unique and will be used for notifications.
-        </li>
-        <li><b>[Log In]</b>: Registered users can sign in with their username and password. On successful login, users are
-            directed to the Dashboard page. Site pages are not accessible unless the user is authenticated.
-        </li>
-        <li><b>[Reset Password]</b>: Users can reset their password if they forget it. An email is sent with a link
-            which they can use to reset the password.
-        </li>
-        <li><b>[Account Settings]</b>: Once signed in, users can edit their credentials including username, email, first
-            and last name. This can be accessed from the side menu.
-        </li>
-        <li><b>[Change Password]</b>: Users can also change their password, if needed. This can be accessed from the
-            side menu.
-        </li>
-        <li><b>[Logout]</b>: Users can logout (accessible from the side menu). This will take them back to login page.
-        </li>
-    </ul>
+    <div class="feature" data-release="6/16/2023">
+        <div class="epic-title">Puzzle Editor</div>
+        <div class="font-medium m-bot">
+                Clicking on the puzzle link in the draft puzzles section on the home page will open the edit puzzle page.
+                Here you can edit the description (click on the [Edit] button.  You can also add bulk clues by clicking on
+                the [Add Clues] button.
+        </div>
+        <ul class="feature-list">
+            <li><b>[Add Clues]</b> This opens the add clues form. Multiple clues and corresponding answers can be entered
+                or cut & pasted.  Each item in the text boxes must be separated with a new line [return] and must begin
+                with the clue number.<br><br>
+                Clue text need not have answer length specified in parenthesis since these will be auto-added based on
+                the answer given for each clue. Answers must be unique across clues and cannot contain non-alphabet
+                characters (only spaces and hyphens). Cryptic and non-cryptic clues can only have a single answer.<br><br>
+                Existing clues are replaced if re-entered.  Numbering gaps should be managed by the puzzle editor.
+            </li>
+            <li><b>Clues List</b>: Clues are listed in order of clue numbers on the edit puzzle page.  Click on the clue
+                description to edit the clue (see below).  You can also delete the clue by clicking on the
+                <i class="fa-regular fa-trash-can"></i> button.
+            </li>
+            <li><b>Edit Clue Form</b>: This form allows you to make changes to a single clue. Changed fields will overwrite
+                the existing clue on submit.  Note that answers will automatically uoper-cased.  You can also add parsing
+                or change the number of points for each clue using this form.
+            </li>
+        </ul>
+    </div>
 
-    <div class="epic-title">Responsive Web Interface</div>
-    <ul class="feature-list">
-        <li>The web interface is responsive and adapts to the device's viewport such as large monitors, laptops,
-            tablets and phones.
-        </li>
-        <li>On larger devices, a side menu is displayed that provides access to all the features.</li>
-        <li>On smaller devices, the side menu can be accessed using the <i class="fa-solid fa-bars"></i> icon
-            on top right of the screen.
-        </li>
-        <li>Clicking on the CrypticLive logo always navigates to the home page (Dashboard)</li>
-    </ul>
+    <div class="feature" data-release="5/28/2023">
+        <div class="epic-title">User Authentication</div>
+        <ul class="feature-list">
+            <li><b>[Sign Up]</b>: New users can register using a username, password and email address. The username must be
+                unique and is not case-sensitive. This will be visible to others, so use your first name or full name as
+                username (no spaces). The email address must also be unique and will be used for notifications.
+            </li>
+            <li><b>[Log In]</b>: Registered users can sign in with their username and password. On successful login, users are
+                directed to the Dashboard page. Site pages are not accessible unless the user is authenticated.
+            </li>
+            <li><b>[Reset Password]</b>: Users can reset their password if they forget it. An email is sent with a link
+                which they can use to reset the password.
+            </li>
+            <li><b>[Account Settings]</b>: Once signed in, users can edit their credentials including username, email, first
+                and last name. This can be accessed from the side menu.
+            </li>
+            <li><b>[Change Password]</b>: Users can also change their password, if needed. This can be accessed from the
+                side menu.
+            </li>
+            <li><b>[Logout]</b>: Users can logout (accessible from the side menu). This will take them back to login page.
+            </li>
+        </ul>
+    </div>
 
+    <div class="feature" data-release="5/28/2023">
+        <div class="epic-title">Responsive Web Interface</div>
+        <ul class="feature-list">
+            <li>The web interface is responsive and adapts to the device's viewport such as large monitors, laptops,
+                tablets and phones.
+            </li>
+            <li>On larger devices, a side menu is displayed that provides access to all the features.</li>
+            <li>On smaller devices, the side menu can be accessed using the <i class="fa-solid fa-bars"></i> icon
+                on top right of the screen.
+            </li>
+            <li>Clicking on the CrypticLive logo always navigates to the home page (Dashboard)</li>
+        </ul>
+    </div>
     <hr class="dark-line">
+
+    <!-- CODE TO PROCESS FILTERS -->
+    <script>
+        function pageInit() {
+            loadReleaseSelector();
+            showFeatures();
+        }
+        function showFeatures() {
+            const selector = document.getElementById('release-options');
+            const filter = document.getElementById("feature-filter");
+            const release = selector.selectedOptions[0].text;
+            const showOption = filter.selectedOptions[0].value;
+            if (showOption === '0') {
+                const allFeatures = document.getElementsByClassName("feature");
+                for (let i = 0; i < allFeatures.length; i++) {
+                    if (allFeatures[i].hasAttribute("data-release")) {
+                        if (allFeatures[i].getAttribute("data-release") === release)
+                            allFeatures[i].style.display = "block";
+                        else allFeatures[i].style.display = "none";
+                    }
+                }
+            } else {
+               const allFeatures = document.getElementsByClassName("feature");
+                for (let i = 0; i < allFeatures.length; i++) {
+                    if (allFeatures[i].hasAttribute("data-release")) {
+                        if (allFeatures[i].getAttribute("data-release") <= release)
+                            allFeatures[i].style.display = "block";
+                        else allFeatures[i].style.display = "none";
+                    }
+                }
+            }
+        }
+        function loadReleaseSelector() {
+            const selector = document.getElementById('release-options');
+            const releases = getReleases();
+            releases.forEach(option => {
+                const newOption = document.createElement("option");
+                newOption.textContent = option;
+                newOption.value =  Date(option);
+                selector.appendChild(newOption);
+            })
+        }
+        function getReleases() {
+            const featureDivs = document.getElementsByClassName("feature");
+            const releases = []
+            for (let i = 0; i < featureDivs.length; i++) {
+                const div = featureDivs[i];
+                if (div.hasAttribute("data-release")) {
+                    const release = div.getAttribute('data-release');
+                    if (!releases.includes(release)) releases.push(release);
+                }
+            }
+            return releases;
+        }
+    </script>
 {% endblock %}
