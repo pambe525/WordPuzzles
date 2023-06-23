@@ -630,7 +630,7 @@ div.font-medium {
 }
 
 .feature-list li {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--clr-darkgray);
     line-height: 1.0rem;
     padding: 0.2rem 0 0.2rem 0.3rem;

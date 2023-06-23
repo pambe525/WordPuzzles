@@ -1,17 +1,36 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
     <div class="page-title">Release Notes</div>
-    [June 16, 2023]
+    [June 23, 2023]
     <hr class="dark-line">
+    <!-- Release selection and filter option -->
     <div class="font-small m-bot">Select filter and Release date to see pertinent features.</div>
-    <div class="fieldset font-small">
-        Show: <select id="feature-filter" onchange="showFeatures();">
-                    <option value="0">What's New</option>
-                    <option value="1">All features</option>
-                </select>
+    <div class="font-small">
+        Show: <select id="feature-filter" onchange="showFeatures();"></select>
         in Release: <select id="release-options" onchange="showFeatures()"></select>
     </div>
+    <!---------------------------------->
     <hr>
+
+    <div class="feature" data-release="6/23/2023">
+        <div class="epic-title">Publish a Puzzle</div>
+        <ul class="feature-list">
+            <li>Publishing a puzzle makes it accessible to all users to solve.  Review all the clues before
+                you publish.  Once published, no new clues can be added.  To re-edit the puzzle or add new
+                clues unpublish the puzzle first, which puts it back in draft mode.
+            </li>
+            <li><b>[Publish]</b>: This button appears on the Edit Puzzle page once at least 5 clues have been
+                defined.  A confirmation dialog will appear before the puzzle is posted. Once published, the
+                puzzle will appear on the Published Puzzles page.
+            </li>
+            <li><b>[Unpublish]</b>: This button is accessible on the Edit Puzzle page.  When clicked the
+                puzzle will be unpublished and put back in draft mode for editing.  The button appears
+                only if other users have not attempted to solve the puzzle in an individual session.
+            </li>
+        </ul>
+    </div>
+
     <div class="feature" data-release="6/16/2023">
         <div class="epic-title">Creating Draft Puzzles</div>
         <ul class="feature-list">
@@ -94,57 +113,5 @@
     <hr class="dark-line">
 
     <!-- CODE TO PROCESS FILTERS -->
-    <script>
-        function pageInit() {
-            loadReleaseSelector();
-            showFeatures();
-        }
-        function showFeatures() {
-            const selector = document.getElementById('release-options');
-            const filter = document.getElementById("feature-filter");
-            const release = selector.selectedOptions[0].text;
-            const showOption = filter.selectedOptions[0].value;
-            if (showOption === '0') {
-                const allFeatures = document.getElementsByClassName("feature");
-                for (let i = 0; i < allFeatures.length; i++) {
-                    if (allFeatures[i].hasAttribute("data-release")) {
-                        if (allFeatures[i].getAttribute("data-release") === release)
-                            allFeatures[i].style.display = "block";
-                        else allFeatures[i].style.display = "none";
-                    }
-                }
-            } else {
-               const allFeatures = document.getElementsByClassName("feature");
-                for (let i = 0; i < allFeatures.length; i++) {
-                    if (allFeatures[i].hasAttribute("data-release")) {
-                        if (allFeatures[i].getAttribute("data-release") <= release)
-                            allFeatures[i].style.display = "block";
-                        else allFeatures[i].style.display = "none";
-                    }
-                }
-            }
-        }
-        function loadReleaseSelector() {
-            const selector = document.getElementById('release-options');
-            const releases = getReleases();
-            releases.forEach(option => {
-                const newOption = document.createElement("option");
-                newOption.textContent = option;
-                newOption.value =  Date(option);
-                selector.appendChild(newOption);
-            })
-        }
-        function getReleases() {
-            const featureDivs = document.getElementsByClassName("feature");
-            const releases = []
-            for (let i = 0; i < featureDivs.length; i++) {
-                const div = featureDivs[i];
-                if (div.hasAttribute("data-release")) {
-                    const release = div.getAttribute('data-release');
-                    if (!releases.includes(release)) releases.push(release);
-                }
-            }
-            return releases;
-        }
-    </script>
+    <script src="{% static '/javascript/release_notes.js' %}"></script>
 {% endblock %}
