@@ -139,6 +139,9 @@ class WordPuzzle(models.Model):
     def is_published(self):
         return self.shared_at is not None
 
+    def is_unpublishable(self):
+        pass
+
 
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]

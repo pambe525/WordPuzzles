@@ -36,6 +36,16 @@ function highlightActiveNavItem() {
 }
 
 /**
+ * Converts all UTC date-time strings in Y-mm-dd h:m:s format to local time for all
+ * elements with given class name
+ */
+function convertUTCDatesToLocal(className) {
+    const dates = document.getElementsByClassName(className);
+    for (let i = 0; i < dates.length; i++)
+        dates[i].innerText = utcToLocalString(dates[i].innerText);
+}
+
+/**
  * Converts a UTC date-time string in Y-mm-dd h:m:s format to local time
  */
 function utcToLocalString(utcDateTimeString) {

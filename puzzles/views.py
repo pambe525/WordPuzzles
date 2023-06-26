@@ -262,7 +262,7 @@ class PreviewPuzzleView(EditorRequiredMixin, View):
                 return redirect("solve_puzzle", self.puzzle.id)
             self.heading += " & Solve"
             self.clues = self.get_clues_list(mode='PRESOLVE')
-        return render(request, "word_puzzle.html", context=self.get_context_data())
+        return render(request, "../inactive_stash/word_puzzle.html", context=self.get_context_data())
 
     def get_context_data(self):
         if self.active_session is not None:
@@ -298,7 +298,7 @@ class SolvePuzzleView(PreviewPuzzleView):
         self.solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
         self.active_session = self.get_session_as_dict()
         self.clues = self.get_clues_list()
-        return render(request, "word_puzzle.html", context=self.get_context_data())
+        return render(request, "../inactive_stash/word_puzzle.html", context=self.get_context_data())
 
     def post(self, request, *args, **kwargs):
         request_data = json.loads(request.POST['data'])

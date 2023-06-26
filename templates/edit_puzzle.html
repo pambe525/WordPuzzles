@@ -31,7 +31,7 @@
             {% else %}
                 <form action="{% url 'unpublish_puzzle' object.id %}" method="post">
                     {% csrf_token %}
-                    <button class="small-btn" id="btnUnpublish">Unpublish</button>
+                    <button class="blue-btn" id="btnUnpublish">Unpublish</button>
                 </form>
             {% endif %}
         </div>
