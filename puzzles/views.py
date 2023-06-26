@@ -232,17 +232,18 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
-        sort_by = self.request.GET.get('sort_by', 'shared_at')
-        order = self.request.GET.get('order', '-')
         context = super(PuzzlesListView, self).get_context_data(**kwargs)
-        context['form'] = SortPuzzlesForm(initial={'sort_by': sort_by, 'order': order})
+        # sort_by = self.request.GET.get('sort_by', 'shared_at')
+        # order = self.request.GET.get('order', '-')
+        # context['form'] = SortPuzzlesForm(initial={'sort_by': sort_by, 'order': order})
         return context
 
     def get_queryset(self):
-        sort_by = self.request.GET.get('sort_by', 'shared_at')
-        order = self.request.GET.get('order', '-')
-        query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
-        add_session_data(query_set, self.request.user)
+        query_set = WordPuzzle.objects.exclude(shared_at=None).order_by("-shared_at")
+    #     sort_by = self.request.GET.get('sort_by', 'shared_at')
+    #     order = self.request.GET.get('order', '-')
+    #     query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
+    #     add_session_data(query_set, self.request.user)
         return query_set
 
 
