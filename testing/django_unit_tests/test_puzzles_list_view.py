@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.timezone import now
 
-from testing.data_setup_utils import create_published_puzzle, create_user, create_session
+from testing.data_setup_utils import create_published_puzzle, create_user, create_session, create_draft_puzzle
 
 
 class PuzzlesListViewTest(TestCase):
@@ -18,7 +18,7 @@ class PuzzlesListViewTest(TestCase):
 
     def test_Redirects_to_LOGIN_view_if_user_is_not_authenticated(self):
         logout(self.client)
-        response = self.client.get("/puzzles_list")
+        response = self.client.get(self.target_page)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/login?next=/puzzles_list")
 
@@ -31,10 +31,11 @@ class PuzzlesListViewTest(TestCase):
         # self.assertEqual(form.initial['order'], '-')
 
     def test_List_is_sorted_in_descending_order_of_published_date_by_default(self):
+        create_draft_puzzle(editor=self.user)
         puzzle1 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=1))
         puzzle2 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=5))
         puzzle3 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=3))
-        response = self.client.get("/puzzles_list")
+        response = self.client.get(self.target_page)
         objects = response.context['object_list']
         self.assertNotContains(response, "No published puzzles.")
         self.assertEqual(len(objects), 3)

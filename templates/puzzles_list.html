@@ -24,12 +24,18 @@
                      title="{{ puzzle.type_text }}" alt="{{ puzzle.type_text }}" >
                 <!-- Puzzle info (title and last edited on -->
                 <div class="truncated-text">
-                    <a class="bold-text font-small"
-                       href="/edit_puzzle/{{ puzzle.id }}/">{{ puzzle }}
-                    </a>
+                    {% if request.user == puzzle.editor %}
+                        <a class="bold-text font-small" href="/edit_puzzle/{{ puzzle.id }}/">{{ puzzle }}</a>
+                    {% else %}
+                        <a class="bold-text font-small" href="/solve_puzzle/{{ puzzle.id }}/">{{ puzzle }}</a>
+                    {% endif %}
                     <div class="font-xsmall bold-text ellipsis">{{ puzzle.desc }}</div>
-                    <div class="font-xsmall">
-                        Posted by {{ request.user }} on <span class="timestamp">{{ puzzle.shared_at|date:'Y-m-d H:i:s' }}Z</span>
+                    <div class="font-xsmall">Posted by <b>
+                        {% if puzzle.editor != request.user %}
+                            {{ puzzle.editor }}
+                        {% else %}
+                            ME
+                        {% endif %}</b> on <span class="timestamp">{{ puzzle.shared_at|date:'Y-m-d H:i:s' }}Z</span>
                     </div>
                 </div>
     {#            <div class="icon-group r-float">#}
