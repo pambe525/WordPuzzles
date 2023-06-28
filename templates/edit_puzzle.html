@@ -13,7 +13,14 @@
     <hr class="dark-line">
 
     <div class="subtitle">{{ object }}</div>
-    <div class="font-xsmall" id="timeLog"></div>
+    <div class="font-xsmall" id="timeLog">
+        {% if not object.is_published %}
+            Created by me on <span class="timestamp">{{ object.created_at|date:'Y-m-d H:i:s' }}</span>
+            and last edited on <span class="timestamp">{{ object.modified_at|date:'Y-m-d H:i:s' }}</span>
+        {% else %}
+            Posted by me on <span class="timestamp">{{ object.shared_at|date:'Y-m-d H:i:s' }}</span>
+        {% endif %}
+    </div>
     <div class="flex m-top">
         <strong>Description:</strong>
         <button id="btnEditDesc" class="small-btn r-float">Edit</button>
@@ -91,21 +98,8 @@
     </dialog>
 
     <script>
-        const puzzleData = {
-            editorName: "{{ object.editor }}",
-            utcCreatedAt: "{{ object.created_at|date:'Y-m-d H:i:s' }}Z",
-            utcModifiedAt: "{{ object.modified_at|date:'Y-m-d H:i:s' }}Z",
-            utcSharedAt: null
-        }
-        {% if object.is_published %}
-            puzzleData.utcSharedAt = "{{ object.shared_at|date:'Y-m-d H:i:s' }}Z";
-        {% endif %}
-        const userName = "{{ request.user }}";
-
         function pageInit() {
-            let timeLogString;
-            timeLogString = getTimelogString(puzzleData, userName);
-            document.getElementById("timeLog").innerHTML = timeLogString;
+            convertUTCDatesToLocal("timestamp");
             bindModalDialogToButton("edit-desc-dialog", "btnEditDesc");
             bindModalDialogToButton("confirm-dialog", "btnPublish");
         }

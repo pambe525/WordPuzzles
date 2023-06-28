@@ -23,6 +23,15 @@ class AddCluesViewTests(BaseEditPuzzleTest):
     def test_GET_raises_error_message_if_puzzle_id_does_not_exist(self):
         self.puzzle_does_not_exist_test()
 
+    def test_GET_raises_error_if_puzzle_is_published(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        puzzle.publish()
+        response = self.client.get(self.target_page + str(puzzle.id) + "/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "puzzle_error.html")
+        self.assertContains(response, "Puzzle " + str(puzzle.id))
+        self.assertContains(response, "Cannot add clues to published puzzle.")
+
     def test_GET_response_context(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         response = self.client.get(self.target_page + str(puzzle.id) + "/")

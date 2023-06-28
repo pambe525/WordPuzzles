@@ -5,7 +5,6 @@ from datetime import timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
-from django.utils.timezone import now
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
@@ -67,36 +66,60 @@ class NewPuzzleView(View):
             return redirect("edit_puzzle", puzzle.id)
 
 
-class EditorRequiredMixin(LoginRequiredMixin):
+class ItemRequiredMixin(LoginRequiredMixin):
+    puzzle = None
+    err_msg = None
+    pk = None
+    clue_num = None
 
     def dispatch(self, request, *args, **kwargs):
-        err_msg = None
-        pk = kwargs['pk']
-        clue_num = kwargs['clue_num'] if 'clue_num' in kwargs else None
-
         if request.user.is_authenticated:
-            try:
-                puzzle = WordPuzzle.objects.get(id=pk)
-                if clue_num: Clue.objects.get(puzzle=kwargs['pk'], clue_num=clue_num)
-            except WordPuzzle.DoesNotExist:
-                err_msg = "This puzzle does not exist."
-            except Clue.DoesNotExist:
-                err_msg = "This clue does not exist."
-            else:
-                url_name = request.resolver_match.url_name
-                # if puzzle.is_published():
-                # if "publish" not in url_name and "preview" not in url_name and "solve" not in url_name:
-                #     err_msg = "Published puzzle cannot be edited. Unpublish to edit."
-                # elif "solve" in url_name and request.user == puzzle.editor:
-                #     return redirect("preview_puzzle", puzzle.id)
-                if request.user != puzzle.editor:
-                    err_msg = "This operation is not permitted since you are not the editor."
-                elif "solve" in url_name:
-                    err_msg = "This puzzle is not published."
-        if err_msg is not None:
-            ctx = {'err_msg': err_msg, 'id': pk, 'clue_num': clue_num}
+            response = self.do_checks(request, *args, **kwargs)
+            if response: return response
+        if self.err_msg is not None:
+            ctx = {'err_msg': self.err_msg, 'id': self.pk, 'clue_num': self.clue_num}
             return render(request, "puzzle_error.html", context=ctx)
-        return super(EditorRequiredMixin, self).dispatch(request, *args, **kwargs)
+        return super(ItemRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+    def do_checks(self, request, *args, **kwargs):
+        self.pk = kwargs['pk']
+        self.clue_num = kwargs['clue_num'] if 'clue_num' in kwargs else None
+        try:
+            self.puzzle = WordPuzzle.objects.get(id=self.pk)
+            if self.clue_num: Clue.objects.get(puzzle=kwargs['pk'], clue_num=self.clue_num)
+        except WordPuzzle.DoesNotExist:
+            self.err_msg = "This puzzle does not exist."
+        except Clue.DoesNotExist:
+            self.err_msg = "This clue does not exist."
+
+
+class IsSolvableMixin(ItemRequiredMixin):
+
+    def do_checks(self, request, *args, **kwargs):
+        super(IsSolvableMixin, self).do_checks(request, *args, **kwargs)
+        if self.err_msg is not None: return
+        if not self.puzzle.is_published():
+            self.err_msg = "This puzzle is not published."
+        elif request.user == self.puzzle.editor:
+            return redirect("edit_puzzle", self.pk)
+
+
+class EditorRequiredMixin(ItemRequiredMixin):
+
+    def do_checks(self, request, *args, **kwargs):
+        super(EditorRequiredMixin, self).do_checks(request, *args, **kwargs)
+        if self.err_msg is not None: return
+        if request.user != self.puzzle.editor:
+            self.err_msg = "This operation is not permitted since you are not the editor."
+
+
+class DraftRequiredMixin(EditorRequiredMixin):
+
+    def do_checks(self, request, *args, **kwargs):
+        super(DraftRequiredMixin, self).do_checks(request, *args, **kwargs)
+        if self.err_msg is not None: return
+        if self.puzzle.is_published():
+            self.err_msg = "Cannot add clues to published puzzle."
 
 
 class DeletePuzzleView(EditorRequiredMixin, DeleteView):
@@ -133,7 +156,7 @@ class EditPuzzleView(EditorRequiredMixin, UpdateView):
         return False
 
 
-class AddCluesView(EditorRequiredMixin, View):
+class AddCluesView(DraftRequiredMixin, View):
     template_name = "add_clues.html"
 
     def get(self, request, pk=None):
@@ -240,89 +263,95 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         query_set = WordPuzzle.objects.exclude(shared_at=None).order_by("-shared_at")
-    #     sort_by = self.request.GET.get('sort_by', 'shared_at')
-    #     order = self.request.GET.get('order', '-')
-    #     query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
-    #     add_session_data(query_set, self.request.user)
+        #     sort_by = self.request.GET.get('sort_by', 'shared_at')
+        #     order = self.request.GET.get('order', '-')
+        #     query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
+        #     add_session_data(query_set, self.request.user)
         return query_set
 
 
-class PreviewPuzzleView(EditorRequiredMixin, View):
-    heading = "Preview Puzzle"
+# class PreviewPuzzleView(EditorRequiredMixin, View):
+#     heading = "Preview Puzzle"
+#     puzzle = None
+#     active_session = None
+#     clues = None
+#
+#     def get(self, request, *args, **kwargs):
+#         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
+#         if self.puzzle.editor == request.user:
+#             self.heading += " & Unpublish" if self.puzzle.is_published() else " & Publish"
+#             self.clues = self.get_clues_list(mode='PREVIEW')
+#         else:
+#             if PuzzleSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
+#                 return redirect("solve_puzzle", self.puzzle.id)
+#             self.heading += " & Solve"
+#             self.clues = self.get_clues_list(mode='PRESOLVE')
+#         return render(request, "../inactive_stash/word_puzzle.html", context=self.get_context_data())
+#
+#     def get_context_data(self):
+#         if self.active_session is not None:
+#             self.active_session = json.dumps(self.active_session)
+#         return {'heading': self.heading, 'object': self.puzzle, 'active_session': self.active_session,
+#                 'clues': json.dumps(self.clues)}
+#
+#     def get_clues_list(self, mode='PREVIEW'):
+#         clues = self.puzzle.get_clues()
+#         clues_list = []
+#         for clue in clues:
+#             clue_dict = self.get_clue_as_dict(clue, mode=mode)
+#             clues_list.append(clue_dict)
+#         return clues_list
+#
+#     def get_clue_as_dict(self, clue, mode='PREVIEW'):
+#         clue_dict = {'clue_num': clue.clue_num, 'clue_text': clue.get_decorated_clue_text(),
+#                      'points': clue.points}
+#         if mode == 'PREVIEW' or mode == 'SOLVED' or mode == 'REVEALED':
+#             clue_dict.update({'answer': clue.answer, 'parsing': clue.parsing, 'mode': mode})
+#         else:
+#             masked_answer = re.sub("[a-zA-Z]", "*", clue.answer)
+#             clue_dict.update({'answer': masked_answer, 'parsing': '', 'mode': mode})
+#         return clue_dict
+
+
+class SolvePuzzleView(IsSolvableMixin, View):
+    solve_session = None
     puzzle = None
-    active_session = None
     clues = None
 
     def get(self, request, *args, **kwargs):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
-        if self.puzzle.editor == request.user:
-            self.heading += " & Unpublish" if self.puzzle.is_published() else " & Publish"
-            self.clues = self.get_clues_list(mode='PREVIEW')
-        else:
-            if PuzzleSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
-                return redirect("solve_puzzle", self.puzzle.id)
-            self.heading += " & Solve"
-            self.clues = self.get_clues_list(mode='PRESOLVE')
-        return render(request, "../inactive_stash/word_puzzle.html", context=self.get_context_data())
+        self.solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
+        # self.active_session = self.get_session_as_dict()
+        # self.clues = self.get_clues_list()
+        return render(request, "solve_puzzle.html", context=self.get_context_data())
+
+    # def post(self, request, *args, **kwargs):
+    #     request_data = json.loads(request.POST['data'])
+    #     self.solve_session = PuzzleSession.objects.get(id=request_data['session_id'])
+    #     self.puzzle = WordPuzzle.objects.get(id=self.solve_session.puzzle.id)
+    #     if request.POST['action'] == 'timer':
+    #         self.solve_session.elapsed_seconds = request_data['elapsed_secs']
+    #         self.solve_session.save()
+    #         return HttpResponse(status=204)
+    #     else:
+    #         clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
+    #         if request.POST['action'] == 'solve':
+    #             answer_input = request_data['answer_input']
+    #             if clue.answer.upper() == answer_input.upper():
+    #                 self.solve_session.add_solved_clue_num(clue.clue_num)
+    #             else:
+    #                 raise AssertionError("Incorrect answer")
+    #         elif request.POST['action'] == 'reveal':
+    #             self.solve_session.add_revealed_clue_num(clue.clue_num)
+    #     return self.get_json_response()
 
     def get_context_data(self):
-        if self.active_session is not None:
-            self.active_session = json.dumps(self.active_session)
-        return {'heading': self.heading, 'object': self.puzzle, 'active_session': self.active_session,
-                'clues': json.dumps(self.clues)}
-
-    def get_clues_list(self, mode='PREVIEW'):
-        clues = self.puzzle.get_clues()
-        clues_list = []
-        for clue in clues:
-            clue_dict = self.get_clue_as_dict(clue, mode=mode)
-            clues_list.append(clue_dict)
-        return clues_list
-
-    def get_clue_as_dict(self, clue, mode='PREVIEW'):
-        clue_dict = {'clue_num': clue.clue_num, 'clue_text': clue.get_decorated_clue_text(),
-                     'points': clue.points}
-        if mode == 'PREVIEW' or mode == 'SOLVED' or mode == 'REVEALED':
-            clue_dict.update({'answer': clue.answer, 'parsing': clue.parsing, 'mode': mode})
-        else:
-            masked_answer = re.sub("[a-zA-Z]", "*", clue.answer)
-            clue_dict.update({'answer': masked_answer, 'parsing': '', 'mode': mode})
-        return clue_dict
-
-
-class SolvePuzzleView(PreviewPuzzleView):
-    solve_session = None
-
-    def get(self, request, *args, **kwargs):
-        self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
-        self.heading = "Solve Puzzle"
-        self.solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
-        self.active_session = self.get_session_as_dict()
-        self.clues = self.get_clues_list()
-        return render(request, "../inactive_stash/word_puzzle.html", context=self.get_context_data())
-
-    def post(self, request, *args, **kwargs):
-        request_data = json.loads(request.POST['data'])
-        self.solve_session = PuzzleSession.objects.get(id=request_data['session_id'])
-        self.puzzle = WordPuzzle.objects.get(id=self.solve_session.puzzle.id)
-        if request.POST['action'] == 'timer':
-            self.solve_session.elapsed_seconds = request_data['elapsed_secs']
-            self.solve_session.save()
-            return HttpResponse(status=204)
-        else:
-            clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
-            if request.POST['action'] == 'solve':
-                answer_input = request_data['answer_input']
-                if clue.answer.upper() == answer_input.upper():
-                    self.solve_session.add_solved_clue_num(clue.clue_num)
-                else:
-                    raise AssertionError("Incorrect answer")
-            elif request.POST['action'] == 'reveal':
-                self.solve_session.add_revealed_clue_num(clue.clue_num)
-        return self.get_json_response()
+        # if self.active_session is not None:
+        #     self.active_session = json.dumps(self.active_session)
+        return {'object': self.puzzle, 'clues': json.dumps(self.clues)}
 
     def get_json_response(self):
-        self.active_session = self.get_session_as_dict()
+        # self.active_session = self.get_session_as_dict()
         self.clues = self.get_clues_list()
         return JsonResponse({'clues': json.dumps(self.clues), 'active_session': self.active_session})
 
@@ -350,6 +379,17 @@ class SolvePuzzleView(PreviewPuzzleView):
             clue_dict = self.get_clue_as_dict(clue, mode=mode)
             clues_list.append(clue_dict)
         return clues_list
+
+    @staticmethod
+    def get_clue_as_dict(self, clue, mode='PREVIEW'):
+        clue_dict = {'clue_num': clue.clue_num, 'clue_text': clue.get_decorated_clue_text(),
+                     'points': clue.points}
+        if mode == 'PREVIEW' or mode == 'SOLVED' or mode == 'REVEALED':
+            clue_dict.update({'answer': clue.answer, 'parsing': clue.parsing, 'mode': mode})
+        else:
+            masked_answer = re.sub("[a-zA-Z]", "*", clue.answer)
+            clue_dict.update({'answer': masked_answer, 'parsing': '', 'mode': mode})
+        return clue_dict
 
 
 class PuzzleScoreView(LoginRequiredMixin, View):

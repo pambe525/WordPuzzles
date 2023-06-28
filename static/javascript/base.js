@@ -3,9 +3,8 @@
  */
 function bindModalDialogToButton(dialogId, buttonId) {
     const modalDialog = document.querySelector(".modal-dialog#" + dialogId);
-    document.querySelector("#" + buttonId).addEventListener('click', () => {
-        modalDialog.showModal();
-    });
+    const btn = document.querySelector("#" + buttonId);
+    if (btn != null) btn.addEventListener('click', () => { modalDialog.showModal(); });
 }
 
 /**
@@ -42,7 +41,7 @@ function highlightActiveNavItem() {
 function convertUTCDatesToLocal(className) {
     const dates = document.getElementsByClassName(className);
     for (let i = 0; i < dates.length; i++)
-        dates[i].innerText = utcToLocalString(dates[i].innerText);
+        dates[i].innerText = utcToLocalString(dates[i].innerText+"Z");
 }
 
 /**

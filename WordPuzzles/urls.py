@@ -19,7 +19,7 @@ from django.urls import path
 
 from puzzles.views import HomeView, EditPuzzleView, NewPuzzleView, EditClueView, DeleteClueView, PuzzlesListView, \
     PuzzleScoreView, AddCluesView
-from puzzles.views import PreviewPuzzleView, DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView
+from puzzles.views import DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView
 from puzzles.views import ReleaseNotesView, SolvePuzzleView
 from user_auth.views import SignUpView, UserAccountView, ChangePasswordView
 

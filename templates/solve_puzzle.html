@@ -1,51 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="page-title">Solve Puzzle</div>
-    <hr class="dark-line"
-    <div> class="subtitle">{{ object }}</div>
-        <div class="m-0 row mt-2 mb-3">
-            <div class="ml-2 pt-2">
-                <input type="checkbox" value="" id="showAnswers" checked>
-                <label class="h5" for="showAnswers">Show answers</label>
-            </div>
-            {% if object.size != 0 and object.shared_at == None %}
-                <a href="{% url 'publish_puzzle' object.id %}" class="ml-auto btn btn-primary">PUBLISH</a>
-            {% endif %}
-            {% if object.size != 0 and object.shared_at != None %}
-                <a href="{% url 'unpublish_puzzle' object.id %}" class="ml-auto btn btn-primary">UNPUBLISH</a>
-            {% endif %}
-            <a href="{% url 'home' %}" class="ml-2 btn btn-dark">DONE</a>
+    <hr class="dark-line">
+    <div class="subtitle">{{ object }}</div>
+    <div class="font-xsmall">
+        Posted by {{ object.editor }} on {{ object.shared_at }}
+    </div>
+
+    <div class="flex font-small">
+        <div>
+            <input type="checkbox" value="" id="hideDesc" checked>
+            <label for="hideDesc">Hide Description</label>
         </div>
-        <div class="bg-light p-3">
-            <h4 class="mb-0"><b>{{ object }}</b></h4>
-            <h6 class="mb-2 text-secondary">Posted by: {{ object.editor }}</h6>
-            {% if object.desc != None and object.desc != "" %}
-                <h6 class="text-dark">Description: {{ object.desc }}</h6>
-            {% endif %}
-            {% if object.size == 0 %}
-                <div class="mt-2 notetext">No clues exist.</div>
-            {% else %}
-                <div class="m-0 row">
-                    <h6><b>Clues</b></h6><h6 class="ml-auto"><b>Pts</b></h6>
-                </div>
-                <table class="table table-responsive mt-1 p-0">
-                    {% for clue in object.get_clues %}
-                        <tr>
-                            <td class="pt-1">{{ clue.clue_num }}.</td>
-                            <td class="pl-1 pb-0 pt-1">
-                                <div class="text-wrap"
-                                     style="line-height:normal">{{ clue.get_decorated_clue_text }}</div>
-                                <div class="h6 answer text-wrap pt-1">[<b>{{ clue.answer }}</b>] {{ clue.parsing }}
-                                </div>
-                            </td>
-                            <td class="pt-1">[{{ clue.points }}]</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% endif %}
+        <div class="r-float">
+            <input type="checkbox" value="" id="hideSolved" checked>
+            <label for="hideSolved">Hide Solved Clues</label>
         </div>
+    </div>
+    <strong>Description:</strong>
+    <div class="boxed-panel m-bot"><span class="note-text pre-line">{{ object.desc }}</span></div>
 
     <script>
+        function pageInit() {
+
+        }
         $(document).ready(function () {
             $('#showAnswers').change(function () {
                 if (this.checked) $('.answer').show();

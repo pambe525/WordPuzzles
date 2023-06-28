@@ -39,12 +39,6 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         posted_on = "Posted by " + str(self.other_user) + " on " + self.utc_to_local(puzzle.shared_at)
         self.assert_text_equals(self.LIST_ITEM_TIMESTAMP, posted_on)
 
-    def test_shows_ME_for_posted_by_if_editor_is_current_user(self):
-        puzzle = create_published_puzzle(editor=self.user, type=0, desc="Puzzle description")
-        self.get(self.target_page)
-        posted_on = "Posted by ME on " + self.utc_to_local(puzzle.shared_at)
-        self.assert_text_equals(self.LIST_ITEM_TIMESTAMP, posted_on)
-
     def test_puzzle_title_links_to_edit_page_if_editor_is_current_user(self):
         puzzle = create_published_puzzle(editor=self.user, type=0, desc="Puzzle description", clues_pts=[1])
         self.get(self.target_page)

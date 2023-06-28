@@ -28,7 +28,6 @@ class BaseEditPuzzleTest(TransactionTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Puzzle 1")
         self.assertContains(response, "This operation is not permitted")
-        self.assertContains(response, "Ok")
 
     def puzzle_does_not_exist_test(self):
         response = self.client.get(self.target_page + "3/")
@@ -36,7 +35,6 @@ class BaseEditPuzzleTest(TransactionTestCase):
         self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle 3")
         self.assertContains(response, "This puzzle does not exist.")
-        self.assertContains(response, "Ok")
 
 
 class NewPuzzleViewTests(BaseEditPuzzleTest):

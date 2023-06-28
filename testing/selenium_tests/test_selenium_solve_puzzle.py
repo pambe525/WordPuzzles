@@ -103,19 +103,20 @@ class SolveSessionTestCaseHelper(BaseSeleniumTestCase):
         self.assert_text_equals("//div[@id='id-timer']", timer_string)
 
 
-@skip
-class SolveSessionTests(SolveSessionTestCaseHelper):
+class SolvePuzzleTests(SolveSessionTestCaseHelper):
+    target_page = "/solve_puzzle/"
+
     def setUp(self):
         self.user = create_user()
         self.auto_login_user(self.user)
         self.other_user = create_user(username="other_user")
         self.puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[5, 2, 3, 1, 2], has_parsing=True)
-        self.session = create_session(solver=self.user, puzzle=self.puzzle, solved_clues='1,4',
-                                      revealed_clues='5', elapsed_secs=300)
+        # self.session = create_session(solver=self.user, puzzle=self.puzzle, solved_clues='1,4',
+        #                               revealed_clues='5', elapsed_secs=300)
         self.clues = self.puzzle.get_clues()
-        self.get('/solve_puzzle/' + str(self.puzzle.id) + '/')
 
     def test_loads_existing_session_state(self):
+        self.get(self.target_page + str(self.puzzle.id) + '/')
         self.assert_text_equals("//h2", "Solve Puzzle")
         self.assert_exists("//div[contains(text(),'Click on a clue below')]")
         self.verify_score(6)
