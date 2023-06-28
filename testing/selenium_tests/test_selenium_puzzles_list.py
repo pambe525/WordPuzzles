@@ -1,8 +1,6 @@
-from unittest.case import skip
-
 from django.contrib.auth.models import User
 
-from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_user, create_session
+from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
@@ -49,7 +47,7 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2])
         self.get(self.target_page)
         self.do_click(self.LIST_ITEM_TITLE)
-        self.assert_current_url("/solve_puzzle/" + str(puzzle.id) + "/")
+        self.assert_current_url("/solve_session/" + str(puzzle.id) + "/")
 
     # def test_puzzle_solve_icon_links_to_preview_page_if_editor_is_not_current_user(self):
     #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2])

@@ -7,7 +7,8 @@
     <!-- Release selection and filter option -->
     <div class="font-small">
         <label for="feature-filter">Show: </label><select id="feature-filter" onchange="showFeatures();"></select>
-        <label for="release-options">in Release: </label><select id="release-options" onchange="showFeatures()"></select>
+        <label for="release-options">in Release: </label><select id="release-options"
+                                                                 onchange="showFeatures()"></select>
     </div>
     <!---------------------------------->
     <hr>
@@ -15,9 +16,9 @@
     <div class="feature" data-release="6/23/2023">
         <div class="epic-title">Published Puzzles List</div>
         <ul class="feature-list">
-            <li>The <b>Published Puzzles</b> page lists all the published puzzles.  This page can be accessed from the
-                side menu.  The list contains details for each puzzle. Clicking on the title of the puzzle redirects to
-                the <b>Solve Puzzle</b> page, if you are not the editor of the puzzle.  Puzzle editors are directed to
+            <li>The <b>Published Puzzles</b> page lists all the published puzzles. This page can be accessed from the
+                side menu. The list contains details for each puzzle. Clicking on the title of the puzzle redirects to
+                the <b>Solve Puzzle</b> page, if you are not the editor of the puzzle. Puzzle editors are directed to
                 the <b>Edit Puzzle</b> page where the puzzle can be unpublished or edited in a limited way.
             </li>
         </ul>
@@ -25,16 +26,16 @@
     <div class="feature" data-release="6/23/2023">
         <div class="epic-title">Publish a Puzzle</div>
         <ul class="feature-list">
-            <li>Publishing a puzzle makes it accessible to all users to solve.  Review all the clues before
-                you publish.  Once published, no new clues can be added.  To re-edit the puzzle or add new
+            <li>Publishing a puzzle makes it accessible to all users to solve. Review all the clues before
+                you publish. Once published, no new clues can be added. To re-edit the puzzle or add new
                 clues unpublish the puzzle first, which puts it back in draft mode.
             </li>
             <li><b>[Publish]</b>: This button appears on the Edit Puzzle page once at least 5 clues have been
-                defined.  A confirmation dialog will appear before the puzzle is posted. Once published, the
+                defined. A confirmation dialog will appear before the puzzle is posted. Once published, the
                 puzzle will appear on the Published Puzzles page.
             </li>
-            <li><b>[Unpublish]</b>: This button is accessible on the Edit Puzzle page.  When clicked, the
-                puzzle will be unpublished and put back in draft mode for editing.  This button appears
+            <li><b>[Unpublish]</b>: This button is accessible on the Edit Puzzle page. When clicked, the
+                puzzle will be unpublished and put back in draft mode for editing. This button appears
                 only if other users have not yet attempted to solve the puzzle in an individual session.
             </li>
         </ul>
@@ -59,24 +60,30 @@
         <div class="epic-title">Puzzle Editor</div>
         <ul class="feature-list">
             <li>
-                Clicking on the puzzle link in the draft puzzles section on the home page will open the edit puzzle page.
-                Here you can edit the description (click on the [Edit] button).  You can also add bulk clues by clicking on
+                Clicking on the puzzle link in the draft puzzles section on the home page will open the edit puzzle
+                page.
+                Here you can edit the description (click on the [Edit] button). You can also add bulk clues by clicking
+                on
                 the [Add Clues] button.
             </li>
-            <li><b>[Add Clues]</b> This opens the add clues form. Multiple clues and corresponding answers can be entered
-                or cut & pasted.  Each item in the text boxes must be separated with a new line [return] and must begin
+            <li><b>[Add Clues]</b> This opens the add clues form. Multiple clues and corresponding answers can be
+                entered
+                or cut & pasted. Each item in the text boxes must be separated with a new line [return] and must begin
                 with the clue number.<br><br>
-                Note that clue text need not have answer length specified in parenthesis since these will be auto-added based on
+                Note that clue text need not have answer length specified in parenthesis since these will be auto-added
+                based on
                 the answer given for each clue. Answers must be unique across clues and cannot contain non-alphabet
-                characters (only spaces and hyphens). Cryptic and non-cryptic clues can only have a single answer.<br><br>
-                Existing clues are replaced if re-entered.  Numbering gaps should be managed by the puzzle editor.
+                characters (only spaces and hyphens). Cryptic and non-cryptic clues can only have a single
+                answer.<br><br>
+                Existing clues are replaced if re-entered. Numbering gaps should be managed by the puzzle editor.
             </li>
-            <li><b>Clues List</b>: Clues are listed in order of clue numbers on the edit puzzle page.  Click on the clue
-                description to edit the clue (see below).  You can also delete the clue by clicking on the
+            <li><b>Clues List</b>: Clues are listed in order of clue numbers on the edit puzzle page. Click on the clue
+                description to edit the clue (see below). You can also delete the clue by clicking on the
                 <i class="fa-regular fa-trash-can"></i> button.
             </li>
-            <li><b>Edit Clue Form</b>: This form allows you to make changes to a single clue. Changed fields will overwrite
-                the existing clue on submit.  Note that answers will automatically uoper-cased.  You can also add parsing
+            <li><b>Edit Clue Form</b>: This form allows you to make changes to a single clue. Changed fields will
+                overwrite
+                the existing clue on submit. Note that answers will automatically uoper-cased. You can also add parsing
                 or change the number of points for each clue using this form.
             </li>
         </ul>
@@ -85,23 +92,27 @@
     <div class="feature" data-release="5/28/2023">
         <div class="epic-title">User Authentication</div>
         <ul class="feature-list">
-            <li><b>[Sign Up]</b>: New users can register using a username, password and email address. The username must be
+            <li><b>[Sign Up]</b>: New users can register using a username, password and email address. The username must
+                be
                 unique and is not case-sensitive. This will be visible to others, so use your first name or full name as
                 username (no spaces). The email address must also be unique and will be used for notifications.
             </li>
-            <li><b>[Log In]</b>: Registered users can sign in with their username and password. On successful login, users are
+            <li><b>[Log In]</b>: Registered users can sign in with their username and password. On successful login,
+                users are
                 directed to the Dashboard page. Site pages are not accessible unless the user is authenticated.
             </li>
             <li><b>[Reset Password]</b>: Users can reset their password if they forget it. An email is sent with a link
                 which they can use to reset the password.
             </li>
-            <li><b>[Account Settings]</b>: Once signed in, users can edit their credentials including username, email, first
+            <li><b>[Account Settings]</b>: Once signed in, users can edit their credentials including username, email,
+                first
                 and last name. This can be accessed from the side menu.
             </li>
             <li><b>[Change Password]</b>: Users can also change their password, if needed. This can be accessed from the
                 side menu.
             </li>
-            <li><b>[Logout]</b>: Users can logout (accessible from the side menu). This will take them back to login page.
+            <li><b>[Logout]</b>: Users can logout (accessible from the side menu). This will take them back to login
+                page.
             </li>
         </ul>
     </div>

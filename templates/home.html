@@ -10,9 +10,9 @@
         <hr>
         <ul class="notices">
             {% for notice in notifications %}
-            <li class="has-icon">
-                {% autoescape off %}{{ notice }}{% endautoescape %}
-            </li>
+                <li class="has-icon">
+                    {% autoescape off %}{{ notice }}{% endautoescape %}
+                </li>
             {% endfor %}
         </ul>
     </div>
@@ -20,7 +20,7 @@
 
     <!-- Draft Puzzles Section -->
     {% if draft_puzzles|length != 0 %}
-    <div id="draft-puzzles-panel" class="boxed-panel bg-gray m-top">
+        <div id="draft-puzzles-panel" class="boxed-panel bg-gray m-top">
         <div class="subtitle"><i class="fa-solid fa-compass-drafting r-space"></i>My Draft Puzzles</div>
         <hr>
         <!-- Loop through draft puzzles -->
@@ -29,7 +29,7 @@
                 <!-- Puzzle type thumbnail -->
                 <img class="thumbnail"
                      src="{% static puzzle.type|yesno:'/images/cryptic-clues.jpg,/images/non-cryptic-clues.png' %}"
-                     title="{{ puzzle.type_text }}" alt="{{ puzzle.type_text }}" >
+                     title="{{ puzzle.type_text }}" alt="{{ puzzle.type_text }}">
                 <!-- Puzzle info (title and last edited on -->
                 <div class="truncated-text">
                     <a class="bold-text font-small" href="/edit_puzzle/{{ puzzle.id }}/">{{ puzzle.title }}</a>
@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div class="icon-group r-float">
-                    <a class="icon-btn delete-btn" >
+                    <a class="icon-btn delete-btn">
                         <i data-id="{{ puzzle.id }}"
                            class="fa-regular fa-trash-can" title="Delete">
                         </i>
@@ -48,7 +48,7 @@
             </div>
         {% endfor %}
     {% endif %}
-    </div>
+</div>
 
     <!-- New Puzzle Dialog -->
     <dialog class="modal-dialog" id="new-puzzle-dialog">
@@ -87,7 +87,7 @@
             const title = "Delete Puzzle " + puzzleId;
             const actionUrl = "/delete_puzzle/" + puzzleId + "/";
             const message = "This puzzle and all associated clues will be permanently deleted " +
-                            "This action cannot be undone. Please confirm."
+                "This action cannot be undone. Please confirm."
             showConfirmDialog(title, message, actionUrl);
         }
     </script>

@@ -1,12 +1,9 @@
-import json
-from unittest.case import skip
-
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase
 
-from puzzles.models import WordPuzzle, PuzzleSession
-from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_session
+from puzzles.models import WordPuzzle
+from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle
 
 
 # class PreviewPuzzleViewTest(TransactionTestCase):
@@ -96,7 +93,7 @@ from testing.data_setup_utils import create_published_puzzle, create_draft_puzzl
 
 class SolvePuzzleViewTest(TransactionTestCase):
     reset_sequences = True
-    target_page = "/solve_puzzle/"
+    target_page = "/solve_session/"
 
     def setUp(self):
         self.user = User.objects.create(username="tester", password="scretkey")
@@ -108,10 +105,10 @@ class SolvePuzzleViewTest(TransactionTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/login?next=/solve_puzzle/1/")
+        self.assertEqual(response.url, "/login?next=/solve_session/1/")
 
     def test_error_if_puzzle_does_not_exist(self):
-        response = self.client.get(self.target_page+"50/")
+        response = self.client.get(self.target_page + "50/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle 50")

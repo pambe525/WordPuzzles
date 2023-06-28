@@ -1,10 +1,7 @@
-from unittest.case import skip
-
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 
-import testing.data_setup_utils
 from puzzles.models import WordPuzzle, Clue
 from testing.data_setup_utils import add_clue
 from testing.django_unit_tests.test_puzzle_crud_views import BaseEditPuzzleTest

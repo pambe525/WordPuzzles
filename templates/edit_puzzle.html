@@ -31,9 +31,10 @@
         <div class="r-float">
             {% if not object.is_published %}
                 <a class="small-btn" href="{% url 'add_clues' object.id %}">Add Clues</a>
-                {% if  clues|length > 4  %}
+                {% if  clues|length > 4 %}
                     <button class="small-btn" onclick="showPublishConfirmDialog(this)"
-                        data-puzzle-id={{ object.id }} id="btnPublish">Publish</button>
+                            data-puzzle-id={{ object.id }} id="btnPublish">Publish
+                    </button>
                 {% endif %}
             {% else %}
                 <form action="{% url 'unpublish_puzzle' object.id %}" method="post">

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="flex">
+        <div class="page-title">Solve Session</div>
+        <a class="r-float" href="{% url 'puzzles_list' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
+    </div>
+    <hr class="dark-line">
+    <div class="subtitle">{{ object }}</div>
+    <div class="font-xsmall" id="timelog">
+        Posted by {{ object.editor }} on <span class="timestamp">{{ object.shared_at|date:'Y-m-d H:i:s' }}</span>
+    </div>
+
+{#    <div class="flex font-small">#}
+{#        <div>#}
+{#            <input type="checkbox" value="" id="hideDesc" checked>#}
+{#            <label for="hideDesc">Hide Description</label>#}
+{#        </div>#}
+{#        <div class="r-float">#}
+{#            <input type="checkbox" value="" id="hideSolved" checked>#}
+{#            <label for="hideSolved">Hide Solved Clues</label>#}
+{#        </div>#}
+{#    </div>#}
+
+    <!-- PUZZLE DESCRIPTION -->
+    <div class="font-small bold-text m-top">Description:</div>
+    <div class="boxed-panel m-bot"><span class="note-text pre-line">{{ object.desc }}</span></div>
+
+    <!-- OPTION TO SOLVE -->
+    <div class="m-top">
+        <button class="blue-btn">Start Individual Solve Session</button>
+        <div class="note-text font-xsmall m-top">
+            Note: This will start an individual solve session and record your scores.
+            You can pause and resume the session until you finish all the clues.
+        </div>
+    </div>
+    <script>
+        function pageInit() {
+            convertUTCDatesToLocal("timestamp");
+        }
+    </script>
+{% endblock %}

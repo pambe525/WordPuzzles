@@ -126,14 +126,18 @@ header {
 }
 
 .navbar-links {
-    padding: 0; !important;
-    margin: 0; !important;
+    padding: 0;
+!important;
+    margin: 0;
+!important;
 }
 
 .navbar-links li {
     list-style: none;
-    padding: 0; !important;
-    margin: 0; !important;
+    padding: 0;
+!important;
+    margin: 0;
+!important;
 }
 
 .navbar-links li a {
@@ -161,10 +165,12 @@ header {
 .menu-toggle-button:hover {
     color: var(--clr-gray);
 }
+
 .has-icon {
     list-style: none;
-    margin-left:0;
+    margin-left: 0;
 }
+
 .has-icon::before {
     font-family: var(--fa-family);
     font-weight: 900;
@@ -173,8 +179,10 @@ header {
 }
 
 hr.separator {
-    margin: 0.5rem 0 0.5rem 0; !important;
-    padding: 0; !important;
+    margin: 0.5rem 0 0.5rem 0;
+!important;
+    padding: 0;
+!important;
     border-top: 1px groove var(--clr-orange);
 }
 
@@ -230,6 +238,7 @@ hr.separator {
 .menu-toggle-button::before {
     content: var(--icon-menu);
 }
+
 .notices li::before {
     content: var(--icon-bullet);
 }
@@ -367,7 +376,7 @@ form .helptext, fieldset .helptext {
 a {
     text-decoration: none;
     color: var(--clr-blue);
-    display:inline-block;
+    display: inline-block;
     line-height: 1rem;
 }
 
@@ -376,13 +385,14 @@ a:hover {
 }
 
 button {
-    padding: 0.2rem 1rem 0.3rem 1rem;
+    padding: 0.2rem 1rem 0.2rem 1rem;
     border: 0;
     border-radius: 5px;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     display: inline-block;
     font-weight: 500;
 }
+
 a[role=button] {
     padding: 0.3rem 1rem;
     border: 1px solid gray;
@@ -392,6 +402,7 @@ a[role=button] {
     font-weight: 500;
     text-decoration: none;
 }
+
 a[role=button]:hover {
     color: white;
 }
@@ -452,6 +463,7 @@ button.icon-btn:hover {
 .m-bot {
     margin-bottom: 1rem;
 }
+
 .w-100 {
     width: 100%;
 }
@@ -474,41 +486,53 @@ hr.dark-line {
     font-weight: 400;
     line-height: 0.9rem;
 }
+
 .pre-line {
     white-space: pre-line;
 }
+
 .clr-light {
     color: var(--clr-gray)
 }
+
 .clr-blue {
     color: var(--clr-blue)
 }
+
 .clr-red {
     color: var(--clr-red)
 }
+
 .bold-text {
     font-weight: 600;
 }
+
 .font-xsmall {
     font-size: 0.7rem;
 }
+
 .font-small {
     font-size: 0.8rem;
 }
+
 .font-medium {
     font-size: 0.9rem;
 }
+
 .font-large {
     font-size: 1.2rem;
 }
+
 .truncated-text {
     overflow: hidden;
 }
+
 .ellipsis {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .boxed-panel {
     border: 1px solid lightgray;
     border-radius: 6px;
@@ -528,11 +552,13 @@ hr.dark-line {
     align-items: center;
     padding: 0.1rem 0.3rem 0.1rem 0;
 }
+
 .notices {
     font-size: 0.9rem;
     line-height: 1.5rem;
     padding-left: 0;
 }
+
 img.thumbnail {
     height: 2.5rem;
     margin: 0 0.4rem;
@@ -541,6 +567,7 @@ img.thumbnail {
 .icon-group {
     padding: 0.5rem;
 }
+
 .bg-lemon {
     background-color: #fffec7;
 }
@@ -548,9 +575,11 @@ img.thumbnail {
 .bg-gray {
     background-color: #e8e8e8;
 }
+
 .bg-white {
     background-color: white;
 }
+
 .rating-table {
     margin: 0.3rem 0;
 }
@@ -565,12 +594,15 @@ img.thumbnail {
     font-weight: 400;
     font-size: 0.9rem;
 }
+
 textarea {
     font-size: 0.9rem;
 }
+
 div.font-medium {
     line-height: 1rem;
 }
+
 /**
  MY PUZZLES TABS
  */

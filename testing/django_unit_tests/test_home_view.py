@@ -4,7 +4,6 @@ from django.test import TestCase
 from django.utils.timezone import now
 
 from puzzles.models import WordPuzzle
-from testing.data_setup_utils import create_user
 
 
 class DashboardViewTests(TestCase):

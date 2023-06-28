@@ -16,8 +16,8 @@ def create_draft_puzzle(editor=None, desc=None, type=0, clues_pts=None, has_pars
     for n in range(1, n_clues + 1):
         parsing = None if not has_parsing else "Parsing for word" + SUFFIX[n]
         add_clue(puzzle,
-            {'answer': 'WORD-' + SUFFIX[n], 'clue_text': 'Clue for Word' + SUFFIX[n],
-             'parsing': parsing, 'points': clues_pts[n - 1]})
+                 {'answer': 'WORD-' + SUFFIX[n], 'clue_text': 'Clue for Word' + SUFFIX[n],
+                  'parsing': parsing, 'points': clues_pts[n - 1]})
     return puzzle
 
 

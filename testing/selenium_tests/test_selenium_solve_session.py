@@ -103,110 +103,119 @@ class SolveSessionTestCaseHelper(BaseSeleniumTestCase):
         self.assert_text_equals("//div[@id='id-timer']", timer_string)
 
 
-class SolvePuzzleTests(SolveSessionTestCaseHelper):
-    target_page = "/solve_puzzle/"
+class SolveSessionTests(SolveSessionTestCaseHelper):
+    target_page = "/solve_session/"
+    DONE_BTN = "//div//i[contains(@class,'fa-circle-xmark')]"
+    PUZZLE_TIMELOG = "//div[@id='timelog']"
+    PUZZLE_DESC = "//span[contains(@class,'pre-line')]"
 
     def setUp(self):
         self.user = create_user()
         self.auto_login_user(self.user)
-        self.other_user = create_user(username="other_user")
-        self.puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[5, 2, 3, 1, 2], has_parsing=True)
+        self.other_user = create_user(username="other_user", email="abc@cde.com")
+        self.puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[5, 2, 3, 1, 2], desc="some description")
         # self.session = create_session(solver=self.user, puzzle=self.puzzle, solved_clues='1,4',
         #                               revealed_clues='5', elapsed_secs=300)
         self.clues = self.puzzle.get_clues()
 
-    def test_loads_existing_session_state(self):
+    def test_no_existing_solver_session_gives_option_to_solve(self):
         self.get(self.target_page + str(self.puzzle.id) + '/')
-        self.assert_text_equals("//h2", "Solve Puzzle")
-        self.assert_exists("//div[contains(text(),'Click on a clue below')]")
-        self.verify_score(6)
-        self.verify_progress_bars(40, 20)
-        self.assert_is_displayed(self.FINISH_LATER_BTN)
-        self.assert_is_not_displayed(self.COMPLETED)
+        self.assert_page_title("Solve Session")
+        self.assert_subtitle(str(self.puzzle))
+        self.assert_exists(self.DONE_BTN)
+        timelog = "Posted by " + str(self.puzzle.editor) + " on " + self.utc_to_local(self.puzzle.shared_at)
+        self.assert_text_equals(self.PUZZLE_TIMELOG, timelog)
+        self.assert_text_equals(self.PUZZLE_DESC, self.puzzle.desc)
+        self.do_click(self.DONE_BTN)
+        self.assert_current_url("/puzzles_list")
+        # self.verify_score(6)
+        # self.verify_progress_bars(40, 20)
+        # self.assert_is_displayed(self.FINISH_LATER_BTN)
+        #self.assert_is_not_displayed(self.COMPLETED)
 
-    def test_clues_list_contains_clue_state_num_description_and_points(self):
-        for clue in self.clues:
-            tr_xpath = self.get_table_row_xpath(clue.clue_num)
-            clue_state = self.get_state_of_clue(clue, self.session)
-            self.verify_clue_state_icon(clue, clue_state)
-            self.assert_text_equals(tr_xpath + "td[2]", str(clue.clue_num) + ".")
-            self.assert_text_equals(tr_xpath + "td[3]/div[1]", clue.get_decorated_clue_text())
-            self.verify_clue_text_color_by_state(clue, clue_state)
-            self.verify_clue_points_by_state(clue, clue_state)
-            self.verify_clue_has_no_answer_and_parsing_shown(clue)
-
-    def test_clicking_on_a_solved_clue_toggles_answer_and_parsing(self):
-        self.click_on_clue(1)  # Click first clue (SOLVED)
-        self.verify_clue_has_answer_and_parsing_shown(self.clues[0])
-        self.click_on_clue(1)  # Click first clue again
-        self.verify_clue_has_no_answer_and_parsing_shown(self.clues[0])
-
-    def test_clicking_on_a_revealed_clue_toggles_answer_and_parsing(self):
-        self.click_on_clue(5)  # Click fifth clue (REVEALED)
-        self.verify_clue_has_answer_and_parsing_shown(self.clues[4])
-        self.click_on_clue(5)  # Click fifth clue again
-        self.verify_clue_has_no_answer_and_parsing_shown(self.clues[4])
-
-    def test_clicking_on_unsolved_clue_shows_modal_answer_box(self):
-        self.assert_is_not_displayed(self.MODAL_DIALOG)
-        self.click_on_clue(2)  # Click 2nd clue (UNSOLVED)
-        self.wait_until_visible(self.MODAL_DIALOG)
-        self.assert_is_displayed(self.MODAL_DIALOG)
-        # Verify Answer box contents
-        self.assert_text_equals(self.MODAL_TITLE, "Clue #" + str(self.clues[1].clue_num))
-        self.assert_text_equals(self.CLUE_TEXT, self.clues[1].get_decorated_clue_text())
-        self.assert_attribute_equals(self.ANSWER_INPUT, "")
-        self.assert_text_equals(self.ERR_MSG, "")
-
-    def test_correct_answer_submit_sets_solved_state_and_saves_timer(self):
-        self.click_on_clue(2)  # Click on 2nd clue
-        self.set_answer_input(self.clues[1].answer.lower())
-        time.sleep(1)
-        self.do_click(self.SUBMIT_BTN)
-        self.verify_timer("00:05:01s")  # Timer snapshot saved when answer is submited
-        self.wait_until_invisible(self.MODAL_DIALOG)
-        self.verify_clue_state_icon(self.clues[1], 'SOLVED')
-        self.verify_clue_text_color_by_state(self.clues[1], 'SOLVED')
-        self.verify_clue_points_by_state(self.clues[1], 'SOLVED')
-        self.verify_clue_has_answer_and_parsing_shown(self.clues[1])
-        self.verify_score(8)
-        self.verify_progress_bars(60, 20)
-        self.assert_is_not_displayed(self.COMPLETED)
-        saved_secs = PuzzleSession.objects.get(puzzle=self.puzzle, solver=self.user).elapsed_seconds
-        self.assertEqual(saved_secs, 301)
-
-    def test_reveal_answer_sets_revealed_state_and_saves_timer(self):
-        self.click_on_clue(2)  # Click on 2nd clue
-        time.sleep(1)
-        self.do_click(self.REVEAL_BTN)  # Reveal 2nd clue
-        self.verify_timer("00:05:01s")  # Timer snapshot saved when answer is submited
-        self.wait_until_invisible(self.MODAL_DIALOG)
-        self.verify_clue_state_icon(self.clues[1], 'REVEALED')
-        self.verify_clue_text_color_by_state(self.clues[1], 'REVEALED')
-        self.verify_clue_points_by_state(self.clues[1], 'REVEALED')
-        self.verify_clue_has_answer_and_parsing_shown(self.clues[1])
-        self.verify_score(6)
-        self.verify_progress_bars(40, 40)
-        self.assert_is_not_displayed(self.COMPLETED)
-        saved_secs = PuzzleSession.objects.get(puzzle=self.puzzle, solver=self.user).elapsed_seconds
-        self.assertEqual(saved_secs, 301)
-
-    def test_incorrect_answer_submit_sets_incorrect_state(self):
-        self.click_on_clue(2)  # Click on 2nd clue
-        self.set_answer_input("WORD-X")  # Wrong answer
-        self.do_click(self.SUBMIT_BTN)
-        self.assert_is_displayed(self.MODAL_DIALOG)
-        time.sleep(1)
-        self.assert_text_equals(self.ERR_MSG, "Incorrect answer")
-        self.verify_score(6)
-        self.verify_progress_bars(40, 20)
-        self.assert_is_not_displayed(self.COMPLETED)
-        # Clear btn clears incorrect answer state
-        self.do_click(self.CLEAR_BTN)
-        self.assert_is_not_displayed(self.ERR_MSG)
-        answer_input = self.get_element(self.ANSWER_INPUT)
-        self.assertEqual(answer_input.get_attribute('value'), "")
-        self.assertEqual(answer_input, self.get_active_element())  # Has focus
+    # def test_clues_list_contains_clue_state_num_description_and_points(self):
+    #     for clue in self.clues:
+    #         tr_xpath = self.get_table_row_xpath(clue.clue_num)
+    #         clue_state = self.get_state_of_clue(clue, self.session)
+    #         self.verify_clue_state_icon(clue, clue_state)
+    #         self.assert_text_equals(tr_xpath + "td[2]", str(clue.clue_num) + ".")
+    #         self.assert_text_equals(tr_xpath + "td[3]/div[1]", clue.get_decorated_clue_text())
+    #         self.verify_clue_text_color_by_state(clue, clue_state)
+    #         self.verify_clue_points_by_state(clue, clue_state)
+    #         self.verify_clue_has_no_answer_and_parsing_shown(clue)
+    #
+    # def test_clicking_on_a_solved_clue_toggles_answer_and_parsing(self):
+    #     self.click_on_clue(1)  # Click first clue (SOLVED)
+    #     self.verify_clue_has_answer_and_parsing_shown(self.clues[0])
+    #     self.click_on_clue(1)  # Click first clue again
+    #     self.verify_clue_has_no_answer_and_parsing_shown(self.clues[0])
+    #
+    # def test_clicking_on_a_revealed_clue_toggles_answer_and_parsing(self):
+    #     self.click_on_clue(5)  # Click fifth clue (REVEALED)
+    #     self.verify_clue_has_answer_and_parsing_shown(self.clues[4])
+    #     self.click_on_clue(5)  # Click fifth clue again
+    #     self.verify_clue_has_no_answer_and_parsing_shown(self.clues[4])
+    #
+    # def test_clicking_on_unsolved_clue_shows_modal_answer_box(self):
+    #     self.assert_is_not_displayed(self.MODAL_DIALOG)
+    #     self.click_on_clue(2)  # Click 2nd clue (UNSOLVED)
+    #     self.wait_until_visible(self.MODAL_DIALOG)
+    #     self.assert_is_displayed(self.MODAL_DIALOG)
+    #     # Verify Answer box contents
+    #     self.assert_text_equals(self.MODAL_TITLE, "Clue #" + str(self.clues[1].clue_num))
+    #     self.assert_text_equals(self.CLUE_TEXT, self.clues[1].get_decorated_clue_text())
+    #     self.assert_attribute_equals(self.ANSWER_INPUT, "")
+    #     self.assert_text_equals(self.ERR_MSG, "")
+    #
+    # def test_correct_answer_submit_sets_solved_state_and_saves_timer(self):
+    #     self.click_on_clue(2)  # Click on 2nd clue
+    #     self.set_answer_input(self.clues[1].answer.lower())
+    #     time.sleep(1)
+    #     self.do_click(self.SUBMIT_BTN)
+    #     self.verify_timer("00:05:01s")  # Timer snapshot saved when answer is submited
+    #     self.wait_until_invisible(self.MODAL_DIALOG)
+    #     self.verify_clue_state_icon(self.clues[1], 'SOLVED')
+    #     self.verify_clue_text_color_by_state(self.clues[1], 'SOLVED')
+    #     self.verify_clue_points_by_state(self.clues[1], 'SOLVED')
+    #     self.verify_clue_has_answer_and_parsing_shown(self.clues[1])
+    #     self.verify_score(8)
+    #     self.verify_progress_bars(60, 20)
+    #     self.assert_is_not_displayed(self.COMPLETED)
+    #     saved_secs = PuzzleSession.objects.get(puzzle=self.puzzle, solver=self.user).elapsed_seconds
+    #     self.assertEqual(saved_secs, 301)
+    #
+    # def test_reveal_answer_sets_revealed_state_and_saves_timer(self):
+    #     self.click_on_clue(2)  # Click on 2nd clue
+    #     time.sleep(1)
+    #     self.do_click(self.REVEAL_BTN)  # Reveal 2nd clue
+    #     self.verify_timer("00:05:01s")  # Timer snapshot saved when answer is submited
+    #     self.wait_until_invisible(self.MODAL_DIALOG)
+    #     self.verify_clue_state_icon(self.clues[1], 'REVEALED')
+    #     self.verify_clue_text_color_by_state(self.clues[1], 'REVEALED')
+    #     self.verify_clue_points_by_state(self.clues[1], 'REVEALED')
+    #     self.verify_clue_has_answer_and_parsing_shown(self.clues[1])
+    #     self.verify_score(6)
+    #     self.verify_progress_bars(40, 40)
+    #     self.assert_is_not_displayed(self.COMPLETED)
+    #     saved_secs = PuzzleSession.objects.get(puzzle=self.puzzle, solver=self.user).elapsed_seconds
+    #     self.assertEqual(saved_secs, 301)
+    #
+    # def test_incorrect_answer_submit_sets_incorrect_state(self):
+    #     self.click_on_clue(2)  # Click on 2nd clue
+    #     self.set_answer_input("WORD-X")  # Wrong answer
+    #     self.do_click(self.SUBMIT_BTN)
+    #     self.assert_is_displayed(self.MODAL_DIALOG)
+    #     time.sleep(1)
+    #     self.assert_text_equals(self.ERR_MSG, "Incorrect answer")
+    #     self.verify_score(6)
+    #     self.verify_progress_bars(40, 20)
+    #     self.assert_is_not_displayed(self.COMPLETED)
+    #     # Clear btn clears incorrect answer state
+    #     self.do_click(self.CLEAR_BTN)
+    #     self.assert_is_not_displayed(self.ERR_MSG)
+    #     answer_input = self.get_element(self.ANSWER_INPUT)
+    #     self.assertEqual(answer_input.get_attribute('value'), "")
+    #     self.assertEqual(answer_input, self.get_active_element())  # Has focus
 
 
 @skip

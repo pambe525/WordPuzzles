@@ -3,12 +3,12 @@ import re
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
-from puzzles.forms import WordPuzzleForm, ClueForm, SortPuzzlesForm, AddCluesForm
+from puzzles.forms import WordPuzzleForm, ClueForm, AddCluesForm
 from puzzles.models import WordPuzzle, Clue, PuzzleSession
 
 
@@ -313,7 +313,7 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
 #         return clue_dict
 
 
-class SolvePuzzleView(IsSolvableMixin, View):
+class SolveSessionView(IsSolvableMixin, View):
     solve_session = None
     puzzle = None
     clues = None
@@ -323,7 +323,7 @@ class SolvePuzzleView(IsSolvableMixin, View):
         self.solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
         # self.active_session = self.get_session_as_dict()
         # self.clues = self.get_clues_list()
-        return render(request, "solve_puzzle.html", context=self.get_context_data())
+        return render(request, "solve_session.html", context=self.get_context_data())
 
     # def post(self, request, *args, **kwargs):
     #     request_data = json.loads(request.POST['data'])

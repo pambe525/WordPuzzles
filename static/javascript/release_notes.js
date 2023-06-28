@@ -11,7 +11,7 @@ function loadFilterSelector() {
     whatsNewOption.textContent = "What's New";
     whatsNewOption.value = '0';
     allOption.textContent = "All features";
-    allOption.value =  "Date(option)";
+    allOption.value = "Date(option)";
     selector.appendChild(whatsNewOption);
     selector.appendChild(allOption);
 }
@@ -22,7 +22,7 @@ function loadReleaseSelector() {
     releases.forEach(option => {
         const newOption = document.createElement("option");
         newOption.textContent = option;
-        newOption.value =  Date(option);
+        newOption.value = Date(option);
         selector.appendChild(newOption);
     })
 }

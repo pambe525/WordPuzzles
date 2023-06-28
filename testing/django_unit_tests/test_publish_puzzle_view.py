@@ -1,5 +1,3 @@
-from unittest import skip
-
 from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle

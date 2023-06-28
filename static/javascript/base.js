@@ -4,7 +4,9 @@
 function bindModalDialogToButton(dialogId, buttonId) {
     const modalDialog = document.querySelector(".modal-dialog#" + dialogId);
     const btn = document.querySelector("#" + buttonId);
-    if (btn != null) btn.addEventListener('click', () => { modalDialog.showModal(); });
+    if (btn != null) btn.addEventListener('click', () => {
+        modalDialog.showModal();
+    });
 }
 
 /**
@@ -41,7 +43,7 @@ function highlightActiveNavItem() {
 function convertUTCDatesToLocal(className) {
     const dates = document.getElementsByClassName(className);
     for (let i = 0; i < dates.length; i++)
-        dates[i].innerText = utcToLocalString(dates[i].innerText+"Z");
+        dates[i].innerText = utcToLocalString(dates[i].innerText + "Z");
 }
 
 /**
@@ -61,7 +63,7 @@ function getTimelogString(puzzleData, userName) {
     const modifiedAt = utcToLocalString(puzzleData.utcModifiedAt);
     const sharedAt = utcToLocalString(puzzleData.utcSharedAt);
     return (sharedAt) ? "Posted by " + name + " on " + sharedAt :
-                        "Created by " + name + " on " + createdAt + " and last edited on " + modifiedAt;
+        "Created by " + name + " on " + createdAt + " and last edited on " + modifiedAt;
 }
 
 /**

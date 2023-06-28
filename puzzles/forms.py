@@ -1,6 +1,3 @@
-import re
-from unittest.case import skip
-
 from django import forms
 from django.forms import ModelForm, Form
 

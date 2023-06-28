@@ -1,12 +1,11 @@
 from datetime import timedelta
-from unittest.case import skip
 
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.timezone import now
 
-from testing.data_setup_utils import create_published_puzzle, create_user, create_session, create_draft_puzzle
+from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle
 
 
 class PuzzlesListViewTest(TestCase):

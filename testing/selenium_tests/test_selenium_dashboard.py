@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
-from testing.selenium_tests.test_selenium_edit_puzzle import get_clues_data
 
 
 class NotificationsTests(BaseSeleniumTestCase):

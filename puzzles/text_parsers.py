@@ -97,7 +97,8 @@ class ClueChecker:
         if length_digits_in_clue is None:
             answer_digits = self.__get_answer_length(answer)
             return clue_text + " (" + answer_digits + ")"
-        else: return clue_text
+        else:
+            return clue_text
 
     def has_matching_answer_lengths(self, clue_text, answer):
         length_digits_in_clue = self.__get_clue_answer_length(clue_text)

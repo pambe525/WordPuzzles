@@ -3,15 +3,15 @@
 {% block content %}
     <div class="page-title">Published Puzzles</div>
     <hr class="dark-line">
-{#    <form class="font-small" method="get">#}
-{#        {% csrf_token %}#}
-{#        {{ form.as_table }}#}
-{#    </form>#}
-{#    <div class="note-text m-top">#}
-{#        Hover over the puzzle title to see description pop-up. Click on the title link to solve or preview the#}
-{#        puzzle.#}
-{#    </div>#}
-{#    <hr>#}
+    {#    <form class="font-small" method="get">#}
+    {#        {% csrf_token %}#}
+    {#        {{ form.as_table }}#}
+    {#    </form>#}
+    {#    <div class="note-text m-top">#}
+    {#        Hover over the puzzle title to see description pop-up. Click on the title link to solve or preview the#}
+    {#        puzzle.#}
+    {#    </div>#}
+    {#    <hr>#}
     {% if object_list|length == 0 %}
         <div class="note-text">No published puzzles.</div>
     {% else %}
@@ -21,102 +21,102 @@
                 <!-- Puzzle type thumbnail -->
                 <img class="thumbnail"
                      src="{% static puzzle.type|yesno:'/images/cryptic-clues.jpg,/images/non-cryptic-clues.png' %}"
-                     title="{{ puzzle.type_text }}" alt="{{ puzzle.type_text }}" >
-                <!-- Puzzle info (title and last edited on -->
+                     title="{{ puzzle.type_text }}" alt="{{ puzzle.type_text }}">
+                <!-- Puzzle info (title and last edited on) -->
                 <div class="truncated-text">
-                    <a class="bold-text font-small" href="/solve_puzzle/{{ puzzle.id }}/">{{ puzzle }}</a>
+                    <a class="bold-text font-small" href="/solve_session/{{ puzzle.id }}/">{{ puzzle }}</a>
                     <div class="font-xsmall bold-text ellipsis">{{ puzzle.desc }}</div>
                     <div class="font-xsmall">Posted by <b>{{ puzzle.editor }}</b> on
                         <span class="timestamp">{{ puzzle.shared_at|date:'Y-m-d H:i:s' }}</span>
                     </div>
                 </div>
-    {#            <div class="icon-group r-float">#}
-    {#                <a class="icon-btn delete-btn" >#}
-    {#                    <i data-id="{{ puzzle.id }}"#}
-    {#                       class="fa-regular fa-trash-can" title="Delete">#}
-    {#                    </i>#}
-    {#                </a>#}
-    {#            </div>#}
+                {#            <div class="icon-group r-float">#}
+                {#                <a class="icon-btn delete-btn" >#}
+                {#                    <i data-id="{{ puzzle.id }}"#}
+                {#                       class="fa-regular fa-trash-can" title="Delete">#}
+                {#                    </i>#}
+                {#                </a>#}
+                {#            </div>#}
             </div>
         {% endfor %}
         <hr>
-{#        <div class="pagination font-small">#}
-{#            <span class="step-links">#}
-{#                {% if page_obj.has_previous %}#}
-{#                    <a href="?page=1">&laquo; First</a>#}
-{#                    <a href="?page={{ page_obj.previous_page_number }}">| Previous</a>#}
-{#                {% endif %}#}
-{#                <span class="current">#}
-{#                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}#}
-{#                </span>#}
-{#                {% if page_obj.has_next %}#}
-{#                    <a href="?page={{ page_obj.next_page_number }}">Next</a>#}
-{#                    <a href="?page={{ page_obj.paginator.num_pages }}">| Last &raquo;</a>#}
-{#                {% endif %}#}
-{#            </span>#}
-{#        </div>#}
+        {#        <div class="pagination font-small">#}
+        {#            <span class="step-links">#}
+        {#                {% if page_obj.has_previous %}#}
+        {#                    <a href="?page=1">&laquo; First</a>#}
+        {#                    <a href="?page={{ page_obj.previous_page_number }}">| Previous</a>#}
+        {#                {% endif %}#}
+        {#                <span class="current">#}
+        {#                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}#}
+        {#                </span>#}
+        {#                {% if page_obj.has_next %}#}
+        {#                    <a href="?page={{ page_obj.next_page_number }}">Next</a>#}
+        {#                    <a href="?page={{ page_obj.paginator.num_pages }}">| Last &raquo;</a>#}
+        {#                {% endif %}#}
+        {#            </span>#}
+        {#        </div>#}
     {% endif %}
 
-{#    #}
-{#    #}
-{#    <table class="table table-sm">#}
-{#        <thead class="thead-dark">#}
-{#        <tr>#}
-{#            <th class="pl-1">Puzzle Details</th>#}
-{#            <th style="width:65px;"></th>#}
-{#        </tr>#}
-{#        </thead>#}
-{#        <tbody>#}
-{#        {% for puzzle in object_list %}#}
-{#            <tr>#}
-{#                <td style="line-height:18px; border-top:1px black solid" class="p-2">#}
-{#                    <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>#}
-{#                        <b>{{ puzzle }}</b>#}
-{#                    </a><br/>#}
-{#                    <span class="h6">Posted by:#}
-{#                        {% if puzzle.editor != request.user %}#}
-{#                            <b>{{ puzzle.editor }}</b>#}
-{#                        {% else %}#}
-{#                            <span class="bg-secondary p-1 rounded text-white">ME</span>#}
-{#                        {% endif %} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)#}
-{#                    </span>#}
-{#                </td>#}
-{#                <td style="border-top:1px black solid" class="p-2">#}
-{#                    <div class="row m-0">#}
-{#                        {% if puzzle.editor == request.user %}#}
-{#                            <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"#}
-{#                               title="VIEW" style="width:22px;height:22px"><i class="fa fa-eye"></i>#}
-{#                            </a>#}
-{#                        {% else %}#}
-{#                            <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"#}
-{#                               title="SOLVE" style="width:22px;height:22px"><i class="fa fa-hourglass-2"></i>#}
-{#                            </a>#}
-{#                        {% endif %}#}
-{#                        {% if puzzle.session_count != 0 %}#}
-{#                            <a class="ml-1 btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"#}
-{#                               title="SCORES" style="width:22px;height:22px"><i class="fa fa-crown"></i>#}
-{#                            </a>#}
-{#                        {% endif %}#}
-{#                    </div>#}
-{#                    <div class="row m-0">#}
-{#                        <div class="bg-primary text-light text-center rounded-circle py-1 mr-1 h6"#}
-{#                             title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}#}
-{#                        </div>#}
-{#                        {% if puzzle.user_session != None %}#}
-{#                            <div class="ml-1 mb-2 text-right">#}
-{#                                {% if puzzle.user_session.is_complete %}#}
-{#                                    <i title="Completed" class="fa fa-flag text-success"></i>#}
-{#                                {% else %}#}
-{#                                    <i title="Incomplete" class="fa fa-flag text-danger"></i>#}
-{#                                {% endif %}#}
-{#                            </div>#}
-{#                        {% endif %}#}
-{#                    </div>#}
-{#                </td>#}
-{#            </tr>#}
-{#        {% endfor %}#}
-{#        </tbody>#}
-{#    </table>#}
+    {#    #}
+    {#    #}
+    {#    <table class="table table-sm">#}
+    {#        <thead class="thead-dark">#}
+    {#        <tr>#}
+    {#            <th class="pl-1">Puzzle Details</th>#}
+    {#            <th style="width:65px;"></th>#}
+    {#        </tr>#}
+    {#        </thead>#}
+    {#        <tbody>#}
+    {#        {% for puzzle in object_list %}#}
+    {#            <tr>#}
+    {#                <td style="line-height:18px; border-top:1px black solid" class="p-2">#}
+    {#                    <a class="text-primary" href="{% url 'preview_puzzle' puzzle.id %}" title='{{ puzzle.desc }}'>#}
+    {#                        <b>{{ puzzle }}</b>#}
+    {#                    </a><br/>#}
+    {#                    <span class="h6">Posted by:#}
+    {#                        {% if puzzle.editor != request.user %}#}
+    {#                            <b>{{ puzzle.editor }}</b>#}
+    {#                        {% else %}#}
+    {#                            <span class="bg-secondary p-1 rounded text-white">ME</span>#}
+    {#                        {% endif %} on {{ puzzle.shared_at|date:'M d, Y' }} (GMT)#}
+    {#                    </span>#}
+    {#                </td>#}
+    {#                <td style="border-top:1px black solid" class="p-2">#}
+    {#                    <div class="row m-0">#}
+    {#                        {% if puzzle.editor == request.user %}#}
+    {#                            <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"#}
+    {#                               title="VIEW" style="width:22px;height:22px"><i class="fa fa-eye"></i>#}
+    {#                            </a>#}
+    {#                        {% else %}#}
+    {#                            <a class="btn border-secondary p-0 mb-1" href="{% url 'preview_puzzle' puzzle.id %}"#}
+    {#                               title="SOLVE" style="width:22px;height:22px"><i class="fa fa-hourglass-2"></i>#}
+    {#                            </a>#}
+    {#                        {% endif %}#}
+    {#                        {% if puzzle.session_count != 0 %}#}
+    {#                            <a class="ml-1 btn border-secondary p-0" href="{% url 'puzzle_score' puzzle.id %}"#}
+    {#                               title="SCORES" style="width:22px;height:22px"><i class="fa fa-crown"></i>#}
+    {#                            </a>#}
+    {#                        {% endif %}#}
+    {#                    </div>#}
+    {#                    <div class="row m-0">#}
+    {#                        <div class="bg-primary text-light text-center rounded-circle py-1 mr-1 h6"#}
+    {#                             title="No. of Puzzlers solving" style="width:22px">{{ puzzle.session_count }}#}
+    {#                        </div>#}
+    {#                        {% if puzzle.user_session != None %}#}
+    {#                            <div class="ml-1 mb-2 text-right">#}
+    {#                                {% if puzzle.user_session.is_complete %}#}
+    {#                                    <i title="Completed" class="fa fa-flag text-success"></i>#}
+    {#                                {% else %}#}
+    {#                                    <i title="Incomplete" class="fa fa-flag text-danger"></i>#}
+    {#                                {% endif %}#}
+    {#                            </div>#}
+    {#                        {% endif %}#}
+    {#                    </div>#}
+    {#                </td>#}
+    {#            </tr>#}
+    {#        {% endfor %}#}
+    {#        </tbody>#}
+    {#    </table>#}
     <script>
         function pageInit() {
             convertUTCDatesToLocal("timestamp")

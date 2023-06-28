@@ -193,7 +193,7 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         self.get(self.target_page + str(puzzle.id) + '/')
         self.assert_page_title("Published Puzzle")  # changed from Edit Puzzle
         self.assert_subtitle(str(puzzle))
-        self.assert_text_contains(self.PUZZLE_TIMELOG, 'Posted by me on')
+        self.assert_text_equals(self.PUZZLE_TIMELOG, 'Posted by me on ' + self.utc_to_local(puzzle.shared_at))
         self.assert_not_exists(self.PUBLISH_BTN)
         self.assert_not_exists(self.ADD_CLUES_BTN)
         self.assert_item_count(self.DELETE_BTN_CELL, 0)
