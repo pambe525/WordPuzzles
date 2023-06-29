@@ -5,6 +5,8 @@ from datetime import timedelta
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
+from django.template.defaultfilters import register
+from django.utils.safestring import mark_safe
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
@@ -17,6 +19,16 @@ def add_session_data(puzzles, user):
         puzzle.session_count = len(PuzzleSession.objects.filter(puzzle=puzzle))
         current_user_session = PuzzleSession.objects.filter(puzzle=puzzle, solver=user)
         puzzle.user_session = None if len(current_user_session) == 0 else current_user_session[0]
+
+
+@register.filter(is_safe=True)
+def jsonify(json_object):
+    json_str = json.dumps(json_object)
+    # Escape all the XML/HTML special characters.
+    escapes = ["<", ">", "&"]
+    for c in escapes:
+        json_str = json_str.replace(c, r"\u%04x" % ord(c))
+    return mark_safe(json_str)
 
 
 class ReleaseNotesView(TemplateView):
@@ -314,16 +326,22 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
 
 
 class SolveSessionView(IsSolvableMixin, View):
-    solve_session = None
+    session = None
     puzzle = None
     clues = None
 
     def get(self, request, *args, **kwargs):
         self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
-        self.solve_session, created = PuzzleSession.objects.get_or_create(solver=request.user, puzzle=self.puzzle)
+        if PuzzleSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
+            self.session = PuzzleSession.objects.get(solver=request.user, puzzle=self.puzzle)
+        # self.session = if len(self.session) == 0: self.session = None
         # self.active_session = self.get_session_as_dict()
         # self.clues = self.get_clues_list()
         return render(request, "solve_session.html", context=self.get_context_data())
+
+    def post(self, request, *args, **kwargs):
+        PuzzleSession.objects.create(solver=request.user, puzzle=self.puzzle)
+        return redirect("solve_session", self.puzzle.id)
 
     # def post(self, request, *args, **kwargs):
     #     request_data = json.loads(request.POST['data'])
@@ -348,15 +366,15 @@ class SolveSessionView(IsSolvableMixin, View):
     def get_context_data(self):
         # if self.active_session is not None:
         #     self.active_session = json.dumps(self.active_session)
-        return {'object': self.puzzle, 'clues': json.dumps(self.clues)}
+        return {'puzzle': self.puzzle, 'clues': self.puzzle.get_clues(), 'active_session': self.session}
 
     def get_json_response(self):
         # self.active_session = self.get_session_as_dict()
         self.clues = self.get_clues_list()
-        return JsonResponse({'clues': json.dumps(self.clues), 'active_session': self.active_session})
+        return JsonResponse({'clues': json.dumps(self.clues), 'active_session': self.session})
 
     def get_session_as_dict(self):
-        return {'session_id': self.solve_session.id,
+        return {'id': self.solve_session.id,
                 'elapsed_secs': self.solve_session.elapsed_seconds,
                 'score': self.solve_session.score,
                 'num_clues': self.solve_session.puzzle.size,

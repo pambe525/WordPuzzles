@@ -1,41 +1,98 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
+    <!-- PAGE TITLE & DONE BTN -->
     <div class="flex">
         <div class="page-title">Solve Session</div>
         <a class="r-float" href="{% url 'puzzles_list' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
     </div>
     <hr class="dark-line">
-    <div class="subtitle">{{ object }}</div>
+    <!-- PUZZLE INFO (TITLE AND TIMELOG) -->
+    <div class="subtitle">{{ puzzle }}</div>
     <div class="font-xsmall" id="timelog">
-        Posted by {{ object.editor }} on <span class="timestamp">{{ object.shared_at|date:'Y-m-d H:i:s' }}</span>
+        Posted by {{ puzzle.editor }} on <span class="timestamp">{{ puzzle.shared_at|date:'Y-m-d H:i:s' }}</span>
     </div>
+    <!-- DESCRIPTION LABEL & SHOW/HIDE TOGGLE BUTTON -->
+    <div class="flex m-top">
+        <div class="font-small bold-text">Description:</div>
+        <a class="icon-btn r-float" title="Show/Hide Toggle" onclick="toggleDescHide()">
+            <i class="fa-regular fa-square-caret-up"></i>
+        </a>
+    </div>
+    <!-- DESCRIPTION PANEL -->
+    <div id="desc-panel" class="boxed-panel m-bot"><span class="note-text pre-line">{{ puzzle.desc }}</span></div>
+    <hr>
 
-{#    <div class="flex font-small">#}
-{#        <div>#}
-{#            <input type="checkbox" value="" id="hideDesc" checked>#}
-{#            <label for="hideDesc">Hide Description</label>#}
-{#        </div>#}
-{#        <div class="r-float">#}
-{#            <input type="checkbox" value="" id="hideSolved" checked>#}
-{#            <label for="hideSolved">Hide Solved Clues</label>#}
-{#        </div>#}
-{#    </div>#}
-
-    <!-- PUZZLE DESCRIPTION -->
-    <div class="font-small bold-text m-top">Description:</div>
-    <div class="boxed-panel m-bot"><span class="note-text pre-line">{{ object.desc }}</span></div>
-
-    <!-- OPTION TO SOLVE -->
-    <div class="m-top">
-        <button class="blue-btn">Start Individual Solve Session</button>
-        <div class="note-text font-xsmall m-top">
-            Note: This will start an individual solve session and record your scores.
-            You can pause and resume the session until you finish all the clues.
+    {% if active_session is None %}
+        <!-- START SESSION BUTTON & NOTE -->
+        <div class="m-top">
+            <form method="post" action="{% url 'solve_session' puzzle.id %}">
+                {% csrf_token %}
+                <button class="blue-btn" id="startSessionBtn" type="submit">Start Individual Solve Session</button>
+            </form>
+            <div class="note-text font-xsmall m-top">
+                Note: This will start an individual solve session and record your scores.
+                You can pause and resume the session until you finish all the clues.
+            </div>
         </div>
-    </div>
+    {% else %}
+        <!-- SESSION PANEL -->
+        <div id="session-panel" class="boxed-panel bg-lemon">
+            <div class="flex">
+                <div class="subtitle font-medium">Session Status: In Progress</div>
+                <div class="subtitle font-medium r-float">My Score: 0</div>
+            </div>
+            <div class="note-text font-xsmall">
+                Started on <span class="timestamp">{{ active_session.created_at|date:'Y-m-d H:i:s' }}</span>
+            </div>
+        </div>
+        <!-- CLUES LIST -->
+        <div id="clues-list" class="m-top">
+            <table style="width:100%" class="font-small">
+                <tr >
+                    <th style="text-align:left">#</th>
+                    <th style="text-align:left">Clue</th>
+                    <th style="text-align:center">Pts</th>
+                </tr>
+                {% for clue in clues %}
+                    <tr>
+                        <td class="clue-num" style="vertical-align: top">{{ clue.clue_num }}.</td>
+                        <td>
+                            <a class="clue-text" data-id="{{ clue.clue_num }}" onclick="clueTextClicked(this)">
+                                {{ clue.get_decorated_clue_text }}
+                            </a>
+{#                            <div class="answer font-xsmall">#}
+{#                                Answer: {{ clue.answer.upper }}#}
+{#                                {% if clue.parsing %}, Parsing: {{ clue.parsing }} {% endif %}#}
+{#                            </div>#}
+                        </td>
+                        <td style="text-align:center; vertical-align: top" class="points">{{ clue.points }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+
+    <!-- MODAL DIALOG FOR ANSWER INPUT -->
+    <dialog class="modal-dialog font-medium" id="answer-dialog">
+        <div class="subtitle">Solve Clue</div>
+        <hr>
+        <div class="m-top m-bot" id="clue-text"></div>
+        <label for="answer">Answer:</label>
+        <input id="answer" name="answer" type="text">
+        <div id="err-msg" class="font-small clr-red m-bot m-top"></div>
+        <hr>
+        <div class="flex m-top">
+            <button id="btnSubmit" type="submit" class="blue-btn" onclick="dialogSubmitClicked()">Submit</button>
+            <button id="btnClose" onclick="dialogCloseClicked()">Cancel</button>
+        </div>
+    </dialog>
+
+    <script src="{% static '/javascript/solve_session.js' %}"></script>
     <script>
         function pageInit() {
             convertUTCDatesToLocal("timestamp");
+            {% if active_session != None %} toggleDescHide(); {% endif %}
         }
     </script>
 {% endblock %}

@@ -1,7 +1,7 @@
 import time
 from unittest.case import skip
 
-from puzzles.models import PuzzleSession
+from puzzles.models import PuzzleSession, Clue
 from testing.data_setup_utils import create_published_puzzle, create_session, create_user
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
@@ -23,7 +23,6 @@ class SolveSessionTestCaseHelper(BaseSeleniumTestCase):
     MODAL_TITLE = "//h4[@class='modal-title']"
 
     def set_answer_input(self, input_text):
-        self.wait_until_visible(self.MODAL_DIALOG)
         answer_input = self.get_element(self.ANSWER_INPUT)
         answer_input.click()
         answer_input.send_keys(input_text)
@@ -108,6 +107,24 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
     DONE_BTN = "//div//i[contains(@class,'fa-circle-xmark')]"
     PUZZLE_TIMELOG = "//div[@id='timelog']"
     PUZZLE_DESC = "//span[contains(@class,'pre-line')]"
+    START_SESSION_BTN = "//button[@id='startSessionBtn']"
+    DESC_HIDE_TOGGLE = "//a[contains(@class,'icon-btn')]"
+    DESC_PANEL = "//div[@id='desc-panel']"
+    SESSION_PANEL = "//div[@id='session-panel']"
+    SESSION_STATUS = "//div[@id='session-panel']/div/div[1]"
+    SESSION_SCORE = "//div[@id='session-panel']/div/div[2]"
+    CLUES_LIST = "//div[@id='clues-list']"
+    CLUE_NUM_CELL = "(//tr//td[contains(@class,'clue-num')])"
+    CLUE_TEXT_CELL = "(//tr//td/a[contains(@class,'clue-text')])"
+    ANSWER_CELL = "(//tr//td/div[contains(@class,'answer')])"
+    POINTS_CELL = "(//tr//td[contains(@class,'points')])"
+    ANSWER_DIALOG = "//dialog[@id='answer-dialog']"
+    ANSWER_DIALOG_TITLE = "//dialog[@id='answer-dialog']/div"
+    ANSWER_DIALOG_CLUE = "//dialog[@id='answer-dialog']//div[@id='clue-text']"
+    ANSWER_DIALOG_INPUT = "//dialog[@id='answer-dialog']//input[@id='answer']"
+    ANSWER_DIALOG_MSG = "//dialog[@id='answer-dialog']//div[@id='err-msg']"
+    ANSYWER_DIALOG_CANCEL = "//dialog[@id='answer-dialog']//button[@id='btnClose']"
+    ANSWER_DIALOG_SUBMIT = "//dialog[@id='answer-dialog']//button[@id='btnSubmit']"
 
     def setUp(self):
         self.user = create_user()
@@ -118,7 +135,7 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         #                               revealed_clues='5', elapsed_secs=300)
         self.clues = self.puzzle.get_clues()
 
-    def test_no_existing_solver_session_gives_option_to_solve(self):
+    def test_no_existing_solver_session_gives_option_to_start_solve_session(self):
         self.get(self.target_page + str(self.puzzle.id) + '/')
         self.assert_page_title("Solve Session")
         self.assert_subtitle(str(self.puzzle))
@@ -126,8 +143,78 @@ class SolveSessionTests(SolveSessionTestCaseHelper):
         timelog = "Posted by " + str(self.puzzle.editor) + " on " + self.utc_to_local(self.puzzle.shared_at)
         self.assert_text_equals(self.PUZZLE_TIMELOG, timelog)
         self.assert_text_equals(self.PUZZLE_DESC, self.puzzle.desc)
+        self.assert_exists(self.START_SESSION_BTN)
         self.do_click(self.DONE_BTN)
         self.assert_current_url("/puzzles_list")
+
+    def test_description_panel_can_be_hidden_with_a_toggle(self):
+        self.get(self.target_page + str(self.puzzle.id) + '/')
+        self.assert_is_displayed(self.DESC_PANEL)
+        self.do_click(self.DESC_HIDE_TOGGLE)
+        self.assert_is_not_displayed(self.DESC_PANEL)
+        self.do_click(self.DESC_HIDE_TOGGLE)
+        self.assert_is_displayed(self.DESC_PANEL)
+
+    def test_start_session_button_initiates_session_and_shows_clues(self):
+        self.get(self.target_page + str(self.puzzle.id) + '/')
+        self.assert_not_exists(self.SESSION_PANEL)
+        self.assert_not_exists(self.CLUES_LIST)
+        self.do_click(self.START_SESSION_BTN)
+        self.assert_not_exists(self.START_SESSION_BTN)
+        self.assert_is_not_displayed(self.DESC_PANEL)
+        self.assert_is_displayed(self.SESSION_PANEL)
+        self.assert_text_equals(self.SESSION_STATUS, "Session Status: In Progress")
+        self.assert_text_equals(self.SESSION_SCORE, "My Score: 0")
+        self.assert_is_displayed(self.CLUES_LIST)
+
+    def test_clue_details_in_list(self):
+        self.get(self.target_page + str(self.puzzle.id) + '/')
+        self.do_click(self.START_SESSION_BTN)
+        self.assert_item_count(self.CLUE_NUM_CELL, 5)
+        clues = Clue.objects.filter(puzzle=self.puzzle)
+        for index in range(0, len(clues)):
+            self.assert_text_equals(self.CLUE_NUM_CELL, str(clues[index].clue_num) + '.', index)
+            self.assert_text_equals(self.CLUE_TEXT_CELL, str(clues[index].get_decorated_clue_text()), index)
+            self.assert_text_equals(self.POINTS_CELL, str(clues[index].points), index)
+
+    def test_clicking_on_a_clue_shows_modal_dialog(self):
+        self.get(self.target_page + str(self.puzzle.id) + '/')
+        clues = Clue.objects.filter(puzzle=self.puzzle)
+        self.do_click(self.START_SESSION_BTN)
+        self.do_click(self.CLUE_TEXT_CELL)
+        self.assert_is_displayed(self.ANSWER_DIALOG)
+        self.assert_text_equals(self.ANSWER_DIALOG_TITLE, "Solve Clue")
+        self.assert_text_equals(self.ANSWER_DIALOG_CLUE, "1. " + clues[0].get_decorated_clue_text())
+        self.do_click(self.ANSYWER_DIALOG_CANCEL)
+        self.assert_is_not_displayed(self.ANSWER_DIALOG)
+
+    def test_submitting_non_conforming_answers_shows_error_message(self):
+        self.get(self.target_page + str(self.puzzle.id) + '/')
+        clues = Clue.objects.filter(puzzle=self.puzzle)
+        self.do_click(self.START_SESSION_BTN)
+        self.do_click(self.CLUE_TEXT_CELL)
+        # Check non-alpha characters in input
+        self.set_input_text(self.ANSWER_DIALOG_INPUT, "word-1#")
+        msg = "Answer can only contain alphabets, hyphen and/or spaces."
+        self.do_click(self.ANSWER_DIALOG_SUBMIT)
+        self.assert_text_equals(self.ANSWER_DIALOG_MSG, msg)
+        # Check input answer length matches specified length in clue
+        self.set_input_text(self.ANSWER_DIALOG_INPUT, "word a")
+        msg = "Answer does not match specified length in clue."
+        self.do_click(self.ANSWER_DIALOG_SUBMIT)
+        self.assert_text_equals(self.ANSWER_DIALOG_MSG, msg)
+
+    def test_submitting_conforming_but_wrong_answer_shows_error_message(self):
+        self.get(self.target_page + str(self.puzzle.id) + '/')
+        clues = Clue.objects.filter(puzzle=self.puzzle)
+        self.do_click(self.START_SESSION_BTN)
+        self.do_click(self.CLUE_TEXT_CELL)
+        # Check input answer length matches specified length in clue
+        self.set_input_text(self.ANSWER_DIALOG_INPUT, "word-b")
+        msg = "Answer is incorrect."
+        self.do_click(self.ANSWER_DIALOG_SUBMIT)
+        self.assert_text_equals(self.ANSWER_DIALOG_MSG, msg)
+
         # self.verify_score(6)
         # self.verify_progress_bars(40, 20)
         # self.assert_is_displayed(self.FINISH_LATER_BTN)

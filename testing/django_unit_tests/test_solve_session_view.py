@@ -91,7 +91,7 @@ from testing.data_setup_utils import create_published_puzzle, create_draft_puzzl
 #         self.assertRedirects(response, "/solve_puzzle/" + str(puzzle.id) + "/", 302)
 
 
-class SolvePuzzleViewTest(TransactionTestCase):
+class SolveSessionViewTest(TransactionTestCase):
     reset_sequences = True
     target_page = "/solve_session/"
 
@@ -100,21 +100,21 @@ class SolvePuzzleViewTest(TransactionTestCase):
         self.other_user = User.objects.create(username="other_user", password="secretkey2", email="abc@cde.com")
         self.client.force_login(self.user)
 
-    def test_redirect_to_login_view_if_user_is_not_authenticated(self):
+    def test_GET_redirects_to_login_view_if_user_is_not_authenticated(self):
         logout(self.client)
         puzzle = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/login?next=/solve_session/1/")
 
-    def test_error_if_puzzle_does_not_exist(self):
+    def test_GET_has_error_if_puzzle_does_not_exist(self):
         response = self.client.get(self.target_page + "50/")
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "puzzle_error.html")
         self.assertContains(response, "Puzzle 50")
         self.assertContains(response, "This puzzle does not exist.")
 
-    def test_error_if_puzzle_is_not_published(self):
+    def test_GET_has_error_if_puzzle_is_not_published(self):
         puzzle = create_draft_puzzle(editor=self.user, clues_pts=[2, 4, 1, 4, 5])
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 200)
@@ -122,11 +122,18 @@ class SolvePuzzleViewTest(TransactionTestCase):
         self.assertContains(response, "Puzzle " + str(puzzle.id))
         self.assertEqual(response.context['err_msg'], "This puzzle is not published.")
 
-    def test_redirect_to_edit_puzzle_view_if_user_is_editor(self):
+    def test_GET_redirects_to_edit_puzzle_view_if_user_is_editor(self):
         puzzle = create_published_puzzle(editor=self.user, clues_pts=[2, 3, 1, 4, 5])
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/edit_puzzle/" + str(puzzle.id) + "/")
+
+    def test_GET_returns_response_with_no_active_session(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
+        response = self.client.get(self.target_page + str(puzzle.id) + "/")
+        self.assertEqual(response.context['puzzle'], puzzle)
+        self.assertEquals(len(response.context['clues']), len(puzzle.get_clues()))
+        self.assertIsNone(response.context['active_session'])
 
     # def test_creates_new_session_and_renders_solve_puzzle_page(self):
     #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
