@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
 from django.test import TestCase, TransactionTestCase
 from django.utils import timezone
+from django.utils.timezone import now
 
-from puzzles.models import Puzzle, WordPuzzle, Clue, PuzzleSession
+from puzzles.models import Puzzle, WordPuzzle, Clue, SolveSession, GroupSession, SolvedClue
 from testing.data_setup_utils import create_published_puzzle
 
 
@@ -165,89 +166,141 @@ class ClueModelTest(TestCase):
         self.assertEqual(clue.get_decorated_clue_text(), 'This is a clue (3,4)')
 
 
-class SessionModelTest(TestCase):
+class GroupSessionModelTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='secretkey')
+        self.puzzle = WordPuzzle.objects.create(editor=self.user)
+
+    def test_puzzle_is_required(self):
+        self.assertRaises(Exception, GroupSession.objects.create, host=self.user)
+
+    def test_host_is_required(self):
+        self.assertRaises(Exception, GroupSession.objects.create, puzzle=self.puzzle)
+
+    def test_start_at_is_required(self):
+        self.assertRaises(Exception, GroupSession.objects.create, puzzle=self.puzzle, host=self.user)
+
+    def test_default_instance(self):
+        scheduled_date = now()
+        session = GroupSession.objects.create(puzzle=self.puzzle, host=self.user, start_at=scheduled_date)
+        self.assertEqual(session.puzzle, self.puzzle)
+        self.assertEqual(session.host, self.user)
+        self.assertEqual(session.start_at, scheduled_date)
+        self.assertIsNone(session.finish_at)
+
+
+class SolvedClueModelTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='secretkey')
+        self.puzzle = WordPuzzle.objects.create(editor=self.user)
+        self.clue = Clue.objects.create(puzzle=self.puzzle)
+        self.session = SolveSession.objects.create(puzzle=self.puzzle, solver=self.user)
+
+    def test_clue_is_required(self):
+        self.assertRaises(Exception, SolvedClue.objects.create, solver=self.user)
+
+    def test_solver_is_required(self):
+        self.assertRaises(Exception, GroupSession.objects.create, clue=self.clue)
+
+    def test_session_is_required(self):
+        self.assertRaises(Exception, GroupSession.objects.create, clue=self.clue, solver=self.user)
+
+    def test_default_instance(self):
+        solved_clue = SolvedClue.objects.create(clue=self.clue, solver=self.user, session=self.session)
+        self.assertEqual(solved_clue.clue, self.clue)
+        self.assertEqual(solved_clue.solver, self.user)
+        self.assertEqual(solved_clue.session, self.session)
+        self.assertFalse(solved_clue.revealed)
+
+
+class SolveSessionModelTest(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='12345')
         self.puzzle = create_published_puzzle(editor=self.user, clues_pts=[4, 2, 1, 2, 1, 3])
 
     def test_puzzle_is_required_field(self):
-        self.assertRaises(Exception, PuzzleSession.objects.create, solver=self.user)
+        self.assertRaises(Exception, SolveSession.objects.create, solver=self.user)
 
     def test_solver_is_required_field(self):
-        self.assertRaises(IntegrityError, PuzzleSession.objects.create, puzzle=self.puzzle)
+        self.assertRaises(IntegrityError, SolveSession.objects.create, puzzle=self.puzzle)
 
-    def test_get_solved_clue_nums(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        self.assertEqual(session.get_solved_clue_nums(), [])
-        session.solved_clue_nums = '1,2,3,4,5,6,7,8,9,10,11,12,13,14'
-        self.assertEqual(session.get_solved_clue_nums(), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+    def test_default_instance(self):
+        session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+        self.assertEqual(session.puzzle, self.puzzle)
+        self.assertEqual(session.solver, self.user)
+        self.assertIsNone(session.group_session)
+        self.assertLessEqual(session.started_at, now())
+        self.assertIsNone(session.finished_at)
+#
+#     def test_get_solved_clue_nums(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         self.assertEqual(session.get_solved_clue_nums(), [])
+#         session.solved_clue_nums = '1,2,3,4,5,6,7,8,9,10,11,12,13,14'
+#         self.assertEqual(session.get_solved_clue_nums(), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
 
-    def test_default_fields(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        self.assertIsNone(session.solved_clue_nums)
-        self.assertIsNone(session.revealed_clue_nums)
-        self.assertEqual(session.elapsed_seconds, 0)
-
-    def test_get_revealed_clue_nums(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        self.assertEqual(session.get_revealed_clue_nums(), [])
-        session.revealed_clue_nums = '1,2,3,4,5,6,7,8,9'
-        self.assertEqual(session.get_revealed_clue_nums(), [1, 2, 3, 4, 5, 6, 7, 8, 9])
-
-    def test_is_complete_returns_false_with_default_data(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        self.assertFalse(session.is_complete())
-
-    def test_is_complete_raises_error_if_solved_and_revealed_clues_are_not_mutually_exclusive(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        session.solved_clue_nums = '2,3,5'
-        session.revealed_clue_nums = '1,2,3'
-        self.assertRaises(IntegrityError, session.is_complete)
-
-    def test_is_complete_returns_false_with_unsolved_clues(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        session.solved_clue_nums = '2,3,5'
-        session.revealed_clue_nums = '1,4'
-        self.assertFalse(session.is_complete())
-
-    def test_is_complete_returns_true_with_no_unsolved_clues(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        session.solved_clue_nums = '2,3,5'
-        session.revealed_clue_nums = '1,4,6'
-        self.assertTrue(session.is_complete())
-
-    def test_get_score_returns_correct_score(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        self.assertEqual(session.get_solved_points(), 0)
-        session.revealed_clue_nums = '1,4,6'
-        self.assertEqual(session.get_solved_points(), 0)
-        session.solved_clue_nums = '2,3'
-        self.assertEqual(session.get_solved_points(), 3)
-
-    def test_checking_contained_clue_nums(self):
-        PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle, solved_clue_nums="1,3")
-        self.assertFalse(PuzzleSession.objects.filter(solved_clue_nums__contains="2"))
-        self.assertTrue(PuzzleSession.objects.filter(solved_clue_nums__contains="3"))
-
-    def test_adding_solved_clue_num(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        session.add_solved_clue_num(2)
-        self.assertEqual(session.solved_clue_nums, "2")
-        session.add_solved_clue_num(4)
-        self.assertEqual(session.solved_clue_nums, "2,4")
-        session.add_solved_clue_num(2)  # Adding existing clue num ignored
-        self.assertEqual(session.solved_clue_nums, "2,4")
-        session = PuzzleSession.objects.get(solver=self.user, puzzle=self.puzzle)  # Retreived saved record
-        self.assertEqual(session.solved_clue_nums, "2,4")  # Verify updated data is saved
-
-    def test_adding_revealed_clue_num(self):
-        session = PuzzleSession.objects.create(solver=self.user, puzzle=self.puzzle)
-        session.add_revealed_clue_num(1)
-        self.assertEqual(session.revealed_clue_nums, "1")
-        session.add_revealed_clue_num(3)
-        self.assertEqual(session.revealed_clue_nums, "1,3")
-        session.add_revealed_clue_num(3)  # Adding existing clue num ignored
-        self.assertEqual(session.revealed_clue_nums, "1,3")
-        session = PuzzleSession.objects.get(solver=self.user, puzzle=self.puzzle)  # Retreived saved record
-        self.assertEqual(session.revealed_clue_nums, "1,3")  # Verify updated data is saved
+#
+#     def test_get_revealed_clue_nums(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         self.assertEqual(session.get_revealed_clue_nums(), [])
+#         session.revealed_clue_nums = '1,2,3,4,5,6,7,8,9'
+#         self.assertEqual(session.get_revealed_clue_nums(), [1, 2, 3, 4, 5, 6, 7, 8, 9])
+#
+#     def test_is_complete_returns_false_with_default_data(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         self.assertFalse(session.is_complete())
+#
+#     def test_is_complete_raises_error_if_solved_and_revealed_clues_are_not_mutually_exclusive(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         session.solved_clue_nums = '2,3,5'
+#         session.revealed_clue_nums = '1,2,3'
+#         self.assertRaises(IntegrityError, session.is_complete)
+#
+#     def test_is_complete_returns_false_with_unsolved_clues(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         session.solved_clue_nums = '2,3,5'
+#         session.revealed_clue_nums = '1,4'
+#         self.assertFalse(session.is_complete())
+#
+#     def test_is_complete_returns_true_with_no_unsolved_clues(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         session.solved_clue_nums = '2,3,5'
+#         session.revealed_clue_nums = '1,4,6'
+#         self.assertTrue(session.is_complete())
+#
+#     def test_get_score_returns_correct_score(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         self.assertEqual(session.get_solved_points(), 0)
+#         session.revealed_clue_nums = '1,4,6'
+#         self.assertEqual(session.get_solved_points(), 0)
+#         session.solved_clue_nums = '2,3'
+#         self.assertEqual(session.get_solved_points(), 3)
+#
+#     def test_checking_contained_clue_nums(self):
+#         SolveSession.objects.create(solver=self.user, puzzle=self.puzzle, solved_clue_nums="1,3")
+#         self.assertFalse(SolveSession.objects.filter(solved_clue_nums__contains="2"))
+#         self.assertTrue(SolveSession.objects.filter(solved_clue_nums__contains="3"))
+#
+#     def test_adding_solved_clue_num(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         session.add_solved_clue_num(2)
+#         self.assertEqual(session.solved_clue_nums, "2")
+#         session.add_solved_clue_num(4)
+#         self.assertEqual(session.solved_clue_nums, "2,4")
+#         session.add_solved_clue_num(2)  # Adding existing clue num ignored
+#         self.assertEqual(session.solved_clue_nums, "2,4")
+#         session = SolveSession.objects.get(solver=self.user, puzzle=self.puzzle)  # Retreived saved record
+#         self.assertEqual(session.solved_clue_nums, "2,4")  # Verify updated data is saved
+#
+#     def test_adding_revealed_clue_num(self):
+#         session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+#         session.add_revealed_clue_num(1)
+#         self.assertEqual(session.revealed_clue_nums, "1")
+#         session.add_revealed_clue_num(3)
+#         self.assertEqual(session.revealed_clue_nums, "1,3")
+#         session.add_revealed_clue_num(3)  # Adding existing clue num ignored
+#         self.assertEqual(session.revealed_clue_nums, "1,3")
+#         session = SolveSession.objects.get(solver=self.user, puzzle=self.puzzle)  # Retreived saved record
+#         self.assertEqual(session.revealed_clue_nums, "1,3")  # Verify updated data is saved

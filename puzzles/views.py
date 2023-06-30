@@ -11,13 +11,13 @@ from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
 from puzzles.forms import WordPuzzleForm, ClueForm, AddCluesForm
-from puzzles.models import WordPuzzle, Clue, PuzzleSession
+from puzzles.models import WordPuzzle, Clue, SolveSession
 
 
 def add_session_data(puzzles, user):
     for puzzle in puzzles:
-        puzzle.session_count = len(PuzzleSession.objects.filter(puzzle=puzzle))
-        current_user_session = PuzzleSession.objects.filter(puzzle=puzzle, solver=user)
+        puzzle.session_count = len(SolveSession.objects.filter(puzzle=puzzle))
+        current_user_session = SolveSession.objects.filter(puzzle=puzzle, solver=user)
         puzzle.user_session = None if len(current_user_session) == 0 else current_user_session[0]
 
 
@@ -329,12 +329,12 @@ class PuzzleSessionView(IsSolvableMixin, View):
     session = None
 
     def get(self, request, *args, **kwargs):
-        if PuzzleSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
-            self.session = PuzzleSession.objects.get(solver=request.user, puzzle=self.puzzle)
+        if SolveSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
+            self.session = SolveSession.objects.get(solver=request.user, puzzle=self.puzzle)
         return render(request, "puzzle_session.html", context=self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        PuzzleSession.objects.create(solver=request.user, puzzle=self.puzzle)
+        SolveSession.objects.create(solver=request.user, puzzle=self.puzzle)
         return redirect("puzzle_session", self.puzzle.id)
 
     def get_context_data(self):
@@ -407,7 +407,7 @@ class PuzzleScoreView(LoginRequiredMixin, View):
         pk = kwargs['pk']
         try:
             self.puzzle = WordPuzzle.objects.get(id=pk)
-            self.sessions = PuzzleSession.objects.filter(puzzle=self.puzzle).order_by("-score")
+            self.sessions = SolveSession.objects.filter(puzzle=self.puzzle).order_by("-score")
         except WordPuzzle.DoesNotExist:
             self.err_msg = "This puzzle does not exist."
         else:
