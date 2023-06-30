@@ -47,7 +47,7 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2])
         self.get(self.target_page)
         self.do_click(self.LIST_ITEM_TITLE)
-        self.assert_current_url("/solve_session/" + str(puzzle.id) + "/")
+        self.assert_current_url("/puzzle_session/" + str(puzzle.id) + "/")
 
     # def test_puzzle_solve_icon_links_to_preview_page_if_editor_is_not_current_user(self):
     #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2])

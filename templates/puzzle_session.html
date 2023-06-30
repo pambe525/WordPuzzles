@@ -3,7 +3,7 @@
 {% block content %}
     <!-- PAGE TITLE & DONE BTN -->
     <div class="flex">
-        <div class="page-title">Solve Session</div>
+        <div class="page-title">Puzzle Session</div>
         <a class="r-float" href="{% url 'puzzles_list' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
     </div>
     <hr class="dark-line">
@@ -23,10 +23,10 @@
     <div id="desc-panel" class="boxed-panel m-bot"><span class="note-text pre-line">{{ puzzle.desc }}</span></div>
     <hr>
 
-    {% if active_session is None %}
+    {% if session is None %}
         <!-- START SESSION BUTTON & NOTE -->
         <div class="m-top">
-            <form method="post" action="{% url 'solve_session' puzzle.id %}">
+            <form method="post" action="{% url 'puzzle_session' puzzle.id %}">
                 {% csrf_token %}
                 <button class="blue-btn" id="startSessionBtn" type="submit">Start Individual Solve Session</button>
             </form>
@@ -47,19 +47,26 @@
             </div>
         </div>
         <!-- CLUES LIST -->
-        <div id="clues-list" class="m-top">
+        <div class="font-xsmall m-top">
+            NOTE: Click on a clue to enter your answer. Click on the eye icon to reveal the answer.
+            Revealed answers do not earn points.
+        </div>
+        <div id="clues-list">
             <table style="width:100%" class="font-small">
                 <tr >
+                    <th></th>
                     <th style="text-align:left">#</th>
                     <th style="text-align:left">Clue</th>
                     <th style="text-align:center">Pts</th>
+                    <th></th>
                 </tr>
                 {% for clue in clues %}
                     <tr>
+                        <td></td>
                         <td class="clue-num" style="vertical-align: top">{{ clue.clue_num }}.</td>
                         <td>
                             <a class="clue-text" data-id="{{ clue.clue_num }}" onclick="clueTextClicked(this)">
-                                {{ clue.get_decorated_clue_text }}
+                                {{ clue.clue_text }}
                             </a>
 {#                            <div class="answer font-xsmall">#}
 {#                                Answer: {{ clue.answer.upper }}#}
@@ -67,6 +74,11 @@
 {#                            </div>#}
                         </td>
                         <td style="text-align:center; vertical-align: top" class="points">{{ clue.points }}</td>
+                        <td style="vertical-align: top">
+                            <a class="reveal-btn" data-id="{{ clue.clue_num }}">
+                                <i class="fa-regular fa-eye" title="Reveal"></i>
+                            </a>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>
@@ -77,22 +89,20 @@
     <dialog class="modal-dialog font-medium" id="answer-dialog">
         <div class="subtitle">Solve Clue</div>
         <hr>
-        <div class="m-top m-bot" id="clue-text"></div>
-        <label for="answer">Answer:</label>
-        <input id="answer" name="answer" type="text">
+        <!-- FORM CONTENT -->
+        <input type="hidden" id="puzzle-id" name="puzzle-id" value="{{ puzzle.id }}">
+        <input type="hidden" id="session-id" name="session-id" value="{{ session.id }}">
+        <div class="m-top m-bot">
+            <span id="clue-num"></span>. <span id="clue-text"></span>
+        </div>
+        <label for="answer-input">Answer:</label>
+        <input type="text" size="25" id="answer-input" name="answer-input">
+        <div class="helptext">NOTE: Letters, spaces and hyphen only.</div>
         <div id="err-msg" class="font-small clr-red m-bot m-top"></div>
         <hr>
-        <div class="flex m-top">
-            <button id="btnSubmit" type="submit" class="blue-btn" onclick="dialogSubmitClicked()">Submit</button>
-            <button id="btnClose" onclick="dialogCloseClicked()">Cancel</button>
-        </div>
+        <button id="btnSubmit" class="blue-btn">Submit</button>
+        <button id="btnClose">Cancel</button>
     </dialog>
 
-    <script src="{% static '/javascript/solve_session.js' %}"></script>
-    <script>
-        function pageInit() {
-            convertUTCDatesToLocal("timestamp");
-            {% if active_session != None %} toggleDescHide(); {% endif %}
-        }
-    </script>
+    <script src="{% static '/javascript/puzzle_session.js' %}"></script>
 {% endblock %}

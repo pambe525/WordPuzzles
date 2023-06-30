@@ -325,48 +325,22 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
 #         return clue_dict
 
 
-class SolveSessionView(IsSolvableMixin, View):
+class PuzzleSessionView(IsSolvableMixin, View):
     session = None
-    puzzle = None
-    clues = None
 
     def get(self, request, *args, **kwargs):
-        self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
         if PuzzleSession.objects.filter(solver=request.user, puzzle=self.puzzle).exists():
             self.session = PuzzleSession.objects.get(solver=request.user, puzzle=self.puzzle)
-        # self.session = if len(self.session) == 0: self.session = None
-        # self.active_session = self.get_session_as_dict()
-        # self.clues = self.get_clues_list()
-        return render(request, "solve_session.html", context=self.get_context_data())
+        return render(request, "puzzle_session.html", context=self.get_context_data())
 
     def post(self, request, *args, **kwargs):
         PuzzleSession.objects.create(solver=request.user, puzzle=self.puzzle)
-        return redirect("solve_session", self.puzzle.id)
-
-    # def post(self, request, *args, **kwargs):
-    #     request_data = json.loads(request.POST['data'])
-    #     self.solve_session = PuzzleSession.objects.get(id=request_data['session_id'])
-    #     self.puzzle = WordPuzzle.objects.get(id=self.solve_session.puzzle.id)
-    #     if request.POST['action'] == 'timer':
-    #         self.solve_session.elapsed_seconds = request_data['elapsed_secs']
-    #         self.solve_session.save()
-    #         return HttpResponse(status=204)
-    #     else:
-    #         clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
-    #         if request.POST['action'] == 'solve':
-    #             answer_input = request_data['answer_input']
-    #             if clue.answer.upper() == answer_input.upper():
-    #                 self.solve_session.add_solved_clue_num(clue.clue_num)
-    #             else:
-    #                 raise AssertionError("Incorrect answer")
-    #         elif request.POST['action'] == 'reveal':
-    #             self.solve_session.add_revealed_clue_num(clue.clue_num)
-    #     return self.get_json_response()
+        return redirect("puzzle_session", self.puzzle.id)
 
     def get_context_data(self):
         # if self.active_session is not None:
         #     self.active_session = json.dumps(self.active_session)
-        return {'puzzle': self.puzzle, 'clues': self.puzzle.get_clues(), 'active_session': self.session}
+        return {'puzzle': self.puzzle, 'clues': self.get_clues_list(), 'session': self.session}
 
     def get_json_response(self):
         # self.active_session = self.get_session_as_dict()
@@ -384,19 +358,10 @@ class SolveSessionView(IsSolvableMixin, View):
 
     def get_clues_list(self, **kwargs):
         clues = self.puzzle.get_clues()
-        solved_clue_nums = self.solve_session.get_solved_clue_nums()
-        revealed_clue_nums = self.solve_session.get_revealed_clue_nums()
-        clues_list = []
         for clue in clues:
-            if clue.clue_num in solved_clue_nums:
-                mode = 'SOLVED'
-            elif clue.clue_num in revealed_clue_nums:
-                mode = 'REVEALED'
-            else:
-                mode = 'UNSOLVED'
-            clue_dict = self.get_clue_as_dict(clue, mode=mode)
-            clues_list.append(clue_dict)
-        return clues_list
+            clue.clue_text = clue.get_decorated_clue_text()
+            clue.state = 0
+        return clues
 
     @staticmethod
     def get_clue_as_dict(self, clue, mode='PREVIEW'):
@@ -408,6 +373,28 @@ class SolveSessionView(IsSolvableMixin, View):
             masked_answer = re.sub("[a-zA-Z]", "*", clue.answer)
             clue_dict.update({'answer': masked_answer, 'parsing': '', 'mode': mode})
         return clue_dict
+
+
+class CheckAnswerView(View):
+    def post(self, request, *args, **kwargs):
+        request_data = json.loads(request.POST['data'])
+        # self.solve_session = PuzzleSession.objects.get(id=request_data['session_id'])
+        # self.puzzle = WordPuzzle.objects.get(id=self.solve_session.puzzle.id)
+        # if request.POST['action'] == 'timer':
+        #     self.solve_session.elapsed_seconds = request_data['elapsed_secs']
+        #     self.solve_session.save()
+        #     return HttpResponse(status=204)
+        # else:
+        #     clue = Clue.objects.get(puzzle_id=self.puzzle.id, clue_num=request_data['clue_num'])
+        #     if request.POST['action'] == 'solve':
+        #         answer_input = request_data['answer_input']
+        #         if clue.answer.upper() == answer_input.upper():
+        #             self.solve_session.add_solved_clue_num(clue.clue_num)
+        #         else:
+        #             raise AssertionError("Incorrect answer")
+        #     elif request.POST['action'] == 'reveal':
+        #         self.solve_session.add_revealed_clue_num(clue.clue_num)
+        return self.get_json_response()
 
 
 class PuzzleScoreView(LoginRequiredMixin, View):

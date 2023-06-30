@@ -91,9 +91,9 @@ from testing.data_setup_utils import create_published_puzzle, create_draft_puzzl
 #         self.assertRedirects(response, "/solve_puzzle/" + str(puzzle.id) + "/", 302)
 
 
-class SolveSessionViewTest(TransactionTestCase):
+class PuzzleSessionViewTest(TransactionTestCase):
     reset_sequences = True
-    target_page = "/solve_session/"
+    target_page = "/puzzle_session/"
 
     def setUp(self):
         self.user = User.objects.create(username="tester", password="scretkey")
@@ -105,7 +105,7 @@ class SolveSessionViewTest(TransactionTestCase):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "/login?next=/solve_session/1/")
+        self.assertEqual(response.url, "/login?next=/puzzle_session/1/")
 
     def test_GET_has_error_if_puzzle_does_not_exist(self):
         response = self.client.get(self.target_page + "50/")
@@ -130,10 +130,16 @@ class SolveSessionViewTest(TransactionTestCase):
 
     def test_GET_returns_response_with_no_active_session(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
+        clues = puzzle.get_clues()
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.context['puzzle'], puzzle)
-        self.assertEquals(len(response.context['clues']), len(puzzle.get_clues()))
-        self.assertIsNone(response.context['active_session'])
+        self.assertEqual(len(response.context['clues']), len(clues))
+        first_clue = response.context['clues'][0]
+        self.assertEqual(first_clue.clue_num, clues[0].clue_num)
+        self.assertEqual(first_clue.clue_text, clues[0].get_decorated_clue_text())
+        self.assertEqual(first_clue.points, clues[0].points)
+        self.assertEqual(first_clue.state, 0)
+        self.assertIsNone(response.context['session'])
 
     # def test_creates_new_session_and_renders_solve_puzzle_page(self):
     #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
