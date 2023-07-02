@@ -15,7 +15,7 @@
     <!-- DESCRIPTION LABEL & SHOW/HIDE TOGGLE BUTTON -->
     <div class="flex m-top">
         <div class="font-small bold-text">Description:</div>
-        <a class="icon-btn r-float" title="Show/Hide Toggle" onclick="toggleDescHide()">
+        <a id="btnToggleDesc" class="icon-btn r-float" title="Show/Hide Toggle">
             <i class="fa-regular fa-square-caret-up"></i>
         </a>
     </div>
@@ -40,10 +40,10 @@
         <div id="session-panel" class="boxed-panel bg-lemon">
             <div class="flex">
                 <div class="subtitle font-medium">Session Status: In Progress</div>
-                <div class="subtitle font-medium r-float">My Score: 0</div>
+                <div class="subtitle font-medium r-float">My Score: {{ score }}</div>
             </div>
             <div class="note-text font-xsmall">
-                Started on <span class="timestamp">{{ active_session.created_at|date:'Y-m-d H:i:s' }}</span>
+                Started on <span class="timestamp">{{ session.started_at|date:'Y-m-d H:i:s' }}</span>
             </div>
         </div>
         <!-- CLUES LIST -->
@@ -90,8 +90,6 @@
         <div class="subtitle">Solve Clue</div>
         <hr>
         <!-- FORM CONTENT -->
-        <input type="hidden" id="puzzle-id" name="puzzle-id" value="{{ puzzle.id }}">
-        <input type="hidden" id="session-id" name="session-id" value="{{ session.id }}">
         <div class="m-top m-bot">
             <span id="clue-num"></span>. <span id="clue-text"></span>
         </div>
@@ -104,5 +102,10 @@
         <button id="btnClose">Cancel</button>
     </dialog>
 
+    <script>
+        const csrfToken = "{{ csrf_token }}";
+        const sessionId = {{ session.id }};
+        const puzzleId = {{ puzzle.id }};
+    </script>
     <script src="{% static '/javascript/puzzle_session.js' %}"></script>
 {% endblock %}

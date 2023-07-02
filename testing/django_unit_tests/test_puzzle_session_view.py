@@ -1,8 +1,11 @@
+import json
+
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase
+from django.utils.timezone import now
 
-from puzzles.models import WordPuzzle
+from puzzles.models import WordPuzzle, SolveSession
 from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle
 
 
@@ -141,21 +144,46 @@ class PuzzleSessionViewTest(TransactionTestCase):
         self.assertEqual(first_clue.state, 0)
         self.assertIsNone(response.context['session'])
 
-    # def test_creates_new_session_and_renders_solve_puzzle_page(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
-    #     response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
-    #     self.assertTemplateUsed(response, "word_puzzle.html")
-    #     self.assertEqual(response.context['heading'], "Solve Puzzle")
-    #     self.assertEqual(response.context['object'], puzzle)
-    #     self.assertIsNotNone(response.context['active_session'])
-    #     json_session = json.loads(response.context['active_session'])
-    #     self.assertEqual(json_session['session_id'], 1)
-    #     self.assertEqual(json_session['elapsed_secs'], 0)
-    #     self.assertEqual(json_session['score'], 0)
-    #     self.assertEqual(json_session['num_clues'], 5)
-    #     self.assertEqual(json_session['num_solved'], 0)
-    #     self.assertEqual(json_session['num_revealed'], 0)
-    #
+    def test_POST_creates_new_solve_session(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
+        response = self.client.post(self.target_page + str(puzzle.id) + "/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, self.target_page + str(puzzle.id) + "/")
+        session = SolveSession.objects.get(puzzle=puzzle, solver=self.user)
+        self.assertLessEqual(session.started_at, now())
+        self.assertIsNone(session.finished_at)
+        self.assertIsNone(session.group_session)
+
+    def test_GET_returns_response_with_solve_session_and_score(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
+        clues = puzzle.get_clues()
+        session = SolveSession.objects.create(puzzle=puzzle, solver=self.user)
+        response = self.client.get(self.target_page + str(puzzle.id) + "/")
+        self.assertEqual(response.context['puzzle'], puzzle)
+        self.assertEqual(len(response.context['clues']), len(clues))
+        self.assertIsNotNone(response.context['session'])
+        self.assertEqual(response.context['score'], 0)
+        self.assertIsNone(session.finished_at)
+
+
+class AjaxAnswerRequestTest(TransactionTestCase):
+    reset_sequences = True
+    target_page = "/ajax_answer_request"
+
+    def setUp(self):
+        self.user = User.objects.create(username="tester", password="scretkey")
+        self.other_user = User.objects.create(username="other_user", password="secretkey2", email="abc@cde.com")
+        self.client.force_login(self.user)
+
+    def test_POST_checks_invalid_answer(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
+        session = SolveSession.objects.create(puzzle=puzzle, solver=self.user)
+        data = {'session_id': session.id, 'puzzle_id': puzzle.id, 'clue_num': 2, 'input_answer': 'WORD A'}
+        with self.assertRaises(AssertionError) as e:
+            self.assertRaises(AssertionError, self.client.post(self.target_page, data,
+                                                               HTTP_X_REQUESTED_WITH='XMLHttpRequest'))
+        self.assertEqual(str(e.exception), "Answer is incorrect.")
+
     # def test_loads_existing_session_and_renders_solve_puzzle_page(self):
     #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 2, 4, 5])
     #     create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')

@@ -1,7 +1,7 @@
 import time
 from unittest.case import skip
 
-from puzzles.models import Clue
+from puzzles.models import Clue, SolveSession
 from testing.data_setup_utils import create_published_puzzle, create_session, create_user
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
@@ -114,6 +114,7 @@ class PuzzleSessionTests(BaseSeleniumTestCase):
     SESSION_PANEL = "//div[@id='session-panel']"
     SESSION_STATUS = "//div[@id='session-panel']/div/div[1]"
     SESSION_SCORE = "//div[@id='session-panel']/div/div[2]"
+    SESSION_TIMELOG = "//div[@id='session-panel']/div[2]"
     CLUES_LIST = "//div[@id='clues-list']"
     CLUE_NUM_CELL = "(//tr//td[contains(@class,'clue-num')])"
     CLUE_TEXT_CELL = "(//tr//td/a[contains(@class,'clue-text')])"
@@ -164,9 +165,11 @@ class PuzzleSessionTests(BaseSeleniumTestCase):
         self.do_click(self.START_SESSION_BTN)
         self.assert_not_exists(self.START_SESSION_BTN)
         self.assert_is_not_displayed(self.DESC_PANEL)
+        session = SolveSession.objects.get(puzzle=self.puzzle, solver=self.user)
         self.assert_is_displayed(self.SESSION_PANEL)
         self.assert_text_equals(self.SESSION_STATUS, "Session Status: In Progress")
         self.assert_text_equals(self.SESSION_SCORE, "My Score: 0")
+        self.assert_text_equals(self.SESSION_TIMELOG, "Started on " + self.utc_to_local(session.started_at))
         self.assert_is_displayed(self.CLUES_LIST)
 
     def test_clue_details_in_list(self):

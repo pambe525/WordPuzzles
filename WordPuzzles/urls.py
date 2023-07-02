@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from puzzles.views import DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView
+from puzzles.views import DeletePuzzleView, PublishPuzzleView, UnpublishPuzzleView, AjaxAnswerRequest
 from puzzles.views import HomeView, EditPuzzleView, NewPuzzleView, EditClueView, DeleteClueView, PuzzlesListView, \
     PuzzleScoreView, AddCluesView
 from puzzles.views import ReleaseNotesView, PuzzleSessionView
@@ -62,4 +62,5 @@ urlpatterns = [
     path('puzzles_list', PuzzlesListView.as_view(), name='puzzles_list'),
     path('puzzle_session/<int:pk>/', PuzzleSessionView.as_view(), name='puzzle_session'),
     path('puzzle_score/<int:pk>/', PuzzleScoreView.as_view(), name='puzzle_score'),
+    path('ajax_answer_request', AjaxAnswerRequest.as_view(), name="ajax_answer_request")
 ]

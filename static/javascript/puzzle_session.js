@@ -1,36 +1,61 @@
+let page = null;
+
 function pageInit() {
     convertUTCDatesToLocal("timestamp");
-    if ( document.getElementById("startSessionBtn") == null ) toggleDescHide();
-}
-
-function toggleDescHide() {
-    const toggle = document.querySelector(".icon-btn i");
-    const panel = document.querySelector("#desc-panel")
-    if ( panel.style.display === "none" ) {
-        panel.style.display = "block";
-        toggle.classList.replace("fa-square-caret-down", "fa-square-caret-up");
-    } else {
-        panel.style.display = "none";
-        toggle.classList.replace("fa-square-caret-up", "fa-square-caret-down");
-    }
+    page = new PuzzleSessionPage(sessionId, puzzleId, csrfToken);
 }
 
 function clueTextClicked(element) {
     const clueNum = element.getAttribute("data-id");
     const clueText = element.textContent;
-    const answerDialog = new AnswerInputDialog("answer-dialog", submitAnswer);
-    answerDialog.show(clueNum, clueText);
+    page.showAnswerDialog(clueNum, clueText);
 }
 
-function submitAnswer(data) {
-    postData("/check_answer")
-}
+class PuzzleSessionPage {
+    constructor(sessionId, puzzleId, csrfToken) {
+        this.sessionId = sessionId;
+        this.puzzleId = puzzleId;
+        this.csrfToken = csrfToken;
+        this.answerDialog = new AnswerInputDialog("answer-dialog", this._submitAnswer);
+        this.btnToggleDesc = document.getElementById("btnToggleDesc");
+        this.btnToggleDesc.addEventListener('click', this.toggleDescHide)
+        this.iconToggleDesc = document.querySelector(".icon-btn i");
+        this.descPanel = document.querySelector("#desc-panel");
+        this.btnStartSession = document.getElementById("startSessionBtn");
+        if ( this.btnStartSession == null ) this.toggleDescHide();
+    }
 
-function postData(url, data) {
-  fetch(url,{method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(data)})
-      .then(response => response.json())
-      .then(data => {})
-      .catch(error => {});
+    toggleDescHide() {
+        if ( this.descPanel.style.display === "none" ) {
+            this.descPanel.style.display = "block";
+            this.iconToggleDesc.classList.replace("fa-square-caret-down", "fa-square-caret-up");
+        } else {
+            this.descPanel.style.display = "none";
+            this.iconToggleDesc.classList.replace("fa-square-caret-up", "fa-square-caret-down");
+        }
+    }
+
+    showAnswerDialog (clueNum, clueText) {
+        this.answerDialog.show(clueNum, clueText);
+    }
+
+    _submitAnswer = (data) => {
+        data.session_id = this.sessionId;
+        data.puzzle_id = this.puzzleId;
+        this._postData("/ajax_answer_request", data);
+    }
+
+    _postData(url, data) {
+        fetch(url,{
+            method: "POST",
+            headers: {"X-CSRFToken": this.csrfToken, "Content-Type": 'application/json; charset=utf-8"'},
+            body: JSON.stringify({'action':'check', 'data': data})
+        }).then( response => {
+            return response.json();
+        }).then( data => {
+              this.answerDialog.close();
+        }).catch( error => { this.answerDialog.setMsg(error.toString()); } );
+    }
 }
 
 class AnswerInputDialog {
@@ -44,6 +69,7 @@ class AnswerInputDialog {
         this.closeBtn = document.querySelector("#"+dialogId+ " #btnClose");
         this.closeBtn.addEventListener('click', this._dialogCloseClicked);
         this.submitBtn.addEventListener('click', this._dialogSubmitClicked);
+        this.submitHandler = submitHandler;
     }
 
     show(clueNum, clueText) {
@@ -54,8 +80,12 @@ class AnswerInputDialog {
         this.dialog.showModal();
     }
 
+    close() {
+        this.dialog.close();
+    }
+
     inputIsValid() {
-        const input = this.inputElement.value.trim();
+        const input = this._getInputAnswer();
         if (input === '')
             this.errMsgElement.textContent = "Answer cannot be empty."
         else if (this._detectNonAlphabetCharacters(input) != null)
@@ -70,12 +100,23 @@ class AnswerInputDialog {
         return (this.errMsgElement.textContent === '');
     }
 
+    setMsg(msg) {
+        this.errMsgElement.textContent = msg;
+    }
+
+    _getInputAnswer() {
+        return this.inputElement.value.trim();
+    }
+
     _dialogCloseClicked = () => {
         this.dialog.close();
     }
 
     _dialogSubmitClicked = () => {
-        this.inputIsValid();
+        const data = {
+            clue_num: parseInt(this.clueNumElement.textContent), input_answer: this._getInputAnswer()
+        }
+        if ( this.inputIsValid() ) this.submitHandler(data);
     }
 
     _removeWhiteSpace(text) {
