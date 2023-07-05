@@ -25,7 +25,7 @@ class PuzzleSessionPage {
         if ( this.btnStartSession == null ) this.toggleDescHide();
     }
 
-    toggleDescHide() {
+    toggleDescHide = () => {
         if ( this.descPanel.style.display === "none" ) {
             this.descPanel.style.display = "block";
             this.iconToggleDesc.classList.replace("fa-square-caret-down", "fa-square-caret-up");
@@ -48,12 +48,13 @@ class PuzzleSessionPage {
     _postData(url, data) {
         fetch(url,{
             method: "POST",
-            headers: {"X-CSRFToken": this.csrfToken, "Content-Type": 'application/json; charset=utf-8"'},
+            headers: {"X-CSRFToken": this.csrfToken, "Content-Type": 'application/json'},
             body: JSON.stringify({'action':'check', 'data': data})
         }).then( response => {
             return response.json();
         }).then( data => {
-              this.answerDialog.close();
+            if (data['err_msg'] !== '') this.answerDialog.setMsg(data['err_msg']);
+            else location.reload();
         }).catch( error => { this.answerDialog.setMsg(error.toString()); } );
     }
 }

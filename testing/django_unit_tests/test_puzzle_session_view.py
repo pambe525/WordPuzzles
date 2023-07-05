@@ -1,5 +1,4 @@
 import json
-
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.test import TransactionTestCase
@@ -179,10 +178,9 @@ class AjaxAnswerRequestTest(TransactionTestCase):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
         session = SolveSession.objects.create(puzzle=puzzle, solver=self.user)
         data = {'session_id': session.id, 'puzzle_id': puzzle.id, 'clue_num': 2, 'input_answer': 'WORD A'}
-        with self.assertRaises(AssertionError) as e:
-            self.assertRaises(AssertionError, self.client.post(self.target_page, data,
-                                                               HTTP_X_REQUESTED_WITH='XMLHttpRequest'))
-        self.assertEqual(str(e.exception), "Answer is incorrect.")
+        response = self.client.post(self.target_page, data={'action': 'check', 'data': data},
+                                    content_type='application/json')
+        self.assertEqual(json.loads(response.content)['err_msg'], "Answer is incorrect.")
 
     # def test_loads_existing_session_and_renders_solve_puzzle_page(self):
     #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 2, 4, 5])

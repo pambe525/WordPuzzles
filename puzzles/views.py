@@ -324,19 +324,16 @@ class PuzzleSessionView(IsSolvableMixin, View):
 
 class AjaxAnswerRequest(View):
     def post(self, request, *args, **kwargs):
-        logging.basicConfig(level=logging.INFO)
-        logger = logging.getLogger('puzzles')
-        logger.info(request.POST)
-        data = json.loads(request.POST.get('data'))
-        session_id = request.POST.get('session_id')
-        puzzle_id = request.POST.get('puzzle_id')
-        clue_num = request.POST.get('clue_num')
-        input_answer = request.POST.get('input_answer')
+        data = json.loads(request.body)['data']
+        session_id = data['session_id']
+        puzzle_id = data['puzzle_id']
+        clue_num = data['clue_num']
+        input_answer = data['input_answer']
         target_clue = Clue.objects.get(puzzle=puzzle_id, clue_num=clue_num)
         if target_clue.answer.upper() != input_answer.upper():
-            raise AssertionError("Answer is incorrect.")
+            return JsonResponse({'err_msg': "Answer is incorrect."})
         else:
-            return HttpResponse(status=204)
+            return JsonResponse({'err_msg': ''})
 
 
 class PuzzleScoreView(LoginRequiredMixin, View):
