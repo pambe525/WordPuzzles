@@ -129,8 +129,11 @@ class HelperMixin:
         # element = self.selenium.find_element(By.XPATH, xpath)
         WebDriverWait(self.selenium, 5).until(EC.visibility_of_element_located((By.XPATH, xpath)))
 
-    def wait_until_clickable(self, xpath, index=0):
+    def wait_until_clickable(self, xpath):
         WebDriverWait(self.selenium, 5).until(EC.element_to_be_clickable((By.XPATH, xpath)))
+
+    def wait_until_presence(self, xpath):
+        WebDriverWait(self.selenium, 5).until(EC.presence_of_element_located((By.XPATH, xpath)))
 
     def modal_dialog_open(self, dialog_id):
         is_open = self.selenium.find_element(By.ID, dialog_id).get_property('open')

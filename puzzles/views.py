@@ -9,17 +9,18 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import register
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
 from puzzles.forms import WordPuzzleForm, ClueForm, AddCluesForm
-from puzzles.models import WordPuzzle, Clue, SolveSession
+from puzzles.models import WordPuzzle, Clue, SolverSession, SolvedClue
 
 
 def add_session_data(puzzles, user):
     for puzzle in puzzles:
-        puzzle.session_count = len(SolveSession.objects.filter(puzzle=puzzle))
-        current_user_session = SolveSession.objects.filter(puzzle=puzzle, solver=user)
+        puzzle.session_count = len(SolverSession.objects.filter(puzzle=puzzle))
+        current_user_session = SolverSession.objects.filter(puzzle=puzzle, solver=user)
         puzzle.user_session = None if len(current_user_session) == 0 else current_user_session[0]
 
 
@@ -48,7 +49,7 @@ class HomeView(LoginRequiredMixin, View):
     def __build_notifications(request):
         notifications = ["See <b>What's New</b> in the <a href='/release_notes'>Release Notes</a>.",
                          "<a id='btnCreatePuzzle'>Create a New Puzzle.</a>"]
-        if request.user.first_name is "" and request.user.last_name is "":
+        if request.user.first_name == "" and request.user.last_name == "":
             notifications.append("Set your first & last name in <a href='/account'>Account Settings</a>.")
         if len(WordPuzzle.objects.exclude(shared_at=None)) > 0:
             notifications.append("Pick a puzzle to solve in <a href='/puzzles_list'>Published Puzzles</a>.")
@@ -278,62 +279,52 @@ class PuzzleSessionView(IsSolvableMixin, View):
     session = None
 
     def get(self, request, *args, **kwargs):
-        if SolveSession.objects.filter(solver=request.user, puzzle=self.puzzle, group_session=None).exists():
-            self.session = SolveSession.objects.get(solver=request.user, puzzle=self.puzzle, group_session=None)
-        return render(request, "puzzle_session.html", context=self.get_context_data())
+        if SolverSession.objects.filter(solver=request.user, puzzle=self.puzzle, group_session=None).exists():
+            self.session = SolverSession.objects.get(solver=request.user, puzzle=self.puzzle, group_session=None)
+        return render(request, "puzzle_session.html", context=self.get_context_data(request.user))
 
     def post(self, request, *args, **kwargs):
-        SolveSession.objects.create(solver=request.user, puzzle=self.puzzle)
+        SolverSession.objects.create(solver=request.user, puzzle=self.puzzle)
         return redirect("puzzle_session", self.puzzle.id)
 
-    def get_context_data(self):
-        return {'puzzle': self.puzzle, 'clues': self.get_clues_list(), 'session': self.session, 'score': 0}
-
-    def get_clues_list(self, **kwargs):
+    def get_context_data(self, solver):
         clues = self.puzzle.get_clues()
+        solved_clues_ids = self.puzzle.get_all_solved_clue_ids(solver)
+        revealed_clues_ids = self.puzzle.get_all_revealed_clue_ids(solver)
+        score = 0
         for clue in clues:
-            clue.clue_text = clue.get_decorated_clue_text()
             clue.state = 0
-        return clues
-
-    # def get_json_response(self):
-    #     # self.active_session = self.get_session_as_dict()
-    #     self.clues = self.get_clues_list()
-    #     return JsonResponse({'clues': json.dumps(self.clues), 'active_session': self.session})
-    #
-    # def get_session_as_dict(self):
-    #     return {'id': self.solve_session.id,
-    #             'elapsed_secs': self.solve_session.elapsed_seconds,
-    #             'score': self.solve_session.score,
-    #             'num_clues': self.solve_session.puzzle.size,
-    #             'num_solved': len(self.solve_session.get_solved_clue_nums()),
-    #             'num_revealed': len(self.solve_session.get_revealed_clue_nums())
-    #             }
-    #
-    # @staticmethod
-    # def get_clue_as_dict(self, clue, mode='PREVIEW'):
-    #     clue_dict = {'clue_num': clue.clue_num, 'clue_text': clue.get_decorated_clue_text(),
-    #                  'points': clue.points}
-    #     if mode == 'PREVIEW' or mode == 'SOLVED' or mode == 'REVEALED':
-    #         clue_dict.update({'answer': clue.answer, 'parsing': clue.parsing, 'mode': mode})
-    #     else:
-    #         masked_answer = re.sub("[a-zA-Z]", "*", clue.answer)
-    #         clue_dict.update({'answer': masked_answer, 'parsing': '', 'mode': mode})
-    #     return clue_dict
+            clue.clue_text = clue.get_decorated_clue_text()
+            if clue.id in solved_clues_ids:
+                clue.state = 1
+                score += clue.points
+            elif clue.id in revealed_clues_ids:
+                clue.state = 2
+        if self.session is not None:
+            self.session.score = score
+            self.session.solved = len(solved_clues_ids)
+            self.session.revealed = len(revealed_clues_ids)
+        return {'puzzle': self.puzzle, 'session': self.session, 'clues': clues}
 
 
 class AjaxAnswerRequest(View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)['data']
-        session_id = data['session_id']
+        action = json.loads(request.body)['action']
+        session = SolverSession.objects.get(id=data['session_id'])
         puzzle_id = data['puzzle_id']
         clue_num = data['clue_num']
-        input_answer = data['input_answer']
         target_clue = Clue.objects.get(puzzle=puzzle_id, clue_num=clue_num)
-        if target_clue.answer.upper() != input_answer.upper():
-            return JsonResponse({'err_msg': "Answer is incorrect."})
+        if action == 'check':
+            input_answer = data['input_answer']
+            if target_clue.answer.upper() != input_answer.upper():
+                return JsonResponse({'err_msg': "Answer is incorrect."})
+            else:
+                SolvedClue.objects.create(clue=target_clue, session=session, solver=request.user)
         else:
-            return JsonResponse({'err_msg': ''})
+            SolvedClue.objects.create(clue=target_clue, session=session, solver=request.user, revealed=True)
+        session.check_if_ended()
+        return JsonResponse({'err_msg': ''})
 
 
 class PuzzleScoreView(LoginRequiredMixin, View):
@@ -346,7 +337,7 @@ class PuzzleScoreView(LoginRequiredMixin, View):
         pk = kwargs['pk']
         try:
             self.puzzle = WordPuzzle.objects.get(id=pk)
-            self.sessions = SolveSession.objects.filter(puzzle=self.puzzle).order_by("-score")
+            self.sessions = SolverSession.objects.filter(puzzle=self.puzzle).order_by("-score")
         except WordPuzzle.DoesNotExist:
             self.err_msg = "This puzzle does not exist."
         else:

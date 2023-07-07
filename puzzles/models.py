@@ -139,6 +139,14 @@ class WordPuzzle(models.Model):
     def is_published(self):
         return self.shared_at is not None
 
+    def get_all_solved_clue_ids(self, solver):
+        solved_clues = SolvedClue.objects.filter(clue__puzzle=self, solver=solver, revealed=False).order_by('clue')
+        return list(solved_clues.values_list('clue', flat=True))
+
+    def get_all_revealed_clue_ids(self, solver):
+        solved_clues = SolvedClue.objects.filter(clue__puzzle=self, solver=solver, revealed=True).order_by('clue')
+        return list(solved_clues.values_list('clue', flat=True))
+
 
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]
@@ -167,76 +175,24 @@ class GroupSession(models.Model):
     finish_at = models.DateTimeField(null=True)
 
 
-class SolveSession(models.Model):
+class SolverSession(models.Model):
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)
     solver = models.ForeignKey(User, on_delete=models.CASCADE)
     group_session = models.ForeignKey(GroupSession, on_delete=models.CASCADE, null=True)
     started_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True)
 
-    # def get_solved_clue_nums(self):
-    #     return [] if self.solved_clue_nums is None else [int(e) for e in self.solved_clue_nums.split(',')]
-    #
-    # def get_revealed_clue_nums(self):
-    #     return [] if self.revealed_clue_nums is None else [int(e) for e in self.revealed_clue_nums.split(',')]
-    #
-    # def get_total_clues(self):
-    #     return WordPuzzle.objects.get(id=self.puzzle.id).size
-    #
-    # def get_clue_points(self):
-    #     clues = WordPuzzle.objects.get(id=self.puzzle.id).get_clues()
-    #     points = []
-    #     for clue in clues: points.append(clue.points)
-    #     return points
-    #
-    # def is_complete(self):
-    #     complete = False
-    #     solved = self.get_solved_clue_nums()
-    #     revealed = self.get_revealed_clue_nums()
-    #     if any(item in solved for item in revealed):
-    #         raise IntegrityError("Solved and revealed clue numbers are not mutually exclusive.")
-    #     if len(solved) + len(revealed) == self.get_total_clues(): complete = True
-    #     return complete
-    #
-    # def get_solved_points(self):
-    #     solved = self.get_solved_clue_nums()
-    #     points = self.get_clue_points()
-    #     sum = 0
-    #     for clue_num in solved:
-    #         sum += points[clue_num - 1]
-    #     return sum
-    #
-    # def get_revealed_points(self):
-    #     revealed = self.get_revealed_clue_nums()
-    #     points = self.get_clue_points()
-    #     sum = 0
-    #     for clue_num in revealed:
-    #         sum += points[clue_num - 1]
-    #     return sum
-    #
-    # def add_solved_clue_num(self, clue_num):
-    #     if clue_num not in self.get_solved_clue_nums() and clue_num not in self.get_revealed_clue_nums():
-    #         if self.solved_clue_nums is None:
-    #             self.solved_clue_nums = str(clue_num)
-    #         else:
-    #             self.solved_clue_nums += ',' + str(clue_num)
-    #         self.save(update_fields=['solved_clue_nums', 'score'])
-    #
-    # def add_revealed_clue_num(self, clue_num):
-    #     if clue_num not in self.get_revealed_clue_nums() and clue_num not in self.get_solved_clue_nums():
-    #         if self.revealed_clue_nums is None:
-    #             self.revealed_clue_nums = str(clue_num)
-    #         else:
-    #             self.revealed_clue_nums += ',' + str(clue_num)
-    #         self.save(update_fields=['revealed_clue_nums'])
-    #
-    # def save(self, *args, **kwargs):
-    #     self.score = self.get_solved_points()
-    #     super(SolveSession, self).save(*args, **kwargs)
+    def check_if_ended(self):
+        puzzle = WordPuzzle.objects.get(id=self.puzzle.id)
+        resolved_count = len(SolvedClue.objects.filter(clue__puzzle=self.puzzle, solver=self.solver))
+        if puzzle.size == resolved_count:
+            self.finished_at = now()
+            self.save()
+        return puzzle.size == resolved_count
 
 
 class SolvedClue(models.Model):
     clue = models.ForeignKey(Clue, on_delete=models.CASCADE)
     solver = models.ForeignKey(User, on_delete=models.CASCADE)
-    session = models.ForeignKey(SolveSession, on_delete=models.CASCADE)
+    session = models.ForeignKey(SolverSession, on_delete=models.CASCADE)
     revealed = models.BooleanField(default=False)  # If True, revealed; else Solved

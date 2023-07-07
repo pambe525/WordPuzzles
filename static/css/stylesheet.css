@@ -294,11 +294,12 @@ hr.separator {
  MODAL DIALOG
  */
 .modal-dialog, #confirm-dialog {
-    position: absolute;
-    top: 5rem;
+    position: relative;
     padding: 1.2rem;
     max-width: 40ch;
     margin-inline: auto;
+    margin-top: auto;
+    margin-bottom: auto;
     border: 2px solid gray;
     box-shadow: 2px 2px 2px black;
 }
@@ -501,7 +502,12 @@ hr.dark-line {
 .clr-red {
     color: var(--clr-red)
 }
-
+.clr-grey {
+    color: darkgrey;
+}
+.clr-green {
+    color: green;
+}
 .bold-text {
     font-weight: 600;
 }
@@ -577,6 +583,9 @@ img.thumbnail {
 
 .bg-white {
     background-color: white;
+}
+.bg-green {
+    background-color: lightgreen;
 }
 
 .rating-table {

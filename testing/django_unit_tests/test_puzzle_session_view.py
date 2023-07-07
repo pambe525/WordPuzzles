@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TransactionTestCase
 from django.utils.timezone import now
 
-from puzzles.models import WordPuzzle, SolveSession
+from puzzles.models import WordPuzzle, SolverSession, SolvedClue
 from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle
 
 
@@ -148,20 +148,41 @@ class PuzzleSessionViewTest(TransactionTestCase):
         response = self.client.post(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, self.target_page + str(puzzle.id) + "/")
-        session = SolveSession.objects.get(puzzle=puzzle, solver=self.user)
+        session = SolverSession.objects.get(puzzle=puzzle, solver=self.user)
         self.assertLessEqual(session.started_at, now())
         self.assertIsNone(session.finished_at)
         self.assertIsNone(session.group_session)
 
-    def test_GET_returns_response_with_solve_session_and_score(self):
+    def test_GET_returns_response_with_existing_solve_session_info(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
         clues = puzzle.get_clues()
-        session = SolveSession.objects.create(puzzle=puzzle, solver=self.user)
+        session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.context['puzzle'], puzzle)
         self.assertEqual(len(response.context['clues']), len(clues))
         self.assertIsNotNone(response.context['session'])
-        self.assertEqual(response.context['score'], 0)
+        self.assertEqual(response.context['session'].score, 0)
+        self.assertEqual(response.context['session'].solved, 0)
+        self.assertEqual(response.context['session'].revealed, 0)
+        self.assertIsNone(session.finished_at)
+
+    def test_GET_with_previous_session_returns_solved_and_revealed_clues_with_score(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 1])
+        clues = puzzle.get_clues()
+        session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
+        SolvedClue.objects.create(clue=clues[1], solver=self.user, session=session)
+        SolvedClue.objects.create(clue=clues[3], solver=self.user, session=session)
+        SolvedClue.objects.create(clue=clues[4], solver=self.user, session=session, revealed=True)
+        response = self.client.get(self.target_page + str(puzzle.id) + "/")
+        self.assertEqual(response.context['puzzle'], puzzle)
+        self.assertEqual(len(response.context['clues']), len(clues))
+        self.assertEqual(response.context['clues'][1].state, 1)
+        self.assertEqual(response.context['clues'][3].state, 1)
+        self.assertEqual(response.context['clues'][4].state, 2)
+        self.assertEqual(response.context['session'], session)
+        self.assertEqual(response.context['session'].score, 7)
+        self.assertEqual(response.context['session'].solved, 2)
+        self.assertEqual(response.context['session'].revealed, 1)
         self.assertIsNone(session.finished_at)
 
 
@@ -176,106 +197,48 @@ class AjaxAnswerRequestTest(TransactionTestCase):
 
     def test_POST_checks_invalid_answer(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
-        session = SolveSession.objects.create(puzzle=puzzle, solver=self.user)
-        data = {'session_id': session.id, 'puzzle_id': puzzle.id, 'clue_num': 2, 'input_answer': 'WORD A'}
-        response = self.client.post(self.target_page, data={'action': 'check', 'data': data},
-                                    content_type='application/json')
+        session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
+        data = {'action': 'check', 'data': {'session_id': session.id, 'puzzle_id': puzzle.id, 'clue_num': 2,
+                'input_answer': 'WORD A'}}
+        response = self.client.post(self.target_page, data=data, content_type='application/json')
         self.assertEqual(json.loads(response.content)['err_msg'], "Answer is incorrect.")
 
-    # def test_loads_existing_session_and_renders_solve_puzzle_page(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 2, 4, 5])
-    #     create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
-    #     response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
-    #     json_session = json.loads(response.context['active_session'])
-    #     self.assertEqual(json_session['session_id'], 1)
-    #     self.assertEqual(json_session['elapsed_secs'], 0)
-    #     self.assertEqual(json_session['score'], 7)
-    #     self.assertEqual(json_session['num_clues'], 5)
-    #     self.assertEqual(json_session['num_solved'], 2)
-    #     self.assertEqual(json_session['num_revealed'], 2)
-    #
-    # def test_with_existing_session_response_contains_clue_details(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 1, 5], has_parsing=True)
-    #     clues = puzzle.get_clues()
-    #     create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
-    #     response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
-    #     json_clues = json.loads(response.context['clues'])
-    #     for index, json_clue in enumerate(json_clues):
-    #         self.assertEqual(json_clue['clue_num'], clues[index].clue_num)
-    #         self.assertEqual(json_clue['clue_text'], clues[index].get_decorated_clue_text())
-    #         self.assertEqual(json_clue['points'], clues[index].points)
-    #
-    # def test_with_existing_session_response_contains_answers_for_solved_and_revealed_clues(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 3, 1, 5], has_parsing=True)
-    #     create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
-    #     response = self.client.get("/solve_puzzle/" + str(puzzle.id) + "/")
-    #     json_clues = json.loads(response.context['clues'])
-    #     # SOLVED CLUE
-    #     self.assertEqual(json_clues[0]['mode'], 'SOLVED')
-    #     self.assertEqual(json_clues[0]['answer'], 'WORD-A')
-    #     self.assertEqual(json_clues[0]['parsing'], 'Parsing for wordA')
-    #     # REVEALED CLUE
-    #     self.assertEqual(json_clues[1]['mode'], 'REVEALED')
-    #     self.assertEqual(json_clues[1]['answer'], 'WORD-B')
-    #     self.assertEqual(json_clues[1]['parsing'], 'Parsing for wordB')
-    #     # UNSOLVED CLUE
-    #     self.assertEqual(json_clues[3]['mode'], 'UNSOLVED')
-    #     self.assertEqual(json_clues[3]['answer'], '****-*')  # Unsolved clue includes masked answer
-    #     self.assertEqual(json_clues[3]['parsing'], '')
-    #
-    # def test_ajax_post_with_correct_answer_returns_updated_response(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 3, 1, 5])
-    #     session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='3,4')
-    #     data = json.dumps({'session_id': session.id, 'clue_num': 2, 'answer_input': 'WORD-B'})
-    #     post_data = {'action': 'solve', 'data': data}
-    #     response = self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", post_data,
-    #                                 HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-    #     json_data = json.loads(response.content)
-    #     clues = json.loads(json_data['clues'])
-    #     active_session = json_data['active_session']
-    #     self.assertEqual(len(clues), 5)
-    #     self.assertEqual(clues[1]['mode'], 'SOLVED')
-    #     self.assertEqual(clues[1]['answer'], 'WORD-B')
-    #     self.assertEqual(active_session['score'], 9)
-    #     self.assertEqual(active_session['num_clues'], 5)
-    #     self.assertEqual(active_session['num_solved'], 3)
-    #     self.assertEqual(active_session['num_revealed'], 2)
-    #     # Ensure score is re-calculated on save of correct answer
-    #     session = PuzzleSession.objects.get(id=session.id)
-    #     self.assertEqual(session.score, 9)
-    #
-    # def test_ajax_post_with_reveal_answer_returns_updated_response(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 2, 3, 1, 5])
-    #     session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='3')
-    #     data = json.dumps({'session_id': session.id, 'clue_num': 2})
-    #     response = self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", {'action': 'reveal', 'data': data},
-    #                                 HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-    #     json_data = json.loads(response.content)
-    #     clues = json.loads(json_data['clues'])
-    #     active_session = json_data['active_session']
-    #     self.assertEqual(len(clues), 5)
-    #     self.assertEqual(clues[1]['mode'], 'REVEALED')
-    #     self.assertEqual(clues[1]['answer'], 'WORD-B')
-    #     self.assertEqual(active_session['score'], 6)
-    #     self.assertEqual(active_session['num_clues'], 5)
-    #     self.assertEqual(active_session['num_solved'], 2)
-    #     self.assertEqual(active_session['num_revealed'], 2)
-    #
-    # def test_ajax_post_with_wrong_answer_raises_error(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 3, 1, 5])
-    #     session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,5', revealed_clues='2,3')
-    #     data = json.dumps({'session_id': session.id, 'clue_num': 2, 'answer_input': 'WORD-C'})
-    #     post_data = {'action': 'solve', 'data': data}
-    #     with self.assertRaises(AssertionError) as e:
-    #         self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", post_data,
-    #                          HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-    #     self.assertEqual(str(e.exception), "Incorrect answer")
-    #
-    # def test_ajax_post_with_timer_saves_elapsed_secs(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[1, 3, 1, 5, 4])
-    #     session = create_session(puzzle=puzzle, solver=self.user, solved_clues='1,4', revealed_clues='2')
-    #     data = json.dumps({'session_id': session.id, 'elapsed_secs': 1234})
-    #     post_data = {'action': 'timer', 'data': data}
-    #     self.client.post("/solve_puzzle/" + str(puzzle.id) + "/", post_data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-    #     session = PuzzleSession.objects.get(id=session.id)
-    #     self.assertEqual(session.elapsed_seconds, 1234)
+    def test_POST_with_valid_answer_saves_solved_clue_and_reloads_page(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
+        clues = puzzle.get_clues()
+        session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
+        data = {'action': 'check', 'data': {'session_id': session.id, 'puzzle_id': puzzle.id, 'clue_num': 2,
+                'input_answer': clues[1].answer}}
+        response = self.client.post(self.target_page, data=data, content_type='application/json')
+        self.assertEqual(json.loads(response.content)['err_msg'], "")
+        solved_clue = SolvedClue.objects.get(session=session, clue=clues[1], solver=self.user)
+        self.assertFalse(solved_clue.revealed)
+        self.assertTemplateUsed("puzzle_session.html")
+
+    def test_POST_with_reveal_action_saves_clue_as_revealed(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
+        clues = puzzle.get_clues()
+        session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
+        data = {'action': 'reveal', 'data':{'session_id': session.id, 'puzzle_id': puzzle.id, 'clue_num': 3}}
+        response = self.client.post(self.target_page, data=data, content_type='application/json')
+        self.assertEqual(json.loads(response.content)['err_msg'], "")
+        solved_clue = SolvedClue.objects.get(session=session, clue=clues[2], solver=self.user)
+        self.assertTrue(solved_clue.revealed)
+        self.assertTemplateUsed("puzzle_session.html")
+
+    def test_POST_sets_finish_timestamp_on_session_if_no_remaining_clues(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1])  # 3 clues
+        clues = puzzle.get_clues()
+        session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
+        self.assertIsNone(session.finished_at)
+        # Preset 2 of 3 clues as resolved
+        SolvedClue.objects.create(clue=clues[0], solver=self.user, session=session, revealed=False)
+        SolvedClue.objects.create(clue=clues[1], solver=self.user, session=session, revealed=True)
+        updated_session = SolverSession.objects.get(puzzle=puzzle, solver=self.user)
+        self.assertIsNone(session.finished_at)
+        # Now solve last clue
+        data = {'action': 'reveal', 'data': {'session_id': session.id, 'puzzle_id': puzzle.id, 'clue_num': 3}}
+        response = self.client.post(self.target_page, data=data, content_type='application/json')
+        # Check session is updated and finish date is set
+        updated_session = SolverSession.objects.get(puzzle=puzzle, solver=self.user)
+        self.assertIsNotNone(updated_session.finished_at)

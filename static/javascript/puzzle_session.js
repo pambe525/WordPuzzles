@@ -10,7 +10,10 @@ function clueTextClicked(element) {
     const clueText = element.textContent;
     page.showAnswerDialog(clueNum, clueText);
 }
-
+function revealClicked(element) {
+    const clueNum = element.getAttribute("data-id");
+    page.revealAnswer(clueNum);
+}
 class PuzzleSessionPage {
     constructor(sessionId, puzzleId, csrfToken) {
         this.sessionId = sessionId;
@@ -35,26 +38,31 @@ class PuzzleSessionPage {
         }
     }
 
-    showAnswerDialog (clueNum, clueText) {
+    showAnswerDialog(clueNum, clueText) {
         this.answerDialog.show(clueNum, clueText);
+    }
+
+    revealAnswer(clueNum) {
+        const data = {clue_num: clueNum, session_id: this.sessionId, puzzle_id: this.puzzleId};
+        this._postData("/ajax_answer_request", "reveal", data);
     }
 
     _submitAnswer = (data) => {
         data.session_id = this.sessionId;
         data.puzzle_id = this.puzzleId;
-        this._postData("/ajax_answer_request", data);
+        this._postData("/ajax_answer_request", "check", data);
     }
 
-    _postData(url, data) {
+    _postData(url, action, data) {
         fetch(url,{
             method: "POST",
             headers: {"X-CSRFToken": this.csrfToken, "Content-Type": 'application/json'},
-            body: JSON.stringify({'action':'check', 'data': data})
+            body: JSON.stringify({'action': action, 'data': data})
         }).then( response => {
             return response.json();
         }).then( data => {
             if (data['err_msg'] !== '') this.answerDialog.setMsg(data['err_msg']);
-            else location.reload();
+            else location.href = "/puzzle_session/" + this.puzzleId + "/";
         }).catch( error => { this.answerDialog.setMsg(error.toString()); } );
     }
 }

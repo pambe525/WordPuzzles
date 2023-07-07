@@ -6,7 +6,7 @@ from django.test import TestCase, TransactionTestCase
 from django.utils import timezone
 from django.utils.timezone import now
 
-from puzzles.models import Puzzle, WordPuzzle, Clue, SolveSession, GroupSession, SolvedClue
+from puzzles.models import Puzzle, WordPuzzle, Clue, SolverSession, GroupSession, SolvedClue
 from testing.data_setup_utils import create_published_puzzle
 
 
@@ -120,6 +120,30 @@ class WordPuzzleModelTest(TransactionTestCase):
         self.assertEqual(1, clues_list[0].clue_num)
         self.assertEqual(3, clues_list[1].clue_num)
 
+    def test_get_all_solved_clue_nums(self):
+        creator = User.objects.create(username="creator", password="secretkey", email="abc@cde.com")
+        puzzle = create_published_puzzle(editor=creator, clues_pts=[4, 2, 1, 2, 1, 3])
+        clues = puzzle.get_clues()
+        session1 = SolverSession.objects.create(solver=self.user, puzzle=puzzle)
+        session2 = SolverSession.objects.create(solver=self.user, puzzle=puzzle)
+        SolvedClue.objects.create(clue=clues[1], session=session1, solver=self.user)
+        SolvedClue.objects.create(clue=clues[4], session=session1, solver=self.user)
+        SolvedClue.objects.create(clue=clues[2], session=session2, solver=self.user)
+        SolvedClue.objects.create(clue=clues[0], session=session2, solver=self.user, revealed=True)
+        clue_ids = puzzle.get_all_solved_clue_ids(self.user)
+        self.assertListEqual(clue_ids, [2, 3, 5])
+
+    def test_get_all_revealed_clue_nums(self):
+        creator = User.objects.create(username="creator", password="secretkey", email="abc@de.com")
+        puzzle = create_published_puzzle(editor=creator, clues_pts=[4, 2, 1, 2, 1, 3])
+        clues = puzzle.get_clues()
+        session = SolverSession.objects.create(solver=self.user, puzzle=puzzle)
+        SolvedClue.objects.create(clue=clues[1], session=session, solver=self.user, revealed=True)
+        SolvedClue.objects.create(clue=clues[4], session=session, solver=self.user)
+        SolvedClue.objects.create(clue=clues[2], session=session, solver=self.user, revealed=True)
+        clue_ids = puzzle.get_all_revealed_clue_ids(self.user)
+        self.assertListEqual(clue_ids, [2, 3])
+
 
 class ClueModelTest(TestCase):
 
@@ -196,7 +220,7 @@ class SolvedClueModelTest(TestCase):
         self.user = User.objects.create_user(username='testuser', password='secretkey')
         self.puzzle = WordPuzzle.objects.create(editor=self.user)
         self.clue = Clue.objects.create(puzzle=self.puzzle)
-        self.session = SolveSession.objects.create(puzzle=self.puzzle, solver=self.user)
+        self.session = SolverSession.objects.create(puzzle=self.puzzle, solver=self.user)
 
     def test_clue_is_required(self):
         self.assertRaises(Exception, SolvedClue.objects.create, solver=self.user)
@@ -222,13 +246,13 @@ class SolveSessionModelTest(TestCase):
         self.puzzle = create_published_puzzle(editor=self.user, clues_pts=[4, 2, 1, 2, 1, 3])
 
     def test_puzzle_is_required_field(self):
-        self.assertRaises(Exception, SolveSession.objects.create, solver=self.user)
+        self.assertRaises(Exception, SolverSession.objects.create, solver=self.user)
 
     def test_solver_is_required_field(self):
-        self.assertRaises(IntegrityError, SolveSession.objects.create, puzzle=self.puzzle)
+        self.assertRaises(IntegrityError, SolverSession.objects.create, puzzle=self.puzzle)
 
     def test_default_instance(self):
-        session = SolveSession.objects.create(solver=self.user, puzzle=self.puzzle)
+        session = SolverSession.objects.create(solver=self.user, puzzle=self.puzzle)
         self.assertEqual(session.puzzle, self.puzzle)
         self.assertEqual(session.solver, self.user)
         self.assertIsNone(session.group_session)

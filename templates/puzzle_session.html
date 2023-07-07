@@ -37,15 +37,27 @@
         </div>
     {% else %}
         <!-- SESSION PANEL -->
-        <div id="session-panel" class="boxed-panel bg-lemon">
-            <div class="flex">
-                <div class="subtitle font-medium">Session Status: In Progress</div>
-                <div class="subtitle font-medium r-float">My Score: {{ score }}</div>
+            <div id="session-panel"
+                 class="boxed-panel {% if session.finished_at is None %}bg-lemon{% else %}bg-green{% endif %}">
+                <div class="subtitle font-medium flex">
+                    Session Status: <span id="session-status">
+                        {% if session.finished_at is None %}In Progress{% else %}Completed{% endif %}
+                    </span>
+                    <span id="score" class="subtitle font-medium r-float">My Score: {{ session.score }}</span>
+                </div>
+                <div class="note-text font-xsmall flex">
+                    Started: <span id="start-time" class="timestamp">{{ session.started_at|date:'Y-m-d H:i:s' }}</span>
+                    <span id="solved-count" class="r-float">Solved Clues: {{ session.solved }}</span>
+                </div>
+                <div class="note-text font-xsmall flex">
+                    Ended:
+                    {% if session.finished_at is not None %}
+                        <span id="end-time" class="timestamp">{{ session.finished_at|date:'Y-m-d H:i:s' }}</span>
+                    {% endif %}
+                    <span id="revealed-count" class="r-float">Revealed Clues: {{ session.revealed }}</span>
+                </div>
             </div>
-            <div class="note-text font-xsmall">
-                Started on <span class="timestamp">{{ session.started_at|date:'Y-m-d H:i:s' }}</span>
-            </div>
-        </div>
+
         <!-- CLUES LIST -->
         <div class="font-xsmall m-top">
             NOTE: Click on a clue to enter your answer. Click on the eye icon to reveal the answer.
@@ -65,19 +77,29 @@
                         <td></td>
                         <td class="clue-num" style="vertical-align: top">{{ clue.clue_num }}.</td>
                         <td>
-                            <a class="clue-text" data-id="{{ clue.clue_num }}" onclick="clueTextClicked(this)">
-                                {{ clue.clue_text }}
-                            </a>
-{#                            <div class="answer font-xsmall">#}
-{#                                Answer: {{ clue.answer.upper }}#}
-{#                                {% if clue.parsing %}, Parsing: {{ clue.parsing }} {% endif %}#}
-{#                            </div>#}
+                            {% if clue.state == 0 %}
+                                <a class="clue-text" data-id="{{ clue.clue_num }}" onclick="clueTextClicked(this)">
+                                    {{ clue.clue_text }}
+                                </a>
+                            {% else %}
+                                <span class="clue-text clr-grey">{{ clue.clue_text }}</span>
+                                <span class="answer clr-grey">
+                                    [ {{ clue.answer.upper }}
+                                    {% if clue.parsing %}, Parsing: {{ clue.parsing }} {% endif %}]
+                                </span>
+                            {% endif %}
                         </td>
                         <td style="text-align:center; vertical-align: top" class="points">{{ clue.points }}</td>
                         <td style="vertical-align: top">
-                            <a class="reveal-btn" data-id="{{ clue.clue_num }}">
-                                <i class="fa-regular fa-eye" title="Reveal"></i>
-                            </a>
+                            {% if clue.state == 0 %}
+                                <a class="reveal-btn" data-id="{{ clue.clue_num }}" onclick="revealClicked(this)">
+                                    <i class="fa-regular fa-eye fa-lg" title="Reveal"></i>
+                                </a>
+                            {% elif clue.state == 1 %}
+                                <i class="fa-solid fa-circle-check fa-lg clr-green" title="Solved"></i>
+                            {% else %}
+                                <i class="fa-solid fa-eye fa-lg clr-grey" title="Revealed"></i>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -104,7 +126,7 @@
 
     <script>
         const csrfToken = "{{ csrf_token }}";
-        const sessionId = {{ session.id }};
+        const sessionId = {% if session %}{{ session.id }}{% else %}null{% endif %};
         const puzzleId = {{ puzzle.id }};
     </script>
     <script src="{% static '/javascript/puzzle_session.js' %}"></script>

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 
-from puzzles.models import WordPuzzle, SolveSession, Clue
+from puzzles.models import WordPuzzle, SolverSession, Clue
 
 
 def create_user(username='test_user', password='secret_key', email='user@test.com'):
@@ -32,8 +32,8 @@ def get_full_clue_desc(clue):
 
 
 def create_session(solver=None, puzzle=None, solved_clues=None, revealed_clues=None, elapsed_secs=0):
-    return SolveSession.objects.create(solver=solver, puzzle=puzzle, solved_clue_nums=solved_clues,
-                                       revealed_clue_nums=revealed_clues, elapsed_seconds=elapsed_secs)
+    return SolverSession.objects.create(solver=solver, puzzle=puzzle, solved_clue_nums=solved_clues,
+                                        revealed_clue_nums=revealed_clues, elapsed_seconds=elapsed_secs)
 
 
 def add_clue(puzzle, clue_data):
