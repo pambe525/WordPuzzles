@@ -27,7 +27,7 @@ class PuzzleSessionTests(BaseSeleniumTestCase):
     CLUE_TEXT_SOLVED = "//tr//td//span[contains(@class,'clue-text')]"
     CLUE_ANSWER = "//tr//td//span[contains(@class,'answer')]"
     CLUE_REVEAL_BTN = "//tr//td/a/i[contains(@class,'fa-eye')]"
-    CLUE_SOLVED_ICON = "//tr//td/i[contains(@class,'fa-circle-check')]"
+    CLUE_SOLVED_ICON = "//tr//td/i[contains(@class,'fa-check')]"
     CLUE_REVEALED_ICON = "//tr//td/i[contains(@class,'fa-eye')]"
     POINTS = "//tr//td[contains(@class,'points')]"
     ANSWER_DIALOG = "//dialog[@id='answer-dialog']"
@@ -160,9 +160,9 @@ class PuzzleSessionTests(BaseSeleniumTestCase):
     def test_existing_session_is_loaded_correctly(self):
         session = SolverSession.objects.create(solver=self.user, puzzle=self.puzzle)
         clues = self.puzzle.get_clues()
-        SolvedClue.objects.create(clue=clues[0], solver=self.user, session=session)
-        SolvedClue.objects.create(clue=clues[2], solver=self.user, session=session)
-        SolvedClue.objects.create(clue=clues[3], solver=self.user, session=session, revealed=True)
+        session.set_solved_clue(clue=clues[0])
+        session.set_solved_clue(clue=clues[2])
+        session.set_revealed_clue(clue=clues[3])
         self.get(self.target_page + str(self.puzzle.id) + '/')
         # Session Panel info
         self.assert_not_exists(self.START_SESSION_BTN)
@@ -210,10 +210,10 @@ class PuzzleSessionTests(BaseSeleniumTestCase):
         session = SolverSession.objects.create(solver=self.user, puzzle=self.puzzle)
         clues = self.puzzle.get_clues()
         # Pre-solved clues
-        SolvedClue.objects.create(clue=clues[0], solver=self.user, session=session, revealed=True)
-        SolvedClue.objects.create(clue=clues[1], solver=self.user, session=session)
-        SolvedClue.objects.create(clue=clues[2], solver=self.user, session=session)
-        SolvedClue.objects.create(clue=clues[3], solver=self.user, session=session)
+        session.set_revealed_clue(clue=clues[0])
+        session.set_solved_clue(clue=clues[1])
+        session.set_solved_clue(clue=clues[2])
+        session.set_solved_clue(clue=clues[3])
         self.get(self.target_page + str(self.puzzle.id) + '/')
         # Reveal last clue
         self.do_click(self.CLUE_REVEAL_BTN)  # Clue #5 (only reveal btn remaining

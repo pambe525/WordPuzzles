@@ -94,7 +94,7 @@ class AnswerInputDialog {
     }
 
     inputIsValid() {
-        const input = this._getInputAnswer();
+        let input = this._getInputAnswer();
         if (input === '')
             this.errMsgElement.textContent = "Answer cannot be empty."
         else if (this._detectNonAlphabetCharacters(input) != null)
@@ -114,7 +114,8 @@ class AnswerInputDialog {
     }
 
     _getInputAnswer() {
-        return this.inputElement.value.trim();
+        // Remove extra spaces between words
+        return this.inputElement.value.trim().replace(/\s+/g, " ");
     }
 
     _dialogCloseClicked = () => {

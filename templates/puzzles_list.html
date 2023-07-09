@@ -21,40 +21,48 @@
                 <!-- Puzzle type thumbnail -->
                 <img class="thumbnail"
                      src="{% static puzzle.type|yesno:'/images/cryptic-clues.jpg,/images/non-cryptic-clues.png' %}"
-                     title="{{ puzzle.type_text }}" alt="{{ puzzle.type_text }}">
+                     alt="{{ puzzle.type_text }}" />
                 <!-- Puzzle info (title and last edited on) -->
-                <div class="truncated-text">
+                <div class="truncated-text w-100">
                     <a class="bold-text font-small" href="/puzzle_session/{{ puzzle.id }}/">{{ puzzle }}</a>
                     <div class="font-xsmall bold-text ellipsis">{{ puzzle.desc }}</div>
-                    <div class="font-xsmall">Posted by <b>{{ puzzle.editor }}</b> on
+                    <div class="font-xsmall">Posted by <b>
+                        {% if puzzle.editor == request.user %}
+                            <span class="black-pill">ME</span>{% else %}{{ puzzle.editor }}{% endif %}
+                        </b> on
                         <span class="timestamp">{{ puzzle.shared_at|date:'Y-m-d H:i:s' }}</span>
                     </div>
                 </div>
-                {#            <div class="icon-group r-float">#}
-                {#                <a class="icon-btn delete-btn" >#}
-                {#                    <i data-id="{{ puzzle.id }}"#}
-                {#                       class="fa-regular fa-trash-can" title="Delete">#}
-                {#                    </i>#}
-                {#                </a>#}
-                {#            </div>#}
+                <div class="icon-group r-float">
+                    <div>
+                        {% if puzzle.status == 2 %}
+                            <i title="Completed" class="fa-solid clr-green fa-circle-check"></i>
+                        {% elif puzzle.status == 1 %}
+                            <i title="Incomplete" class="fa-solid clr-red fa-hourglass"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a><i title="Scores" class="fa-solid fa-crown"></i></a>
+                    </div>
+                </div>
             </div>
         {% endfor %}
         <hr>
-        {#        <div class="pagination font-small">#}
-        {#            <span class="step-links">#}
-        {#                {% if page_obj.has_previous %}#}
-        {#                    <a href="?page=1">&laquo; First</a>#}
-        {#                    <a href="?page={{ page_obj.previous_page_number }}">| Previous</a>#}
-        {#                {% endif %}#}
-        {#                <span class="current">#}
-        {#                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}#}
-        {#                </span>#}
-        {#                {% if page_obj.has_next %}#}
-        {#                    <a href="?page={{ page_obj.next_page_number }}">Next</a>#}
-        {#                    <a href="?page={{ page_obj.paginator.num_pages }}">| Last &raquo;</a>#}
-        {#                {% endif %}#}
-        {#            </span>#}
-        {#        </div>#}
+        <div class="pagination font-small">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">| Previous</a>
+                {% endif %}
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">| Last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
     {% endif %}
 
     {#    #}

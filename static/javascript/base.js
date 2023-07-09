@@ -50,7 +50,9 @@ function convertUTCDatesToLocal(className) {
  * Converts a UTC date-time string in Y-mm-dd h:m:s format to local time
  */
 function utcToLocalString(utcDateTimeString) {
-    return (utcDateTimeString) ? new Date(utcDateTimeString).toLocaleString() : "";
+    let dateString = new Date(utcDateTimeString).toLocaleString()
+    dateString = dateString.replace(/:(\d{2})(?=\s[ap]m)/gi, '')
+    return (utcDateTimeString) ? dateString : "";
 }
 
 /**

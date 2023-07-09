@@ -139,14 +139,6 @@ class WordPuzzle(models.Model):
     def is_published(self):
         return self.shared_at is not None
 
-    def get_all_solved_clue_ids(self, solver):
-        solved_clues = SolvedClue.objects.filter(clue__puzzle=self, solver=solver, revealed=False).order_by('clue')
-        return list(solved_clues.values_list('clue', flat=True))
-
-    def get_all_revealed_clue_ids(self, solver):
-        solved_clues = SolvedClue.objects.filter(clue__puzzle=self, solver=solver, revealed=True).order_by('clue')
-        return list(solved_clues.values_list('clue', flat=True))
-
 
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]
@@ -179,16 +171,46 @@ class SolverSession(models.Model):
     puzzle = models.ForeignKey(WordPuzzle, on_delete=models.CASCADE)
     solver = models.ForeignKey(User, on_delete=models.CASCADE)
     group_session = models.ForeignKey(GroupSession, on_delete=models.CASCADE, null=True)
+    score = models.IntegerField(default=0)
+    solved = models.IntegerField(default=0)
+    revealed = models.IntegerField(default=0)
     started_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True)
 
+    # Use to method to start a new session for integrity checks
+    @staticmethod
+    def new(puzzle, solver, group_session=None):
+        if puzzle.editor == solver: raise IntegrityError("Puzzle editor cannot be solver")
+        return SolverSession.objects.create(puzzle=puzzle, solver=solver, group_session=group_session)
+
+    def set_solved_clue(self, clue):
+        if clue.puzzle.id != self.puzzle.id: raise IntegrityError("Clue does not below to session puzzle.")
+        SolvedClue.objects.create(clue=clue, session=self, solver=self.solver)
+        self.solved += 1
+        self.score += clue.points
+        self.save()
+
+    def set_revealed_clue(self, clue):
+        if clue.puzzle.id != self.puzzle.id: raise IntegrityError("Clue does not below to session puzzle.")
+        SolvedClue.objects.create(clue=clue, session=self, solver=self.solver, revealed=True)
+        self.revealed += 1
+        self.save()
+
+    def get_all_solved_clue_ids(self):
+        solved_clues = SolvedClue.objects.filter(clue__puzzle=self.puzzle, solver=self.solver, revealed=False)
+        return list(solved_clues.values_list('clue', flat=True))
+
+    def get_all_revealed_clue_ids(self):
+        solved_clues = SolvedClue.objects.filter(clue__puzzle=self.puzzle, solver=self.solver, revealed=True)
+        return list(solved_clues.values_list('clue', flat=True))
+
     def check_if_ended(self):
         puzzle = WordPuzzle.objects.get(id=self.puzzle.id)
-        resolved_count = len(SolvedClue.objects.filter(clue__puzzle=self.puzzle, solver=self.solver))
-        if puzzle.size == resolved_count:
+        is_done = (puzzle.size == self.solved + self.revealed)
+        if is_done:
             self.finished_at = now()
             self.save()
-        return puzzle.size == resolved_count
+        return is_done
 
 
 class SolvedClue(models.Model):
@@ -196,3 +218,6 @@ class SolvedClue(models.Model):
     solver = models.ForeignKey(User, on_delete=models.CASCADE)
     session = models.ForeignKey(SolverSession, on_delete=models.CASCADE)
     revealed = models.BooleanField(default=False)  # If True, revealed; else Solved
+
+    class Meta:
+        unique_together = ['clue', 'solver']

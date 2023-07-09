@@ -41,7 +41,11 @@
                  class="boxed-panel {% if session.finished_at is None %}bg-lemon{% else %}bg-green{% endif %}">
                 <div class="subtitle font-medium flex">
                     Session Status: <span id="session-status">
-                        {% if session.finished_at is None %}In Progress{% else %}Completed{% endif %}
+                        {% if session.finished_at is None %}
+                            In Progress <i title="Incomplete" class="fa-solid clr-red fa-hourglass"></i>
+                        {% else %}
+                            Completed <i title="Completed" class="fa-solid clr-green fa-circle-check"></i>
+                        {% endif %}
                     </span>
                     <span id="score" class="subtitle font-medium r-float">My Score: {{ session.score }}</span>
                 </div>
@@ -96,7 +100,7 @@
                                     <i class="fa-regular fa-eye fa-lg" title="Reveal"></i>
                                 </a>
                             {% elif clue.state == 1 %}
-                                <i class="fa-solid fa-circle-check fa-lg clr-green" title="Solved"></i>
+                                <i class="fa-solid fa-check fa-lg clr-green" title="Solved"></i>
                             {% else %}
                                 <i class="fa-solid fa-eye fa-lg clr-grey" title="Revealed"></i>
                             {% endif %}

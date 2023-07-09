@@ -132,15 +132,9 @@ class PuzzleSessionViewTest(TransactionTestCase):
 
     def test_GET_returns_response_with_no_active_session(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
-        clues = puzzle.get_clues()
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.context['puzzle'], puzzle)
-        self.assertEqual(len(response.context['clues']), len(clues))
-        first_clue = response.context['clues'][0]
-        self.assertEqual(first_clue.clue_num, clues[0].clue_num)
-        self.assertEqual(first_clue.clue_text, clues[0].get_decorated_clue_text())
-        self.assertEqual(first_clue.points, clues[0].points)
-        self.assertEqual(first_clue.state, 0)
+        self.assertIsNone(response.context['clues'])
         self.assertIsNone(response.context['session'])
 
     def test_POST_creates_new_solve_session(self):
@@ -148,7 +142,7 @@ class PuzzleSessionViewTest(TransactionTestCase):
         response = self.client.post(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, self.target_page + str(puzzle.id) + "/")
-        session = SolverSession.objects.get(puzzle=puzzle, solver=self.user)
+        session = SolverSession.new(puzzle, self.user)
         self.assertLessEqual(session.started_at, now())
         self.assertIsNone(session.finished_at)
         self.assertIsNone(session.group_session)
@@ -156,7 +150,7 @@ class PuzzleSessionViewTest(TransactionTestCase):
     def test_GET_returns_response_with_existing_solve_session_info(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 5])
         clues = puzzle.get_clues()
-        session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
+        session = SolverSession.new(puzzle, self.user)
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
         self.assertEqual(response.context['puzzle'], puzzle)
         self.assertEqual(len(response.context['clues']), len(clues))
@@ -169,17 +163,18 @@ class PuzzleSessionViewTest(TransactionTestCase):
     def test_GET_with_previous_session_returns_solved_and_revealed_clues_with_score(self):
         puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3, 1, 4, 1])
         clues = puzzle.get_clues()
-        session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
-        SolvedClue.objects.create(clue=clues[1], solver=self.user, session=session)
-        SolvedClue.objects.create(clue=clues[3], solver=self.user, session=session)
-        SolvedClue.objects.create(clue=clues[4], solver=self.user, session=session, revealed=True)
+        session = SolverSession.new(puzzle, self.user)
+        session.set_solved_clue(clue=clues[1])
+        session.set_solved_clue(clue=clues[3])
+        session.set_revealed_clue(clue=clues[4])
         response = self.client.get(self.target_page + str(puzzle.id) + "/")
+        updated_session = SolverSession.objects.get(puzzle=puzzle, solver=self.user)
         self.assertEqual(response.context['puzzle'], puzzle)
         self.assertEqual(len(response.context['clues']), len(clues))
         self.assertEqual(response.context['clues'][1].state, 1)
         self.assertEqual(response.context['clues'][3].state, 1)
         self.assertEqual(response.context['clues'][4].state, 2)
-        self.assertEqual(response.context['session'], session)
+        self.assertEqual(response.context['session'], updated_session)
         self.assertEqual(response.context['session'].score, 7)
         self.assertEqual(response.context['session'].solved, 2)
         self.assertEqual(response.context['session'].revealed, 1)
@@ -232,8 +227,8 @@ class AjaxAnswerRequestTest(TransactionTestCase):
         session = SolverSession.objects.create(puzzle=puzzle, solver=self.user)
         self.assertIsNone(session.finished_at)
         # Preset 2 of 3 clues as resolved
-        SolvedClue.objects.create(clue=clues[0], solver=self.user, session=session, revealed=False)
-        SolvedClue.objects.create(clue=clues[1], solver=self.user, session=session, revealed=True)
+        session.set_solved_clue(clue=clues[0])
+        session.set_revealed_clue(clue=clues[1])
         updated_session = SolverSession.objects.get(puzzle=puzzle, solver=self.user)
         self.assertIsNone(session.finished_at)
         # Now solve last clue

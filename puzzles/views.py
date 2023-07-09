@@ -261,6 +261,11 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(PuzzlesListView, self).get_context_data(**kwargs)
+        for puzzle in context['object_list']:
+            solver_session = SolverSession.objects.filter(solver=self.request.user, puzzle=puzzle, group_session=None)
+            if len(solver_session) == 0: puzzle.status = 0    # No session exists
+            elif solver_session[0].finished_at is None: puzzle.status = 1  # Session in progress
+            else: puzzle.status = 2   # Session completed
         # sort_by = self.request.GET.get('sort_by', 'shared_at')
         # order = self.request.GET.get('order', '-')
         # context['form'] = SortPuzzlesForm(initial={'sort_by': sort_by, 'order': order})
@@ -277,34 +282,28 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
 
 class PuzzleSessionView(IsSolvableMixin, View):
     session = None
+    clues = None
 
     def get(self, request, *args, **kwargs):
         if SolverSession.objects.filter(solver=request.user, puzzle=self.puzzle, group_session=None).exists():
-            self.session = SolverSession.objects.get(solver=request.user, puzzle=self.puzzle, group_session=None)
+            self.session = SolverSession.objects.get(puzzle=self.puzzle, solver=request.user)
         return render(request, "puzzle_session.html", context=self.get_context_data(request.user))
 
     def post(self, request, *args, **kwargs):
-        SolverSession.objects.create(solver=request.user, puzzle=self.puzzle)
+        SolverSession.new(self.puzzle, request.user)
         return redirect("puzzle_session", self.puzzle.id)
 
     def get_context_data(self, solver):
-        clues = self.puzzle.get_clues()
-        solved_clues_ids = self.puzzle.get_all_solved_clue_ids(solver)
-        revealed_clues_ids = self.puzzle.get_all_revealed_clue_ids(solver)
-        score = 0
-        for clue in clues:
-            clue.state = 0
-            clue.clue_text = clue.get_decorated_clue_text()
-            if clue.id in solved_clues_ids:
-                clue.state = 1
-                score += clue.points
-            elif clue.id in revealed_clues_ids:
-                clue.state = 2
         if self.session is not None:
-            self.session.score = score
-            self.session.solved = len(solved_clues_ids)
-            self.session.revealed = len(revealed_clues_ids)
-        return {'puzzle': self.puzzle, 'session': self.session, 'clues': clues}
+            self.clues = self.puzzle.get_clues()
+            solved_clues_ids = self.session.get_all_solved_clue_ids()
+            revealed_clues_ids = self.session.get_all_revealed_clue_ids()
+            for clue in self.clues:
+                clue.state = 0
+                clue.clue_text = clue.get_decorated_clue_text()
+                if clue.id in solved_clues_ids: clue.state = 1
+                elif clue.id in revealed_clues_ids: clue.state = 2
+        return {'puzzle': self.puzzle, 'session': self.session, 'clues': self.clues}
 
 
 class AjaxAnswerRequest(View):
@@ -320,9 +319,9 @@ class AjaxAnswerRequest(View):
             if target_clue.answer.upper() != input_answer.upper():
                 return JsonResponse({'err_msg': "Answer is incorrect."})
             else:
-                SolvedClue.objects.create(clue=target_clue, session=session, solver=request.user)
+                session.set_solved_clue(target_clue)
         else:
-            SolvedClue.objects.create(clue=target_clue, session=session, solver=request.user, revealed=True)
+            session.set_revealed_clue(target_clue)
         session.check_if_ended()
         return JsonResponse({'err_msg': ''})
 

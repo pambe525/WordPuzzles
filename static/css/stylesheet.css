@@ -452,7 +452,9 @@ button.icon-btn:hover {
     gap: 0.3rem;
     align-items: center;
 }
-
+.valign-top {
+    vertical-align: top;
+}
 .r-float {
     margin-left: auto;
 }
@@ -490,7 +492,6 @@ hr.dark-line {
 .pre-line {
     white-space: pre-line;
 }
-
 .clr-light {
     color: var(--clr-gray)
 }
@@ -507,6 +508,16 @@ hr.dark-line {
 }
 .clr-green {
     color: green;
+}
+.clr-orange {
+    color: orange;
+}
+.black-pill {
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.4rem;
+    background-color: black;
+    color:white;
+    font-size: 0.6rem;
 }
 .bold-text {
     font-weight: 600;
@@ -570,7 +581,8 @@ img.thumbnail {
 }
 
 .icon-group {
-    padding: 0.5rem;
+    padding: 0.4rem;
+    text-align: center;
 }
 
 .bg-lemon {
