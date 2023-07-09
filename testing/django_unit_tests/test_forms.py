@@ -104,8 +104,8 @@ class AddCluesFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form['clues'].errors), 1)
         self.assertEqual(len(form['answers'].errors), 1)
-        self.assertEqual(form['clues'].errors[0], "Entry 2 is not numbered.")
-        self.assertEqual(form['answers'].errors[0], "Entry 1 is not numbered.")
+        self.assertEqual(form['clues'].errors[0], "Entry 2 is not numbered correctly.")
+        self.assertEqual(form['answers'].errors[0], "Entry 1 is not numbered correctly.")
 
     def test_duplicate_item_number_returns_error(self):
         form_data = {'clues': '1 first \n2. second \n1 third\n\n2 fourth', 'answers': '1 first \n1. second \n2 third '}

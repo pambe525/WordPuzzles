@@ -27,7 +27,7 @@ class AddCluesForm(Form):
         self.fields['clues'].widget.attrs['rows'] = 5
         self.fields['clues'].widget.attrs['placeholder'] = "1. First clue"
         self.fields['clues'].help_text = "NOTE: Answer lengths at the end of each clue, are optional. " \
-                                         "If omitted, they will be automatically added. "
+                                         "If omitted, they will be automatically added."
         self.fields['answers'].widget.attrs['rows'] = 5
         self.fields['answers'].widget.attrs['placeholder'] = "1. the answer"
         self.fields['answers'].help_text = "Specify a single unique answer for each clue."

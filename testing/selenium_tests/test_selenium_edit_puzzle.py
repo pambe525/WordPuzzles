@@ -254,6 +254,16 @@ class AddCluesTests(BaseSeleniumTestCase):
         self.do_click(self.SUBMIT_BTN)
         self.assert_text_equals(self.ANSWERS_ERROR_LIST, '#3 has no matching cross-entry.')
 
+    def test_clue_num_must_be_positive_integer(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        self.get(self.target_page + str(puzzle.id) + '/')
+        clues_input = "0. clue one\n1 clue two"
+        answers_input = "0. answer\n1.missing two"
+        self.set_input_text(self.CLUES_TEXTAREA, clues_input)
+        self.set_input_text(self.ANSWERS_TEXTAREA, answers_input)
+        self.do_click(self.SUBMIT_BTN)
+        self.assert_text_equals(self.ANSWERS_ERROR_LIST, 'Entry 1 is not numbered correctly.')
+
     def test_correct_input_submits_clues_and_updates_clues_list(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
         self.get(self.target_page + str(puzzle.id) + '/')

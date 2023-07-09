@@ -8,7 +8,7 @@ class NumberedItemsParser:
     ORTHO_PAIR = 2
 
     # Error messages
-    ITEM_NOT_NUMBERED = "Entry {} is not numbered."
+    ITEM_NOT_NUMBERED = "Entry {} is not numbered correctly."
     DUPLICATE_ITEM_NUMBER = "#{} is repeated."
     DUPLICATE_ITEM_TEXT = "#{} has repeated text."
     ITEM_HAS_NO_TEXT = "#{} has no text."
@@ -60,6 +60,7 @@ class NumberedItemsParser:
         match = re.match(r'^(\d+\.*)(.*)', item)
         if match is None: raise ValueError(self.ITEM_NOT_NUMBERED.format(index + 1))
         item_num = int(match.group(1).rstrip('.'))
+        if item_num == 0: raise ValueError(self.ITEM_NOT_NUMBERED.format(index + 1))
         item_text = match.group(2).strip()
         return item_num, item_text
 
