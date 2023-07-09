@@ -42,7 +42,7 @@
             <div class="subtitle font-medium flex">
                 Session Status: <span id="session-status">
                         {% if session.finished_at is None %}
-                            In Progress <i title="Incomplete" class="fa-solid clr-red fa-hourglass"></i>
+                            In Progress <i title="Incomplete" class="fa-solid clr-red fa-circle-minus"></i>
                         {% else %}
                             Completed <i title="Completed" class="fa-solid clr-green fa-circle-check"></i>
                         {% endif %}

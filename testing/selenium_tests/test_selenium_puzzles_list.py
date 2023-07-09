@@ -1,5 +1,8 @@
+import time
+
 from django.contrib.auth.models import User
 
+from puzzles.models import SolverSession
 from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
@@ -12,6 +15,8 @@ class PuzzlesListTests(BaseSeleniumTestCase):
     LIST_ITEM_TITLE = "//div[contains(@class,'list-badge')]//a"
     LIST_ITEM_DESC = "//div[contains(@class,'list-badge')]/div/div[1]"
     LIST_ITEM_TIMESTAMP = "//div[contains(@class,'list-badge')]/div/div[2]"
+    LIST_ITEM_STATUS_ICON = "//div[contains(@class,'list-badge')]/div[contains(@class,'icon-group')]//i[1]"
+    LIST_ITEM_SCORES_LINK = "//div[contains(@class,'list-badge')]/div[contains(@class,'icon-group')]//a/i[1]"
 
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", email="user@test.com", password=self.password)
@@ -37,9 +42,11 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         posted_on = "Posted by " + str(self.other_user) + " on " + self.utc_to_local(puzzle.shared_at)
         self.assert_text_equals(self.LIST_ITEM_TIMESTAMP, posted_on)
 
-    def test_puzzle_title_links_to_edit_page_if_editor_is_current_user(self):
+    def test_time_stamp_has_ME_and_links_to_edit_page_if_editor_is_current_user(self):
         puzzle = create_published_puzzle(editor=self.user, type=0, desc="Puzzle description", clues_pts=[1])
         self.get(self.target_page)
+        posted_on = "Posted by ME on " + self.utc_to_local(puzzle.shared_at)
+        self.assert_text_equals(self.LIST_ITEM_TIMESTAMP, posted_on)
         self.do_click(self.LIST_ITEM_TITLE)
         self.assert_current_url("/edit_puzzle/" + str(puzzle.id) + "/")
 
@@ -49,14 +56,41 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         self.do_click(self.LIST_ITEM_TITLE)
         self.assert_current_url("/puzzle_session/" + str(puzzle.id) + "/")
 
-    # def test_puzzle_solve_icon_links_to_preview_page_if_editor_is_not_current_user(self):
-    #     puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2])
-    #     self.get('/puzzles_list')
-    #     self.assert_not_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")  # No users solving
-    #     solve_icon_btn = self.get_element("//a[@title='SOLVE']/i[contains(@class,'fa-hourglass-2')]")
-    #     solve_icon_btn.click()
-    #     self.assert_current_url("/preview_puzzle/" + str(puzzle.id) + "/")
-    #
+    def test_puzzle_badge_has_status_icon_for_current_user_solver_session(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3])
+        # No icon if no puzzle user session exists
+        self.get(self.target_page)
+        self.assert_not_exists(self.LIST_ITEM_STATUS_ICON)
+        # Incomplete icon for incomplete user session
+        session = SolverSession.new(puzzle, self.user)  # Incomplete session
+        self.get(self.target_page)
+        self.assert_attribute_contains(self.LIST_ITEM_STATUS_ICON, 'class', 'fa-circle-minus')
+        self.assert_attribute_equals(self.LIST_ITEM_STATUS_ICON, 'title', 'Incomplete')
+        # Completed icon for completed session
+        clues = puzzle.get_clues()
+        session.set_solved_clue(clues[0])
+        session.set_solved_clue(clues[1])
+        self.get(self.target_page)
+        self.assert_attribute_contains(self.LIST_ITEM_STATUS_ICON, 'class', 'fa-circle-check')
+        self.assert_attribute_equals(self.LIST_ITEM_STATUS_ICON, 'title', 'Completed')
+
+    def test_puzzle_badge_has_link_to_scores_as_appropriate(self):
+        puzzle = create_published_puzzle(editor=self.other_user, clues_pts=[2, 3])
+        self.get(self.target_page)
+        # By default no link if no session exists
+        self.assert_not_exists(self.LIST_ITEM_SCORES_LINK)
+        # No link if only current user session exists
+        session = SolverSession.new(puzzle, self.user)
+        self.get(self.target_page)
+        self.assert_not_exists(self.LIST_ITEM_SCORES_LINK)
+        # Link to score exists if at least one other user session exists
+        user3 = User.objects.create_user(username='user3', email="xyz@abc.com")
+        session2 = SolverSession.new(puzzle, user3)
+        self.get(self.target_page)
+        self.assert_exists(self.LIST_ITEM_SCORES_LINK)
+        self.do_click(self.LIST_ITEM_SCORES_LINK)
+        self.assert_current_url("/puzzle_score/"+str(puzzle.id)+"/")
+
     # def test_sort_form_reflects_get_parameters_in_url(self):
     #     self.get('/puzzles_list?sort_by=total_points&order=')
     #     self.assert_text_equals("//div/h2", 'All Published Puzzles')

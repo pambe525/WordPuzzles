@@ -283,6 +283,16 @@ class SolveSessionModelTest(TransactionTestCase):
         self.assertTrue(solved_clue.revealed)
         self.assertEqual(session.score, 0)
 
+    def test_completing_all_clues_sets_finished_at(self):
+        session = SolverSession.new(self.puzzle2, self.user1)
+        clues = self.puzzle2.get_clues()
+        self.assertIsNone(session.finished_at)
+        session.set_revealed_clue(clue=clues[0])
+        session.set_solved_clue(clue=clues[1])
+        session.set_solved_clue(clue=clues[2])
+        self.assertIsNotNone(session.finished_at)
+
+
     def test_get_all_solved_clue_nums(self):
         user3 = User.objects.create_user(username='user3', password='12345', email="xyz@cde.com")
         p1_clues = self.puzzle1.get_clues()

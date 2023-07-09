@@ -257,12 +257,14 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
         context = super(PuzzlesListView, self).get_context_data(**kwargs)
         for puzzle in context['object_list']:
             solver_session = SolverSession.objects.filter(solver=self.request.user, puzzle=puzzle, group_session=None)
+            other_sessions = SolverSession.objects.filter(puzzle=puzzle, group_session=None).exclude(solver=self.request.user)
             if len(solver_session) == 0:
                 puzzle.status = 0  # No session exists
             elif solver_session[0].finished_at is None:
                 puzzle.status = 1  # Session in progress
             else:
                 puzzle.status = 2  # Session completed
+            puzzle.other_sessions = len(other_sessions)
         # sort_by = self.request.GET.get('sort_by', 'shared_at')
         # order = self.request.GET.get('order', '-')
         # context['form'] = SortPuzzlesForm(initial={'sort_by': sort_by, 'order': order})
@@ -321,7 +323,6 @@ class AjaxAnswerRequest(View):
                 session.set_solved_clue(target_clue)
         else:
             session.set_revealed_clue(target_clue)
-        session.check_if_ended()
         return JsonResponse({'err_msg': ''})
 
 

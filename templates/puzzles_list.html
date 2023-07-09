@@ -38,12 +38,14 @@
                         {% if puzzle.status == 2 %}
                             <i title="Completed" class="fa-solid clr-green fa-circle-check"></i>
                         {% elif puzzle.status == 1 %}
-                            <i title="Incomplete" class="fa-solid clr-red fa-hourglass"></i>
+                            <i title="Incomplete" class="fa-solid clr-red fa-circle-minus"></i>
                         {% endif %}
                     </div>
-                    <div>
-                        <a><i title="Scores" class="fa-solid fa-crown"></i></a>
-                    </div>
+                    {% if puzzle.other_sessions > 0 %}
+                        <div><a href="{% url 'puzzle_score' puzzle.id %}">
+                            <i title="Scores" class="fa-solid fa-trophy"></i>
+                        </a></div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

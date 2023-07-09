@@ -1,58 +1,60 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2 class="pb-0 mb-2 mt-2">Scores for Puzzle #{{ object.id }}</h2>
-    <div class="d-inline-block">
-        <div class="bg-light p-3">
-            <h4 class="mb-0"><b>{{ object }}</b></h4>
-            <h6 class="mb-2 mt-1 text-secondary" id="id-posted-by">
-                Posted by: <b>{{ object.editor }}</b> on {{ object.shared_at|date:'M d, Y' }} (GMT)
-            </h6>
-            {% if scores == None %}
-                <div class="mt-2 notetext">No sessions found for this puzzle.</div>
-            {% else %}
-                <hr>
-                <table class="table table-sm">
-                    <thead>
-                    <tr class="bg-dark text-light">
-                        <th class="p-1">Puzzler</th>
-                        <th class="p-1">Progress</th>
-                        <th class="p-1 text-right">Score [Time]</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for score_record in scores %}
-                        <tr>
-                            <td class="pb-0">{{ score_record.user }}</td>
-                            <td class="pb-0">
-                                <div class="progress col mt-1 border border-secondary p-0"
-                                     style="width:100%; height:12px">
-                                    <div class="progress-bar bg-success" role="progressbar" title="Solved"
-                                         style="width:{{ score_record.perc_solved }}; font-size:8px;">
-                                    </div>
-                                    <div class="progress-bar bg-secondary" role="progressbar" title="Revealed"
-                                         style="width:{{ score_record.perc_revealed }}; font-size:8px;">
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="text-right pb-0">
-                                {% if score_record.is_complete %}
-                                    <i class="fa fa-check-circle text-success"></i>
-                                {% endif %}
-                                <b>{{ score_record.score }}</b> [<b>{{ score_record.elapsed_time }}</b>]
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="3" class="m-0 p-0 text-right pr-1" style="border:0; font-size:9px;">
-                                Solved:{{ score_record.num_solved }} | Revealed:{{ score_record.num_revealed }} |
-                                Last seen: {{ score_record.modified_at|date:'m/d/y h:i:s A' }} (GMT)
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <hr>
-            {% endif %}
-            <a class="mt-1 btn btn-dark" id="id-done-btn" onclick="goBack();">BACK</a>
-        </div>
+    <div class="page-title">Puzzle Session Scores</div>
+    <hr class="dark-line">
+    <div class="subtitle">{{ puzzle }}</div>
+{#    <div class="d-inline-block">#}
+{#        <div class="bg-light p-3">#}
+{##}
+{#            <h6 class="mb-2 mt-1 text-secondary" id="id-posted-by">#}
+{#                Posted by: <b>{{ object.editor }}</b> on {{ object.shared_at|date:'M d, Y' }} (GMT)#}
+{#            </h6>#}
+{#            {% if scores == None %}#}
+{#                <div class="mt-2 notetext">No sessions found for this puzzle.</div>#}
+{#            {% else %}#}
+{#                <hr>#}
+{#                <table class="table table-sm">#}
+{#                    <thead>#}
+{#                    <tr class="bg-dark text-light">#}
+{#                        <th class="p-1">Puzzler</th>#}
+{#                        <th class="p-1">Progress</th>#}
+{#                        <th class="p-1 text-right">Score [Time]</th>#}
+{#                    </tr>#}
+{#                    </thead>#}
+{#                    <tbody>#}
+{#                    {% for score_record in scores %}#}
+{#                        <tr>#}
+{#                            <td class="pb-0">{{ score_record.user }}</td>#}
+{#                            <td class="pb-0">#}
+{#                                <div class="progress col mt-1 border border-secondary p-0"#}
+{#                                     style="width:100%; height:12px">#}
+{#                                    <div class="progress-bar bg-success" role="progressbar" title="Solved"#}
+{#                                         style="width:{{ score_record.perc_solved }}; font-size:8px;">#}
+{#                                    </div>#}
+{#                                    <div class="progress-bar bg-secondary" role="progressbar" title="Revealed"#}
+{#                                         style="width:{{ score_record.perc_revealed }}; font-size:8px;">#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </td>#}
+{#                            <td class="text-right pb-0">#}
+{#                                {% if score_record.is_complete %}#}
+{#                                    <i class="fa fa-check-circle text-success"></i>#}
+{#                                {% endif %}#}
+{#                                <b>{{ score_record.score }}</b> [<b>{{ score_record.elapsed_time }}</b>]#}
+{#                            </td>#}
+{#                        </tr>#}
+{#                        <tr>#}
+{#                            <td colspan="3" class="m-0 p-0 text-right pr-1" style="border:0; font-size:9px;">#}
+{#                                Solved:{{ score_record.num_solved }} | Revealed:{{ score_record.num_revealed }} |#}
+{#                                Last seen: {{ score_record.modified_at|date:'m/d/y h:i:s A' }} (GMT)#}
+{#                            </td>#}
+{#                        </tr>#}
+{#                    {% endfor %}#}
+{#                    </tbody>#}
+{#                </table>#}
+{#                <hr>#}
+{#            {% endif %}#}
+{#            <a class="mt-1 btn btn-dark" id="id-done-btn" onclick="goBack();">BACK</a>#}
+{#        </div>#}
     </div>
 {% endblock %}

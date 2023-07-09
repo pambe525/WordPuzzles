@@ -188,12 +188,14 @@ class SolverSession(models.Model):
         self.solved += 1
         self.score += clue.points
         self.save()
+        self.check_if_ended()
 
     def set_revealed_clue(self, clue):
         if clue.puzzle.id != self.puzzle.id: raise IntegrityError("Clue does not below to session puzzle.")
         SolvedClue.objects.create(clue=clue, session=self, solver=self.solver, revealed=True)
         self.revealed += 1
         self.save()
+        self.check_if_ended()
 
     def get_all_solved_clue_ids(self):
         solved_clues = SolvedClue.objects.filter(clue__puzzle=self.puzzle, solver=self.solver, revealed=False)
