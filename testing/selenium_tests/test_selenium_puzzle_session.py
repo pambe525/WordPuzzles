@@ -1,7 +1,7 @@
 import time
 
 from puzzles.models import Clue, SolverSession, SolvedClue
-from testing.data_setup_utils import create_published_puzzle, create_session, create_user
+from testing.data_setup_utils import create_published_puzzle, create_user
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 

@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.db.utils import IntegrityError
 from django.utils.timezone import now

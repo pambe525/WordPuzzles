@@ -10,10 +10,12 @@ function clueTextClicked(element) {
     const clueText = element.textContent;
     page.showAnswerDialog(clueNum, clueText);
 }
+
 function revealClicked(element) {
     const clueNum = element.getAttribute("data-id");
     page.revealAnswer(clueNum);
 }
+
 class PuzzleSessionPage {
     constructor(sessionId, puzzleId, csrfToken) {
         this.sessionId = sessionId;
@@ -25,11 +27,11 @@ class PuzzleSessionPage {
         this.iconToggleDesc = document.querySelector(".icon-btn i");
         this.descPanel = document.querySelector("#desc-panel");
         this.btnStartSession = document.getElementById("startSessionBtn");
-        if ( this.btnStartSession == null ) this.toggleDescHide();
+        if (this.btnStartSession == null) this.toggleDescHide();
     }
 
     toggleDescHide = () => {
-        if ( this.descPanel.style.display === "none" ) {
+        if (this.descPanel.style.display === "none") {
             this.descPanel.style.display = "block";
             this.iconToggleDesc.classList.replace("fa-square-caret-down", "fa-square-caret-up");
         } else {
@@ -54,28 +56,30 @@ class PuzzleSessionPage {
     }
 
     _postData(url, action, data) {
-        fetch(url,{
+        fetch(url, {
             method: "POST",
             headers: {"X-CSRFToken": this.csrfToken, "Content-Type": 'application/json'},
             body: JSON.stringify({'action': action, 'data': data})
-        }).then( response => {
+        }).then(response => {
             return response.json();
-        }).then( data => {
+        }).then(data => {
             if (data['err_msg'] !== '') this.answerDialog.setMsg(data['err_msg']);
             else location.href = "/puzzle_session/" + this.puzzleId + "/";
-        }).catch( error => { this.answerDialog.setMsg(error.toString()); } );
+        }).catch(error => {
+            this.answerDialog.setMsg(error.toString());
+        });
     }
 }
 
 class AnswerInputDialog {
     constructor(dialogId, submitHandler) {
         this.dialog = document.getElementById(dialogId);
-        this.clueNumElement = document.querySelector("#"+dialogId+ " #clue-num");
-        this.clueTextElement = document.querySelector("#"+dialogId+ " #clue-text");
-        this.errMsgElement = document.querySelector("#"+dialogId+ " #err-msg");
-        this.inputElement = document.querySelector("#"+dialogId+ " #answer-input");
-        this.submitBtn = document.querySelector("#"+dialogId+ " #btnSubmit");
-        this.closeBtn = document.querySelector("#"+dialogId+ " #btnClose");
+        this.clueNumElement = document.querySelector("#" + dialogId + " #clue-num");
+        this.clueTextElement = document.querySelector("#" + dialogId + " #clue-text");
+        this.errMsgElement = document.querySelector("#" + dialogId + " #err-msg");
+        this.inputElement = document.querySelector("#" + dialogId + " #answer-input");
+        this.submitBtn = document.querySelector("#" + dialogId + " #btnSubmit");
+        this.closeBtn = document.querySelector("#" + dialogId + " #btnClose");
         this.closeBtn.addEventListener('click', this._dialogCloseClicked);
         this.submitBtn.addEventListener('click', this._dialogSubmitClicked);
         this.submitHandler = submitHandler;
@@ -101,8 +105,8 @@ class AnswerInputDialog {
             this.errMsgElement.textContent = "Answer can only contain alphabets, hyphen and/or spaces.";
         else {
             let clueText = this.clueTextElement.textContent;
-            let digitsStr = this._extractDigitContentInParenthesis( this._removeWhiteSpace(clueText) );
-            if ( !this._hasMatchingLengths(digitsStr, input) )
+            let digitsStr = this._extractDigitContentInParenthesis(this._removeWhiteSpace(clueText));
+            if (!this._hasMatchingLengths(digitsStr, input))
                 this.errMsgElement.textContent = "Answer does not match specified length in clue.";
             else this.errMsgElement.textContent = '';
         }
@@ -126,7 +130,7 @@ class AnswerInputDialog {
         const data = {
             clue_num: parseInt(this.clueNumElement.textContent), input_answer: this._getInputAnswer()
         }
-        if ( this.inputIsValid() ) this.submitHandler(data);
+        if (this.inputIsValid()) this.submitHandler(data);
     }
 
     _removeWhiteSpace(text) {
@@ -149,8 +153,11 @@ class AnswerInputDialog {
         answer = answer.replace(" ", ",");
         return (digitsStr === this._replaceWordsWithLengths(answer));
     }
+
     _replaceWordsWithLengths(text) {
-      return text.replace( /\b\w+\b/g, function(match){ return match.length; } );
+        return text.replace(/\b\w+\b/g, function (match) {
+            return match.length;
+        });
     }
 }
 

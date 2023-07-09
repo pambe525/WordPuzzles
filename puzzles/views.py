@@ -1,20 +1,14 @@
 import json
-import logging
-import pdb
-import re
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.template.defaultfilters import register
-from django.utils.safestring import mark_safe
-from django.utils.timezone import now
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
 from puzzles.forms import WordPuzzleForm, ClueForm, AddCluesForm
-from puzzles.models import WordPuzzle, Clue, SolverSession, SolvedClue
+from puzzles.models import WordPuzzle, Clue, SolverSession
 
 
 def add_session_data(puzzles, user):
@@ -263,9 +257,12 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
         context = super(PuzzlesListView, self).get_context_data(**kwargs)
         for puzzle in context['object_list']:
             solver_session = SolverSession.objects.filter(solver=self.request.user, puzzle=puzzle, group_session=None)
-            if len(solver_session) == 0: puzzle.status = 0    # No session exists
-            elif solver_session[0].finished_at is None: puzzle.status = 1  # Session in progress
-            else: puzzle.status = 2   # Session completed
+            if len(solver_session) == 0:
+                puzzle.status = 0  # No session exists
+            elif solver_session[0].finished_at is None:
+                puzzle.status = 1  # Session in progress
+            else:
+                puzzle.status = 2  # Session completed
         # sort_by = self.request.GET.get('sort_by', 'shared_at')
         # order = self.request.GET.get('order', '-')
         # context['form'] = SortPuzzlesForm(initial={'sort_by': sort_by, 'order': order})
@@ -301,8 +298,10 @@ class PuzzleSessionView(IsSolvableMixin, View):
             for clue in self.clues:
                 clue.state = 0
                 clue.clue_text = clue.get_decorated_clue_text()
-                if clue.id in solved_clues_ids: clue.state = 1
-                elif clue.id in revealed_clues_ids: clue.state = 2
+                if clue.id in solved_clues_ids:
+                    clue.state = 1
+                elif clue.id in revealed_clues_ids:
+                    clue.state = 2
         return {'puzzle': self.puzzle, 'session': self.session, 'clues': self.clues}
 
 

@@ -319,4 +319,3 @@ class SolveSessionModelTest(TransactionTestCase):
         self.assertListEqual(clue_ids_set1, [2, 5, 3])
         self.assertListEqual(clue_ids_set2, [2, 5, 3])
         self.assertListEqual(clue_ids_set3, [])
-

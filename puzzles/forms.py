@@ -90,4 +90,3 @@ class SortPuzzlesForm(Form):
         self.fields['order'] = forms.ChoiceField(choices=self.ORDER_CHOICES, label='Order', initial='-',
                                                  widget=forms.Select(
                                                      attrs={'style': 'height:26px', 'onchange': 'form.submit();'}))
-

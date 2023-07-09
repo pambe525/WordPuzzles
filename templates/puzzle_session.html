@@ -37,30 +37,30 @@
         </div>
     {% else %}
         <!-- SESSION PANEL -->
-            <div id="session-panel"
-                 class="boxed-panel {% if session.finished_at is None %}bg-lemon{% else %}bg-green{% endif %}">
-                <div class="subtitle font-medium flex">
-                    Session Status: <span id="session-status">
+        <div id="session-panel"
+             class="boxed-panel {% if session.finished_at is None %}bg-lemon{% else %}bg-green{% endif %}">
+            <div class="subtitle font-medium flex">
+                Session Status: <span id="session-status">
                         {% if session.finished_at is None %}
                             In Progress <i title="Incomplete" class="fa-solid clr-red fa-hourglass"></i>
                         {% else %}
                             Completed <i title="Completed" class="fa-solid clr-green fa-circle-check"></i>
                         {% endif %}
                     </span>
-                    <span id="score" class="subtitle font-medium r-float">My Score: {{ session.score }}</span>
-                </div>
-                <div class="note-text font-xsmall flex">
-                    Started: <span id="start-time" class="timestamp">{{ session.started_at|date:'Y-m-d H:i:s' }}</span>
-                    <span id="solved-count" class="r-float">Solved Clues: {{ session.solved }}</span>
-                </div>
-                <div class="note-text font-xsmall flex">
-                    Ended:
-                    {% if session.finished_at is not None %}
-                        <span id="end-time" class="timestamp">{{ session.finished_at|date:'Y-m-d H:i:s' }}</span>
-                    {% endif %}
-                    <span id="revealed-count" class="r-float">Revealed Clues: {{ session.revealed }}</span>
-                </div>
+                <span id="score" class="subtitle font-medium r-float">My Score: {{ session.score }}</span>
             </div>
+            <div class="note-text font-xsmall flex">
+                Started: <span id="start-time" class="timestamp">{{ session.started_at|date:'Y-m-d H:i:s' }}</span>
+                <span id="solved-count" class="r-float">Solved Clues: {{ session.solved }}</span>
+            </div>
+            <div class="note-text font-xsmall flex">
+                Ended:
+                {% if session.finished_at is not None %}
+                    <span id="end-time" class="timestamp">{{ session.finished_at|date:'Y-m-d H:i:s' }}</span>
+                {% endif %}
+                <span id="revealed-count" class="r-float">Revealed Clues: {{ session.revealed }}</span>
+            </div>
+        </div>
 
         <!-- CLUES LIST -->
         <div class="font-xsmall m-top">
@@ -69,7 +69,7 @@
         </div>
         <div id="clues-list">
             <table style="width:100%" class="font-small">
-                <tr >
+                <tr>
                     <th></th>
                     <th style="text-align:left">#</th>
                     <th style="text-align:left">Clue</th>

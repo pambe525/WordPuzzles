@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('puzzles', '0008_cluessolved_groupsession_solvesession_and_more'),
     ]

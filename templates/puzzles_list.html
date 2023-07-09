@@ -21,7 +21,7 @@
                 <!-- Puzzle type thumbnail -->
                 <img class="thumbnail"
                      src="{% static puzzle.type|yesno:'/images/cryptic-clues.jpg,/images/non-cryptic-clues.png' %}"
-                     alt="{{ puzzle.type_text }}" />
+                     alt="{{ puzzle.type_text }}"/>
                 <!-- Puzzle info (title and last edited on) -->
                 <div class="truncated-text w-100">
                     <a class="bold-text font-small" href="/puzzle_session/{{ puzzle.id }}/">{{ puzzle }}</a>
@@ -29,7 +29,7 @@
                     <div class="font-xsmall">Posted by <b>
                         {% if puzzle.editor == request.user %}
                             <span class="black-pill">ME</span>{% else %}{{ puzzle.editor }}{% endif %}
-                        </b> on
+                    </b> on
                         <span class="timestamp">{{ puzzle.shared_at|date:'Y-m-d H:i:s' }}</span>
                     </div>
                 </div>
