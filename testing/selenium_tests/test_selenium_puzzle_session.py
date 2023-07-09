@@ -1,6 +1,6 @@
 import time
 
-from puzzles.models import Clue, SolverSession, SolvedClue
+from puzzles.models import Clue, SolverSession, SolvedClue, WordPuzzle
 from testing.data_setup_utils import create_published_puzzle, create_user
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
@@ -140,6 +140,17 @@ class PuzzleSessionTests(BaseSeleniumTestCase):
         msg = "Answer is incorrect."
         self.do_click(self.ANSWER_DIALOG_SUBMIT)
         self.assert_text_equals(self.ANSWER_DIALOG_MSG, msg)
+
+    def test_extra_spaces_between_words_in_answer_are_removed(self):
+        self.puzzle = WordPuzzle.objects.create(editor=self.other_user)
+        clue = Clue.objects.create(puzzle=self.puzzle, clue_num=1, clue_text="first clue", answer="first answer")
+        self.puzzle.publish()
+        session = SolverSession.new(self.puzzle, self.user)
+        self.get(self.target_page + str(self.puzzle.id) + '/')
+        self.do_click(self.CLUE_TEXT)   # 3rd clues clicked
+        self.set_input_text(self.ANSWER_DIALOG_INPUT, "first   answer")
+        self.do_click(self.ANSWER_DIALOG_SUBMIT)
+        self.assert_text_equals(self.ANSWER_DIALOG_MSG, "")
 
     def test_correct_answer_closes_dialog_and_refreshes_page(self):
         self.get(self.target_page + str(self.puzzle.id) + '/')
