@@ -222,8 +222,7 @@ class AddCluesTests(BaseSeleniumTestCase):
     ANSWERS_TEXTAREA = "//form//textarea[@id='id_answers']"
     CANCEL_BTN = "//a[text()='Cancel']"
     SUBMIT_BTN = "//button[text()='Submit']"
-    CLUES_ERROR_LIST = "//form/ul[@class='errorlist'][0]/li"
-    ANSWERS_ERROR_LIST = "//form/ul[@class='errorlist'][1]/li"
+    ERROR_LIST = "//form/ul[@class='errorlist']/li"
     CLUE_TEXT_CELL = "(//tr//td/a[contains(@class,'clue-text')])"
 
     def setUp(self):
@@ -252,7 +251,7 @@ class AddCluesTests(BaseSeleniumTestCase):
         self.set_input_text(self.CLUES_TEXTAREA, clues_input)
         self.set_input_text(self.ANSWERS_TEXTAREA, answers_input)
         self.do_click(self.SUBMIT_BTN)
-        self.assert_text_equals(self.ANSWERS_ERROR_LIST, '#3 has no matching cross-entry.')
+        self.assert_text_equals(self.ERROR_LIST, '#3 has no matching cross-entry.')
 
     def test_clue_num_must_be_positive_integer(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
@@ -262,7 +261,7 @@ class AddCluesTests(BaseSeleniumTestCase):
         self.set_input_text(self.CLUES_TEXTAREA, clues_input)
         self.set_input_text(self.ANSWERS_TEXTAREA, answers_input)
         self.do_click(self.SUBMIT_BTN)
-        self.assert_text_equals(self.ANSWERS_ERROR_LIST, 'Entry 1 is not numbered correctly.')
+        self.assert_text_equals(self.ERROR_LIST, 'Entry 1 is not numbered correctly.')
 
     def test_correct_input_submits_clues_and_updates_clues_list(self):
         puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
@@ -274,6 +273,17 @@ class AddCluesTests(BaseSeleniumTestCase):
         self.do_click(self.SUBMIT_BTN)
         self.assert_current_url("/edit_puzzle/1/")
         self.assert_item_count(self.CLUE_TEXT_CELL, 2)
+
+    def test_entire_clues_input_is_processed_despite_error_to_prevent_spurious_answer_errors(self):
+        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
+        self.get(self.target_page + str(puzzle.id) + '/')
+        clues_input = "3. valid clue text\n#bad entry\n4. this should be processed"
+        answers_input = "3. answer\n4. should not generate error"
+        self.set_input_text(self.CLUES_TEXTAREA, clues_input)
+        self.set_input_text(self.ANSWERS_TEXTAREA, answers_input)
+        self.do_click(self.SUBMIT_BTN)
+        self.assert_text_equals(self.ERROR_LIST, 'Entry 2 is not numbered correctly.') # Clues error
+        self.assert_not_exists(self.ERROR_LIST+"[2]")  # No answers error
 
 
 class EditClueTests(BaseSeleniumTestCase):

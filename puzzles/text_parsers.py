@@ -47,9 +47,7 @@ class NumberedItemsParser:
                 item_num, item_text = self.__parse_item_into_tokens(item, index)
                 self.__add_item_to_dict(item_num, item_text, index, tokens_check_flag)
             except ValueError as err:
-                self.error = str(err)
-                self.items_dict = {}
-                break
+                if not self.error: self.error = str(err)
 
     @staticmethod
     def __parse_text_into_items(form_field_text):
