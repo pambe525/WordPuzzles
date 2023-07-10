@@ -1,17 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-    <div class="page-title">Puzzle Session Scores</div>
+    <div class="flex">
+        <div class="page-title">Puzzle Session Scores</div>
+        <a class="r-float" href="{% url 'puzzles_list' %}"><i class="fa-regular fa-circle-xmark fa-xl"></i></a>
+    </div>
     <hr class="dark-line">
-    <div class="subtitle">{{ puzzle }}</div>
-{#    <div class="d-inline-block">#}
-{#        <div class="bg-light p-3">#}
-{##}
-{#            <h6 class="mb-2 mt-1 text-secondary" id="id-posted-by">#}
-{#                Posted by: <b>{{ object.editor }}</b> on {{ object.shared_at|date:'M d, Y' }} (GMT)#}
-{#            </h6>#}
-{#            {% if scores == None %}#}
-{#                <div class="mt-2 notetext">No sessions found for this puzzle.</div>#}
-{#            {% else %}#}
+    <div class="subtitle">{{ object }}</div>
+    <div class="font-xsmall" id="timelog">Posted by <b>
+        {% if object.editor == request.user %}<span class="black-pill">ME</span>
+        {% else %}{{ object.editor }}{% endif %}</b> on
+        <span class="timestamp">{{ object.shared_at|date:'Y-m-d H:i:s' }}</span>
+    </div>
+    <div class="note-text m-top">NOTE: Scores are for all individual sessions of this puzzle.</div>
+    {% if sessions == None %}
+        <div class="note-text m-top m-bot">No sessions found for this puzzle.</div>
+    {% else %}
+        {% for session in sessions %}
+            <div class="list-badge bg-gray">
+                <div class="l-space font-medium truncated-text">
+                    {% if session.solver == request.user %}
+                        <span class="black-pill">ME</span>
+                    {% else %}
+                        <span class="bold-text ellipsis">{{ session.solver }}</span>
+                    {% endif %}
+                    <div class="font-small bold-text">
+                        <!-- Solved & Revealed counts -->
+                        <i class="fa-solid fa-check clr-green fa-xs"> {{ session.solved }} solved | </i>
+                        <i class="fa-solid fa-eye clr-grey fa-xs"> {{ session.revealed }} revealed </i>
+                    </div>
+                </div>
+                <div class="r-float">
+                    <!-- Session score -->
+                    <span class="font-xlarge bold-text r-float r-space">{{ session.score }}</span>
+                    <!-- Session status -->
+                    {% if session.finished_at != None %}
+                        <i class="fa-solid fa-circle-check clr-green fa-lg"></i>
+                    {% else %}
+                        <i class="fa-solid fa-circle-minus clr-red fa-lg"></i>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
 {#                <hr>#}
 {#                <table class="table table-sm">#}
 {#                    <thead>#}
@@ -53,8 +82,11 @@
 {#                    </tbody>#}
 {#                </table>#}
 {#                <hr>#}
-{#            {% endif %}#}
-{#            <a class="mt-1 btn btn-dark" id="id-done-btn" onclick="goBack();">BACK</a>#}
-{#        </div>#}
-    </div>
+    {% endif %}
+
+    <script>
+        function pageInit() {
+            convertUTCDatesToLocal("timestamp")
+        }
+    </script>
 {% endblock %}

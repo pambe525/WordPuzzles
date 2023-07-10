@@ -27,13 +27,19 @@ def create_published_puzzle(editor=None, desc=None, type=0, posted_on=now(), clu
     return puzzle
 
 
+def create_session(puzzle, user, solved_count, revealed_count, score):
+    session = SolverSession.new(puzzle, user)
+    session.solved = solved_count
+    session.revealed = revealed_count
+    session.score = score
+    if solved_count + revealed_count >= puzzle.size:
+        session.finished_at = now()
+    session.save()
+    return session
+
+
 def get_full_clue_desc(clue):
     return str(clue.clue_num) + ". " + clue.get_decorated_clue_text()  # + " [" + str(clue.points) + " pts]"
-
-
-def create_session(solver=None, puzzle=None, solved_clues=None, revealed_clues=None, elapsed_secs=0):
-    return SolverSession.objects.create(solver=solver, puzzle=puzzle, solved_clue_nums=solved_clues,
-                                        revealed_clue_nums=revealed_clues, elapsed_seconds=elapsed_secs)
 
 
 def add_clue(puzzle, clue_data):

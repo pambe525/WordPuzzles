@@ -99,8 +99,6 @@ class IsSolvableMixin(ItemRequiredMixin):
         if self.err_msg is not None: return
         if not self.puzzle.is_published():
             self.err_msg = "This puzzle is not published."
-        elif request.user == self.puzzle.editor:
-            return redirect("edit_puzzle", self.pk)
 
 
 class EditorRequiredMixin(ItemRequiredMixin):
@@ -286,6 +284,7 @@ class PuzzleSessionView(IsSolvableMixin, View):
     def get(self, request, *args, **kwargs):
         if SolverSession.objects.filter(solver=request.user, puzzle=self.puzzle, group_session=None).exists():
             self.session = SolverSession.objects.get(puzzle=self.puzzle, solver=request.user)
+        if request.user == self.puzzle.editor: return redirect("edit_puzzle", self.pk)
         return render(request, "puzzle_session.html", context=self.get_context_data(request.user))
 
     def post(self, request, *args, **kwargs):
@@ -326,44 +325,10 @@ class AjaxAnswerRequest(View):
         return JsonResponse({'err_msg': ''})
 
 
-class PuzzleScoreView(LoginRequiredMixin, View):
-    err_msg = None
-    score_data = None
-    puzzle = None
-    sessions = None
+class PuzzleScoreView(IsSolvableMixin, View):
 
     def get(self, request, *args, **kwargs):
-        pk = kwargs['pk']
-        try:
-            self.puzzle = WordPuzzle.objects.get(id=pk)
-            self.sessions = SolverSession.objects.filter(puzzle=self.puzzle).order_by("-score")
-        except WordPuzzle.DoesNotExist:
-            self.err_msg = "This puzzle does not exist."
-        else:
-            if not self.puzzle.is_published():
-                self.err_msg = "This puzzle is not published."
-            else:
-                self.score_data = self.get_session_score_data(self.sessions)
-        if self.err_msg is not None:
-            return render(request, "puzzle_error.html", context={'err_msg': self.err_msg, 'id': pk})
-        else:
-            context = {'object': self.puzzle, 'id': pk, 'scores': self.score_data}
-            return render(request, "puzzle_score.html", context=context)
-
-    def get_session_score_data(self, sessions):
-        scores = []
-        for session in sessions:
-            num_clues = session.puzzle.size
-            num_solved = len(session.get_solved_clue_nums())
-            num_revealed = len(session.get_revealed_clue_nums())
-            perc_solved = str(round(100 * num_solved / num_clues)) + "%"
-            perc_revealed = str(round(100 * num_revealed / num_clues)) + "%"
-            is_complete = (num_solved + num_revealed == num_clues)
-            elapsed_time = self.get_elapsed_time(session.elapsed_seconds)
-            scores.append({'user': str(session.solver), 'elapsed_time': elapsed_time, 'score': session.score,
-                           'perc_solved': perc_solved, 'perc_revealed': perc_revealed, 'is_complete': is_complete,
-                           'num_solved': num_solved, 'num_revealed': num_revealed, 'modified_at': session.modified_at})
-        return scores if len(scores) > 0 else None
-
-    def get_elapsed_time(self, seconds):
-        return str(timedelta(seconds=seconds)) + "s"
+        self.puzzle = WordPuzzle.objects.get(id=kwargs['pk'])
+        sessions = SolverSession.objects.filter(puzzle=self.puzzle, group_session=None).order_by("-score")
+        if len(sessions) == 0: sessions = None
+        return render(request, "puzzle_score.html", context={'object': self.puzzle, 'sessions': sessions})

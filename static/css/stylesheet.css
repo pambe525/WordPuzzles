@@ -521,11 +521,11 @@ hr.dark-line {
 }
 
 .black-pill {
-    padding: 0.1rem 0.3rem;
+    padding: 0.2rem 0.4rem;
     border-radius: 0.4rem;
     background-color: black;
     color: white;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
 }
 
 .bold-text {
@@ -547,9 +547,12 @@ hr.dark-line {
 .font-large {
     font-size: 1.2rem;
 }
-
+.font-xlarge {
+    font-size: 1.4rem;
+}
 .truncated-text {
     overflow: hidden;
+    line-height: 0.9rem;
 }
 
 .ellipsis {
@@ -575,7 +578,7 @@ hr.dark-line {
     margin-right: 0;
     box-shadow: 1px 1px black;
     align-items: center;
-    padding: 0.1rem 0.3rem 0.1rem 0;
+    padding: 0.2rem 0.3rem 0.2rem 0;
 }
 
 .notices {
@@ -590,7 +593,7 @@ img.thumbnail {
 }
 
 .icon-group {
-    padding: 0.4rem;
+    padding: 0.3rem;
     text-align: center;
 }
 
@@ -605,11 +608,9 @@ img.thumbnail {
 .bg-white {
     background-color: white;
 }
-
 .bg-green {
     background-color: lightgreen;
 }
-
 .rating-table {
     margin: 0.3rem 0;
 }
