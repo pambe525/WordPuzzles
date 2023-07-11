@@ -22,7 +22,7 @@ class PuzzleScoresTests(BaseSeleniumTestCase):
         self.auto_login_user(self.user1)
         self.user2 = create_user(username="user2", email="abc@xyz.com")
         self.user3 = create_user(username="user3", email="xyx@abc.com")
-        self.user4 = create_user(username="Thiscanbeavery Longnamefortest", email='test@gmail.com')
+        self.user4 = create_user(username="user4", email='test@gmail.com')
         self.puzzle = create_published_puzzle(editor=self.user2, clues_pts=[5, 2, 3, 1, 2])
 
     def test_page_title_and_close_btn(self):

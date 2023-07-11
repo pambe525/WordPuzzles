@@ -3,15 +3,14 @@
 {% block content %}
     <div class="page-title">Published Puzzles</div>
     <hr class="dark-line">
-    {#    <form class="font-small" method="get">#}
-    {#        {% csrf_token %}#}
-    {#        {{ form.as_table }}#}
-    {#    </form>#}
-    {#    <div class="note-text m-top">#}
-    {#        Hover over the puzzle title to see description pop-up. Click on the title link to solve or preview the#}
-    {#        puzzle.#}
-    {#    </div>#}
-    {#    <hr>#}
+    <form class="font-small" method="get">
+        {% csrf_token %}
+        {{ form.as_table }}
+    </form>
+    <div class="note-text m-top">
+        Click on the puzzle title to solve or preview the puzzle.
+    </div>
+    <hr>
     {% if object_list|length == 0 %}
         <div class="note-text">No published puzzles.</div>
     {% else %}

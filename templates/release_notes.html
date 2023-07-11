@@ -13,41 +13,71 @@
     <!---------------------------------------------------------------------------------------------------------------->
     <hr>
 
-    <div class="feature" data-release="7/7/2023">
-        <div class="epic-title">Solving a Puzzle (Individual Session)</div>
-        <ul class="feature-list">
-            <li>A published puzzle (on the <b>Published Puzzles</b> page) can be solved by clicking on the title.
-                This will open the <b>Puzzle Session</b> page. if you wish to start an individual solve session
-                click on the <b>[Start Individual Solve Session]</b> button. This will display all the clues
-                and session status.
-            </li>
-            <li>Each clue can be solved by clicking on the clue text. Enter your answer in the dialog that pops up.
-                If answer is incorrect an error message will be displayed. Correct answer input will close the
-                dialog and update the clue status in the list of clues. The score is also updated in the session panel.
-            </li>
-            <li>You can also reveal a clue by clicking on the <i class="fa-regular fa-eye"></i> icon. This will reveal
-                the answer (no points are earned on revealed answers).
-            </li>
-            <li>When all clues are solved (or revealed) the session status will be shown as Complete and the final
-                score will be displayed.
-            </li>
-            <li>You can close the <b>Puzzle Session</b> page anytime by clicking on the
-                <i class="fa-regular fa-circle-xmark"></i> button on top right. The session can
-                be resumed by clicking on the puzzle title on the <b>Published Puzzles</b> page.
-            </li>
-        </ul>
-    </div>
-    <div class="feature" data-release="7/7/2023">
-        <div class="epic-title">Published Puzzles List</div>
-        <ul class="feature-list">
-            <li>The <b>Published Puzzles</b> page lists all the published puzzles. This page can be accessed from the
+    <div class="epic-title" data-release="2023-07-11">Puzzle Session Scores (Individual Sessions)</div>
+    <ul class="feature-list" data-release="2023-07-11">
+        <li>In the list of <b>Published Puzzles</b>, any puzzle that has been attempted or solved by other users
+            will have a [<i class="fa-solid fa-trophy"></i>] icon button which can be clicked to display scores.
+        </li>
+        <li>Scores are listed from highest to lowest by user. A <i class="fa-solid clr-green fa-circle-check"></i>
+            icon next to the score indicates that the puzzle was completed by the respective user, whereas a
+            <i class="fa-solid clr-red fa-circle-minus"></i> icon indicates an incomplete session.
+        </li>
+        <li>The number of clues solved and revealed are also displayed for each user session.
+        </li>
+    </ul>
+
+    <div class="epic-title" data-release="2023-07-07">Solving a Puzzle (Individual Session)</div>
+    <ul class="feature-list" data-release="2023-07-07">
+        <li>A published puzzle (on the <b>Published Puzzles</b> page) can be solved by clicking on the title.
+            This will open the <b>Puzzle Session</b> page. if you wish to start an individual solve session
+            click on the <b>[Start Individual Solve Session]</b> button. This will display all the clues
+            and session status.
+        </li>
+        <li>Each clue can be solved by clicking on the clue text. Enter your answer in the dialog that pops up.
+            If answer is incorrect an error message will be displayed. Correct answer input will close the
+            dialog and update the clue status in the list of clues. The score is also updated in the session panel.
+        </li>
+        <li>You can also reveal a clue by clicking on the <i class="fa-regular fa-eye"></i> icon. This will reveal
+            the answer (no points are earned on revealed answers).
+        </li>
+        <li>When all clues are solved (or revealed) the session status will be shown as Complete and the final
+            score will be displayed.
+        </li>
+        <li>You can close the <b>Puzzle Session</b> page anytime by clicking on the
+            <i class="fa-regular fa-circle-xmark"></i> button on top right. The session can
+            be resumed by clicking on the puzzle title on the <b>Published Puzzles</b> page.
+        </li>
+    </ul>
+
+    <div class="epic-title" data-release="2023-07-11 2023-07-07">Published Puzzles List</div>
+    <ul class="feature-list">
+        <div data-release="2023-07-07">
+            <li >
+                The <b>Published Puzzles</b> page lists all the published puzzles. This page can be accessed from the
                 side menu. The list contains details for each puzzle. Clicking on the title of the puzzle redirects to
                 the <b>Solve Puzzle</b> page, if you are not the editor of the puzzle. Puzzle editors are directed to
                 the <b>Edit Puzzle</b> page where the puzzle can be unpublished or edited in a limited way.
             </li>
-        </ul>
-    </div>
-    <div class="feature" data-release="7/7/2023">
+        </div>
+        <div data-release="2023-07-11">
+            <li>
+                Status icons are displayed on each puzzle badge to indicate session states:<br>
+                <i class="fa-solid clr-green fa-circle-check"></i> indicates that you completed
+                the individual puzzle session.<br>
+                <i class="fa-solid clr-red fa-circle-minus"></i> indicates that you have not finished the session.<br>
+                <span class="black-pill">ME</span> in the time log indicates that you are the editor of the puzzle.<br>
+            </li>
+        </div>
+        <div  data-release="2023-07-11">
+            <li>
+                Each published puzzle that has other user sessions, will have the [<i class="fa-solid fa-trophy"></i>]
+                icon button displayed.  This can be clicked to display scores for all the individual sessions associated
+                with the puzzle.
+            </li>
+        </div>
+    </ul>
+
+    <div data-release="2023-07-07">
         <div class="epic-title">Publish a Puzzle</div>
         <ul class="feature-list">
             <li>Publishing a puzzle makes it accessible to all users to solve. Review all the clues before
@@ -65,7 +95,7 @@
         </ul>
     </div>
 
-    <div class="feature" data-release="6/16/2023">
+    <div data-release="2023-06-16">
         <div class="epic-title">Creating Draft Puzzles</div>
         <ul class="feature-list">
             <li><b>[Create a New Puzzle]</b>: Click on this link ion the dashboard to create a new puzzle.
@@ -80,15 +110,13 @@
         </ul>
     </div>
 
-    <div class="feature" data-release="6/16/2023">
+    <div data-release="2023-05-28">
         <div class="epic-title">Puzzle Editor</div>
         <ul class="feature-list">
             <li>
                 Clicking on the puzzle link in the draft puzzles section on the home page will open the edit puzzle
-                page.
-                Here you can edit the description (click on the [Edit] button). You can also add bulk clues by clicking
-                on
-                the [Add Clues] button.
+                page. Here you can edit the description (click on the [Edit] button). You can also add bulk clues by
+                clicking on the [Add Clues] button.
             </li>
             <li><b>[Add Clues]</b> This opens the add clues form. Multiple clues and corresponding answers can be
                 entered
@@ -113,7 +141,7 @@
         </ul>
     </div>
 
-    <div class="feature" data-release="5/28/2023">
+    <div data-release="2023-05-28">
         <div class="epic-title">User Authentication</div>
         <ul class="feature-list">
             <li><b>[Sign Up]</b>: New users can register using a username, password and email address. The username must
@@ -141,7 +169,7 @@
         </ul>
     </div>
 
-    <div class="feature" data-release="5/28/2023">
+    <div data-release="2023-05-28">
         <div class="epic-title">Responsive Web Interface</div>
         <ul class="feature-list">
             <li>The web interface is responsive and adapts to the device's viewport such as large monitors, laptops,

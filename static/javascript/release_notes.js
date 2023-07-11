@@ -18,11 +18,11 @@ function loadFilterSelector() {
 
 function loadReleaseSelector() {
     const selector = document.getElementById('release-options');
-    const releases = getReleases();
+    const releases = getReleases().sort().reverse();
     releases.forEach(option => {
         const newOption = document.createElement("option");
         newOption.textContent = option;
-        newOption.value = Date(option);
+        newOption.value = option;
         selector.appendChild(newOption);
     })
 }
@@ -30,30 +30,34 @@ function loadReleaseSelector() {
 function showFeatures() {
     const release = document.getElementById('release-options').selectedOptions[0].text;
     const showOption = document.getElementById("feature-filter").selectedOptions[0].value;
-    const allFeatures = document.getElementsByClassName("feature");
+    // const allFeatures = document.getElementsByClassName("feature");
+    const allFeatures = document.querySelectorAll('[data-release]');
     for (let i = 0; i < allFeatures.length; i++) {
         if (isVisibleFeature(allFeatures[i], showOption, release)) allFeatures[i].style.display = "block";
         else allFeatures[i].style.display = "none";
     }
 }
 
-function isVisibleFeature(feature, showOption, release) {
-    if (feature.hasAttribute("data-release")) {
-        const featureRelease = feature.getAttribute("data-release");
-        return (showOption === '0') ? featureRelease === release : featureRelease <= release;
+function isVisibleFeature(feature, showOption, target_release) {
+    const featureReleases = feature.getAttribute("data-release").split(" ");
+    if (showOption === '0') return featureReleases.includes(target_release);
+    for (let i = 0; i < featureReleases.length; i++) {
+        if (featureReleases[i] <= target_release) return true;
     }
     return false;
 }
 
 function getReleases() {
-    const featureDivs = document.getElementsByClassName("feature");
-    const releases = []
+    const featureDivs = document.querySelectorAll('[data-release]');
+    const releases_options = []
     for (let i = 0; i < featureDivs.length; i++) {
         const div = featureDivs[i];
         if (div.hasAttribute("data-release")) {
-            const release = div.getAttribute('data-release');
-            if (!releases.includes(release)) releases.push(release);
+            const releases = div.getAttribute('data-release').split(" ");
+            releases.forEach( (release) => {
+                if (!releases_options.includes(release)) releases_options.push(release);
+            })
         }
     }
-    return releases;
+    return releases_options;
 }
