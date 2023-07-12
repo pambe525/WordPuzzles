@@ -138,6 +138,11 @@ class WordPuzzle(models.Model):
     def is_published(self):
         return self.shared_at is not None
 
+    def has_sessions(self):
+        group_sessions = GroupSession.objects.filter(puzzle=self)
+        solver_sessions = SolverSession.objects.filter(puzzle=self)
+        return True if len(group_sessions) + len(solver_sessions) > 0 else False
+
 
 class Clue(models.Model):
     INTEGER_CHOICES = [tuple([x, x]) for x in range(1, 6)]

@@ -36,7 +36,7 @@
                             data-puzzle-id={{ object.id }} id="btnPublish">Publish
                     </button>
                 {% endif %}
-            {% else %}
+            {% elif not object.has_sessions %}
                 <form action="{% url 'unpublish_puzzle' object.id %}" method="post">
                     {% csrf_token %}
                     <button class="blue-btn" id="btnUnpublish">Unpublish</button>

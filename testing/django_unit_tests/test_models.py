@@ -120,6 +120,21 @@ class WordPuzzleModelTest(TransactionTestCase):
         self.assertEqual(1, clues_list[0].clue_num)
         self.assertEqual(3, clues_list[1].clue_num)
 
+    def test_has_sessions_returns_false_if_no_puzzle_sessions_exist(self):
+        puzzle = create_published_puzzle(editor=self.user, clues_pts=[1, 1, 1, 1, 1])
+        self.assertFalse(puzzle.has_sessions())
+
+    def test_has_sessions_returns_true_if_group_session_exists(self):
+        puzzle = create_published_puzzle(editor=self.user, clues_pts=[1, 1, 1, 1, 1])
+        GroupSession.objects.create(puzzle=puzzle, host=self.user, start_at=now())
+        self.assertTrue(puzzle.has_sessions())
+
+    def test_has_sessions_returns_true_if_individual_session_exists(self):
+        user2 = User.objects.create_user(username='user2', email='abc@efg.com')
+        puzzle = create_published_puzzle(editor=self.user, clues_pts=[1, 1, 1, 1, 1])
+        SolverSession.objects.create(puzzle=puzzle, solver=user2)
+        self.assertTrue(puzzle.has_sessions())
+
 
 class ClueModelTest(TestCase):
 
@@ -291,7 +306,6 @@ class SolveSessionModelTest(TransactionTestCase):
         session.set_solved_clue(clue=clues[1])
         session.set_solved_clue(clue=clues[2])
         self.assertIsNotNone(session.finished_at)
-
 
     def test_get_all_solved_clue_nums(self):
         user3 = User.objects.create_user(username='user3', password='12345', email="xyz@cde.com")

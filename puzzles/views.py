@@ -243,6 +243,10 @@ class UnpublishPuzzleView(EditorRequiredMixin, View):
 
     def post(self, request, **kwargs):
         puzzle = self.model.objects.get(id=kwargs['pk'])
+        if puzzle.has_sessions():
+            err_msg = "Puzzle cannot be unpublished due to existing sessions."
+            ctx = {'err_msg': err_msg, 'id': kwargs['pk']}
+            return render(request, "puzzle_error.html", context=ctx)
         puzzle.unpublish()
         return redirect('home')
 

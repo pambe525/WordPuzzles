@@ -91,6 +91,8 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         self.do_click(self.LIST_ITEM_SCORES_LINK)
         self.assert_current_url("/puzzle_score/"+str(puzzle.id)+"/")
 
+
+
     # def test_sort_form_reflects_get_parameters_in_url(self):
     #     self.get('/puzzles_list?sort_by=total_points&order=')
     #     self.assert_text_equals("//div/h2", 'All Published Puzzles')

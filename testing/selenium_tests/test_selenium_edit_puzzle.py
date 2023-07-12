@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 
-from puzzles.models import WordPuzzle, Clue
-from testing.data_setup_utils import add_clue
+from puzzles.models import WordPuzzle, Clue, SolverSession
+from testing.data_setup_utils import add_clue, create_published_puzzle
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
@@ -210,6 +210,13 @@ class EditPuzzleTests(BaseSeleniumTestCase):
         self.assertIsNone(WordPuzzle.objects.get(id=puzzle.id).shared_at)
         self.assert_current_url('/')
 
+    def test_unpublished_button_not_shown_if_sessions_exist(self):
+        user2 = User.objects.create(username="user2", email="abc@cde.com")
+        puzzle = create_published_puzzle(editor=self.user, clues_pts=[1, 1, 1, 1, 1])
+        session = SolverSession.objects.create(puzzle=puzzle, solver=user2)
+        self.get(self.target_page + str(puzzle.id) + '/')
+        self.assert_not_exists(self.UNPUBLISH_BTN)
+
 
 class AddCluesTests(BaseSeleniumTestCase):
     reset_sequences = True
@@ -282,8 +289,8 @@ class AddCluesTests(BaseSeleniumTestCase):
         self.set_input_text(self.CLUES_TEXTAREA, clues_input)
         self.set_input_text(self.ANSWERS_TEXTAREA, answers_input)
         self.do_click(self.SUBMIT_BTN)
-        self.assert_text_equals(self.ERROR_LIST, 'Entry 2 is not numbered correctly.') # Clues error
-        self.assert_not_exists(self.ERROR_LIST+"[2]")  # No answers error
+        self.assert_text_equals(self.ERROR_LIST, 'Entry 2 is not numbered correctly.')  # Clues error
+        self.assert_not_exists(self.ERROR_LIST + "[2]")  # No answers error
 
 
 class EditClueTests(BaseSeleniumTestCase):
