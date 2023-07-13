@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 
 from puzzles.models import WordPuzzle
+from testing.data_setup_utils import create_published_puzzle, create_session
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
@@ -46,13 +47,33 @@ class NotificationsTests(BaseSeleniumTestCase):
         self.assert_current_url("/account")
 
     def test_fourth_notification_links_to_Published_Puzzles_page(self):
-        puzzle = WordPuzzle.objects.create(editor=self.user, type=0)
-        puzzle.publish()
+        user2 = User.objects.create(username="user2", email="abc@cde.com")
+        puzzle = create_published_puzzle(editor=user2, clues_pts=[1, 1, 1, 1, 1])
         self.get(self.target_page)
         self.assert_item_count(self.NOTICE_ITEM, 4)
         self.assert_text_contains(self.NOTICE_ITEM, "Pick a puzzle to solve", 3)
         self.do_click(self.FOURTH_NOTICE_ITEM)
         self.assert_current_url("/puzzles_list")
+
+    def test_fourth_notification_is_about_unfinished_puzzle(self):
+        user2 = User.objects.create(username="user2", email="abc@cde.com")
+        puzzle = create_published_puzzle(editor=user2, clues_pts=[1, 1, 1, 1, 1])
+        create_session(puzzle, self.user, 2, 2, 10)  # puzzle is unfinished
+        self.get(self.target_page)
+        self.assert_item_count(self.NOTICE_ITEM, 4)
+        self.assert_text_contains(self.NOTICE_ITEM, "You have 1", 3)
+        self.do_click(self.FOURTH_NOTICE_ITEM)
+        self.assert_current_url("/puzzles_list")
+
+    def test_five_notifications(self):
+        user2 = User.objects.create(username="user2", email="abc@cde.com")
+        puzzle1 = create_published_puzzle(editor=user2, clues_pts=[1, 1, 1, 1, 1])
+        puzzle2 = create_published_puzzle(editor=user2, clues_pts=[1, 1, 1, 1, 1])
+        create_session(puzzle1, self.user, 2, 2, 10)  # puzzle is unfinished
+        self.get(self.target_page)
+        self.assert_item_count(self.NOTICE_ITEM, 5)
+        self.assert_text_contains(self.NOTICE_ITEM, "Pick a puzzle to solve", 3)
+        self.assert_text_contains(self.NOTICE_ITEM, "You have 1", 4)
 
 
 class DraftPuzzlesTests(BaseSeleniumTestCase):

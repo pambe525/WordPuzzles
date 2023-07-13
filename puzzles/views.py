@@ -25,14 +25,6 @@ class ReleaseNotesView(TemplateView):
 class HomeView(LoginRequiredMixin, View):
 
     def get(self, request):
-        # seven_days_ago = now() - timedelta(days=7)
-        # draft_puzzles = self.model.objects.filter(editor=request.user.id, shared_at=None).order_by('-modified_at')
-        # recently_published = self.model.objects.exclude(shared_at=None).filter(shared_at__gte=seven_days_ago) \
-        #     .order_by('-shared_at')
-        # in_recent_sessions = self.get_puzzles_in_recent_sessions()
-        # recent_puzzles = (in_recent_sessions | recently_published).distinct()  # Union of 2 sets
-        # add_session_data(recent_puzzles, request.user)
-        # drafts_count = WordPuzzle.get_draft_puzzles_count(request.user.id)
         draft_puzzles = WordPuzzle.get_draft_puzzles_as_list(request.user.id)
         notifications = self.__build_notifications(request)
         new_puzzle_form = WordPuzzleForm()
@@ -45,16 +37,17 @@ class HomeView(LoginRequiredMixin, View):
                          "<a id='btnCreatePuzzle'>Create a New Puzzle.</a>"]
         if request.user.first_name == "" and request.user.last_name == "":
             notifications.append("Set your first & last name in <a href='/account'>Account Settings</a>.")
-        if len(WordPuzzle.objects.exclude(shared_at=None)) > 0:
+        other_published_puzzles = WordPuzzle.objects.exclude(shared_at=None).exclude(editor=request.user)
+        users_unattempted_puzzles = other_published_puzzles.exclude(solversession__solver=request.user)
+        if len(users_unattempted_puzzles) > 0:
             notifications.append("Pick a puzzle to solve in <a href='/puzzles_list'>Published Puzzles</a>.")
+        users_unfinished_puzzles = \
+            other_published_puzzles.filter(solversession__finished_at=None, solversession__solver=request.user)
+        if len(users_unfinished_puzzles) > 0:
+            msg = "You have " + str(len(users_unfinished_puzzles)) +\
+                  " <a href='/puzzles_list'>unfinished puzzle(s)</a> to solve."
+            notifications.append(msg)
         return notifications
-
-    # def get_puzzles_in_recent_sessions(self):
-    #     seven_days_ago = now() - timedelta(days=7)
-    #     puzzles_in_recent_sessions = WordPuzzle.objects.filter(puzzlesession__solver=self.request.user,
-    #                                                            puzzlesession__modified_at__gte=seven_days_ago).order_by(
-    #         '-puzzlesession__modified_at')
-    #     return puzzles_in_recent_sessions
 
 
 class NewPuzzleView(View):
