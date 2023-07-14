@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
     <div class="page-title">Release Notes</div>
-    [July 13, 2023]
+    [July 14, 2023]
     <hr class="dark-line">
     <!-- Release selection and filter option -->
     <div class="font-small">
@@ -20,8 +20,8 @@
         unfinished puzzles.  It is recommended that you complete the unfinished puzzle by solving or revealing clues.</li>
     </ul>
 
-    <div class="epic-title" data-release="2023-07-13">Puzzle Session Scores (Individual Sessions)</div>
-    <ul class="feature-list" data-release="2023-07-13">
+    <div class="epic-title" data-release="2023-07-14">Puzzle Session Scores (Individual Sessions)</div>
+    <ul class="feature-list" data-release="2023-07-14">
         <li>In the list of <b>Published Puzzles</b>, any puzzle that has been attempted or solved by other users
             will have a [<i class="fa-solid fa-trophy"></i>] icon button which can be clicked to display scores.
         </li>
@@ -56,7 +56,7 @@
         </li>
     </ul>
 
-    <div class="epic-title" data-release="2023-07-11 2023-07-07">Published Puzzles List</div>
+    <div class="epic-title" data-release="2023-07-14 2023-07-07">Published Puzzles List</div>
     <ul class="feature-list">
         <div data-release="2023-07-07">
             <li >
@@ -66,7 +66,13 @@
                 the <b>Edit Puzzle</b> page where the puzzle can be unpublished or edited in a limited way.
             </li>
         </div>
-        <div data-release="2023-07-13">
+        <div data-release="2023-07-14">
+            <li>The Show filter can be used to filter the published puzzles.  Options are:<br>
+                <b>All Published Puzzles</b>: displays all puzzles that are published.<br>
+                <b>Puzzles posted by ME</b>: displays puzzles for which you are the editor.<br>
+                <b>Puzzles to solve</b>: displays puzzles that have not been attempted by you.<br>
+                <b>Unfinished puzzles</b>: displays puzzles you are currently solving.
+            </li>
             <li>
                 Status icons are displayed on each puzzle badge to indicate session states:<br>
                 <i class="fa-solid clr-green fa-circle-check"></i> indicates that you completed
@@ -74,8 +80,6 @@
                 <i class="fa-solid clr-red fa-circle-minus"></i> indicates that you have not finished the session.<br>
                 <span class="black-pill">ME</span> in the time log indicates that you are the editor of the puzzle.<br>
             </li>
-        </div>
-        <div  data-release="2023-07-13">
             <li>
                 Each published puzzle that has other user sessions, will have the [<i class="fa-solid fa-trophy"></i>]
                 icon button displayed.  This can be clicked to display scores for all the individual sessions associated
