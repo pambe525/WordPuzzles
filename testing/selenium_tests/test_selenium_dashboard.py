@@ -53,7 +53,7 @@ class NotificationsTests(BaseSeleniumTestCase):
         self.assert_item_count(self.NOTICE_ITEM, 4)
         self.assert_text_contains(self.NOTICE_ITEM, "Pick a puzzle to solve", 3)
         self.do_click(self.FOURTH_NOTICE_ITEM)
-        self.assert_current_url("/puzzles_list")
+        self.assert_current_url("/puzzles_list?show=unsolved")
 
     def test_fourth_notification_is_about_unfinished_puzzle(self):
         user2 = User.objects.create(username="user2", email="abc@cde.com")
@@ -63,7 +63,7 @@ class NotificationsTests(BaseSeleniumTestCase):
         self.assert_item_count(self.NOTICE_ITEM, 4)
         self.assert_text_contains(self.NOTICE_ITEM, "You have 1", 3)
         self.do_click(self.FOURTH_NOTICE_ITEM)
-        self.assert_current_url("/puzzles_list")
+        self.assert_current_url("/puzzles_list?show=unfinished")
 
     def test_five_notifications(self):
         user2 = User.objects.create(username="user2", email="abc@cde.com")

@@ -77,16 +77,10 @@ class ClueForm(ModelForm):
 
 
 class SortPuzzlesForm(Form):
-    SORT_CHOICES = [('desc', 'Description'), ('editor__username', 'Editor'), ('size', 'No. of Clues'),
-                    ('shared_at', 'Posted On'), ('id', 'Puzzle #'), ('type', 'Puzzle Type'),
-                    ('total_points', 'Total Points')]
-    ORDER_CHOICES = [('-', 'Descending'), ('', 'Ascending')]
+    FILTER_CHOICES = [('all', 'All published puzzles'), ('me_editor', 'Puzzles posted by ME'),
+                      ('unsolved', 'Puzzles to solve'), ('unfinished', 'Unfinished puzzles')]
 
     def __init__(self, *args, **kwargs):
         super(SortPuzzlesForm, self).__init__(*args, **kwargs)
-        self.fields['sort_by'] = forms.ChoiceField(choices=self.SORT_CHOICES, initial='shared_at', label='Sort by:',
-                                                   widget=forms.Select(
-                                                       attrs={'style': 'height:26px', 'onchange': 'form.submit();'}))
-        self.fields['order'] = forms.ChoiceField(choices=self.ORDER_CHOICES, label='Order', initial='-',
-                                                 widget=forms.Select(
-                                                     attrs={'style': 'height:26px', 'onchange': 'form.submit();'}))
+        self.fields['show'] = forms.ChoiceField(choices=self.FILTER_CHOICES, label='Show:',
+                                                widget=forms.Select(attrs={'onchange': 'form.submit();'}))

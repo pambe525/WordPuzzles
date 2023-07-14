@@ -3,16 +3,13 @@
 {% block content %}
     <div class="page-title">Published Puzzles</div>
     <hr class="dark-line">
-    <form class="font-small" method="get">
-        {% csrf_token %}
-        {{ form.as_table }}
-    </form>
+    <form class="font-medium">{{ form.as_table }}</form>
     <div class="note-text m-top">
         Click on the puzzle title to solve or preview the puzzle.
     </div>
     <hr>
     {% if object_list|length == 0 %}
-        <div class="note-text">No published puzzles.</div>
+        <div class="note-text">No puzzles meet show filter criteria.</div>
     {% else %}
         <!-- Loop through puzzles -->
         {% for puzzle in object_list %}

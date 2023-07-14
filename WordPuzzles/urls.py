@@ -56,7 +56,6 @@ urlpatterns = [
     path('add_clues/<int:pk>/', AddCluesView.as_view(), name="add_clues"),
     path('edit_clue/<int:pk>/<int:clue_num>/', EditClueView.as_view(), name="edit_clue"),
     path('delete_clue/<int:pk>/<int:clue_num>/', DeleteClueView.as_view(), name='delete_clue'),
-    # path('preview_puzzle/<int:pk>/', PreviewPuzzleView.as_view(), name="preview_puzzle"),
     path('publish_puzzle/<int:pk>/', PublishPuzzleView.as_view(), name="publish_puzzle"),
     path('unpublish_puzzle/<int:pk>/', UnpublishPuzzleView.as_view(), name='unpublish_puzzle'),
     path('puzzles_list', PuzzlesListView.as_view(), name='puzzles_list'),

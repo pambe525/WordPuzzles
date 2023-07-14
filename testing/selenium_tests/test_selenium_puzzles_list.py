@@ -1,9 +1,11 @@
 import time
+from datetime import timedelta
 
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 
 from puzzles.models import SolverSession
-from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle
+from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_session
 from testing.selenium_tests.selenium_helper_mixin import BaseSeleniumTestCase
 
 
@@ -11,6 +13,7 @@ class PuzzlesListTests(BaseSeleniumTestCase):
     password = 'secretkey'
     target_page = '/puzzles_list'
     NO_PUZZLES = "//div[@class='note-text']"
+    FORM_SELECT = "//form/select"
     LIST_ITEM = "//div[contains(@class,'list-badge')]"
     LIST_ITEM_TITLE = "//div[contains(@class,'list-badge')]//a"
     LIST_ITEM_DESC = "//div[contains(@class,'list-badge')]/div/div[1]"
@@ -26,11 +29,9 @@ class PuzzlesListTests(BaseSeleniumTestCase):
     def test_Page_title_and_empty_list(self):
         self.get(self.target_page)
         self.assert_page_title("Published Puzzles")
-        self.assert_text_equals(self.NO_PUZZLES, "No published puzzles.")
-        # self.assert_exists("//select[1]")
-        # self.assert_attribute_equals("//select[1]", "shared_at")
-        # self.assert_exists("//select[2]")
-        # self.assert_attribute_equals("//select[2]", '-')
+        self.assert_text_equals(self.NO_PUZZLES, "No puzzles meet show filter criteria.")
+        self.assert_exists(self.FORM_SELECT)
+        self.assert_attribute_equals(self.FORM_SELECT, 'value', "all")
 
     def test_each_published_puzzle_detail_is_listed(self):
         create_draft_puzzle(editor=self.user)
@@ -89,93 +90,25 @@ class PuzzlesListTests(BaseSeleniumTestCase):
         self.get(self.target_page)
         self.assert_exists(self.LIST_ITEM_SCORES_LINK)
         self.do_click(self.LIST_ITEM_SCORES_LINK)
-        self.assert_current_url("/puzzle_score/"+str(puzzle.id)+"/")
+        self.assert_current_url("/puzzle_score/" + str(puzzle.id) + "/")
 
+    def test_list_form_selection_change_changes_get_url(self):
+        self.get(self.target_page + '?show=me_editor')
+        self.assert_attribute_equals(self.FORM_SELECT, 'value', 'me_editor')
+        self.select_by_text(self.FORM_SELECT, "Unfinished puzzles")
+        self.assert_current_url(self.target_page + "?show=unfinished")
 
-
-    # def test_sort_form_reflects_get_parameters_in_url(self):
-    #     self.get('/puzzles_list?sort_by=total_points&order=')
-    #     self.assert_text_equals("//div/h2", 'All Published Puzzles')
-    #     self.assert_attribute_equals("//select[1]", "total_points")
-    #     self.assert_attribute_equals("//select[2]", '')
-    #
-    # def test_selecting_sort_by_description_submits_form_with_correct_url(self):
-    #     self.get('/puzzles_list')
-    #     self.select_by_text("//select[1]", "Description")
-    #     self.assert_current_url("/puzzles_list?sort_by=desc&order=-")
-    #     self.assert_text_equals("//div/h2", 'All Published Puzzles')
-    #     self.assert_attribute_equals("//select[1]", "desc")
-    #     self.assert_attribute_equals("//select[2]", '-')
-    #
-    # def test_selecting_sort_by_editor_submits_form_with_correct_url(self):
-    #     self.get('/puzzles_list')
-    #     self.select_by_text("//select[1]", "Editor")
-    #     self.select_by_text("//select[2]", "Ascending")
-    #     self.assert_current_url("/puzzles_list?sort_by=editor__username&order=")
-    #     self.assert_text_equals("//div/h2", 'All Published Puzzles')
-    #     self.assert_attribute_equals("//select[1]", "editor__username")
-    #     self.assert_attribute_equals("//select[2]", '')
-    #
-    # def test_selecting_sort_by_size_submits_form_with_correct_url(self):
-    #     self.get('/puzzles_list')
-    #     self.select_by_text("//select[1]", "No. of Clues")
-    #     self.assert_current_url("/puzzles_list?sort_by=size&order=-")
-    #     self.assert_attribute_equals("//select[1]", "size")
-    #     self.assert_attribute_equals("//select[2]", '-')
-    #
-    # def test_selecting_sort_by_id_submits_form_with_correct_url(self):
-    #     self.get('/puzzles_list')
-    #     self.select_by_text("//select[1]", "Puzzle #")
-    #     self.assert_current_url("/puzzles_list?sort_by=id&order=-")
-    #     self.assert_attribute_equals("//select[1]", "id")
-    #     self.assert_attribute_equals("//select[2]", '-')
-    #
-    # def test_selecting_sort_by_type_submits_form_with_correct_url(self):
-    #     self.get('/puzzles_list')
-    #     self.select_by_text("//select[1]", "Puzzle Type")
-    #     self.assert_current_url("/puzzles_list?sort_by=type&order=-")
-    #     self.assert_attribute_equals("//select[1]", "type")
-    #     self.assert_attribute_equals("//select[2]", '-')
-    #
-    # def test_selecting_sort_by_total_points_submits_form_with_correct_url(self):
-    #     self.get('/puzzles_list')
-    #     self.select_by_text("//select[1]", "Total Points")
-    #     self.assert_current_url("/puzzles_list?sort_by=total_points&order=-")
-    #     self.assert_attribute_equals("//select[1]", "total_points")
-    #     self.assert_attribute_equals("//select[2]", '-')
-    #
-    # def test_puzzles_shows_rounded_badge_containing_session_count(self):
-    #     user2 = create_user(username="user2")
-    #     user3 = create_user(username="user3")
-    #     puzzle1 = create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1, 2, 2])
-    #     puzzle2 = create_published_puzzle(editor=user3, desc="Daily Puzzle 2", clues_pts=[1, 1])
-    #     create_session(solver=self.user, puzzle=puzzle2)
-    #     create_session(solver=user2, puzzle=puzzle2)
-    #     self.get('/puzzles_list')
-    #     self.assert_text_equals("//tr[1]/td[2]/div/div[contains(@class,'rounded-circle')]", '0')
-    #     self.assert_text_equals("//tr[2]/td[2]/div/div[contains(@class,'rounded-circle')]", '2')
-    #     self.assert_exists("//a[@title='SCORES']/i[contains(@class,'fa-crown')]")
-    #
-    # def test_puzzle_shows_no_flag_if_current_user_session_has_no_session(self):
-    #     other_user = create_user(username="other_user")
-    #     puzzle = create_published_puzzle(editor=self.user, desc="Daily Puzzle 1", clues_pts=[1, 2, 2])
-    #     create_session(solver=other_user, puzzle=puzzle)
-    #     self.get('/puzzles_list')
-    #     self.assert_not_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag')]")
-    #     self.assert_text_equals("//tr[1]/td[2]/div/div[contains(@class,'rounded-circle')]", '1')
-    #
-    # def test_puzzle_shows_red_flag_if_current_user_session_has_incomplete_session(self):
-    #     other_user = create_user(username="other_user")
-    #     puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1, 2, 2])
-    #     create_session(solver=self.user, puzzle=puzzle)
-    #     self.get('/puzzles_list')
-    #     self.assert_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag text-danger')]")
-    #     self.assert_text_equals("//tr[1]/td[2]/div/div[contains(@class,'rounded-circle')]", '1')
-    #
-    # def test_puzzle_shows_green_flag_if_current_user_session_has_complete_session(self):
-    #     other_user = create_user(username="other_user")
-    #     puzzle = create_published_puzzle(editor=other_user, desc="Daily Puzzle 1", clues_pts=[1, 2, 2])
-    #     create_session(solver=self.user, puzzle=puzzle, solved_clues='1,2,3')
-    #     self.get('/puzzles_list')
-    #     self.assert_exists("//tr[1]/td[2]/div/div/i[contains(@class,'fa-flag text-success')]")
-    #     self.assert_text_equals("//tr[1]/td[2]/div/div[contains(@class,'rounded-circle')]", '1')
+    def test_list_is_filtered_by_selection(self):
+        user2 = User.objects.create(username="user2", email="xyx@uv.com")
+        user3 = User.objects.create(username="user3", email="abc@uv.com")
+        puzzle1 = create_published_puzzle(self.user, clues_pts=[1, 2, 1, 1, 1], posted_on=now() - timedelta(days=2))
+        puzzle2 = create_published_puzzle(user2, clues_pts=[1, 1, 3, 1, 1], posted_on=now() - timedelta(days=5))
+        puzzle3 = create_published_puzzle(user2, clues_pts=[1, 2, 1, 1, 1], posted_on=now() - timedelta(days=3))
+        puzzle4 = create_published_puzzle(user2, clues_pts=[1, 1, 1, 2, 1], posted_on=now() - timedelta(days=1))
+        create_session(puzzle2, self.user, 3, 2, 12)
+        create_session(puzzle3, self.user, 3, 1, 10)
+        create_session(puzzle4, user3, 2, 1, 8)
+        self.get(self.target_page)  # Default os all puzzles
+        self.assert_item_count(self.LIST_ITEM, 4)
+        self.select_by_text(self.FORM_SELECT, "Unfinished puzzles")
+        self.assert_item_count(self.LIST_ITEM, 1)

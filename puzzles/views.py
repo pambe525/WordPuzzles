@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
-from puzzles.forms import WordPuzzleForm, ClueForm, AddCluesForm
+from puzzles.forms import WordPuzzleForm, ClueForm, AddCluesForm, SortPuzzlesForm
 from puzzles.models import WordPuzzle, Clue, SolverSession
 
 
@@ -36,16 +36,18 @@ class HomeView(LoginRequiredMixin, View):
         notifications = ["See <b>What's New</b> in the <a href='/release_notes'>Release Notes</a>.",
                          "<a id='btnCreatePuzzle'>Create a New Puzzle.</a>"]
         if request.user.first_name == "" and request.user.last_name == "":
-            notifications.append("Set your first & last name in <a href='/account'>Account Settings</a>.")
+            msg = "Set your first & last name in <a href='/account'>Account Settings</a>."
+            notifications.append(msg)
         other_published_puzzles = WordPuzzle.objects.exclude(shared_at=None).exclude(editor=request.user)
         users_unattempted_puzzles = other_published_puzzles.exclude(solversession__solver=request.user)
-        if len(users_unattempted_puzzles) > 0:
-            notifications.append("Pick a puzzle to solve in <a href='/puzzles_list'>Published Puzzles</a>.")
         users_unfinished_puzzles = \
             other_published_puzzles.filter(solversession__finished_at=None, solversession__solver=request.user)
+        if len(users_unattempted_puzzles) > 0:
+            msg = "Pick a puzzle to solve in <a href='/puzzles_list?show=unsolved'>Published Puzzles</a>."
+            notifications.append(msg)
         if len(users_unfinished_puzzles) > 0:
-            msg = "You have " + str(len(users_unfinished_puzzles)) +\
-                  " <a href='/puzzles_list'>unfinished puzzle(s)</a> to solve."
+            msg = "You have " + str(len(users_unfinished_puzzles)) + \
+                  " <a href='/puzzles_list?show=unfinished'>unfinished puzzle(s)</a> to solve."
             notifications.append(msg)
         return notifications
 
@@ -247,12 +249,14 @@ class UnpublishPuzzleView(EditorRequiredMixin, View):
 class PuzzlesListView(LoginRequiredMixin, ListView):
     template_name = "puzzles_list.html"
     paginate_by = 10
+    show_filter = None
 
     def get_context_data(self, **kwargs):
         context = super(PuzzlesListView, self).get_context_data(**kwargs)
         for puzzle in context['object_list']:
             solver_session = SolverSession.objects.filter(solver=self.request.user, puzzle=puzzle, group_session=None)
-            other_sessions = SolverSession.objects.filter(puzzle=puzzle, group_session=None).exclude(solver=self.request.user)
+            other_sessions = SolverSession.objects.filter(puzzle=puzzle, group_session=None).exclude(
+                solver=self.request.user)
             if len(solver_session) == 0:
                 puzzle.status = 0  # No session exists
             elif solver_session[0].finished_at is None:
@@ -260,18 +264,19 @@ class PuzzlesListView(LoginRequiredMixin, ListView):
             else:
                 puzzle.status = 2  # Session completed
             puzzle.other_sessions = len(other_sessions)
-        # sort_by = self.request.GET.get('sort_by', 'shared_at')
-        # order = self.request.GET.get('order', '-')
-        # context['form'] = SortPuzzlesForm(initial={'sort_by': sort_by, 'order': order})
+        context['form'] = SortPuzzlesForm(initial={'show': self.show_filter})
         return context
 
     def get_queryset(self):
-        query_set = WordPuzzle.objects.exclude(shared_at=None).order_by("-shared_at")
-        #     sort_by = self.request.GET.get('sort_by', 'shared_at')
-        #     order = self.request.GET.get('order', '-')
-        #     query_set = WordPuzzle.objects.exclude(shared_at=None).order_by(order + sort_by)
-        #     add_session_data(query_set, self.request.user)
-        return query_set
+        self.show_filter = self.request.GET.get('show', 'all')
+        query_set = WordPuzzle.objects.exclude(shared_at=None)
+        if self.show_filter == 'me_editor':
+            query_set = query_set.filter(editor=self.request.user)
+        elif self.show_filter == 'unsolved':
+            query_set = query_set.exclude(editor=self.request.user).exclude(solversession__solver=self.request.user)
+        elif self.show_filter == 'unfinished':
+            query_set = query_set.filter(solversession__solver=self.request.user, solversession__finished_at=None)
+        return query_set.order_by("-shared_at")
 
 
 class PuzzleSessionView(IsSolvableMixin, View):

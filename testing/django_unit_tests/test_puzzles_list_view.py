@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils.timezone import now
 
 from puzzles.models import SolverSession
-from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle
+from testing.data_setup_utils import create_published_puzzle, create_draft_puzzle, create_session
 
 
 class PuzzlesListViewTest(TestCase):
@@ -26,10 +26,9 @@ class PuzzlesListViewTest(TestCase):
     def test_list_when_no_puzzles_exist(self):
         response = self.client.get(self.target_page)
         self.assertEqual(len(response.context['object_list']), 0)
-        self.assertContains(response, "No published puzzles.")
-        # form = response.context['form']
-        # self.assertEqual(form.initial['sort_by'], 'shared_at')
-        # self.assertEqual(form.initial['order'], '-')
+        self.assertContains(response, "No puzzles meet show filter criteria.")
+        form = response.context['form']
+        self.assertEqual(form['show'].value(), 'all')
 
     def test_List_is_sorted_in_descending_order_of_published_date_by_default(self):
         create_draft_puzzle(editor=self.user1)
@@ -45,9 +44,9 @@ class PuzzlesListViewTest(TestCase):
         self.assertEqual(objects[2].id, puzzle2.id)
 
     def test_list_has_status_for_each_puzzle(self):
-        puzzle1 = create_published_puzzle(editor=self.user1, clues_pts=[1, 2], posted_on=now()-timedelta(days=1))
-        puzzle2 = create_published_puzzle(editor=self.user2, clues_pts=[3, 2], posted_on=now()-timedelta(days=2))
-        puzzle3 = create_published_puzzle(editor=self.user2, clues_pts=[1, 1], posted_on=now()-timedelta(days=3))
+        puzzle1 = create_published_puzzle(editor=self.user1, clues_pts=[1, 2], posted_on=now() - timedelta(days=1))
+        puzzle2 = create_published_puzzle(editor=self.user2, clues_pts=[3, 2], posted_on=now() - timedelta(days=2))
+        puzzle3 = create_published_puzzle(editor=self.user2, clues_pts=[1, 1], posted_on=now() - timedelta(days=3))
         p2_session = SolverSession.new(puzzle2, self.user1)  # Incomplete session
         p3_session = SolverSession.new(puzzle3, self.user1)
         p3_clues = puzzle3.get_clues()
@@ -61,72 +60,65 @@ class PuzzlesListViewTest(TestCase):
 
     def test_list_has_count_of_other_sessions_for_each_puzzle(self):
         user3 = User.objects.create(username="user3", email="xyz@abc.com")
-        puzzle1 = create_published_puzzle(editor=self.user1, clues_pts=[1, 2], posted_on=now()-timedelta(days=2))
-        puzzle2 = create_published_puzzle(editor=self.user2, clues_pts=[3, 2], posted_on=now()-timedelta(days=3))
-        puzzle3 = create_published_puzzle(editor=self.user2, clues_pts=[1, 1], posted_on=now()-timedelta(days=4))
+        puzzle1 = create_published_puzzle(editor=self.user1, clues_pts=[1, 2], posted_on=now() - timedelta(days=2))
+        puzzle2 = create_published_puzzle(editor=self.user2, clues_pts=[3, 2], posted_on=now() - timedelta(days=3))
+        puzzle3 = create_published_puzzle(editor=self.user2, clues_pts=[1, 1], posted_on=now() - timedelta(days=4))
         p2_session = SolverSession.new(puzzle2, self.user1)  # Current user session for puzzle 2
-        p3_session = SolverSession.new(puzzle3, user3)       # User3 session for puzzle 3
+        p3_session = SolverSession.new(puzzle3, user3)  # User3 session for puzzle 3
         response = self.client.get(self.target_page)
         objects = response.context['object_list']
         self.assertEqual(objects[0].other_sessions, 0)  # Puzzle 1 - created last - no session
         self.assertEqual(objects[1].other_sessions, 0)  # Puzzle 2 - current user session only
         self.assertEqual(objects[2].other_sessions, 1)  # Puzzle 3 - user3 session
 
+    def test_has_show_filter_form_with_selection_matching_url_parameter(self):
+        response = self.client.get(self.target_page)
+        self.assertEqual(response.context['form']['show'].value(), "all")
+        response = self.client.get(self.target_page + "?show=all")
+        self.assertEqual(response.context['form']['show'].value(), "all")
+        response = self.client.get(self.target_page + "?show=me_editor")
+        self.assertEqual(response.context['form']['show'].value(), "me_editor")
+        response = self.client.get(self.target_page + "?show=unsolved")
+        self.assertEqual(response.context['form']['show'].value(), "unsolved")
+        response = self.client.get(self.target_page + "?show=unfinished")
+        self.assertEqual(response.context['form']['show'].value(), "unfinished")
 
-    # def test_Form_reflects_passed_parameters_on_url(self):
-    #     create_published_puzzle(self.user)
-    #     response = self.client.get("/puzzles_list?sort_by=desc&order=")
-    #     form = response.context['form']
-    #     self.assertEqual(form.initial['sort_by'], 'desc')
-    #     self.assertEqual(form.initial['order'], '')
-    #     self.assertEqual(len(response.context['object_list']), 1)
-    #
-    # def test_List_with_parameters_sort_by_shared_at_and_order_ascending(self):
-    #     puzzle1 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=1))
-    #     puzzle2 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=5))
-    #     puzzle3 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=3))
-    #     response = self.client.get("/puzzles_list?sort_by=shared_at&order=")
-    #     objects = response.context['object_list']
-    #     self.assertEqual(objects[0].id, puzzle2.id)
-    #     self.assertEqual(objects[1].id, puzzle3.id)
-    #     self.assertEqual(objects[2].id, puzzle1.id)
-    #
-    # def test_List_with_parameters_sort_by_editor_and_order_ascending(self):
-    #     user2 = User.objects.create_user(username="joe_smith", password="secretkey2")
-    #     user3 = User.objects.create_user(username="another_user", password="secretkey3")
-    #     puzzle1 = create_published_puzzle(user2, posted_on=now() - timedelta(days=1))
-    #     puzzle2 = create_published_puzzle(user3, posted_on=now() - timedelta(days=5))
-    #     puzzle3 = create_published_puzzle(self.user, posted_on=now() - timedelta(days=3))
-    #     response = self.client.get("/puzzles_list?sort_by=editor__username&order=")
-    #     objects = response.context['object_list']
-    #     self.assertEqual(objects[0].id, puzzle2.id)
-    #     self.assertEqual(objects[1].id, puzzle1.id)
-    #     self.assertEqual(objects[2].id, puzzle3.id)
-    #
-    # def test_List_with_parameters_sort_by_size_and_order_descending(self):
-    #     puzzle1 = create_published_puzzle(self.user, clues_pts=[3, 5])
-    #     puzzle2 = create_published_puzzle(self.user, clues_pts=[3, 4, 5, 1])
-    #     puzzle3 = create_published_puzzle(self.user, clues_pts=[3, 2, 1])
-    #     response = self.client.get("/puzzles_list?sort_by=size&order=-")
-    #     objects = response.context['object_list']
-    #     self.assertEqual(objects[0].id, puzzle2.id)
-    #     self.assertEqual(objects[1].id, puzzle3.id)
-    #     self.assertEqual(objects[2].id, puzzle1.id)
-    #     response = self.client.get("/puzzles_list?sort_by=total_points&order=")
-    #     objects = response.context['object_list']
-    #     self.assertEqual(objects[0].id, puzzle3.id)
-    #     self.assertEqual(objects[1].id, puzzle1.id)
-    #     self.assertEqual(objects[2].id, puzzle2.id)
-    #
-    # def test_posted_puzzles_include_session_data(self):
-    #     user1 = create_user(username="user1")
-    #     user2 = create_user(username="user2")
-    #     create_published_puzzle(editor=user2, desc="Daily Puzzle 1", clues_pts=[1, 2, 1])
-    #     puzzle2 = create_published_puzzle(editor=user2, desc="Daily Puzzle 2", clues_pts=[1, 1])
-    #     session1 = create_session(solver=self.user, puzzle=puzzle2)
-    #     create_session(solver=user2, puzzle=puzzle2)
-    #     response = self.client.get('/puzzles_list')
-    #     self.assertEqual(response.context['object_list'][0].session_count, 0)
-    #     self.assertEqual(response.context['object_list'][1].session_count, 2)
-    #     self.assertIsNone(response.context['object_list'][0].user_session)
-    #     self.assertEqual(response.context['object_list'][1].user_session, session1)
+    def test_list_when_show_filter_is_me_editor(self):
+        puzzle1 = create_published_puzzle(self.user1, posted_on=now() - timedelta(days=2))
+        puzzle2 = create_published_puzzle(self.user2, posted_on=now() - timedelta(days=5))
+        puzzle3 = create_published_puzzle(self.user1, posted_on=now() - timedelta(days=1))  # user1 latest
+        response = self.client.get(self.target_page + "?show=me_editor")
+        objects = response.context['object_list']
+        self.assertEqual(len(objects), 2)
+        self.assertEqual(objects[0].id, puzzle3.id)
+        self.assertEqual(objects[1].id, puzzle1.id)
+
+    def test_list_when_show_filter_is_unsolved(self):
+        user3 = User.objects.create(username="user3", email="xyx@uvz.com")
+        puzzle0 = create_draft_puzzle(editor=self.user2)
+        puzzle1 = create_published_puzzle(self.user1, clues_pts=[1, 1, 1, 1, 1], posted_on=now() - timedelta(days=2))
+        puzzle2 = create_published_puzzle(self.user2, clues_pts=[1, 1, 1, 1, 1], posted_on=now() - timedelta(days=5))
+        puzzle3 = create_published_puzzle(self.user2, clues_pts=[1, 1, 1, 1, 1], posted_on=now() - timedelta(days=3))
+        puzzle4 = create_published_puzzle(self.user2, clues_pts=[1, 1, 1, 1, 1], posted_on=now() - timedelta(days=1))
+        create_session(puzzle2, self.user1, 3, 2, 12)
+        create_session(puzzle3, self.user1, 3, 1, 10)
+        create_session(puzzle4, user3, 2, 1, 8)
+        response = self.client.get(self.target_page + "?show=unsolved")
+        objects = response.context['object_list']
+        self.assertEqual(len(objects), 1)
+        self.assertEqual(objects[0].id, puzzle4.id)
+
+    def test_list_when_show_filter_is_unfinished(self):
+        user3 = User.objects.create(username="user3", email="xy@uvz.com")
+        puzzle0 = create_draft_puzzle(editor=self.user2)
+        puzzle1 = create_published_puzzle(self.user1, clues_pts=[1, 1, 1, 1, 1], posted_on=now() - timedelta(days=2))
+        puzzle2 = create_published_puzzle(self.user2, clues_pts=[1, 1, 3, 1, 1], posted_on=now() - timedelta(days=5))
+        puzzle3 = create_published_puzzle(self.user2, clues_pts=[1, 2, 1, 1, 1], posted_on=now() - timedelta(days=3))
+        puzzle4 = create_published_puzzle(self.user2, clues_pts=[1, 1, 1, 1, 1], posted_on=now() - timedelta(days=1))
+        create_session(puzzle2, self.user1, 3, 2, 12)
+        create_session(puzzle3, self.user1, 2, 1, 10)
+        create_session(puzzle4, user3, 2, 0, 8)
+        response = self.client.get(self.target_page + "?show=unfinished")
+        objects = response.context['object_list']
+        self.assertEqual(len(objects), 1)
+        self.assertEqual(objects[0].id, puzzle3.id)
