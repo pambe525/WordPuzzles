@@ -120,8 +120,8 @@
     {% load static %}
     <script src="{% static '/javascript/word_puzzle_view.js' %}"></script>
     <script>
-        var clueSet = {{ clues | safe }};
-        var activeSession = {{ active_session | default_if_none:'null' | safe }};
+        let clueSet =;
+        let activeSession =;
 
         $.ajaxSetup({
             data: {csrfmiddlewaretoken: '{{ csrf_token }}'},

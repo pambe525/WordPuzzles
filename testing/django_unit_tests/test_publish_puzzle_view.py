@@ -20,7 +20,7 @@ class PublishPuzzleViewTest(BaseEditPuzzleTest):
         self.assertContains(response, "Puzzle " + str(puzzle.id))
         self.assertContains(response, "No clues to publish.  Add clues before publishing.")
 
-    def test_POST_sets_shared_at_field_to_now_and_redirects_to_puzzles_list(self):
+    def test_POST_sets_shared_at_field_to_now_and_redirects_to_home_page(self):
         puzzle = WordPuzzle.objects.create(editor=self.user)
         add_clue(puzzle, {'answer': 'WORD', 'clue_text': 'some clue text', 'points': 1})
         self.assertIsNone(puzzle.shared_at)

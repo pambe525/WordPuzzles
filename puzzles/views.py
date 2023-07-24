@@ -8,7 +8,7 @@ from django.views import View
 from django.views.generic import UpdateView, DeleteView, TemplateView, ListView
 
 from puzzles.forms import WordPuzzleForm, ClueForm, AddCluesForm, SortPuzzlesForm
-from puzzles.models import WordPuzzle, Clue, SolverSession
+from puzzles.models import WordPuzzle, Clue, SolverSession, GroupSession
 
 
 def add_session_data(puzzles, user):
@@ -243,6 +243,43 @@ class UnpublishPuzzleView(EditorRequiredMixin, View):
             ctx = {'err_msg': err_msg, 'id': kwargs['pk']}
             return render(request, "puzzle_error.html", context=ctx)
         puzzle.unpublish()
+        return redirect('home')
+
+
+class ScheduleGroupSessionView(EditorRequiredMixin, View):
+    model = WordPuzzle
+
+    def post(self, request, pk=None):
+        puzzle = self.model.objects.get(id=pk)
+        err_msg = None
+        if puzzle.size == 0:
+            err_msg = "No clues found.  Add clues before scheduling."
+        elif puzzle.is_published():
+            err_msg = "This puzzle is published and cannot be scheduled."
+        elif len(GroupSession.objects.filter(puzzle=puzzle)) > 0:
+            err_msg = "Puzzle has a previous group session."
+        if err_msg is not None:
+            ctx = {'err_msg': err_msg, 'id': pk}
+            return render(request, "puzzle_error.html", context=ctx)
+        GroupSession.objects.create(puzzle=puzzle, host=request.user, start_at=request.POST['scheduled_at'])
+        return redirect('home')
+
+
+class UnscheduleGroupSessionView(EditorRequiredMixin, View):
+    model = WordPuzzle
+
+    def post(self, request, pk=None):
+        puzzle = self.model.objects.get(id=pk)
+        err_msg = None
+        group_session = GroupSession.objects.filter(puzzle=puzzle)
+        if not group_session.exists():
+            err_msg = 'No group session found for given puzzle.'
+        elif SolverSession.objects.filter(puzzle=puzzle, group_session=group_session[0]).exists():
+            err_msg = 'Puzzle group session has participants and cannot be deleted.'
+        if err_msg is not None:
+            ctx = {'err_msg': err_msg, 'id': pk}
+            return render(request, "puzzle_error.html", context=ctx)
+        group_session[0].delete()
         return redirect('home')
 
 

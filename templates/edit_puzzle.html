@@ -31,16 +31,6 @@
         <div class="r-float">
             {% if not object.is_published %}
                 <a class="small-btn" href="{% url 'add_clues' object.id %}">Add Clues</a>
-                {% if  clues|length > 4 %}
-                    <button class="small-btn" onclick="showPublishConfirmDialog(this)"
-                            data-puzzle-id={{ object.id }} id="btnPublish">Publish
-                    </button>
-                {% endif %}
-            {% elif not object.has_sessions %}
-                <form action="{% url 'unpublish_puzzle' object.id %}" method="post">
-                    {% csrf_token %}
-                    <button class="blue-btn" id="btnUnpublish">Unpublish</button>
-                </form>
             {% endif %}
         </div>
     </div>
@@ -84,6 +74,19 @@
             {% endfor %}
         </table>
         <hr>
+        {% if not object.is_published %}
+            {% if clues|length > 4 %}
+                <button class="blue-btn" id="btnSchedule">Schedule Group Session</button>
+                <button class="blue-btn" onclick="showPublishConfirmDialog(this)"
+                        data-puzzle-id={{ object.id }} id="btnPublish">Publish
+                </button>
+            {% endif %}
+        {% elif not object.has_sessions %}
+            <form action="{% url 'unpublish_puzzle' object.id %}" method="post">
+                {% csrf_token %}
+                <button class="blue-btn" id="btnUnpublish">Unpublish</button>
+            </form>
+        {% endif %}
     {% endif %}
 
     <!-- Edit description dialog -->
@@ -98,11 +101,22 @@
         </form>
     </dialog>
 
+    <!-- Schedule Group Session dialog -->
+    <dialog class="modal-dialog" id="group-session-dialog">
+        <div class="subtitle">Schedule Group Session</div>
+        <hr>
+        <label for="schedule-at">Pick a date and time:</label>
+        <input type="datetime-local"><br />
+        <button type="submit" class="blue-btn m-top">Schedule</button>
+        <button id="btnClose" formmethod="dialog">Cancel</button>
+    </dialog>
+
     <script>
         function pageInit() {
             convertUTCDatesToLocal("timestamp");
             bindModalDialogToButton("edit-desc-dialog", "btnEditDesc");
             bindModalDialogToButton("confirm-dialog", "btnPublish");
+            bindModalDialogToButton('group-session-dialog', "btnSchedule")
         }
 
         function showPublishConfirmDialog(element) {
